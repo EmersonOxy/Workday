@@ -62,6 +62,9 @@ function osShutdown() {
   setTimeout(() => { o.classList.add('done'); setTimeout(() => { o.remove(); showMenu(); }, 700); }, 900);
 }
 
+// A dificuldade só muda entre dias: durante o expediente (mesmo pausado) fica travada
+function diffLocked() { return !!(S && S.phase === 'day'); }
+
 function showMenu() {
   document.body.classList.add('menu-mode');
   if (typeof applyWallpaper === 'function') setTimeout(applyWallpaper, 0);
@@ -139,7 +142,7 @@ function showSettings(onBack) {
   const card = modal(`<h2>${u.settings}</h2>
     <div class="setting"><span>${u.language}</span>${seg('lang', Object.entries(LANGS).map(([k, v]) => [k, v.label]), CFG.lang)}</div>
     <div class="setting"><span>${u.theme}</span>${seg('theme', [['system', u.themeSystem], ['light', u.themeLight], ['dark', u.themeDark]], CFG.theme)}</div>
-    <div class="setting"><span>${u.diffLabel}</span>${seg('diff', Object.keys(DIFFS).map(k => [k, u.diffNames[k]]), CFG.diff || 'normal')}</div>
+    <div class="setting"><span>${u.diffLabel}</span>${seg('diff', Object.keys(DIFFS).map(k => [k, u.diffNames[k]]), CFG.diff || 'normal')}${diffLocked() ? `<small class="hint">${u.diffLocked}</small>` : ''}</div>
     <div class="setting"><span>${u.display}</span>${seg('display', [['window', u.windowed], ['full', u.fullscreen]], document.fullscreenElement ? 'full' : 'window')}</div>
     <div class="setting"><span>${u.resolution}</span><select id="resSel" class="pxsel">${RESOLUTIONS.map(r => `<option value="${r}"${(CFG.res || 'auto') === r ? ' selected' : ''}>${r === 'auto' ? u.autoRes : r.replace('x', '×')}</option>`).join('')}</select></div>
     <div class="setting"><span>${u.soundLabel}</span>${seg('sound', [['1', u.soundOn], ['0', u.soundOff]], soundOn ? '1' : '0')}</div>
@@ -152,11 +155,12 @@ function showSettings(onBack) {
     <div class="setting"><span>${u.tutorial}</span><div class="seg"><button class="pxbtn" id="tut">${u.tutorialReset}</button></div></div>
     <div class="setting"><span>${u.progress}</span><div class="seg" id="eraseBox"><button class="pxbtn" id="erase">${u.erase}</button></div></div>
     <div class="actions"><button class="pxbtn main" id="b">${u.back}</button></div>`);
+  if (diffLocked()) card.querySelectorAll('[data-set=diff] button').forEach(b => b.disabled = true);
   card.querySelectorAll('[data-set] button').forEach(b => b.onclick = () => {
     const set = b.parentElement.dataset.set, v = b.dataset.v;
     if (set === 'lang') { CFG.lang = v; applyLang(); }
     if (set === 'theme') { CFG.theme = v; applyTheme(); }
-    if (set === 'diff') { CFG.diff = v; sfx('click'); }
+    if (set === 'diff') { if (diffLocked()) return; save('recorde2', P.best); CFG.diff = DIFF_REC = v; P.best = load('recorde2', 0); sfx('click'); }
     if (set === 'sound') setSound(v === '1');
     if (set === 'light') { CFG.lights = Object.assign({}, CFG.lights, { lamp: v === '1' }); OFFICE.key = ''; sfx('switch'); }
     if (set === 'display') { CFG.display = v; if ((v === 'full') !== !!document.fullscreenElement) toggleFullscreen(); }

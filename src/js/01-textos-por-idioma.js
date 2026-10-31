@@ -479,3 +479,4 @@ LANGS.pt.ui.diffLabel = 'Dificuldade'; LANGS.en.ui.diffLabel = 'Difficulty'; LAN
 LANGS.pt.ui.diffNames = { facil: 'Fácil', normal: 'Normal', dificil: 'Difícil', burnout: 'Burnout' };
 LANGS.en.ui.diffNames = { facil: 'Easy', normal: 'Normal', dificil: 'Hard', burnout: 'Burnout' };
 LANGS.es.ui.diffNames = { facil: 'Fácil', normal: 'Normal', dificil: 'Difícil', burnout: 'Burnout' };
+LANGS.pt.ui.diffLocked = 'Só pode mudar entre dias.'; LANGS.en.ui.diffLocked = 'Can only change between days.'; LANGS.es.ui.diffLocked = 'Solo se cambia entre días.';
