@@ -324,9 +324,8 @@ const Office = {
     // Porta-canetas e marca de café na mesa
     if (Z.pens) { const px = Z.pens.x, py = Z.pens.y;
       // copo de metal em tela, com lápis (borracha rosa), caneta azul, régua e tesoura
-      this.shadow(x, px - 2, py + 12, 14, 2);
-      x.drawImage(Pixel.master(['..kk........', '.krrk....kk.', '.kmmk...kLLk', '.kQQk.k.kLLk', '.kQQkkmkkLLk', '.kQQkkmkkLLk', '.kQQkkmkk7Lk', 'kkkkkkkkkkkk',
-        'kJjmjmjmjmJk', 'kjMjMjMjMjjk', 'kJjmjmjmjmJk', 'kjMjMjMjMjjk', 'kJjmjmjmjmJk', 'kjMjMjMjMjjk', 'kJjjjjjjjjJk', '.kkkkkkkkkk.'], P), px - 2, py - 4); }
+      this.shadow(x, px - 4, py + 12, 17, 2);
+      x.drawImage(Pixel.master(['..kk...........', '.krrk......kk..', '.kmmk.....kLLk.', '.kQQk..k..kLLk.', '.kQQk.kmk.kLLk.', '.kQQk.kmk.kLLk.', '.kQQk.kmk.kLLk.', '.kQQkkkmkkk7Lk.', '.kQQkjkmkJkLLk.', 'kkkkkkkkkkkkkkk', 'kJjmjmjmjmjmjJk', 'kjMjMjMjMjMjMjk', 'kJjmjmjmjmjmjJk', 'kjMjMjMjMjMjMjk', 'kJjmjmjmjmjmjJk', 'kjMjMjMjMjMjMjk', 'kJjmjmjmjmjmjJk', 'kjMjMjMjMjMjMjk', 'kJjjjjjjjjjjjJk', '.kkkkkkkkkkkkk.'], P), px - 4, py - 8); }
     if (Z.phone && !st.bigPhone) this.shadow(x, Z.phone.x - 3, Z.phone.y + 22, 48, 3);
     for (let i = 0; i < 12; i++) { const a = i / 12 * Math.PI * 2; F(P[3], Z.mug.x - 8 + Math.round(Math.cos(a) * 5), L.desk + 22 + Math.round(Math.sin(a) * 2), 1, 1); }
     // Objetos parados: porta-retrato, plaquinha do cargo, coroa de CEO, monitor extra (moldura)
@@ -488,11 +487,11 @@ const Office = {
     if (D.has('trofeu')) this.trophy(ctx, Z.trophy.x, Z.trophy.y, t);
     // Caneca com vapor (enquanto o café está quente)
     // caneca vista um pouco de cima: boca oval com café, alça, brilho e faixa com o logotipo (dourada a partir de Assistente)
-    const MUG = ['...kkkkkkkk.....', '.kkTTTTTTTTkk...', 'kTT44444444TTk..', 'kT4333333334Tk..', 'ktT44444444Tuk..', 'ktTTTTTTTTTTukkk', 'ktTWWTTTTTTTuk.k', 'ktTWTTyyyyTTuk.k',
-      'ktTWTyYYYYyTuk.k', 'ktTTTTyyyyTTukkk', 'ktTTTTTTTTTTuk..', 'ktTTTTTTTTTTuk..', '.kTTTTTTTTTTk...', '..kuuuuuuuuk....', '...kkkkkkkk.....'];
+    // caneca maior (22x22): boca oval com café, corpo com luz à esquerda e sombra à direita, alça e faixa do logo
+    const MUG = ['....kkkkkkkkkkk.......', '..kTTTTTTTTTTTTTk.....', '.k4t44444444444u4k....', '.k333333333333333k....', '..kkkkkkkkkkkkkkk.....', '.kttTTTTTTTTTTTuuqk...', '.ktWTTTTTTTTTTTuuqk...', '.ktWTTTTTTTTTTTuuqkkk.', '.ktWTTTTTTTTTTTuuqku.k', '.kttTTyyyyyyyTTuuqku.k', '.kttTTyYYYYYyTTuuqkq.k', '.kttTTyYYYYYyTTuuqkq.k', '.kttTTyyyyyyyTTuuqkq.k', '.kttTTTTTTTTTTTuuqkq.k', '.kttTTTTTTTTTTTuuqkq.k', '.kttTTTTTTTTTTTuuqkq.k', '.kttTTTTTTTTTTTuuqkkk.', '.kttTTTTTTTTTTTuuqk...', '.kttTTTTTTTTTTTuuqk...', '.kuuuuuuuuuuuuuuuuk...', '..kkkkkkkkkkkkkkkk....', '......................'];
     const mug = st.rank >= 1 ? MUG : MUG.map(r => r.replace(/[yY]/g, 'W'));
-    ctx.drawImage(Pixel.master(mug, WD_PAL), Z.mug.x - 1, Z.mug.y - 3);
-    if (st.hour < 16 || st.clutter < 2) ctx.drawImage(Pixel.master(SPR2.steam[(t * 5 | 0) % 3], WD_PAL), Z.mug.x + 3, Z.mug.y - 10);
+    ctx.drawImage(Pixel.master(mug, WD_PAL), Z.mug.x - 5, Z.mug.y - 9);
+    if (st.hour < 16 || st.clutter < 2) ctx.drawImage(Pixel.master(SPR2.steam[(t * 5 | 0) % 3], WD_PAL), Z.mug.x + 1, Z.mug.y - 16);
     // Gato: rabo balança, pisca, mexe a orelha
     if (D.has('gato')) { const cx = Z.cat.x, cy = Z.cat.y, ph = (t % 4) < .7 ? ((t * 8 | 0) % 3) : 0;
       const coat = st.cat || 'laranja'; ctx.drawImage(catCoat(SPR2.catTail[ph], coat, true), cx + 12, cy + 4); ctx.drawImage(catCoat(SPR2.cat, coat), cx, cy);

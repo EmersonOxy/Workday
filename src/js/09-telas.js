@@ -16,7 +16,7 @@ function modal(html) {
   osFocus(card);
   const was = $('modal').classList.contains('hidden');
   $('modal').classList.remove('hidden');
-  if (was) Motion.play(card, [{ transform: 'translateY(14px) scale(.94)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: Motion.T.med, easing: Motion.E.back, fill: 'none' });
+  if (was) Motion.play(card, OS_OPEN, { duration: 300, easing: 'steps(10)', fill: 'none' });
   return card;
 }
 // Toda tela em #modal vira janela do WorkOS: barra de título (com o h2 como título), minimizar (recolhe),
@@ -181,13 +181,14 @@ function osMinimize(win) {
   const btn = osTaskOf(win); if (!btn) return; sfx('click');
   // efeito "gênio": a janela estreita primeiro e depois escorre até o botão
   const fly = osFly(win, btn);
-  Motion.play(win, [{ transform: 'none', opacity: 1 }, { transform: 'scale(.92, .98)', opacity: 1, offset: .2 }, { transform: fly.replace('scale(.08)', 'scale(.25, .5)'), opacity: .7, offset: .7 }, { transform: fly, opacity: 0 }], { duration: 300, easing: 'steps(10)', fill: 'none' });
+  const mv = fly.replace(' scale(.08)', '');
+  Motion.play(win, [{ transform: 'none', clipPath: 'inset(0 0 0 0)' }, { transform: 'none', clipPath: 'inset(calc(100% - 3px) 0 0 0)', offset: .45 }, { transform: mv, clipPath: 'inset(calc(100% - 3px) 35% 0 35%)' }], { duration: 300, easing: 'steps(10)', fill: 'none' });
   btn.classList.remove('on'); Motion.punch && Motion.punch(btn, 1.08);
   setTimeout(() => { win.style.display = 'none'; osSyncMin(); }, 290);
 }
 function osRestore(win) {
   const btn = osTaskOf(win); sfx('pop'); win.style.display = ''; osSyncMin(); osFocus(win);
-  if (btn) { const fly = osFly(win, btn); Motion.play(win, [{ transform: fly, opacity: 0 }, { transform: fly.replace('scale(.08)', 'scale(.25, .5)'), opacity: .7, offset: .3 }, { transform: 'scale(1.02)', opacity: 1, offset: .85 }, { transform: 'none', opacity: 1 }], { duration: 300, easing: 'steps(10)' }); }
+  if (btn) { const mv = osFly(win, btn).replace(' scale(.08)', ''); Motion.play(win, [{ transform: mv, clipPath: 'inset(calc(100% - 3px) 35% 0 35%)' }, { transform: 'none', clipPath: 'inset(calc(100% - 3px) 0 0 0)', offset: .55 }, { transform: 'none', clipPath: 'inset(0 0 0 0)' }], { duration: 300, easing: 'steps(10)' }); }
 }
 // Ícones dos aplicativos do WorkOS (12×12, mesma luz e contorno dos outros)
 const APP_ICO = {
@@ -286,19 +287,23 @@ function osIcons() {
   m.append(g);
 }
 
+// Animações de janela em pixel art: nada de escala fracionada (borra a grade). Abrir: a janela se desenha do centro
+// para fora em degraus (primeiro uma linha, depois a altura). Fechar: o contrário, como monitor CRT desligando.
+const OS_OPEN = [{ clipPath: 'inset(50% 50% 50% 50%)' }, { clipPath: 'inset(calc(50% - 1px) 0 calc(50% - 1px) 0)', offset: .35 }, { clipPath: 'inset(0 0 0 0)' }];
+const OS_CLOSE = [{ clipPath: 'inset(0 0 0 0)' }, { clipPath: 'inset(calc(50% - 1px) 0 calc(50% - 1px) 0)', offset: .6 }, { clipPath: 'inset(50% 50% 50% 50%)' }];
 // Janela flutuante do WorkOS (abre com animação de janela, fecha no X). Base para outras janelas do sistema.
 function osWindow(title, html, { icon = MENU_ICO.app, cls = '', onClose } = {}) {
   const w = document.createElement('div'); w.className = 'os-win ' + cls;
   w.innerHTML = `<div class="mw-bar"><span class="mw-ttl"><i class="mw-app"></i>${title}</span><i class="mw-stripes"></i><span class="mw-b"><b data-g="x"></b></span></div><div class="mw-in">${html}</div>`;
   w.querySelector('.mw-app').append(Pixel.el(icon, 2)); w.querySelector('.mw-b b').append(Pixel.el(MENU_ICO.x, 2));
-  const close = () => { sfx('click'); const a = Motion.play(w, [{ transform: 'none', opacity: 1 }, { transform: 'scale(1.03)', opacity: 1, offset: .25 }, { transform: 'translateY(10px) scale(.82)', opacity: 0 }], { duration: 190, easing: 'steps(7)' }); const end = () => { const t = osTaskOf(w); if (t) t.remove(); w.remove(); if (onClose) onClose(); if (typeof workAppsClosed === 'function') workAppsClosed(); }; if (a) a.onfinish = end; else end(); };
+  const close = () => { sfx('click'); const a = Motion.play(w, OS_CLOSE, { duration: 260, easing: 'steps(8)' }); const end = () => { const t = osTaskOf(w); if (t) t.remove(); w.remove(); if (onClose) onClose(); if (typeof workAppsClosed === 'function') workAppsClosed(); }; if (a) a.onfinish = end; else end(); };
   w.querySelector('.mw-b').insertAdjacentHTML('afterbegin', '<b data-g="min" class="min"></b><b data-g="max" class="max"></b>');
   w.querySelectorAll('.mw-b .min, .mw-b .max').forEach(b => b.append(Pixel.el(MENU_ICO[b.dataset.g], 2)));
   w.querySelector('.mw-b .min').onclick = () => osMinimize(w);
   w.querySelector('.mw-b .max').onclick = () => { sfx('click'); w.classList.toggle('maxi'); };
   w.querySelector('.mw-b [data-g=x]').onclick = close; w.close = close;
   $('modal').append(w); sfx('pop'); osDrag(w, w.querySelector('.mw-bar')); osTaskBtn(w, title); osFocus(w);
-  Motion.play(w, [{ transform: 'translateY(14px) scale(.55)', opacity: 0 }, { transform: 'translateY(-2px) scale(1.025)', opacity: 1, offset: .65 }, { transform: 'none', opacity: 1 }], { duration: 280, easing: 'steps(10)' });
+  Motion.play(w, OS_OPEN, { duration: 300, easing: 'steps(10)' });
   return w;
 }
 function pickDifficulty(back) {

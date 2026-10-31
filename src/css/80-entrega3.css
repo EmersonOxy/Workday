@@ -396,3 +396,4 @@
   .av-opt.sw.on { box-shadow: 0 0 0 2px var(--ink), 0 0 0 4px var(--card), 0 0 0 6px var(--ink) !important; translate: 0 2px; }
   .av-opt.on::after { display: none; }
   .av-opt { display: grid; place-items: center; }
+  .clockdev .ticket { padding-bottom: 18px !important; }

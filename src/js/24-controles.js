@@ -44,7 +44,7 @@ document.addEventListener('keydown', e => {
     return;
   }
   // Espaço: com o telefone tocando, segura o fone (atende); sem ligação, pausa
-  if (e.key === ' ') { e.preventDefault(); if (!S.paused && S.tasks.some(k => k.type === 'call' && !k.dead)) { if (!e.repeat) phoneHold(true); return; } setPaused(!S.paused); return; }
+  if (e.key === ' ') { e.preventDefault(); if (!S.paused && !e.repeat) phoneHold(true); return; }   // Espaço só atende o telefone (pausar é no Esc ou na tecla configurável)
   if (S.paused) return;
   if (e.key === '1') { useItem('cafe'); return; }
   if (e.key === '2') { useItem('cha'); return; }
