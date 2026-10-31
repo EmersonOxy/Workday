@@ -127,7 +127,7 @@ function osShutdown() {
 }
 
 // A dificuldade só muda entre dias: durante o expediente (mesmo pausado) fica travada
-function diffLocked() { return !!(S && S.phase === 'day'); }
+function diffLocked() { return !!(S && S.running) || !!load('carreira', null); }   // fixa durante a carreira inteira; escolhida ao começar
 
 // Nova carreira: escolhe a dificuldade antes (depois dá para trocar nas Configurações, entre dias)
 function setDifficulty(v) { save('recorde2', P.best); CFG.diff = DIFF_REC = v; P.best = load('recorde2', 0); persist(); }
@@ -266,7 +266,7 @@ function osWindow(title, html, { icon = MENU_ICO.app, cls = '', onClose } = {}) 
   const w = document.createElement('div'); w.className = 'os-win ' + cls;
   w.innerHTML = `<div class="mw-bar"><span class="mw-ttl"><i class="mw-app"></i>${title}</span><i class="mw-stripes"></i><span class="mw-b"><b data-g="x"></b></span></div><div class="mw-in">${html}</div>`;
   w.querySelector('.mw-app').append(Pixel.el(icon, 2)); w.querySelector('.mw-b b').append(Pixel.el(MENU_ICO.x, 2));
-  const close = () => { sfx('click'); const a = Motion.play(w, [{ transform: 'none', opacity: 1 }, { transform: 'scale(.6)', opacity: 0 }], { duration: 140, easing: 'steps(4)' }); const end = () => { const t = osTaskOf(w); if (t) t.remove(); w.remove(); if (onClose) onClose(); }; if (a) a.onfinish = end; else end(); };
+  const close = () => { sfx('click'); const a = Motion.play(w, [{ transform: 'none', opacity: 1 }, { transform: 'scale(.6)', opacity: 0 }], { duration: 140, easing: 'steps(4)' }); const end = () => { const t = osTaskOf(w); if (t) t.remove(); w.remove(); if (onClose) onClose(); if (typeof workAppsClosed === 'function') workAppsClosed(); }; if (a) a.onfinish = end; else end(); };
   w.querySelector('.mw-b').insertAdjacentHTML('afterbegin', '<b data-g="min" class="min"></b><b data-g="max" class="max"></b>');
   w.querySelectorAll('.mw-b .min, .mw-b .max').forEach(b => b.append(Pixel.el(MENU_ICO[b.dataset.g], 2)));
   w.querySelector('.mw-b .min').onclick = () => osMinimize(w);

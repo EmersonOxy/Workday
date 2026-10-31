@@ -33,3 +33,24 @@ function endBreak() {
   S.onBreak = false; sfx('click');
   countdown(() => { S.resting = false; S.paused = false; S.last = performance.now(); muffle(false); if (S.phase === 'day') music('office'); });
 }
+
+// Janelas durante o expediente (botão WorkOS): abrir um aplicativo pausa o trabalho (sem a planilha) e mostra a janela
+// por cima; quando a última janela fecha, volta com 3, 2, 1. Não conta como intervalo.
+function workApp(id) {
+  if (!S || S.phase !== 'day' || S.onBreak || S.boss || S.bossAlert || S.bossAuto > 0 || Call.el) return;
+  const m = $('modal');
+  if (!S.appPause) {
+    if (S.paused && !S.resting) hideSheet();
+    S.appPause = true; S.paused = true; S.resting = true; S.fast = false; muffle(true);
+    m.querySelector('.card').style.display = 'none'; m.classList.remove('hidden'); m.classList.add('apps');
+  }
+  if (id === 'cfg') { const w = osWindow(U().settings, '', { icon: MENU_ICO.cfg, cls: 'app-win' }); modal.into = w.querySelector('.mw-in'); w.addEventListener('pointerdown', () => { modal.into = w.querySelector('.mw-in'); }, true); showSettings(() => w.close()); }
+  else osApp(id);
+}
+function workAppsClosed() {
+  if (!S || !S.appPause || $('modal').querySelector('.os-win')) return;
+  const m = $('modal'); S.appPause = false; modal.into = null;
+  m.querySelectorAll('.os-tasks').forEach(e => e.remove());
+  m.querySelector('.card').style.display = ''; m.classList.add('hidden'); m.classList.remove('apps', 'allmin');
+  countdown(() => { S.resting = false; S.paused = false; S.last = performance.now(); muffle(false); });
+}

@@ -132,6 +132,14 @@ const Office = {
   HW: {
     cream:    { hi: '#fbf3e2', base: '#e9dcc2', sh: '#c7b595', dk: '#8f7d63', txt: '#c7b595', key: '#fbf3e2', keySh: '#c7b595' },
     graphite: { hi: '#626875', base: '#3b3f48', sh: '#2b2340', dk: '#2a1f2d', txt: '#626875', key: '#4a3a4e', keySh: '#2b2340' },
+    white:    { hi: '#ffffff', base: '#fbf3e2', sh: '#d7d9de', dk: '#9aa0ab', txt: '#d7d9de', key: '#ffffff', keySh: '#d7d9de' },
+    black:    { hi: '#4a3a4e', base: '#2a1f2d', sh: '#2b2340', dk: '#2a1f2d', txt: '#4a3a4e', key: '#3b3f48', keySh: '#2a1f2d' },
+    silver:   { hi: '#d7d9de', base: '#9aa0ab', sh: '#626875', dk: '#3b3f48', txt: '#d7d9de', key: '#d7d9de', keySh: '#9aa0ab' },
+    blue:     { hi: '#c3d5ff', base: '#6f93d9', sh: '#44609f', dk: '#2b2340', txt: '#c3d5ff', key: '#c3d5ff', keySh: '#6f93d9' },
+    mint:     { hi: '#a9dccf', base: '#5fa79a', sh: '#2f6f78', dk: '#1f4a52', txt: '#a9dccf', key: '#a9dccf', keySh: '#5fa79a' },
+    peach:    { hi: '#ffd0b0', base: '#f2a27a', sh: '#d9714a', dk: '#a24a33', txt: '#ffd0b0', key: '#ffd0b0', keySh: '#f2a27a' },
+    grape:    { hi: '#e0cff7', base: '#a983d6', sh: '#7656a8', dk: '#463462', txt: '#e0cff7', key: '#e0cff7', keySh: '#a983d6' },
+    lemon:    { hi: '#ffe7a3', base: '#f4c15d', sh: '#c98a2e', dk: '#8a5420', txt: '#ffe7a3', key: '#ffe7a3', keySh: '#f4c15d' },
   },
   ramp(name) { return this.HW[name] || this.HW.cream; },
   // Teclado da mesa em QWERTY físico (KeyboardEvent.code = posição da tecla, independente do idioma do teclado)

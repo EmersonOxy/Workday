@@ -44,13 +44,15 @@ addEventListener('resize', applyWallpaper);
 
 function showCustomize(back) {
   const u = U(), cur = hw();
-  const seg = (key, opts) => `<div class="seg" data-hw="${key}">${opts.map(o => `<button class="pxbtn${cur[key] === o ? ' on' : ''}" data-v="${o}">${u[o]}</button>`).join('')}</div>`;
+  const HWK = Object.keys(Office.HW), nm = o => (u.hwNames && u.hwNames[o]) || u[o] || o;
+  const sw = o => { const r = Office.HW[o]; return `<i class="hw-sw" style="background:${r.base};box-shadow:inset 2px 2px 0 ${r.hi},inset -2px -2px 0 ${r.sh}"></i>`; };
+  const seg = (key, opts) => `<div class="seg hw-seg" data-hw="${key}">${opts.map(o => `<button class="pxbtn${cur[key] === o ? ' on' : ''}" data-v="${o}" title="${nm(o)}">${sw(o)}${nm(o)}</button>`).join('')}</div>`;
   const card = modal(`<h2>${u.hwTitle}</h2><p class="hint">${u.hwNote}</p>
     <div class="hw-prev"><canvas class="hw-scene" width="120" height="44"></canvas></div>
-    <div class="setting"><span>${u.allLabel}</span><div class="seg" data-hw="all"><button class="pxbtn" data-v="cream">${u.cream}</button><button class="pxbtn" data-v="graphite">${u.graphite}</button></div></div>
-    <div class="setting"><span>${u.monitorLabel}</span>${seg('mon', ['cream', 'graphite'])}</div>
-    <div class="setting"><span>${u.keyboardLabel}</span>${seg('kb', ['cream', 'graphite'])}</div>
-    <div class="setting"><span>${u.mouseLabel}</span>${seg('mouse', ['cream', 'graphite'])}</div>
+    <div class="setting"><span>${u.allLabel}</span>${seg('all', HWK)}</div>
+    <div class="setting"><span>${u.monitorLabel}</span>${seg('mon', HWK)}</div>
+    <div class="setting"><span>${u.keyboardLabel}</span>${seg('kb', HWK)}</div>
+    <div class="setting"><span>${u.mouseLabel}</span>${seg('mouse', HWK)}</div>
     <div class="setting"><span>${u.catLabel}</span><div class="walls cats">${CAT_COATS.map(c2 => `<button class="pxbtn wall cat${cur.cat === c2 ? ' on' : ''}" data-c="${c2}"><span class="cimg"></span><small>${u.coats[c2]}</small></button>`).join('')}</div></div>
     <div class="setting"><span>${u.wallLabel}</span><div class="walls">${Object.keys(WALLS).map(w => `<button class="pxbtn wall${cur.wall === w ? ' on' : ''}" data-w="${w}"><canvas width="64" height="36"></canvas><small>${u.walls[w]}</small></button>`).join('')}</div></div>
     <div class="actions"><button class="pxbtn main" id="hwOk">${u.resume}</button></div>`);

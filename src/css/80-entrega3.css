@@ -277,3 +277,18 @@
   .mg-vs b { font-weight: normal; color: #9aa0ab; }
   .mg-vs.ahead .me, .mg-vs.behind .du { color: #ffe7a3; }
   .mg-end.vs-win b:first-child { color: #2f8a45 !important; } .mg-end.vs-lose b:first-child { color: #a8262a !important; }
+  #modal.apps { background: rgba(31,74,82,.35) !important; }
+  .os-win.app-win .win-body, .os-win .card-in { padding: 0; }
+
+  /* ===== Janelas no celular: ocupam a área disponível, botões grandes, sem arrastar ===== */
+  body.mobile .os-win, body.mobile #modal .card.oswin { position: fixed !important; left: 6px !important; right: 6px !important; top: 6px !important; bottom: 6px !important;
+    width: auto !important; max-width: none !important; height: auto !important; max-height: none !important; translate: none !important; margin: 0 !important; }
+  body.mobile .os-win .mw-in, body.mobile #modal .card.oswin > .win-body { flex: 1; overflow: auto; -webkit-overflow-scrolling: touch; }
+  body.mobile .mw-b b { width: 40px !important; height: 36px !important; }
+  body.mobile .mw-b b[data-g=max] { display: none !important; }
+  body.mobile .mw-bar { min-height: 44px; }
+  body.mobile .os-tasks { left: .5em; right: 11em; bottom: .5em; }
+  body.mobile .os-task { height: 40px; }
+  .hw-seg { flex-wrap: wrap; }
+  .hw-seg .pxbtn { display: inline-flex; align-items: center; gap: .35em; font-size: .95em !important; }
+  .hw-sw { display: inline-block; width: 14px; height: 14px; box-shadow: 0 0 0 1px #2a1f2d; flex: none; }
