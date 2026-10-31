@@ -45,6 +45,7 @@ const SHOP = [
   { id: 'trofeu', kind: 'decor', price: 600, spr: 'trophy' },
   { id: 'cacto', kind: 'decor', price: 70, spr: 'cacto' }, { id: 'radio', kind: 'decor', price: 180, spr: 'radio' }, { id: 'aquario', kind: 'decor', price: 280, spr: 'aquario' },
 ];
+Object.entries(DECOR_EXTRA).forEach(([id, d]) => SHOP.push({ id, kind: 'decor', price: d.price, spr: id }));
 SHOP.forEach(i => { i.price = Math.round(i.price * BAL.priceMul); });
 const RANK_DESK = { 1: 'mug', 2: 'nameplate', 4: 'chair', 6: 'crown' };
 

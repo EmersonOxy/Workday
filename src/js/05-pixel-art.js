@@ -140,4 +140,5 @@ sprV2('card', ['kkkkkkkkkkkkkkkk', 'klllllllllllll7k', 'klLLLLLLLLLLLL7k', 'kkkk
 sprV2('paycel', ['.kkkkkkk.', 'kJjjjjjJk', 'kjXXXXXjk', 'kjXvvvXjk', 'kjXvXvXjk', 'kjXvvvXjk', 'kjXXXXXjk', 'kjXFFFXjk', 'kjXXXXXjk', 'kjXXXXXjk', 'kjjjjjjjk', 'kjjjmjjjk', 'kJjjjjjJk', '.kkkkkkk.']);
 sprV2('finger', ['...llllll...', '..l......l..', '.l..llll..l.', 'l..l....l..l', 'l.l..ll..l.l', 'l.l.l..l.l.l', 'l.l.l..l.l.l', 'l.l.l.l..l.l', 'l.l..l..l..l', 'l..l...l..l.',
   '.l..lll..l..', '..l.....l...', '...lllll....']);
+Object.entries(DECOR_EXTRA).forEach(([id, d]) => sprV2(id, d.rows));
 sprV2('cacto', SPR2.cacto); sprV2('radio', SPR2.radio); sprV2('aquario', SPR2.aquario);

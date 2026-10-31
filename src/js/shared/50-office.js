@@ -282,6 +282,7 @@ const Office = {
     if (Z.phone) this.shadow(x, Z.phone.x - 2, Z.phone.y + 15, 31, 2);
     for (let i = 0; i < 12; i++) { const a = i / 12 * Math.PI * 2; F(P[3], Z.mug.x - 8 + Math.round(Math.cos(a) * 5), L.desk + 22 + Math.round(Math.sin(a) * 2), 1, 1); }
     // Objetos parados: porta-retrato, plaquinha do cargo, coroa de CEO, monitor extra (moldura)
+    if (typeof drawDecorExtra === 'function') drawDecorExtra(x, L, st.decor);
     if (D.has('foto')) this.frame(x, Z.frame.x, Z.frame.y);
     if (st.rank >= 2) this.nameplate(x, Z.nameplate.x, Z.nameplate.y);
     if (st.rank >= 6) this.crown(x, cx - 5, M.y - 2);
