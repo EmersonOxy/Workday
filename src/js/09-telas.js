@@ -1,6 +1,6 @@
 /* ================= Telas ================= */
 function modal(html) {
-  $('modal').querySelectorAll('.legalbar').forEach(e => e.remove());
+  $('modal').querySelectorAll('.legalbar, .os-start, .os-smenu').forEach(e => e.remove());
   const card = $('modal').querySelector('.card');
   card.className = 'card'; card.innerHTML = html;
   const was = $('modal').classList.contains('hidden');

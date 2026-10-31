@@ -70,6 +70,8 @@ function officeFrame(now) {
     const d = document.createElement('div'); d.className = 'osicon'; d.append(Pixel.el(rows, 3, pal)); d.insertAdjacentHTML('beforeend', `<span>${label}</span>`); icons.append(d); }
   $('osdesk').querySelector('.start').append(Pixel.el(SPR2.doc, 1, WD_SECTOR_RAMP.ti));
   $('osdesk').querySelector('.start').insertAdjacentHTML('beforeend', ' WorkOS');
+  // durante o expediente, o botão da barra abre a pausa (a planilha)
+  $('osdesk').querySelector('.start').onclick = () => { if (S && S.phase === 'day' && !S.paused) { sfx('click'); setPaused(true); } };
 })();
 // Clicar na janela abre ou fecha a persiana
 // Hora e data reais do aparelho: na barra do WorkOS (menu) e no canto do cabeçalho durante o expediente

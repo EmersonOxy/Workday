@@ -14,6 +14,7 @@ const BALANCE = {
 };
 const BAL_KEY = (() => { try { const c = JSON.parse(localStorage.getItem('expediente-config') || '{}'); return BALANCE[c.balance] ? c.balance : 'original'; } catch (e) { return 'original'; } })();
 const BAL = BALANCE[BAL_KEY];
+const RANK_DAYS = [1, 1, 2, 3, 5, 7, 10];   // dia mínimo para alcançar cada cargo (Estagiário … CEO)
 // Dificuldade: multiplica o ritmo do expediente (Normal = valores originais, sem mudança).
 // fall: queda dos documentos · ttl: prazo das tarefas · tasks: frequência de tarefas · events: frequência de eventos · stress: estresse recebido
 const DIFFS = {

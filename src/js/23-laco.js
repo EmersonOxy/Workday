@@ -111,7 +111,8 @@ function update(dt) {
   if (S.stress >= 80 && (S.heartT = (S.heartT || 0) - dt) <= 0) { S.heartT = 1.1 - (S.stress - 80) / 40; sfx('heart'); }
   hud();
   if (S.burnout) { gameOver('burnout'); return; }
-  if (rankIdx(S.score) > S.rankIdx) promote();
+  // promoção exige os pontos E um dia mínimo de casa por cargo, no máximo uma por dia
+  if (rankIdx(S.score) > S.rankIdx && S.day >= RANK_DAYS[S.rankIdx + 1] && S.promoDay !== S.day) { S.promoDay = S.day; promote(); }
 }
 
 const HUD_LAST = {};
