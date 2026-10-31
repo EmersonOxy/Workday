@@ -128,11 +128,12 @@ const Office = {
     const M = L.mon, s = L.screen;
     return {
       win: (() => { const x0 = Math.max(6, Math.min(20, L.left >> 3)), w = L.mon.x - x0 + Math.min(120, L.mon.w >> 2); return { x: x0, y: 16, w, h: Math.max(54, (L.desk - 30) * .6 | 0), vis: L.mon.x - x0 }; })(),
-      plant: { x: Math.max(1, M.x - 26), y: L.back + 18 },
+      // planta e luminária na frente da mesa (o fundo fica atrás do monitor em telas largas); à direita do telefone e no canto direito
+      plant: { x: L.VW - Math.max(3, L.VW * .015 | 0) - 62, y: L.desk + 17 },
       // Objetos comprados ficam na frente da mesa, fora da tela; só descem para a moldura se não houver espaço
       frame: L.kx - 112 > M.x - 4 ? { x: L.kx - 112, y: L.desk + 5 } : { x: M.x + 6, y: L.desk - 10 },
       trophy: L.kx + L.kw + 106 < L.VW - 34 ? { x: L.kx + L.kw + 92, y: L.desk + 4 } : { x: M.x + M.w - 20, y: L.desk - 12 },
-      lamp: { x: Math.min(L.VW - 20, M.x + M.w + 14), y: L.back + 14 },
+      lamp: { x: L.VW - Math.max(3, L.VW * .015 | 0) - 26, y: L.desk + 16 },
       // Detalhes do ambiente (não dependem de compras)
       phone: { x: Math.max(L.VW * .07 | 0, 6) + 4, y: L.desk + 6 },   // telefone grande no canto esquerdo da mesa
       pens: L.kx - 126 > M.x - 4 ? { x: L.kx - 125, y: L.desk + 9 } : null,
@@ -549,24 +550,55 @@ const Office = {
         F(P.H, bx - 1, by, ww + 2, 1); F(r % 6 === 3 ? P.h : P.G, bx, by, ww, 1); F(P.g, bx, by, 1, 1);
       }
     }
-    F(P.k, px + 1, baseY - 16, 22, 17); F(P.T, px + 2, baseY - 15, 20, 3); F(P.t, px + 2, baseY - 15, 20, 1); F(P.u, px + 2, baseY - 12, 20, 1);
-    F(P.T, px + 3, baseY - 11, 18, 11); F(P.t, px + 3, baseY - 11, 2, 11); F(P.u, px + 18, baseY - 11, 3, 11); F(P.k, px + 1, baseY - 11, 2, 12); F(P.k, px + 21, baseY - 11, 2, 12);
+    // vaso de terracota: aro com luz à esquerda e sombra à direita (sem contorno igual em volta = sem "almofada")
+    F(P.k, px + 1, baseY - 17, 22, 18); F(P[4], px + 3, baseY - 16, 18, 1);                                          // terra
+    F(P.T, px + 2, baseY - 15, 20, 3); F(P.t, px + 2, baseY - 15, 7, 1); F(P.t, px + 2, baseY - 14, 2, 1); F(P.u, px + 17, baseY - 15, 5, 3); F(P.u, px + 2, baseY - 13, 20, 1);
+    F(P.k, px + 1, baseY - 12, 2, 13); F(P.k, px + 21, baseY - 12, 2, 13);
+    F(P.T, px + 3, baseY - 12, 18, 12); F(P.t, px + 3, baseY - 12, 3, 12); F(P.t, px + 6, baseY - 12, 1, 8); F(P.u, px + 16, baseY - 12, 3, 12); F(P.q, px + 19, baseY - 12, 2, 12);
+    F(P.u, px + 3, baseY - 7, 18, 1); F(P.t, px + 3, baseY - 7, 3, 1);                                               // faixa decorativa
   },
   lamp(x, px, deskY, t, on = true) {
+    // Luminária articulada. Luz de cima à esquerda: lado esquerdo das peças em y/Y, direito em z/Z (latão puxa para o
+    // laranja na sombra = variação de matiz). Braços em inclinação limpa 1:2 (degraus regulares), juntas com mola.
     const P = WD_PAL, F = (c, a, b, w, h) => { x.fillStyle = c; x.fillRect(a, b, w, h); };
-    F(P.k, px - 2, deskY - 5, 20, 6); F(P.z, px - 1, deskY - 4, 18, 4); F(P.Y, px - 1, deskY - 4, 18, 1); F(P.Z, px - 1, deskY - 1, 18, 1);
-    for (let i = 0; i < 22; i++) { F(P.k, px + 6, deskY - 5 - i, 4, 1); F(P.Z, px + 7, deskY - 5 - i, 2, 1); }                 // haste
-    for (let i = 0; i < 14; i++) { F(P.k, px + 7 - i, deskY - 27 - (i >> 1), 3, 2); F(P.Z, px + 8 - i, deskY - 27 - (i >> 1), 1, 1); }  // braço
-    const hx = px - 14, hy = deskY - 44;
-    F(P.k, hx - 1, hy - 1, 18, 11); F(P.Y, hx, hy, 16, 9); F(P.y, hx, hy, 16, 2); F(P.z, hx + 12, hy, 4, 9); F(P.Z, hx, hy + 8, 16, 1);
-    F(P.k, hx + 6, hy - 3, 4, 3); F(P.z, hx + 7, hy - 2, 2, 2);
-    F(on ? ((t * 9 | 0) % 7 ? P.y : P.W) : P.e, hx + 4, hy + 9, 8, 2);   // lâmpada (acesa ou apagada)
+    // base: disco pesado (tampo iluminado à esquerda, frente na sombra) com sombra de contato
+    F(P.k, px - 2, deskY - 6, 20, 7); F(P.Y, px - 1, deskY - 5, 18, 2); F(P.y, px - 1, deskY - 5, 7, 1); F(P.z, px + 12, deskY - 5, 5, 2);
+    F(P.Z, px - 1, deskY - 3, 18, 2); F(P.z, px - 1, deskY - 3, 6, 1); F(P.k, px - 1, deskY - 1, 18, 1);
+    F(P.k, px + 5, deskY - 8, 6, 3); F(P.z, px + 6, deskY - 7, 4, 1);                                              // pé da haste
+    // haste vertical (2 px + contorno), luz no lado esquerdo
+    for (let i = 0; i < 18; i++) { const yy = deskY - 9 - i; F(P.k, px + 6, yy, 4, 1); F(P.Y, px + 7, yy, 1, 1); F(P.Z, px + 8, yy, 1, 1); }
+    // cotovelo: junta redonda com parafuso
+    const jx = px + 5, jy = deskY - 31; F(P.k, jx, jy, 6, 5); F(P.Y, jx + 1, jy + 1, 4, 3); F(P.y, jx + 1, jy + 1, 2, 1); F(P.Z, jx + 3, jy + 3, 2, 1); F(P.k, jx + 2, jy + 2, 2, 1);
+    // mola acompanhando a haste
+    for (let i = 0; i < 6; i++) F(i % 2 ? P.j : P.m, px + 10, deskY - 12 - i * 3, 2, 1);
+    // braço superior em 1:2 (sobe 1 a cada 2 para a esquerda) até a articulação da cúpula
+    for (let i = 0; i < 9; i++) { const ax = jx - 1 - i * 2, ay = jy - 1 - i; F(P.k, ax - 1, ay - 1, 4, 3); F(P.Y, ax, ay, 2, 1); F(P.Z, ax, ay + 1, 2, 0); }
+    // cúpula cônica: contorno, três tons por direção da luz, aro inferior iluminado e interior escuro
+    const hx = px - 16, hy = deskY - 46;
+    F(P.k, hx + 4, hy - 1, 12, 2); F(P.k, hx + 2, hy + 1, 16, 2); F(P.k, hx, hy + 3, 20, 7);
+    F(P.y, hx + 5, hy, 6, 1); F(P.Y, hx + 11, hy, 4, 1);
+    F(P.y, hx + 3, hy + 1, 5, 2); F(P.Y, hx + 8, hy + 1, 7, 2); F(P.z, hx + 15, hy + 1, 2, 2);
+    F(P.y, hx + 1, hy + 3, 4, 5); F(P.Y, hx + 5, hy + 3, 9, 5); F(P.z, hx + 14, hy + 3, 4, 5); F(P.Z, hx + 18, hy + 3, 1, 5);
+    F(P.Z, hx + 1, hy + 8, 18, 1); F(P.y, hx + 1, hy + 8, 3, 1);                                                  // aro
+    F(P.k, hx + 8, hy - 3, 4, 3); F(P.z, hx + 9, hy - 2, 2, 2);                                                   // articulação no topo
+    // lâmpada: acesa com miolo claro e halo de 1 px; apagada cinza
+    if (on) { F(P.W, hx + 6, hy + 9, 8, 2); F(P.y, hx + 5, hy + 9, 1, 2); F(P.y, hx + 14, hy + 9, 1, 2); if ((t * 9 | 0) % 7 === 0) F(P.y, hx + 7, hy + 9, 6, 1); }
+    else { F(P.e, hx + 6, hy + 9, 8, 2); F(P.E, hx + 6, hy + 10, 8, 1); }
   },
   trophy(x, px, py, t) {
     const P = WD_PAL, F = (c, a, b, w, h) => { x.fillStyle = c; x.fillRect(a, b, w, h); };
-    F(P.k, px - 1, py - 1, 16, 11); F(P.k, px + 4, py + 9, 6, 6); F(P.k, px, py + 13, 14, 7); F(P.Y, px, py, 14, 9); F(P.y, px + 1, py + 1, 2, 7); F(P.z, px + 10, py, 4, 9);
-    F(P.k, px - 3, py + 1, 3, 5); F(P.k, px + 14, py + 1, 3, 5); F(P.Y, px - 2, py + 2, 2, 3); F(P.z, px + 14, py + 2, 2, 3);
-    F(P.z, px + 5, py + 9, 4, 5); F(P[4], px + 1, py + 14, 12, 5); F(P[3], px + 1, py + 14, 12, 1); F(P.Y, px + 4, py + 16, 6, 1);
-    const g = (t % 5) / .5; if (g < 1) { const gx = px + 2 + (g * 10 | 0); F(P.W, gx, py + 1, 1, 7); F(P.W, gx + 1, py + 2, 1, 4); }   // brilho
+    // taça: contorno, três faixas de luz da esquerda para a direita, boca com interior escuro
+    F(P.k, px - 1, py - 1, 16, 11); F(P.Y, px, py, 14, 9); F(P.y, px + 1, py + 1, 3, 7); F(P.z, px + 9, py + 1, 3, 8); F(P.Z, px + 12, py + 1, 2, 8);
+    F(P.Z, px + 1, py, 12, 1); F(P.y, px + 1, py, 4, 1);                                                          // boca
+    F(P.Y, px + 3, py + 8, 8, 1); F(P.k, px + 2, py + 9, 10, 1);
+    // alças (esquerda iluminada, direita na sombra)
+    F(P.k, px - 4, py + 1, 4, 6); F(P.y, px - 3, py + 2, 1, 3); F(P.Y, px - 2, py + 2, 1, 1); F(P.Y, px - 2, py + 5, 2, 1);
+    F(P.k, px + 14, py + 1, 4, 6); F(P.z, px + 16, py + 2, 1, 3); F(P.Z, px + 14, py + 2, 1, 1); F(P.Z, px + 14, py + 5, 2, 1);
+    // haste e base de madeira com placa
+    F(P.k, px + 4, py + 9, 6, 5); F(P.Y, px + 5, py + 9, 2, 4); F(P.z, px + 7, py + 9, 2, 4);
+    F(P.k, px, py + 13, 14, 7); F(P[3], px + 1, py + 14, 12, 5); F(P[2], px + 1, py + 14, 12, 1); F(P[4], px + 1, py + 18, 12, 1); F(P[2], px + 1, py + 14, 1, 4);
+    F(P.k, px + 3, py + 15, 8, 3); F(P.Y, px + 4, py + 16, 6, 1); F(P.y, px + 4, py + 16, 2, 1);
+    const g = (t % 5) / .5; if (g < 1) { const gx = px + 2 + (g * 10 | 0); F(P.W, gx, py + 1, 1, 6); F(P.W, gx + 1, py + 2, 1, 3); }   // brilho correndo
   },
+
 };
