@@ -50,10 +50,10 @@ function closeModal() {
 // Ícones do menu: todos 12×12, contorno de tinta, mesma luz (de cima à esquerda); botões da barra de título 7×7
 const MENU_ICO = {
   cont: ['..w..w......', '...w..w.....', '..w..w......', '.kkkkkkkk...', '.kTTTTTTkkk.', '.kTWTTTTk.k.', '.kTWTTTTk.k.', '.kTTTTTTkkk.', '.kTTTTTTk...', '.kuuuuuuk...', '..kkkkkk....', '............'],
-  play: ['.kkkkkkk....', '.kFFFFFkWk..', '.kfffffkkkk.', '.kWWWWWWWWk.', '.kWppppppWk.', '.kWWWWWWWWk.', '.kWpppppWWk.', '.kWWWWWWWWk.', '.kWWWkWWWWk.', '.kWWWkkWWWk.', '.kWWWkWWWWk.', '.kkkkkkkkkk.'],
-  how:  ['..kkkkkkkk..', '.kWWWWWWWWk.', 'kWWW7777WWWk', 'kWW7WWWW7WWk', 'kWWWWWW7WWWk', 'kWWWWW7WWWWk', 'kWWWWWWWWWWk', 'kWWWWW7WWWWk', '.kwwwwwwwwk.', '..kkkwkkkk..', '...kwk......', '...kk.......'],
+  play: ['...kkkkkk...', '.kkkmmmmkkk.', 'kWWkkkkkkWWk', 'kWwwwwwwwwPk', 'kWwppppwwwPk', 'kWwwwwwwwwPk', 'kWwpppwwFwPk', 'kWwwwwwFFwPk', 'kWwppFwFwwPk', 'kWwwwFFwwwPk', 'kWPPPPPPPPPk', 'kkkkkkkkkkkk'],
+  how: ['.kkkkkkkkkk.', 'kWWWWWWWWWwk', 'kWWWk77kWWwk', 'kWWk7WW7kWwk', 'kWWWWWW7kWwk', 'kWWWWW7kWWwk', 'kWWWWk7WWWwk', 'kWWWWWWWWWwk', 'kWWWWk7WWWwk', '.kwwwwwwwwk.', '..kkwkkkkk..', '...kk.......'],
   cfg:  ['....kkkk....', '.kk.kmmk.kk.', '.kmkkmmkkmk.', '..kmmmmmmk..', 'kkmmMkkMmmkk', 'kmmmk..kmmmk', 'kmmmk..kmmmk', 'kkMmMkkMMMkk', '..kMMMMMMk..', '.kMkkMMkkMk.', '.kk.kMMk.kk.', '....kkkk....'],
-  prof: ['....kkkk....', '....kMMk....', '.kkkkkkkkkk.', '.kWWWWWWWWk.', '.kWkkkkWWWk.', '.kWkssk7ppk.', '.kWkssk7WWk.', '.kWkLLkWppk.', '.kWkkkkWWWk.', '.kWWWWWWWWk.', '.kLLLLLLLLk.', '.kkkkkkkkkk.'],
+  prof: ['....kkkk....', '....kmMk....', '.kkkkMMkkkk.', '.kLLLLLLLLk.', '.kWWWWWWWWk.', '.kWkkkWWWWk.', '.kWksSkWppk.', '.kWkssk7WWk.', '.kWkLLkWppk.', '.kWkkkkWWWk.', '.kWWWWWWWwk.', '.kkkkkkkkkk.'],
   arc:  ['............', '............', '.kkkkkkkkkk.', 'kCCCCCCCCCCk', 'kCCkCCCCRCCk', 'kCkkkCCRCLCk', 'kCCkCCCCLCCk', 'kCCCCkkCCCCk', 'kEECk..kCEEk', '.kkk....kkk.', '............', '............'],
   snd:  ['............', '.....kk.....', '....kMk..k..', '.kkkMMk.k.k.', '.kmmMMk..k.k', '.kmmMMk..k.k', '.kkkMMk.k.k.', '....kMk..k..', '.....kk.....', '............', '............', '............'],
   mute: ['............', '.....kk.....', '....kMk.....', '.kkkMMk.R..R', '.kmmMMk..RR.', '.kmmMMk..RR.', '.kkkMMk.R..R', '....kMk.....', '.....kk.....', '............', '............', '............'],
@@ -192,10 +192,10 @@ function osRestore(win) {
 // Ícones dos aplicativos do WorkOS (12×12, mesma luz e contorno dos outros)
 const APP_ICO = {
   cal:   ['.k.k..k.k...', 'kkkkkkkkkkk.', 'kRRRRRRRRRk.', 'kqqqqqqqqqk.', 'kWWWWWWWWWk.', 'kWpWpWpWpWk.', 'kWWWWWWWWWk.', 'kWpWRWpWpWk.', 'kWWWWWWWWWk.', 'kWpWpWpWWWk.', 'kkkkkkkkkkk.', '............'],
-  calc:  ['.kkkkkkkkk..', '.kCCCCCCCk..', '.kkkkkkkkCk.', '.kvvvvvvkCk.', '.kXvVvVvkCk.', '.kkkkkkkkCk.', '.kekekeRkCk.', '.kCkCkCkkCk.', '.kekekeekCk.', '.kCkCkCkkCk.', '.kkkkkkkkk..', '............'],
-  music: ['.....kk.....', '....kMk..k..', '.kkkMMk.k.k.', '.kmmMMk..k.k', '.kmmMMk..k.k', '.kkkMMk.k.k.', '....kMk..k..', '.....kk.....', '..kkkkkkkk..', '..kRRRRRRk..', '..kkkkkkkk..', '............'],
+  calc: ['.kkkkkkkkkk.', 'kCCCCCCCCCEk', 'kCkkkkkkkCEk', 'kCkvvvvVkCEk', 'kCkkkkkkkCEk', 'kCkWkWkRkCEk', 'kCkkkkkkkCEk', 'kCkWkWkWkCEk', 'kCkkkkkkkCEk', 'kCkWkWkFkCEk', 'kEEEEEEEEEEk', '.kkkkkkkkkk.'],
+  music: ['.......k....', '......k.....', '.....k......', '.kkkkkkkkkk.', 'kTTTTTTTTTuk', 'kTkkkkTkkTuk', 'kTkJjkTkYkuk', 'kTkjJkTkkTuk', 'kTkJjkTWWTuk', 'kTkkkkTTTTuk', 'kuuuuuuuuuuk', '.kk......kk.'],
   notes: ['..k.k.k.k...', '.kkkkkkkkk..', '.kyyyyyyyk..', '.kYYYYYYYk..', '.kYZZZZZYk..', '.kYYYYYYYk..', '.kYZZZZYYk..', '.kYYYYYYYk..', '.kYZZZYYYk..', '.kYYYYYYzk..', '.kkkkkkkk...', '............'],
-  paint: ['...kkkkk....', '..kWWWWWk...', '.kWRWWWFWk..', 'kWWWWWWWWk..', 'kWLWWkkWWWk.', 'kWWWk..kWWk.', 'kWYWWkkWWWk.', '.kWWWWWW7k..', '..kkWWWWk...', '....kkkk....', '............', '............'],
+  paint: ['...kkkkk....', '.kkWWWWWkk..', 'kWWRRWWLLWk.', 'kWWRRWWLLWWk', 'kWWWWWWWWWWk', 'kWYYWkkWWWwk', 'kWYYk..kWWwk', 'kWWWk..kFFwk', '.kWWWkkWFFwk', '..kwwwwwwwk.', '...kkkkkkk..', '............'],
 };
 // Calculadora: mouse/toque e teclado (o teclado só vale com a janela aberta e é liberado ao fechar)
 function osCalc() {
