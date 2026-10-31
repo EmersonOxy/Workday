@@ -493,3 +493,21 @@ LANGS.pt.ui.diffStart = 'Começar'; LANGS.en.ui.diffStart = 'Start'; LANGS.es.ui
 LANGS.pt.ui.loading = 'Carregando expediente…'; LANGS.en.ui.loading = 'Loading workday…'; LANGS.es.ui.loading = 'Cargando jornada…';
 LANGS.pt.ui.pressStart = 'Clique no botão ou aperte Enter'; LANGS.en.ui.pressStart = 'Click the button or press Enter'; LANGS.es.ui.pressStart = 'Haz clic en el botón o pulsa Enter';
 LANGS.pt.ui.arrival = 'Bom dia!'; LANGS.en.ui.arrival = 'Good morning!'; LANGS.es.ui.arrival = '¡Buenos días!';
+LANGS.pt.ui.osApps = { from: 'De: RH · Workday Ltda.', trash: 'Lixeira',
+  budget: [['Café', 'R$ 1.240'], ['Post-its', 'R$ 380'], ['Cadeiras novas', 'R$ 0'], ['Consultoria de sinergia', 'R$ 48.000'], ['Festa de fim de ano', 'adiada'], ['TOTAL', 'R$ 49.620']],
+  virus: ['Você abriu. Claro que abriu.', 'Instalando 3.482 barras de ferramentas…', 'Parabéns! Você ganhou um iate. Clique para resgatar (não clique).'],
+  trashItems: ['planilha_final_FINAL_v3.xls', 'ideias_do_chefe.txt', 'curriculo_atualizado.doc', 'reuniao_que_podia_ser_email.ppt'] };
+LANGS.en.ui.osApps = { from: 'From: HR · Workday Ltd.', trash: 'Recycle bin',
+  budget: [['Coffee', '$ 1,240'], ['Sticky notes', '$ 380'], ['New chairs', '$ 0'], ['Synergy consulting', '$ 48,000'], ['Holiday party', 'postponed'], ['TOTAL', '$ 49,620']],
+  virus: ['You opened it. Of course you did.', 'Installing 3,482 toolbars…', 'Congratulations! You won a yacht. Click to claim (do not click).'],
+  trashItems: ['spreadsheet_final_FINAL_v3.xls', 'boss_ideas.txt', 'resume_updated.doc', 'meeting_that_could_be_an_email.ppt'] };
+LANGS.es.ui.osApps = { from: 'De: RR. HH. · Workday S.A.', trash: 'Papelera',
+  budget: [['Café', '$ 1.240'], ['Post-its', '$ 380'], ['Sillas nuevas', '$ 0'], ['Consultoría de sinergia', '$ 48.000'], ['Fiesta de fin de año', 'aplazada'], ['TOTAL', '$ 49.620']],
+  virus: ['Lo abriste. Claro que lo abriste.', 'Instalando 3.482 barras de herramientas…', '¡Felicidades! Ganaste un yate. Haz clic para reclamarlo (no hagas clic).'],
+  trashItems: ['planilla_final_FINAL_v3.xls', 'ideas_del_jefe.txt', 'curriculum_actualizado.doc', 'reunion_que_podia_ser_un_correo.ppt'] };
+Object.assign(LANGS.pt.ui.osApps, { calendar: 'Calendário', calc: 'Calculadora', notes: 'Bloco de notas', paint: 'Personalizar', saved: 'Salvo no aparelho', week: ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'],
+  careerDay: n => `Carreira salva: dia ${n} do expediente (dia fictício do jogo).`, noCareer: 'Nenhuma carreira em andamento.' });
+Object.assign(LANGS.en.ui.osApps, { calendar: 'Calendar', calc: 'Calculator', notes: 'Notepad', paint: 'Customize', saved: 'Saved on this device', week: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
+  careerDay: n => `Saved career: workday ${n} (in-game day).`, noCareer: 'No career in progress.' });
+Object.assign(LANGS.es.ui.osApps, { calendar: 'Calendario', calc: 'Calculadora', notes: 'Bloc de notas', paint: 'Personalizar', saved: 'Guardado en el dispositivo', week: ['D', 'L', 'M', 'X', 'J', 'V', 'S'],
+  careerDay: n => `Carrera guardada: día ${n} de la jornada (día ficticio del juego).`, noCareer: 'Ninguna carrera en curso.' });

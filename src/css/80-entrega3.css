@@ -221,3 +221,26 @@
   .popup .content { background: #fbf3e2; }
   .popup .title .x { width: 22px; height: 20px; border: 0; padding: 0; cursor: pointer; font: 14px var(--pixel); color: #2a1f2d; background: #ef4b3f;
     box-shadow: 0 0 0 1px #2a1f2d, inset 2px 2px 0 #ff9d86, inset -2px -2px 0 #a8262a; }
+
+  /* ===== Área de trabalho, barra de tarefas e aplicativos ===== */
+  body.office.menu-mode #osdesk .icons { display: none; }
+  .os-icons { position: absolute; left: 1em; top: 1em; z-index: 4; display: flex; flex-direction: column; gap: .8em; }
+  .osicon { display: flex; flex-direction: column; align-items: center; gap: .25em; width: 7.5em; padding: .3em; border: 0; background: none; cursor: pointer; font: .85em var(--pixel); color: #fff8ec; text-shadow: 0 2px 0 #2a1f2d; line-height: 1.1; }
+  .osicon canvas { image-rendering: pixelated; }
+  .osicon.sel span { background: #44609f; box-shadow: 0 0 0 1px #2a1f2d; }
+  .os-tasks { position: absolute; left: 8em; right: 12em; bottom: .25em; z-index: 5; display: flex; gap: .4em; overflow: hidden; }
+  .os-task { display: flex; align-items: center; gap: .3em; max-width: 13em; height: 1.6em; padding: 0 .6em; border: 0; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    font: .95em var(--pixel); color: #2a1f2d; background: #e9dcc2; box-shadow: 0 0 0 2px #2a1f2d, inset 2px 2px 0 #fff8ec, inset -2px -3px 0 #8f7d63; }
+  #modal.allmin { background: transparent !important; }
+  body:not(.menu-mode) #modal.allmin { pointer-events: none; } body:not(.menu-mode) #modal.allmin .os-tasks { pointer-events: auto; }
+  .calc { display: flex; flex-direction: column; gap: 6px; width: 15em; }
+  .calc-hist { min-height: 1.1em; font-size: .85em; color: var(--muted); text-align: right; }
+  .calc-d { padding: .2em .5em; text-align: right; font-size: 1.8em; background: #a9dccf; color: #1f4a52; box-shadow: 0 0 0 2px #2a1f2d, inset 2px 2px 0 #5fa79a; overflow: hidden; }
+  .calc-k { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; } .calc-k .pxbtn { font-size: 1.15em !important; padding: 2px 0 6px !important; margin: 0 !important; }
+  .cal { width: 17em; } .cal-h { display: flex; align-items: center; justify-content: space-between; gap: .5em; } .cal-h b { font-weight: normal; text-transform: capitalize; }
+  .cal-g { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; margin-top: .5em; text-align: center; }
+  .cal-g i { font-style: normal; color: var(--muted); } .cal-g span { padding: .15em 0; } .cal-g span.today { background: #ef4b3f; color: #fff8ec; box-shadow: 0 0 0 2px #2a1f2d; }
+  .cal-note { margin: .6em 0 0; font-size: .85em; color: var(--muted); }
+  .notes { width: min(24em, 80vw); height: 14em; resize: none; padding: .5em; border: 0; font: 1em var(--pixel); background: #fff8ec; color: #2a1f2d; box-shadow: 0 0 0 2px #2a1f2d, inset 2px 2px 0 #dcc6a0; }
+  .notes-st { color: var(--muted); }
+  .os-win.maxi { width: 96% !important; height: 92%; }

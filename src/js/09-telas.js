@@ -1,6 +1,7 @@
 /* ================= Telas ================= */
 function modal(html) {
-  $('modal').querySelectorAll('.legalbar, .os-start, .os-smenu').forEach(e => e.remove());
+  $('modal').querySelectorAll('.legalbar, .os-start, .os-smenu, .os-icons, .os-win').forEach(e => e.remove());
+  $('modal').classList.remove('allmin');
   const card = $('modal').querySelector('.card');
   card.className = 'card'; card.innerHTML = html;
   winChrome(card);
@@ -21,7 +22,7 @@ function winChrome(card) {
   card.append(bar, body); card.classList.add('oswin');
   bar.querySelector('.mw-app').append(Pixel.el(MENU_ICO.app, 2));
   bar.querySelectorAll('.mw-b b').forEach(b => b.append(Pixel.el(MENU_ICO[b.dataset.g], 2)));
-  bar.querySelector('.min').onclick = () => { sfx('click'); card.classList.toggle('mini'); };
+  bar.querySelector('.min').onclick = () => osMinimize(card, title);
   bar.querySelector('.max').onclick = () => { sfx('click'); card.classList.toggle('maxi'); };
   bar.querySelector('.x').onclick = () => {
     const u = U(), names = [u.back, u.cancel, u.backToWork, u.close].filter(Boolean);
@@ -118,13 +119,104 @@ function diffLocked() { return !!(S && S.phase === 'day'); }
 
 // Nova carreira: escolhe a dificuldade antes (depois dá para trocar nas Configurações, entre dias)
 function setDifficulty(v) { save('recorde2', P.best); CFG.diff = DIFF_REC = v; P.best = load('recorde2', 0); persist(); }
+// Minimizar: a janela some e vira um botão na barra de tarefas; clicar nele restaura
+function osTasks() { let t = $('modal').querySelector('.os-tasks'); if (!t) { t = document.createElement('div'); t.className = 'os-tasks'; $('modal').append(t); } return t; }
+function osSyncMin() { const m = $('modal'), open = [...m.querySelectorAll('.card, .os-win')].some(w => w.style.display !== 'none' && !(w.classList.contains('card') && m.classList.contains('hidden'))); m.classList.toggle('allmin', !open); }
+function osMinimize(win, title) {
+  sfx('click');
+  const btn = document.createElement('button'); btn.className = 'os-task';
+  btn.append(Pixel.el(MENU_ICO.app, 1)); btn.append(document.createTextNode(' ' + title));
+  Motion.play(win, [{ transform: 'none', opacity: 1 }, { transform: 'translateY(40%) scale(.2)', opacity: 0 }], { duration: 160, easing: 'steps(4)', fill: 'none' });
+  setTimeout(() => { win.style.display = 'none'; osSyncMin(); }, 150);
+  btn.onclick = () => { sfx('pop'); win.style.display = ''; btn.remove(); osSyncMin();
+    Motion.play(win, [{ transform: 'translateY(40%) scale(.2)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 180, easing: 'steps(5)' }); };
+  osTasks().append(btn);
+}
+// Ícones dos aplicativos do WorkOS (12×12, mesma luz e contorno dos outros)
+const APP_ICO = {
+  cal:   ['.k.k..k.k...', 'kkkkkkkkkkk.', 'kRRRRRRRRRk.', 'kqqqqqqqqqk.', 'kWWWWWWWWWk.', 'kWpWpWpWpWk.', 'kWWWWWWWWWk.', 'kWpWRWpWpWk.', 'kWWWWWWWWWk.', 'kWpWpWpWWWk.', 'kkkkkkkkkkk.', '............'],
+  calc:  ['.kkkkkkkkk..', '.kCCCCCCCk..', '.kkkkkkkkCk.', '.kvvvvvvkCk.', '.kXvVvVvkCk.', '.kkkkkkkkCk.', '.kekekeRkCk.', '.kCkCkCkkCk.', '.kekekeekCk.', '.kCkCkCkkCk.', '.kkkkkkkkk..', '............'],
+  notes: ['..k.k.k.k...', '.kkkkkkkkk..', '.kyyyyyyyk..', '.kYYYYYYYk..', '.kYZZZZZYk..', '.kYYYYYYYk..', '.kYZZZZYYk..', '.kYYYYYYYk..', '.kYZZZYYYk..', '.kYYYYYYzk..', '.kkkkkkkk...', '............'],
+  paint: ['...kkkkk....', '..kWWWWWk...', '.kWRWWWFWk..', 'kWWWWWWWWk..', 'kWLWWkkWWWk.', 'kWWWk..kWWk.', 'kWYWWkkWWWk.', '.kWWWWWW7k..', '..kkWWWWk...', '....kkkk....', '............', '............'],
+};
+// Calculadora: mouse/toque e teclado (o teclado só vale com a janela aberta e é liberado ao fechar)
+function osCalc() {
+  const w = osWindow(U().osApps.calc, `<div class="calc"><div class="calc-hist"></div><div class="calc-d">0</div><div class="calc-k">${['C', '←', '%', '/', '7', '8', '9', '*', '4', '5', '6', '-', '1', '2', '3', '+', '0', '.', '±', '='].map(k => `<button class="pxbtn${/[=]/.test(k) ? ' main' : ''}" data-k="${k}">${k === '*' ? '×' : k === '/' ? '÷' : k}</button>`).join('')}</div></div>`, { icon: APP_ICO.calc, cls: 'calc-win', onClose: () => removeEventListener('keydown', key, true) });
+  const d = w.querySelector('.calc-d'), h = w.querySelector('.calc-hist'); let cur = '0', acc = null, op = null, fresh = false;
+  const fmtN = n => String(+(+n).toPrecision(12));
+  const calc = () => { const a = +acc, b = +cur; return op === '+' ? a + b : op === '-' ? a - b : op === '*' ? a * b : op === '/' ? (b === 0 ? NaN : a / b) : b; };
+  const press = k => {
+    if (/\d/.test(k)) { cur = fresh || cur === '0' ? k : (cur.length < 14 ? cur + k : cur); fresh = false; }
+    else if (k === '.') { if (fresh) { cur = '0'; fresh = false; } if (!cur.includes('.')) cur += '.'; }
+    else if (k === 'C') { cur = '0'; acc = op = null; }
+    else if (k === '←') cur = cur.length > 1 ? cur.slice(0, -1) : '0';
+    else if (k === '±') cur = fmtN(-cur);
+    else if (k === '%') cur = fmtN(acc !== null ? acc * cur / 100 : cur / 100);
+    else if ('+-*/'.includes(k)) { if (op && !fresh) cur = fmtN(calc()); acc = cur; op = k; fresh = true; }
+    else if (k === '=') { if (op) { const r = calc(); h.textContent = `${fmtN(acc)} ${op} ${fmtN(cur)} = ${isNaN(r) ? 'Erro' : fmtN(r)}`; cur = isNaN(r) ? '0' : fmtN(r); acc = op = null; fresh = true; } }
+    d.textContent = cur; sfx('key');
+  };
+  w.querySelectorAll('[data-k]').forEach(b => b.onclick = () => press(b.dataset.k));
+  const key = e => { if (!w.isConnected || w.style.display === 'none') return; const m = { Enter: '=', Backspace: '←', Escape: 'C', ',': '.' }, k = m[e.key] || e.key;
+    if (/^[\d.+\-*/%=C←]$/.test(k)) { e.preventDefault(); e.stopPropagation(); press(k); } };
+  addEventListener('keydown', key, true);
+}
+// Calendário: mês do aparelho (datas reais) e, separado, o dia fictício da carreira salva
+function osCalendar() {
+  const u = U(), t = u.osApps, now = new Date(); let y = now.getFullYear(), mo = now.getMonth();
+  const w = osWindow(t.calendar, `<div class="cal"><div class="cal-h"><button class="pxbtn" data-m="-1">◀</button><b></b><button class="pxbtn" data-m="1">▶</button></div><div class="cal-g"></div><p class="cal-note"></p></div>`, { icon: APP_ICO.cal });
+  const saved = load('carreira', null);
+  w.querySelector('.cal-note').textContent = saved ? t.careerDay(saved.day + 1) : t.noCareer;
+  const paint = () => {
+    const first = new Date(y, mo, 1).getDay(), days = new Date(y, mo + 1, 0).getDate();
+    w.querySelector('.cal-h b').textContent = new Date(y, mo, 1).toLocaleDateString(CFG.lang === 'en' ? 'en-US' : CFG.lang === 'es' ? 'es-ES' : 'pt-BR', { month: 'long', year: 'numeric' });
+    w.querySelector('.cal-g').innerHTML = t.week.map(d => `<i>${d}</i>`).join('') + '<span></span>'.repeat(first) +
+      Array.from({ length: days }, (_, i) => `<span class="${y === now.getFullYear() && mo === now.getMonth() && i + 1 === now.getDate() ? 'today' : ''}">${i + 1}</span>`).join('');
+  };
+  w.querySelectorAll('[data-m]').forEach(b => b.onclick = () => { mo += +b.dataset.m; if (mo < 0) { mo = 11; y--; } if (mo > 11) { mo = 0; y++; } sfx('click'); paint(); });
+  paint();
+}
+// Bloco de notas: salva sozinho no aparelho
+function osNotes() {
+  const w = osWindow(U().osApps.notes, `<textarea class="notes" spellcheck="false" maxlength="5000"></textarea><small class="notes-st"></small>`, { icon: APP_ICO.notes, cls: 'notes-win' });
+  const ta = w.querySelector('textarea'), st = w.querySelector('.notes-st'); ta.value = load('notas', '');
+  let tm = 0; ta.oninput = () => { clearTimeout(tm); st.textContent = '…'; tm = setTimeout(() => { save('notas', ta.value); st.textContent = U().osApps.saved; }, 400); };
+  ta.addEventListener('keydown', e => e.stopPropagation());
+  ta.focus();
+}
+function osApp(id) {
+  if (id === 'workday') { const tb = [...$('modal').querySelectorAll('.os-task')].find(b => b.textContent.includes('PORTAL')); if (tb) tb.click(); else { const c = $('modal').querySelector('.menu-card'); if (c) Motion.shake(c, 3); else showMenu(); } return; }
+  if (id === 'cal') return osCalendar();
+  if (id === 'calc') return osCalc();
+  if (id === 'notes') return osNotes();
+  if (id === 'paint') return showCustomize(showMenu);
+  if (id === 'prof') return showBadge(showMenu);
+}
+function osIcons() {
+  const m = $('modal'), t = U().osApps; m.querySelectorAll('.os-icons').forEach(e => e.remove());
+  if (!document.body.classList.contains('office')) return;
+  const g = document.createElement('div'); g.className = 'os-icons';
+  for (const [id, rows, label, pal] of [['workday', SPR2.doc, 'PORTAL_RH.EXE', WD_SECTOR_RAMP.ti], ['cal', APP_ICO.cal, t.calendar], ['calc', APP_ICO.calc, t.calc], ['notes', APP_ICO.notes, t.notes], ['paint', APP_ICO.paint, t.paint], ['prof', MENU_ICO.prof, U().profile]]) {
+    const d = document.createElement('button'); d.className = 'osicon'; d.append(Pixel.el(rows, 3, pal)); d.insertAdjacentHTML('beforeend', `<span>${label}</span>`);
+    const open = () => { g.querySelectorAll('.osicon').forEach(x => x.classList.remove('sel')); sfx('pop'); osApp(id); };
+    d.onclick = () => { if (document.body.classList.contains('touch') || d.classList.contains('sel')) return open(); g.querySelectorAll('.osicon').forEach(x => x.classList.toggle('sel', x === d)); sfx('click'); };
+    d.ondblclick = open;
+    g.append(d);
+  }
+  m.append(g);
+}
+
 // Janela flutuante do WorkOS (abre com animação de janela, fecha no X). Base para outras janelas do sistema.
 function osWindow(title, html, { icon = MENU_ICO.app, cls = '', onClose } = {}) {
   const w = document.createElement('div'); w.className = 'os-win ' + cls;
   w.innerHTML = `<div class="mw-bar"><span class="mw-ttl"><i class="mw-app"></i>${title}</span><i class="mw-stripes"></i><span class="mw-b"><b data-g="x"></b></span></div><div class="mw-in">${html}</div>`;
   w.querySelector('.mw-app').append(Pixel.el(icon, 2)); w.querySelector('.mw-b b').append(Pixel.el(MENU_ICO.x, 2));
   const close = () => { sfx('click'); const a = Motion.play(w, [{ transform: 'none', opacity: 1 }, { transform: 'scale(.6)', opacity: 0 }], { duration: 140, easing: 'steps(4)' }); const end = () => { w.remove(); if (onClose) onClose(); }; if (a) a.onfinish = end; else end(); };
-  w.querySelector('.mw-b b').onclick = close; w.close = close;
+  w.querySelector('.mw-b').insertAdjacentHTML('afterbegin', '<b data-g="min" class="min"></b><b data-g="max" class="max"></b>');
+  w.querySelectorAll('.mw-b .min, .mw-b .max').forEach(b => b.append(Pixel.el(MENU_ICO[b.dataset.g], 2)));
+  w.querySelector('.mw-b .min').onclick = () => osMinimize(w, title);
+  w.querySelector('.mw-b .max').onclick = () => { sfx('click'); w.classList.toggle('maxi'); };
+  w.querySelector('.mw-b [data-g=x]').onclick = close; w.close = close;
   $('modal').append(w); sfx('pop');
   Motion.play(w, [{ transform: 'scale(.3)', opacity: 0 }, { transform: 'scale(1.04)', opacity: 1, offset: .7 }, { transform: 'none', opacity: 1 }], { duration: 220, easing: 'steps(6)' });
   return w;
@@ -224,6 +316,9 @@ function showMenu() {
   card.classList.add('menu-card');
   card.querySelectorAll('.mico').forEach(i => { const n = i.dataset.i === 'snd' && !soundOn ? 'mute' : i.dataset.i; i.append(Pixel.el(MENU_ICO[n], 2)); });
   card.querySelectorAll('.mw-b b').forEach(b => b.append(Pixel.el(MENU_ICO[b.dataset.g], 2)));
+  // o portal não fecha: minimizar (ou fechar) manda para a barra de tarefas; maximizar alterna o tamanho
+  card.querySelector('.mw-b [data-g=min]').onclick = card.querySelector('.mw-b [data-g=x]').onclick = () => osMinimize(card, 'PORTAL_RH.EXE');
+  card.querySelector('.mw-b [data-g=max]').onclick = () => { sfx('click'); card.classList.toggle('maxi'); };
   card.querySelector('.mw-app').append(Pixel.el(MENU_ICO.app, 2));
   card.querySelector('.mw-face').append(portrait(112));
   {     const logo = card.querySelector('.mw-logo'); logo.append(pxSize(logoCanvas(), 5)); Motion.dropIn(logo); }
@@ -231,7 +326,8 @@ function showMenu() {
   card.querySelector('#msnd').onclick = () => { setSound(!soundOn); showMenu(); };
   $('modal').insertAdjacentHTML('beforeend', `<div class="legalbar"><p>${u.footer}</p></div>`);
   fitLegal();
-  osStart(u);
+  osStart(u); osIcons();
+  $('modal').querySelectorAll('.os-tasks').forEach(e => e.remove()); osSyncMin();
   card.querySelector('#play').onclick = () => pickDifficulty(showMenu);
   if (saved) card.querySelector('#cont').onclick = resumeCareer;
   card.querySelector('#how').onclick = () => { const c = modal(`<h2>${u.how}</h2>${u.howText}<div class="actions"><button class="pxbtn main" id="b">${u.back}</button></div>`); c.querySelector('#b').onclick = showMenu; };
