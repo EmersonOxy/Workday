@@ -48,7 +48,7 @@ const ART = {
 
   // ---------- Aquário: tampa e base pretas, vidro com reflexo, água com superfície ondulando, areia, plantas, peixes e bolhas ----------
   aquarium(x, x0, by, t, st) {
-    const P = WD_PAL, F = (...a) => this.F(x, ...a), W = 38, H = 28, y = by - H;
+    const P = WD_PAL, F = (...a) => this.F(x, ...a), W = (st && st.W) || 38, H = (st && st.H) || 28, y = by - H;   // tamanho variável: prateleira ou mesa
     this.contact(x, x0, by, W);
     F(P.k, x0 - 1, y - 1, W + 2, H + 2); F(P.J, x0, y, W, 3); F(P.j, x0, y, W, 1);                // tampa
     F(P.v, x0 + 1, y + 3, W - 2, H - 7);                                                           // água clara (perto da luz)
@@ -56,13 +56,13 @@ const ART = {
     for (let i = 0; i < W - 2; i++) if (Math.sin(i / 3 + t * 2) > .3) F(P.W, x0 + 1 + i, y + 4, 1, 1);   // superfície ondulando
     // areia com pedrinhas e plantas balançando
     F(P[1], x0 + 1, y + H - 4, W - 2, 2); F(P[2], x0 + 1, y + H - 2, W - 2, 1); for (let i = 3; i < W - 3; i += 7) F(P.m, x0 + i, y + H - 4, 2, 1);
-    for (const [px, hgt, ph] of [[4, 12, 0], [8, 8, 1.3], [31, 14, 2.1]]) for (let j = 0; j < hgt; j++) { const sw = Math.round(Math.sin(t * 1.2 + ph + j / 4) * (j / hgt) * 1.5); F(j % 3 ? P.h : P.G, x0 + px + sw, y + H - 4 - j, 1, 1); F(P.H, x0 + px + 1 + sw, y + H - 4 - j, 1, 1); }
+    for (const [px, hgt, ph] of [[4, Math.round(H * .43), 0], [8, Math.round(H * .29), 1.3], [W - 7, Math.round(H * .5), 2.1], [W >> 1, Math.round(H * .36), .6]].slice(0, W > 50 ? 4 : 3)) for (let j = 0; j < hgt; j++) { const sw = Math.round(Math.sin(t * 1.2 + ph + j / 4) * (j / hgt) * 1.5); F(j % 3 ? P.h : P.G, x0 + px + sw, y + H - 4 - j, 1, 1); F(P.H, x0 + px + 1 + sw, y + H - 4 - j, 1, 1); }
     // peixes: vão e voltam (espelham na volta), velocidades diferentes
     const fish = (sp, yy, c1, c2, off) => { const ph = (t * sp + off) % 2, dir = ph < 1 ? 1 : -1, u = ph < 1 ? ph : 2 - ph, fx = x0 + 4 + Math.round(u * (W - 14)), fy = y + yy + Math.round(Math.sin(t * 2 + off) * 1);
       F(P.k, fx - 1, fy - 1, 8, 5); F(c1, fx, fy, 6, 3); F(c2, fx + (dir > 0 ? 0 : 3), fy + 2, 3, 1);
       if (dir > 0) { F(c1, fx - 2, fy - 1, 2, 1); F(c1, fx - 2, fy + 3, 2, 1); F(P.k, fx + 4, fy, 1, 1); F(P.W, fx + 1, fy, 1, 1); }
       else { F(c1, fx + 6, fy - 1, 2, 1); F(c1, fx + 6, fy + 3, 2, 1); F(P.k, fx + 1, fy, 1, 1); F(P.W, fx + 4, fy, 1, 1); } };
-    fish(.12, 9, P.O, P[8], 0); fish(.09, 16, P.Y, P.z, .7);
+    fish(.12, Math.round(H * .32), P.O, P[8], 0); fish(.09, Math.round(H * .57), P.Y, P.z, .7); if (W > 50) fish(.07, Math.round(H * .45), P.R, P.q, 1.4);
     // bolhas do filtro subindo (somem na superfície)
     F(P.M, x0 + W - 6, y + 3, 3, 10); for (let n = 0; n < 3; n++) { const ph = (t * .6 + n * .33) % 1, by2 = y + 12 - ph * 8 | 0; F(P.W, x0 + W - 5 + (n % 2), by2, 1, 1); }
     // vidro: reflexo vertical e borda clara
@@ -87,10 +87,10 @@ const ART = {
   // ---------- Globo: esfera com continentes que giram (ao clicar acelera), meridiano de latão e base ----------
   GLOBE_MAP: (() => { const R = Office.rng(77), m = []; for (let j = 0; j < 14; j++) { const row = []; for (let i = 0; i < 40; i++) row.push(Math.sin(i / 4 + j / 3) + Math.sin(i / 7 - j / 2) * .8 + (R() - .5) * .6 > .7 ? 1 : 0); m.push(row); } return m; })(),
   globe(x, x0, by, t, st) {
-    const P = WD_PAL, F = (...a) => this.F(x, ...a), cx = x0 + 9, cy = by - 16, r = 7, spin = (st.spin || 0) + t * 1.2;
-    this.contact(x, x0 + 2, by, 14);
+    const P = WD_PAL, F = (...a) => this.F(x, ...a), r = st.r || 7, cx = x0 + r + 2, cy = by - 9 - r, spin = (st.spin || 0) + t * 1.2, ox = cx - (x0 + 9);   // base centrada sob a esfera
+    this.contact(x, x0 + ox + 2, by, 14);
     // base de madeira torneada: disco com tampo claro à esquerda e frente escura; pé com anel de latão
-    F(P.k, x0 + 2, by - 4, 15, 4); F(P[2], x0 + 3, by - 4, 13, 2); F(P[1], x0 + 3, by - 4, 5, 1); F(P[3], x0 + 11, by - 4, 5, 2); F(P[3], x0 + 3, by - 2, 13, 1); F(P[4], x0 + 12, by - 2, 4, 1);
+    F(P.k, x0 + ox + 2, by - 4, 15, 4); F(P[2], x0 + ox + 3, by - 4, 13, 2); F(P[1], x0 + ox + 3, by - 4, 5, 1); F(P[3], x0 + ox + 11, by - 4, 5, 2); F(P[3], x0 + ox + 3, by - 2, 13, 1); F(P[4], x0 + ox + 12, by - 2, 4, 1);
     F(P.k, cx - 2, by - 8, 5, 5); F(P[2], cx - 1, by - 8, 3, 4); F(P[1], cx - 1, by - 8, 1, 4); F(P[4], cx + 1, by - 8, 1, 4); F(P.z, cx - 1, by - 6, 3, 1); F(P.Y, cx - 1, by - 6, 1, 1);
     // esfera: oceano em 3 tons pela luz, continentes do mapa deslocados pelo giro
     this.disc(x, cx, cy, r + 1, P.k);
@@ -272,9 +272,8 @@ function duckDraw(x, x0, by, t) {
 }
 // Áreas clicáveis dos objetos vivos (coordenadas de arte)
 function officeArtHit(L, ax, ay) {
-  const Q = Office.deskSlots(L, Office._decor || []), D = Office._decor || [], inR = (q, w, h) => q && ax >= q.x && ax < q.x + w && ay >= q.y - h && ay <= q.y;
-  if (D.includes('gato') && inR(Q.gato, Math.round(30 * CAT_K), Math.round(26 * CAT_K))) return 'gato';
-  if (D.includes('globo') && inR(Q.globo, 19, 26)) return 'globo';
-  if (D.includes('pato') && inR(Q.pato, 18, 16)) return 'pato';
+  // gato, globo e pato respondem ao clique na área real do desenho (zona e porte vêm da arrumação da mesa)
+  const Q = Office.deskSlots(L, Office._decor || []);
+  for (const id of ['gato', 'globo', 'pato']) { const q = Q[id]; if (q && !q.off && !q.shelf && ax >= q.x && ax < q.x + q.w && ay >= q.y - q.h && ay <= q.y + 2) return id; }
   return null;
 }

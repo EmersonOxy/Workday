@@ -113,7 +113,7 @@ function osStart(u) {
   if (!document.body.classList.contains('office')) return;
   const m = $('modal'); m.querySelectorAll('.os-start, .os-smenu').forEach(e => e.remove());
   m.insertAdjacentHTML('beforeend', `<button class="os-start" aria-haspopup="true"></button><div class="os-smenu hidden"><div class="os-sh"><span class="os-me"></span><b></b></div>
-    <button data-a="prof">${u.profile}</button><button data-a="pc">${u.customizePc || 'WorkOS'}</button><button data-a="cfg">${u.settings}</button><i></i><button data-a="off">${u.shutdown}</button></div>`);
+    <button data-a="prof">${u.profile}</button><button data-a="pc">${u.customizePc || 'WorkOS'}</button><button data-a="arr">${u.arr.title}</button><button data-a="cfg">${u.settings}</button><i></i><button data-a="off">${u.shutdown}</button></div>`);
   const b = m.querySelector('.os-start'), sm = m.querySelector('.os-smenu');
   b.append(Pixel.el(ORB_ICO, 3)); b.title = 'WorkOS';   // orbe grande, como o Iniciar do Windows 7
   const paintMe = () => sm.querySelector('.os-me').replaceChildren(osPicEl(40));
@@ -121,7 +121,7 @@ function osStart(u) {
   sm.querySelector('.os-me').onclick = e => { e.stopPropagation(); const old = sm.querySelector('.os-pics'); if (old) old.remove(); else osPicPicker(sm.querySelector('.os-sh'), paintMe); };
   const brk = S && S.onBreak, home = brk ? breakHome : showMenu;
   if (brk) sm.querySelector('[data-a=off]').textContent = u.breakEnd;
-  const items = { prof: () => showBadge(home), pc: () => showCustomize(home), cfg: () => showSettings(home) };
+  const items = { prof: () => showBadge(home), pc: () => showCustomize(home), cfg: () => showSettings(home), arr: () => deskEditStart() };
   b.onclick = e => { e.stopPropagation(); sm.classList.toggle('hidden'); b.classList.toggle('on'); sfx(sm.classList.contains('hidden') ? 'click' : 'start'); };
   sm.onclick = e => { const a = e.target.closest('button'); if (!a) return; sm.classList.add('hidden'); b.classList.remove('on');
     if (a.dataset.a === 'off') return brk ? endBreak() : osShutdown(); sfx('click'); items[a.dataset.a](); };

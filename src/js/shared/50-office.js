@@ -347,19 +347,6 @@ const Office = {
     F(HO.base, mx, my, 9, 15); F(HO.hi, mx + 1, my, 3, 1); F(HO.hi, mx, my + 1, 1, 8); F(HO.sh, mx + 7, my + 2, 2, 12); F(HO.dk, mx + 1, my + 14, 7, 1);
     F(HO.sh, mx + 4, my, 1, 6); F(HO.sh, mx, my + 6, 9, 1); F(P.k, mx + 4, my + 2, 1, 3); F(HO.dk, mx + 4, my + 3, 1, 1);
     for (let i = 0; i < 16; i++) F(P.j, mx + 4 + Math.round(Math.sin(i / 3) * 3), my - 2 - i, 1, 1);
-    // Papéis (crescem com o caos) e crachá
-    this.paperStack(x, Z.papersL.x, Z.papersL.y, 2 + (st.clutter > 1 ? 3 : 0));
-    this.paperStack(x, Z.papersR.x, Z.papersR.y, 1 + st.clutter * 2);
-    const bd = st.badge || { shirt: P.L }, bx0 = Z.badge.x, by0 = Z.badge.y;
-    this.shadow(x, bx0 - 1, by0 + 20, 16, 2);
-    const ly = (st.hw && st.hw.lanyardColor) || P.L; F(ly, bx0 + 3, by0 - 6, 1, 6); F(ly, bx0 + 10, by0 - 6, 1, 6); F(P.k, bx0 + 5, by0 - 2, 4, 3); F(P.m, bx0 + 6, by0 - 1, 2, 1);   // cordão e presilha
-    F(P.k, bx0, by0, 14, 20); F(P.W, bx0 + 1, by0 + 1, 12, 18); F(P.w, bx0 + 12, by0 + 1, 1, 18); F(P.w, bx0 + 1, by0 + 18, 12, 1);
-    F((st.hw && st.hw.badgeColor) || bd.shirt, bx0 + 1, by0 + 1, 12, 3); F(P.W, bx0 + 2, by0 + 2, 3, 1);
-    F(P.k, bx0 + 3, by0 + 5, 8, 9);
-    if (bd.px) bd.px.forEach((row, j) => row.forEach((c, i) => F(c, bx0 + 4 + i, by0 + 6 + j, 1, 1)));
-    F(P.k, bx0 + 4, by0 + 15, 6, 1); F(P.p, bx0 + 3, by0 + 17, 8, 1);                                  // nome e cargo
-    for (let i = 0; i < 8; i++) if ((i * 5) % 3) F(P.K, bx0 + 3 + i, by0 + 18, 1, 1);                    // código de barras
-    F(P.l, bx0 + 11, by0 + 5, 1, 2); F(P.i, bx0 + 11, by0 + 7, 1, 1); F(P.W, bx0 + 6, by0 + 2, 2, 1);      // holograma e furo
     // Bagunça: bolinhas de papel
     const RC = this.rng(31);
     for (let n = 0; n < st.clutter * 3; n++) { const px = 8 + RC() * (L.VW - 16) | 0, py = L.desk + 6 + RC() * 14 | 0;
@@ -370,27 +357,12 @@ const Office = {
     for (let n = 0; n < Math.min(4, st.clutter + (st.hour > 14 ? 1 : 0)); n++) x.drawImage(Pixel.master(SPR2.postit, WD_PAL), notes[n][0], notes[n][1]);
     // Calendário de parede: a folha mostra o dia da carreira
     if (Z.cal && st.day) this.calendar(x, Z.cal.x, Z.cal.y, st.day);
-    // Porta-canetas e marca de café na mesa
-    if (Z.pens) { const px = Z.pens.x, py = Z.pens.y;
-      // copo de metal em tela, com lápis (borracha rosa), caneta azul, régua e tesoura
-      this.shadow(x, px - 4, py + 12, 17, 2);
-      // cilindro: boca oval com interior escuro, faixa de luz à esquerda (m), sombra à direita (J), base arredondada
-      x.drawImage(Pixel.master(['..kk............', '.krrk......kk...', '.kmmk.....kLLk..', '.kQQk..k..kLLk..', '.kQQk.kmk.kLLk..', '.kQQk.kmk.kLLk..', '.kQQk.kmk.kLLk..', '..kkkkkkkkkkkk..', '.kJJJJJJJJJJJJk.', 'k0J0J0J0J0J0J0Jk', 'kmJjmjmjmjmjJJjk', 'kmjMjMjMjMjMjjJk', 'kmJjmjmjmjmjJJjk', 'kmjMjMjMjMjMjjJk', 'kmJjmjmjmjmjJJjk', 'kmjMjMjMjMjMjjJk', 'kmJjmjmjmjmjJJjk', 'kmjMjMjMjMjMjjJk', '.kMjjjjjjjjjjJk.', '..kkkkkkkkkkkk..'], P), px - 4, py - 8); }
     if (Z.phone && !st.bigPhone) this.shadow(x, Z.phone.x - 3, Z.phone.y + 22, 48, 3);
-    for (let i = 0; i < 12; i++) { const a = i / 12 * Math.PI * 2; F(P[3], Z.mug.x - 8 + Math.round(Math.cos(a) * 5), L.desk + 22 + Math.round(Math.sin(a) * 2), 1, 1); }
     // Objetos parados: porta-retrato, plaquinha do cargo, coroa de CEO, monitor extra (moldura)
     if (typeof drawDecorExtra === 'function') drawDecorExtra(x, L, st.decor);
-    if (D.has('foto') && this._slots.foto) ART.frame(x, this._slots.foto.x + 1, this._slots.foto.y);
     if (st.rank >= 2) this.nameplate(x, Z.nameplate.x, Z.nameplate.y);
     if (st.rank >= 6) this.crown(x, cx - 5, M.y - 2);
     if (D.has('monitor') && L.right >= 36) this.sideMonitor(x, Z.sideMon.x, Z.sideMon.y, Math.min(44, L.right - 6));
-    // Sombras dos objetos animados (desenhados por cima a cada quadro)
-    if (D.has('planta')) this.shadow(x, Z.plant.x, Z.plant.y - 1, 24, 2);
-    if (D.has('gato') && this._slots.gato) { const q = this._slots.gato, cx = q.x, cy = q.y - 5;   // almofada sob o gato
-      this.shadow(x, cx - 1, cy + 5, 42, 2); F(P.k, cx - 1, cy, 42, 6); F(P.L, cx, cy + 1, 40, 4); F(P.l, cx, cy + 1, 40, 1); F(P[7], cx, cy + 4, 40, 1); F(P.Y, cx - 1, cy + 1, 1, 1); F(P.Y, cx + 40, cy + 1, 1, 1); }
-    if (D.has('trofeu')) this.shadow(x, Z.trophy.x - 1, Z.trophy.y + 18, 16, 2);
-    if (D.has('lamp')) this.shadow(x, Z.lamp.x - 2, Z.lamp.y - 1, 22, 2);
-    this.shadow(x, Z.mug.x, Z.mug.y + 12, 16, 2);
     return c;
   },
   calendar(x, px, py, day) { const P = WD_PAL, F = (c, a, b, w, h) => { x.fillStyle = c; x.fillRect(a, b, w, h); };
@@ -515,23 +487,21 @@ const Office = {
     ctx.restore();
     // Prateleira sob a janela com rádio, cacto e aquário em tamanho real (arte própria, animados)
     // livros sem lugar na mesa (telas estreitas) vão para a prateleira
-    let aqua = null;   // posição do aquário (reflexos da água na parede quando a sala escurece)
-    const shelfItems = [['radio', 34], ['cacto', 18], ['aquario', 38], ['livros', 31]].filter(([k]) => D.has(k) && (k !== 'livros' || !(this._slots || {}).livros));
+    this._aqua = null;   // posição do aquário (reflexos da água na parede quando a sala escurece)
+    const shelfQ = this.deskSlots(L, st.decor || []), shelfItems = (shelfQ._shelf || []).map(k => [k, DESK_OBJ[k][1]]);   // o que o jogador pôs na prateleira da janela
     if (shelfItems.length) {
       const sx = Math.max(3, W.x + 2), maxW = M.x - 6 - sx, rowsS = [[]]; let used = 0;
       for (const it of shelfItems) { if (used + it[1] > maxW && rowsS[rowsS.length - 1].length) { rowsS.push([]); used = 0; } rowsS[rowsS.length - 1].push(it); used += it[1] + 3; }
-      rowsS.forEach((row, ri) => { const sy = W.y + W.h + 38 + ri * 34; if (ri && sy > L.desk - 6) return; const sw = Math.min(maxW, row.reduce((a, [, w]) => a + w + 4, 0) + 6);
+      rowsS.forEach((row, ri) => { const sy = W.y + W.h + 38 + ri * 34; if (ri >= (shelfQ._shelfRows || 2)) return; const sw = Math.min(maxW, row.reduce((a, [, w]) => a + w + 4, 0) + 6);
         ctx.fillStyle = P.k; ctx.fillRect(sx - 1, sy, sw + 2, 5); ctx.fillStyle = P[1]; ctx.fillRect(sx, sy + 1, sw, 1); ctx.fillStyle = P[2]; ctx.fillRect(sx, sy + 2, sw, 2);
         ctx.fillStyle = P[4]; ctx.fillRect(sx + 3, sy + 5, 2, 4); ctx.fillRect(sx + sw - 5, sy + 5, 2, 4); ctx.fillStyle = 'rgba(42,31,45,.25)'; ctx.fillRect(sx, sy + 5, sw, 2);
         let x0 = sx + 3;
         for (const [k, w] of row) { const dy = drop(k);
-          if (k === 'radio') { ART.radio(ctx, x0, sy + dy, t, st); if (st.sound) glows.push([x0 + 26, sy - 10, 10, 6, '255,214,140', .3]); } if (k === 'cacto') ART.cactus(ctx, x0, sy + dy, t); if (k === 'livros') ART.books(ctx, x0, sy + dy); if (k === 'aquario') { ART.aquarium(ctx, x0, sy + dy, t, st); glows.push([x0 + 19, sy - 14, 26, 18, '120,200,220', .4]); aqua = [x0, sy - 30]; }
+          const g = this.deskObj(ctx, k, { x: x0, y: sy, w, h: DESK_OBJ[k][2] }, st, t, dy); if (g) glows.push(g);
           x0 += w + 3; } });
     }
     // Telefone de mesa (toca quando há uma ligação esperando)
     if (Z.phone && !st.bigPhone) this.phone(ctx, Z.phone.x, Z.phone.y, st.ringing, t, st.phoneHeld);
-    // Planta (folhas balançam de leve)
-    if (D.has('planta')) this.plant(ctx, Z.plant.x, Z.plant.y, t);
     // Monitor extra: gráfico subindo e cursor piscando
     if (D.has('monitor') && L.right >= 36) { const w = Math.min(44, L.right - 6), h = Math.round(w * .62), px = Z.sideMon.x, py = Z.sideMon.y;
       ctx.fillStyle = P.X; ctx.fillRect(px + 3, py + 3, w - 6, h - 8);
@@ -539,25 +509,9 @@ const Office = {
       if ((t * 2 | 0) % 2) { ctx.fillStyle = P.v; ctx.fillRect(px + w - 8, py + 5, 2, 3); } }
     // Luminária
     const lampOn = !st.lights || st.lights.lamp !== false, lampLv = st.lampLv !== undefined ? st.lampLv : lampOn ? 1 : 0;
-    if (D.has('lamp')) this.lamp(ctx, Z.lamp.x, Z.lamp.y, t, lampLv > .5);
-    // Troféu com brilho que passa de vez em quando
-    if (D.has('trofeu')) this.trophy(ctx, Z.trophy.x, Z.trophy.y, t);
-    // Caneca com vapor (enquanto o café está quente)
-    // caneca vista um pouco de cima: boca oval com café, alça, brilho e faixa com o logotipo (dourada a partir de Assistente)
-    // caneca maior (22x22): boca oval com café, corpo com luz à esquerda e sombra à direita, alça e faixa do logo
-    // caneca de cerâmica branca com faixa lavanda (logo dourado a partir de Assistente), café escuro com reflexo
-    const MUG = ['....kkkkkkkkkkk.......', '..kWWWWWWWWWWWwk......', '.kw3444444444443pk....', '.kW4433444444444pk....', '..kkkkkkkkkkkkkkk.....', '.k+WWWWWWWWWWWwwpk....', '.k+WWWWWWWWWWWwwpk....', '.k+WWWWWWWWWWWwwpkkk..', '.k+WWWWWWWWWWWwwpkwpk.', '.kiiIIIIIIIIIII66kw.pk', '.kiIIIIyyyIIIII66kw.pk', '.kiIIIIyYyIIIII66kw.pk', '.kiiIIIIIIIIIII66kw.pk', '.k+WWWWWWWWWWWwwpkw.pk', '.k+WWWWWWWWWWWwwpkwpk.', '.k+WWWWWWWWWWWwwpkkk..', '.kWWWWWWWWWWWWwwpk....', '.kWWWWWWWWWWWWwwpk....', '.kwwwwwwwwwwwwwppk....', '..kppppppppppppPk.....', '...kkkkkkkkkkkkk......', '......................'];
-    const mug = st.rank >= 1 ? MUG : MUG.map(r => r.replace(/[yY]/g, 'I'));
-    ctx.drawImage(Pixel.master(mug, WD_PAL), Z.mug.x - 5, Z.mug.y - 9);
-    if (st.hour < 16 || st.clutter < 2) ctx.drawImage(Pixel.master(SPR2.steam[(t * 5 | 0) % 3], WD_PAL), Z.mug.x + 1, Z.mug.y - 16);
-    // Gato: rabo balança, pisca, mexe a orelha
-    // Objetos com arte própria e animação (57-decor-art): gato, webcam, globo, livros, caixas de som
-    const Q = this._slots || {};
-    if (D.has('gato') && Q.gato) { const c = OFFICE_CAT; CatAI.step(c, t); catDrawBound(ctx, Q.gato.x, Q.gato.y - 4 + drop('gato'), st.cat || 'laranja', c, t); }
-    if (D.has('globo') && Q.globo) ART.globe(ctx, Q.globo.x, Q.globo.y + drop('globo'), t, { spin: OFFICE_GLOBE.spin(t) });
-    if (D.has('pato') && Q.pato) duckDraw(ctx, Q.pato.x, Q.pato.y + drop('pato'), t);
-    if (D.has('livros') && Q.livros) ART.books(ctx, Q.livros.x, Q.livros.y + drop('livros'));
-    if (D.has('caixas')) { if (Q.caixaL) ART.speaker(ctx, Q.caixaL.x, Q.caixaL.y + drop('caixas'), t, st); if (Q.caixaR) ART.speaker(ctx, Q.caixaR.x, Q.caixaR.y + drop('caixas'), t, st); }
+    // Objetos da mesa por zona e porte (58-mesa.js): fundo atrás do monitor, frente e cantos
+    this._lampCone = null;
+    this.deskDraw(ctx, L, Object.assign({}, st, { lampLv }), t, drop, glows);
     // parede: neon e diploma acima do monitor (ladeando a webcam); quadro na faixa da direita, abaixo do monitor extra
     if (M.y >= 22) { if (D.has('neon')) { ART.neon(ctx, M.x + (M.w >> 1) + 26, M.y - 21 + drop('neon'), t); const nOff = (t % 11) < .12 || ((t % 11) > .3 && (t % 11) < .38); if (!nOff) glows.push([M.x + (M.w >> 1) + 42, M.y - 13, 26, 14, '239,75,63', .45]); /* o brilho falha junto com o tubo */ } if (D.has('diploma')) ART.diploma(ctx, M.x + (M.w * .78 | 0), M.y - 25 + drop('diploma')); }
     if (D.has('quadro') && L.right >= 40) { const rx = M.x + M.w + ((L.right - 34) >> 1); ART.painting(ctx, rx, (D.has('monitor') ? Z.sideMon.y + 46 : 112) + drop('quadro'), t); }
@@ -597,13 +551,13 @@ const Office = {
         for (let j = 0; j < deskH; j++) { const half = Math.round((s.w * .5 + j * 1.2) * k); ctx.fillRect(Math.round(s.x + s.w / 2 - half), L.desk + j, half * 2, 1); } }
       glows.forEach(g => pool(...g));
       // aquário: faixas de luz da água ondulando na parede acima do tanque (pixels soltos, 3 linhas, sem borrão)
-      if (aqua) { ctx.fillStyle = `rgba(150,220,230,${(.32 * b).toFixed(3)})`;
+      const aqua = this._aqua; if (aqua) { ctx.fillStyle = `rgba(150,220,230,${(.32 * b).toFixed(3)})`;
         for (let k = 0; k < 3; k++) for (let i = 0; i < 36; i++) if (Math.sin(i * .55 + t * 2.2 + k * 1.7) > .55) ctx.fillRect(aqua[0] + i, aqua[1] - k * 4 + Math.round(Math.sin(i * .3 + t * 1.3 + k)), 1, 1); }
       ctx.restore(); }
     // Luminária acesa: cone em duas faixas de borda definida (externa mais fraca, miolo mais forte), da boca da cúpula até
     // o tampo, e uma poça de luz em três degraus na mesa. Nada de degradê suave; o brilho oscila 1 degrau, bem de leve.
-    if (D.has('lamp') && lampLv > 0) {
-      const fl = (1 + ((t * 9 | 0) % 11 === 0 ? -.15 : 0)) * lampLv, cx = Z.lamp.x - 6, y0 = Z.lamp.y - 24, y1 = Z.lamp.y + 1, Hh = y1 - y0;
+    if (D.has('lamp') && lampLv > 0 && this._lampCone) {
+      const lc = this._lampCone || { cx: -99, y0: 0, y1: 0 }, fl = (1 + ((t * 9 | 0) % 11 === 0 ? -.15 : 0)) * lampLv, cx = lc.cx, y0 = lc.y0, y1 = lc.y1, Hh = y1 - y0;
       for (const [k, a] of [[1, .09], [.6, .1]]) { ctx.fillStyle = `rgba(255,231,163,${(a * fl).toFixed(3)})`;
         for (let j = 0; j <= Hh; j++) { const w = Math.round((7 + j * .75) * k); ctx.fillRect(cx - w, y0 + j, w * 2, 1); } }
       // (sem poça redonda: só o cone)
