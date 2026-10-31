@@ -80,12 +80,12 @@ function avRender(cfg) {
   // ---- cabeça, orelhas
   for (const s of [-1, 1]) ell(CX + s * (RX + .5), CY + 1, 2, 3, (x, y) => put(x, y, s < 0 ? skin[1] : skin[2], 'skin'));
   for (let y = CY - RY; y <= CY + RY; y++) for (let x = CX - RX - 1; x <= CX + RX + 1; x++) if (headIn(x, y)) put(x, y, shade(skin, x, y, CX - 2, CY - 2, RX, RY), 'skin');
-  // bochechas, nariz, boca
-  put(CX - 7, CY + 5, skin[2], 'skin'); put(CX + 7, CY + 5, skin[2], 'skin');
-  put(CX, CY + 4, skin[2], 'skin'); put(CX + 1, CY + 5, skin[3], 'skin'); put(CX - 1, CY + 5, skin[2], 'skin');
+  // bochechas, nariz, boca (material 'feat': o sombreamento por volume não apaga esses detalhes)
+  put(CX - 7, CY + 5, skin[2], 'feat'); put(CX + 7, CY + 5, skin[2], 'feat');
+  put(CX, CY + 4, skin[2], 'feat'); put(CX + 1, CY + 5, skin[3], 'feat'); put(CX - 1, CY + 5, skin[2], 'feat');
   const lip = skin[3];
-  if (cfg.eyes === 'feliz') { for (let x = CX - 3; x <= CX + 3; x++) put(x, CY + 8, lip, 'skin'); put(CX - 4, CY + 7, lip, 'skin'); put(CX + 4, CY + 7, lip, 'skin'); for (let x = CX - 2; x <= CX + 2; x++) put(x, CY + 9, '#a24a33', 'skin'); }
-  else { for (let x = CX - 2; x <= CX + 2; x++) put(x, CY + 8, lip, 'skin'); put(CX - 3, CY + 7, lip, 'skin'); put(CX + 3, CY + 7, lip, 'skin'); }
+  if (cfg.eyes === 'feliz') { for (let x = CX - 3; x <= CX + 3; x++) put(x, CY + 8, lip, 'feat'); put(CX - 4, CY + 7, lip, 'feat'); put(CX + 4, CY + 7, lip, 'feat'); for (let x = CX - 2; x <= CX + 2; x++) put(x, CY + 9, '#a24a33', 'feat'); }
+  else { for (let x = CX - 2; x <= CX + 2; x++) put(x, CY + 8, lip, 'feat'); put(CX - 3, CY + 7, lip, 'feat'); put(CX + 3, CY + 7, lip, 'feat'); }
   // ---- olhos (desenhos de 5 px; o direito é espelhado)
   const EYES = {
     redondo: ['.kkk.', 'kwipk', 'kwiik', '.kkk.'], amendoa: ['..kk.', 'kwipk', '.kkk.'], sonolento: ['kkkkk', 'kwipk', '.kkk.'],
@@ -113,6 +113,23 @@ function avRender(cfg) {
     for (let i = 0; i < 9; i++) ell(CX - RX + i * 2.8, CY - RY + 1 - Math.sin(i / 8 * Math.PI) * 2, 2.2, 2.2, (x, y) => put(x, y, shade(hair, x, y, CX - 4, CY - 12, RX + 4, RY), 'hair')); }
   if (hs === 'crespo') top(5, 4, () => CY - 5, (x, y) => (x * 3 + y * 5) % 7 === 0 ? hair[0] : shade(hair, x, y, CX - 4, CY - 10, RX + 7, RY + 5));
   if (hs === 'coque') ell(CX + 1, CY - RY - 3, 4.5, 4, (x, y) => put(x, y, shade(hair, x, y, CX - 1, CY - RY - 5, 4.5, 4), 'hair'));
+  // ---- sombreamento que segue o volume (sem faixas diagonais): luz de cima à esquerda.
+  // Pele e roupa partem do tom base; a borda direita/de baixo recebe sombra (1-2 px, mais funda colada no contorno),
+  // a borda esquerda/de cima ganha brilho; a franja projeta sombra na testa. Olhos, boca e detalhes não mudam.
+  { const isM = (x, y, m) => { const g = get(x, y); return g === m || (m === 'skin' && g === 'feat'); }, recolor = [];
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+      const m = mat[y * W + x]; if (m !== 'skin' && m !== 'cloth') continue;
+      const R = m === 'skin' ? skin : cloth, c = col[y * W + x]; if (!R.includes(c)) continue;      // só tons da rampa (detalhes ficam)
+      const out1 = !isM(x + 1, y, m) && !isM(x + 1, y, 'eye') && !isM(x + 1, y, 'mouth'), out2 = !isM(x + 2, y, m) && !isM(x + 2, y, 'eye');
+      const down1 = !isM(x, y + 1, m) && y < H - 1, left1 = !isM(x - 1, y, m), up1 = !isM(x, y - 1, m);
+      let t = 1;
+      if (m === 'skin' && isM(x, y - 1, 'hair') || m === 'skin' && isM(x, y - 2, 'hair') && !isM(x - 1, y, 'hair')) t = 2;   // sombra da franja
+      if (out2 || (m === 'skin' && down1)) t = 2;
+      if (out1) t = 3;
+      if (t === 1 && (left1 || up1) && !isM(x - 1, y, 'hair') && !isM(x, y - 1, 'hair')) t = 0;
+      recolor.push([y * W + x, R[t]]);
+    }
+    recolor.forEach(([i, c]) => { col[i] = c; }); }
   // ---- contornos: externo em tinta; internos no tom escuro de cada material
   const out = new Array(W * H);
   for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
@@ -133,7 +150,7 @@ function avRender(cfg) {
   return c;
 }
 // Versão pequena (metade) para espaços apertados: cada bloco 2×2 vira a cor mais frequente, preferindo o contorno
-const AV_PRI = { ink: 9, eye: 8, brow: 7, mouth: 7, skin: 5, shirt: 4, cloth: 3, hair: 2, bg: 0 };
+const AV_PRI = { ink: 9, eye: 8, brow: 7, mouth: 7, feat: 7, skin: 5, shirt: 4, cloth: 3, hair: 2, bg: 0 };
 // Miniatura do editor: resolução cheia recortada na região da opção (rosto para olhos/sobrancelhas/boca), escala 2
 function avThumb(cfg, key) {
   const src = avRender(cfg), face = /eyes|brows|mouth|eyeColor|blush|glasses/i.test(key), r = face ? [10, 12, 28, 22] : [0, 0, src.width, src.height];
