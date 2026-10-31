@@ -72,16 +72,17 @@ const Office = {
   // Teclado da mesa em QWERTY físico (KeyboardEvent.code = posição da tecla, independente do idioma do teclado)
   KEYS: (() => {
     const k = [];
-    'QWERTYUIOP'.split('').forEach((c, i) => k.push(['Key' + c, 0, 1 + i, 1])); k.push(['Backspace', 0, 11, 2]);
-    'ASDFGHJKL'.split('').forEach((c, i) => k.push(['Key' + c, 1, 1.5 + i, 1])); k.push(['Enter', 1, 10.5, 2]);
-    k.push(['ShiftLeft', 2, 0, 2]); 'ZXCVBNM'.split('').forEach((c, i) => k.push(['Key' + c, 2, 2 + i, 1])); k.push(['ShiftRight', 2, 9, 2], ['ArrowUp', 2, 12, 1]);
-    k.push(['ControlLeft', 3, 0, 1], ['AltLeft', 3, 1, 1], ['Space', 3, 2.5, 6], ['AltRight', 3, 8.5, 1], ['ArrowLeft', 3, 11, 1], ['ArrowDown', 3, 12, 1], ['ArrowRight', 3, 13, 1]);
+    k.push(['Escape', 0, 0, 1]); 'QWERTYUIOP'.split('').forEach((c, i) => k.push(['Key' + c, 0, 1 + i, 1])); k.push(['Backspace', 0, 11, 2], ['Delete', 0, 13, 2]);
+    k.push(['CapsLock', 1, 0, 1.5]); 'ASDFGHJKL'.split('').forEach((c, i) => k.push(['Key' + c, 1, 1.5 + i, 1])); k.push(['Enter', 1, 10.5, 2.5], ['Digit1', 1, 13, 1], ['Digit2', 1, 14, 1]);
+    k.push(['ShiftLeft', 2, 0, 2]); 'ZXCVBNM'.split('').forEach((c, i) => k.push(['Key' + c, 2, 2 + i, 1])); k.push(['ShiftRight', 2, 9, 3], ['ArrowUp', 2, 13, 1]);
+    k.push(['ControlLeft', 3, 0, 1.5], ['AltLeft', 3, 1.5, 1.5], ['Space', 3, 3, 6.5], ['AltRight', 3, 9.5, 1.5], ['ArrowLeft', 3, 12, 1], ['ArrowDown', 3, 13, 1], ['ArrowRight', 3, 14, 1]);
     return k;
   })(),
+  // 15 colunas que ocupam o corpo do teclado; teclas de 3 px de altura (2 de face + 1 de sombra) em 4 fileiras
   keyRects(L) {
     if (L._keys) return L._keys;
-    const base = L.kx + Math.max(2, (L.kw - 14 * 7) >> 1), ky = L.VH - 15, m = new Map();
-    for (const [code, r, c, w] of this.KEYS) { const x = base + Math.round(c * 7); if (x + w * 7 - 1 > L.kx + L.kw - 2) continue; m.set(code, { x, y: ky + 1 + r * 4, w: w * 7 - 1 }); }
+    const u = Math.max(5, Math.floor((L.kw - 4) / 15)), base = L.kx + ((L.kw - 15 * u) >> 1), ky = L.VH - 15, m = new Map();
+    for (const [code, r, c, w] of this.KEYS) m.set(code, { x: base + Math.round(c * u), y: ky + 1 + r * 4, w: Math.round(w * u) - 1 });
     return (L._keys = m);
   },
   lampRect(L) { const Z = this.spots(L); return { x: Z.lamp.x - 16, y: Z.lamp.y - 46, w: 36, h: 50 }; },

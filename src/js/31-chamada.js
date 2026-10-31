@@ -5,6 +5,8 @@
 const REST_EVERY = 3;                 // dias entre as pausas para descansar
 const SECRET_NAME = 'PLAYER ONE';     // nome no crachá que revela o arcade secreto no menu
 const MINIGAMES = ['rhythm', 'shooter'];
+function nextGame() { const last = load('ultimo-minigame', null), g = last === 'rhythm' ? 'shooter' : last === 'shooter' ? 'rhythm' : pick(MINIGAMES); save('ultimo-minigame', g); return g; }
+const gameName = k => k === 'rhythm' ? U().mgRhythm : U().mgShooter;
 function arcadeUnlocked() { return (PROFILE.name || '').trim().toUpperCase() === SECRET_NAME; }
 
 // Duda, da TI: rosto próprio (cabelo ruivo curto, óculos, headset com microfone)
@@ -43,7 +45,8 @@ function callSay(text, opts, face) {
   const line = Call.el.querySelector('.vc-line'), box = Call.el.querySelector('.vc-opts');
   box.replaceChildren(); line.textContent = '';
   return new Promise(res => {
-    let i = 0; face.talk(true);
+    let i = 0, waiting = null; face.talk(true);
+    Call.skip = () => { if (i < text.length) { i = text.length - 1; } else if (waiting) { clearTimeout(waiting); waiting = null; res(); } };
     const step = () => {
       if (!Call.el) return;
       line.textContent = text.slice(0, ++i);
@@ -51,7 +54,7 @@ function callSay(text, opts, face) {
       if (i < text.length) callLater(step, Motion.reduced.matches ? 0 : 22);
       else {
         face.talk(false);
-        if (!opts) { callLater(res, 1100); return; }
+        if (!opts) { waiting = callLater(() => { waiting = null; res(); }, 1400); return; }
         opts.forEach(([label, val, main], n) => {
           const b = document.createElement('button'); b.className = 'pxbtn' + (main ? ' main' : ''); b.textContent = label;
           b.onclick = () => { box.querySelectorAll('button').forEach(x => x.disabled = true); res(val); };
@@ -83,12 +86,16 @@ function startCall(mode, onExit) {
   el.innerHTML = `<div class="vc-win"><div class="vc-title"><span>${c.incoming} · ${c.who}</span><b class="rec">●</b></div>
     <div class="vc-body"><div class="vc-cam"><span class="vc-face"></span></div><div class="vc-talk"><p class="vc-line"></p><div class="vc-opts"></div></div></div></div>`;
   uiRoot().append(el); Call.el = el;
+  const skip = e => { if (Call.el && Call.skip && !e.target.closest('button, .mg-host')) Call.skip(); };
+  el.addEventListener('pointerdown', skip);
+  Call.key = e => { if (Call.el && !Call.el.classList.contains('playing') && (e.key === ' ' || e.key === 'Enter') && !e.target.closest('button')) { e.preventDefault(); e.stopPropagation(); if (Call.skip) Call.skip(); } };
+  addEventListener('keydown', Call.key, true);
   const face = dudaFace(el.querySelector('.vc-face'));
   Motion.play(el.querySelector('.vc-win'), [{ transform: 'scale(.4)', opacity: 0 }, { transform: 'scale(1.06)', opacity: 1, offset: .7 }, { transform: 'scale(1)', opacity: 1 }], { duration: 260, easing: Motion.E.out });
   const finish = async (reaction) => {
     if (reaction) { face.set(reaction === 'bad' ? 'wow' : 'smile', reaction === 'good' ? 'happy' : 'open'); await callSay(pick(c[reaction]), null, face); }
     face.set('smile', 'happy');
-    await callSay(pick(mode === 'arcade' && reaction ? c.bye.slice(1) : c.bye), null, face);
+    await callSay(pick(mode === 'arcade' ? c.byeArcade : c.bye), null, face);
     closeCall(mode, onExit);
   };
   (async () => {
@@ -107,9 +114,19 @@ function startCall(mode, onExit) {
       face.set('smile'); await callSay(t[r], null, face);
     }
     face.set('smile', 'happy');
-    const go = await callSay(pick(c.invite), [[c.yes, true, true], [c.no, false]], face);
-    if (!go) { face.set('shut'); await callSay(pick(c.declined), null, face); closeCall(mode, onExit); return; }
-    const kind = pick(MINIGAMES);
+    let kind, opts = {};
+    if (mode === 'arcade') {
+      // arcade: o jogador escolhe o jogo e, no ritmo, a música ou o modo infinito
+      const g = await callSay(u.mgPickGame, [[u.mgRhythm, 'rhythm', true], [u.mgShooter, 'shooter', true], [u.mgSurprise, '?'], [c.no, false]], face);
+      if (!g) { face.set('shut'); await callSay(pick(c.declined), null, face); closeCall(mode, onExit); return; }
+      kind = g === '?' ? pick(MINIGAMES) : g;
+      if (kind === 'rhythm') { const sg = await callSay(u.mgPickSong, [...u.songs.map((n, i) => [n, i, true]), [u.mgInfinite, 'inf', true]], face); opts.song = sg; }
+    } else {
+      kind = nextGame();
+      const go = await callSay(pick(c.inviteG).replace('{g}', gameName(kind)), [[c.yes, true, true], [c.no, false]], face);
+      if (!go) { face.set('shut'); await callSay(pick(c.declined), null, face); closeCall(mode, onExit); return; }
+      if (kind === 'rhythm') opts.song = Math.random() * RHY.SONGS.length | 0;
+    }
     if (mode === 'work') music(null);
     const host = document.createElement('div'); host.className = 'mg-host'; el.querySelector('.vc-win').append(host);
     el.classList.add('playing');
@@ -117,12 +134,12 @@ function startCall(mode, onExit) {
       host.remove(); el.classList.remove('playing');
       if (mode === 'work') addStress(-10);          // descanso de verdade: alivia um pouco, sem pontos nem dinheiro
       finish(result.grade);
-    });
+    }, opts);
   })();
 }
 
 function closeCall(mode, onExit) {
-  callClear(); OFFICE.call = false;
+  callClear(); OFFICE.call = false; Call.skip = null; if (Call.key) { removeEventListener('keydown', Call.key, true); Call.key = null; }
   const el = Call.el; Call.el = null;
   if (el) { const a = Motion.play(el.querySelector('.vc-win'), [{ transform: 'scale(1)', opacity: 1 }, { transform: 'scale(1.05,.9)', offset: .3, opacity: 1 }, { transform: 'scale(.2,.05) translateY(300%)', opacity: 0 }], { duration: 240, easing: Motion.E.anticip }); if (a) a.onfinish = () => el.remove(); else el.remove(); }
   if (mode === 'work') countdown(() => { S.resting = false; S.paused = false; S.last = performance.now(); muffle(false); if (S.phase === 'day') music('office'); });

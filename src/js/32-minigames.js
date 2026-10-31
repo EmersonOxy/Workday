@@ -33,7 +33,7 @@ function mgDrawParticles(x, list, dt) {
   for (const p of list) { p.t -= dt; p.x += p.vx * dt; p.y += p.vy * dt; p.vy += 120 * dt; x.fillStyle = p.col; x.fillRect(p.x | 0, p.y | 0, p.t > .2 ? 2 : 1, p.t > .2 ? 2 : 1); }
   for (let i = list.length - 1; i >= 0; i--) if (list[i].t <= 0) list.splice(i, 1);
 }
-function runMinigame(kind, host, done) { (kind === 'rhythm' ? mgRhythm : mgShooter)(host, done); }
+function runMinigame(kind, host, done, opts) { (kind === 'rhythm' ? mgRhythm : mgShooter)(host, done, opts); }
 function mgResult(stage, host, rows, grade, done) {
   const u = U(), box = document.createElement('div'); box.className = 'mg-end';
   box.innerHTML = `<b>${u.mgEnd}</b>${rows.map(([k, v]) => `<span>${k} <i>${v}</i></span>`).join('')}`;
@@ -42,63 +42,79 @@ function mgResult(stage, host, rows, grade, done) {
 }
 
 /* ---------- Batida de Ponto: ritmo em 4 colunas ---------- */
-const RHY = { BPM: 128, BARS: 16, LEAD: 1.35, PERFECT: .055, GOOD: .12,
-  // Frases de um compasso em colcheias: [passo 0-7, coluna, duração em colcheias para notas sustentadas]
-  PAT: [[[0, 0], [2, 1], [4, 2], [6, 3]], [[0, 3], [2, 2], [4, 1], [5, 1], [6, 0]], [[0, 0], [0, 3], [4, 1, 3], [7, 2]], [[0, 2], [1, 1], [2, 0], [4, 3], [6, 3]],
-        [[0, 1], [0, 2], [2, 0], [3, 3], [4, 1, 2], [7, 3]], [[0, 0], [1, 1], [2, 2], [3, 3], [4, 2], [5, 1], [6, 0, 2]]],
-  ROOTS: [48, 44, 51, 46] };     // Dó menor, Lá♭, Mi♭, Si♭ (MIDI)
+// Músicas originais descritas como dados: andamento, acordes (MIDI) e frases de um compasso em colcheias
+// [passo 0-7, coluna, duração em colcheias se for sustentada]. A melodia só soa quando o jogador acerta a nota.
+// Um agendador gera os compassos um pouco à frente do relógio do áudio: notas, bateria e baixo nascem juntos.
+const RHY = { LEAD: 1.35, PERFECT: .055, GOOD: .12, AHEAD: 2.5,
+  SONGS: [
+    { bpm: 112, bars: 14, roots: [45, 41, 48, 43], wave: 'triangle', drums: 'soft',
+      pats: [[[0, 0], [4, 2]], [[0, 1], [2, 2], [4, 3], [6, 2]], [[0, 0], [2, 1], [4, 2, 3]], [[0, 3], [2, 2], [4, 1], [6, 0]]] },
+    { bpm: 128, bars: 16, roots: [48, 44, 51, 46], wave: 'square', drums: 'four',
+      pats: [[[0, 0], [2, 1], [4, 2], [6, 3]], [[0, 3], [2, 2], [4, 1], [5, 1], [6, 0]], [[0, 0], [0, 3], [4, 1, 3], [7, 2]], [[0, 2], [1, 1], [2, 0], [4, 3], [6, 3]],
+             [[0, 1], [0, 2], [2, 0], [3, 3], [4, 1, 2], [7, 3]], [[0, 0], [1, 1], [2, 2], [3, 3], [4, 2], [5, 1], [6, 0, 2]]] },
+    { bpm: 146, bars: 18, roots: [50, 46, 53, 48], wave: 'sawtooth', drums: 'break',
+      pats: [[[0, 0], [1, 1], [3, 2], [4, 3], [6, 1]], [[0, 3], [1, 2], [2, 3], [4, 0], [5, 1], [6, 0]], [[0, 0], [0, 2], [2, 1], [2, 3], [4, 0, 2], [6, 3]],
+             [[0, 1], [1, 2], [2, 1], [3, 2], [4, 0], [4, 3], [6, 1, 2]], [[0, 2], [2, 0], [3, 1], [4, 2], [5, 3], [6, 2], [7, 1]]] },
+  ] };
 const midiHz = m => 440 * Math.pow(2, (m - 69) / 12);
-function rhythmChart() {
-  const SPB = 60 / RHY.BPM, E = SPB / 2, notes = [];
-  for (let b = 0; b < RHY.BARS; b++) {
-    const p = b < 2 ? RHY.PAT[0] : b < 6 ? RHY.PAT[b % 4] : RHY.PAT[(b % 6)];
-    const mirror = b >= 10 && b % 2;           // segunda metade: frases espelhadas, mais variedade
-    for (const [s, lane, hold] of p) { const t = b * 4 * SPB + s * E; notes.push({ t, lane: mirror ? 3 - lane : lane, end: hold ? t + hold * E : null, bar: b }); }
-  }
-  return notes.sort((a, b) => a.t - b.t);
+// Gera o compasso b: dos padrões da música, ou aleatório e cada vez mais denso no modo infinito
+function rhythmBar(song, b, inf) {
+  const n = song.pats.length;
+  if (!inf) { const p = b < 2 ? song.pats[0] : song.pats[(b - 2) % (n - 1) + 1]; return b >= song.bars / 2 && b % 2 ? p.map(([s, l, h]) => [s, 3 - l, h]) : p; }
+  const all = RHY.SONGS.flatMap(x => x.pats), lvl = Math.min(all.length - 1, (b / 4 | 0) + 2), p = all[Math.random() * lvl | 0];
+  return Math.random() < .5 ? p.map(([s, l, h]) => [s, 3 - l, h]) : p;
 }
-function rhythmMusic(start, notes) {
-  if (!soundOn || !A.ctx || A.ctx.state !== 'running') return;
-  const c = A.ctx, SPB = 60 / RHY.BPM, at = t => start + t - c.currentTime;
-  for (let b = 0; b < RHY.BARS + 1; b++) {
-    const root = RHY.ROOTS[b % 4], t0 = b * 4 * SPB, last = b === RHY.BARS;
-    for (let q = 0; q < (last ? 1 : 4); q++) {
-      const t = t0 + q * SPB;
-      if (q % 2 === 0) tone({ type: 'sine', f: 150, f2: 45, d: .16, v: .55, at: at(t) });              // bumbo
-      else noise({ f: 1800, d: .1, v: .28, at: at(t) });                                              // caixa
-      noise({ f: 7000, d: .03, v: .1, at: at(t + SPB / 2) });                                         // chimbal
-      if (!last) tone({ type: 'triangle', f: midiHz(root - 12), d: SPB * .45, v: .22, at: at(t) });  // baixo
-      if (!last) tone({ type: 'triangle', f: midiHz(root - 12 + (q === 3 ? 7 : 0)), d: SPB * .3, v: .14, at: at(t + SPB / 2) });
-    }
-  }
-  // melodia: cada nota do mapa toca um tom do acorde do compasso (coluna = grau do acorde)
-  for (const n of notes) { const root = RHY.ROOTS[n.bar % 4] + 12, deg = [0, 3, 7, 12][n.lane] + (n.bar % 4 === 1 ? 0 : 0);
-    tone({ type: 'square', f: midiHz(root + deg + 12), d: n.end ? n.end - n.t : .12, v: .09, lp: 2600, at: at(n.t) }); }
-}
-function mgRhythm(host, done) {
-  const u = U(), touch = document.body.classList.contains('touch');
-  const st = mgStage(host, u.mgRhythm, touch ? u.mgRhythmHelpT : u.mgRhythmHelp), x = st.x, P = WD_PAL;
+function mgRhythm(host, done, opts = {}) {
+  const u = U(), touch = document.body.classList.contains('touch'), inf = opts.song === 'inf';
+  const song = inf ? { ...RHY.SONGS[1], bars: Infinity } : RHY.SONGS[opts.song || 0];
+  const st = mgStage(host, `${u.mgRhythm} · ${inf ? u.mgInfinite : u.songs[opts.song || 0]}`, touch ? u.mgRhythmHelpT : u.mgRhythmHelp), x = st.x, P = WD_PAL;
   const LX = [12, 38, 64, 90], LW = 24, HIT = 138, KEYS = { KeyD: 0, KeyF: 1, KeyJ: 2, KeyK: 3 };
   const COL = [WD_SECTOR_RAMP.fin, WD_SECTOR_RAMP.rh, WD_SECTOR_RAMP.jur, WD_SECTOR_RAMP.ti];
   const useAudio = soundOn && A.ctx && A.ctx.state === 'running', clock = mgClock(useAudio);
-  const notes = rhythmChart(), start = clock.now() + 2.2;
-  if (useAudio) rhythmMusic(start + (A.ctx.outputLatency || A.ctx.baseLatency || 0), notes);
-  const held = [false, false, false, false], flash = [0, 0, 0, 0], parts = [];
+  const lat = useAudio ? (A.ctx.outputLatency || A.ctx.baseLatency || 0) : 0, start = clock.now() + 2.2;
+  const notes = [], held = [false, false, false, false], flash = [0, 0, 0, 0], parts = [];
   let score = 0, combo = 0, best = 0, perfect = 0, good = 0, miss = 0, over = false, lastT = clock.now();
+  let nextBar = 0, barT = 0, bpm = song.bpm, life = 10;
   const songT = () => clock.now() - start;
+  // agenda bateria e baixo do compasso no relógio do áudio (o que se ouve = o que se julga)
+  const scheduleBar = (b, t0, spb) => {
+    if (!useAudio) return;
+    const c = A.ctx, at = t => start + lat + t - c.currentTime, root = song.roots[b % 4];
+    for (let q = 0; q < 4; q++) {
+      const t = t0 + q * spb;
+      if (q % 2 === 0 || song.drums === 'four') tone({ type: 'sine', f: 150, f2: 45, d: .16, v: .5, at: at(t) });
+      if (q % 2 === 1) noise({ f: song.drums === 'soft' ? 1200 : 1800, d: .1, v: song.drums === 'soft' ? .14 : .26, at: at(t) });
+      if (song.drums === 'break' && q === 3) noise({ f: 1800, d: .06, v: .2, at: at(t + spb * .75) });
+      noise({ f: 7000, d: .03, v: .08, at: at(t + spb / 2) });
+      tone({ type: 'triangle', f: midiHz(root - 12), d: spb * .45, v: .2, at: at(t) });
+      tone({ type: 'triangle', f: midiHz(root - 12 + (q === 3 ? 7 : 0)), d: spb * .3, v: .12, at: at(t + spb / 2) });
+    }
+  };
+  const genAhead = () => {
+    while (nextBar < song.bars && barT < songT() + RHY.AHEAD + RHY.LEAD) {
+      const spb = 60 / bpm, e = spb / 2, b = nextBar;
+      for (const [s, lane, hold] of rhythmBar(song, b, inf)) { const t = barT + s * e; notes.push({ t, lane, end: hold ? t + hold * e : null, root: song.roots[b % 4] }); }
+      scheduleBar(b, barT, spb);
+      barT += 4 * spb; nextBar++;
+      if (inf && nextBar % 8 === 0) bpm = Math.min(180, bpm + 6);     // infinito: acelera a cada 8 compassos
+    }
+  };
+  // a nota acertada toca seu tom (grau do acorde pela coluna); errar fica em silêncio
+  const play = (n, dur) => { if (useAudio) tone({ type: song.wave, f: midiHz(n.root + 24 + [0, 3, 7, 12][n.lane]), d: dur, v: .09, lp: 2600 }); };
   const judge = (n, d) => {
     const a = Math.abs(d);
-    if (a <= RHY.PERFECT) { perfect++; score += 300 + combo * 5; mgPop(st, u.mgPerfect, 'ok'); }
+    if (a <= RHY.PERFECT) { perfect++; score += 300 + combo * 5; mgPop(st, u.mgPerfect, 'ok'); life = Math.min(10, life + .5); }
     else { good++; score += 120 + combo * 2; mgPop(st, u.mgGood); }
     combo++; best = Math.max(best, combo); n.hit = true; if (n.end) n.holding = true; else n.done = true;
+    play(n, n.end ? Math.max(.12, n.end - songT()) : .14);
     mgParticles(parts, LX[n.lane] + LW / 2, HIT, COL[n.lane].F, a <= RHY.PERFECT ? 12 : 6);
   };
-  const missNote = n => { n.done = true; miss++; combo = 0; mgPop(st, u.mgMiss, 'bad'); };
+  const missNote = n => { n.done = true; miss++; combo = 0; life--; mgPop(st, u.mgMiss, 'bad'); };
   const press = lane => {
     if (over) return;
     held[lane] = true; flash[lane] = .12;
     const t = songT(), n = notes.find(k => !k.hit && !k.done && k.lane === lane && Math.abs(k.t - t) <= RHY.GOOD);
-    if (n) judge(n, n.t - t); else sfx('key');
+    if (n) judge(n, n.t - t);
   };
   const release = lane => {
     held[lane] = false;
@@ -113,47 +129,46 @@ function mgRhythm(host, done) {
   st.cv.onpointerup = st.cv.onpointercancel = e => { const l = ptrLane.get(e.pointerId); if (l !== undefined) { ptrLane.delete(e.pointerId); release(l); } };
   const frame = () => {
     if (!st.cv.isConnected) return finish(true);
+    genAhead();
     const now = clock.now(), dt = Math.min(.05, Math.max(0, now - lastT)), t = songT(); lastT = now;
     for (const n of notes) {
       if (!n.hit && !n.done && t - n.t > RHY.GOOD) missNote(n);
       if (n.holding && t >= n.end) { n.holding = false; n.done = true; score += 100; mgParticles(parts, LX[n.lane] + LW / 2, HIT, P.y, 10); }
     }
-    // desenho
+    while (notes.length && notes[0].done && notes[0].t < t - 2) notes.shift();
     x.fillStyle = P.X; x.fillRect(0, 0, MG.W, MG.H);
-    for (let i = 0; i < 4; i++) {
-      x.fillStyle = held[i] ? P.x : P.J; x.fillRect(LX[i], 0, LW, MG.H);
-      for (let j = (t * 40 | 0) % 8; j < MG.H; j += 8) { x.fillStyle = 'rgba(255,255,255,.04)'; x.fillRect(LX[i], j, LW, 1); }
-    }
+    for (let i = 0; i < 4; i++) { x.fillStyle = held[i] ? P.x : P.J; x.fillRect(LX[i], 0, LW, MG.H); for (let j = (t * 40 | 0) % 8; j < MG.H; j += 8) { x.fillStyle = 'rgba(255,255,255,.04)'; x.fillRect(LX[i], j, LW, 1); } }
     for (const n of notes) {
       if (n.done && !n.holding) continue;
       const y = HIT - (n.t - t) / RHY.LEAD * HIT, c = COL[n.lane];
       if (y < -10 && !n.holding) continue;
-      if (n.end) { const ye = HIT - (n.end - t) / RHY.LEAD * HIT; x.fillStyle = P.k; x.fillRect(LX[n.lane] + 8, Math.max(0, ye), 8, Math.max(0, (n.holding ? HIT : y) - Math.max(0, ye))); x.fillStyle = c.f; x.fillRect(LX[n.lane] + 9, Math.max(0, ye), 6, Math.max(0, (n.holding ? HIT : y) - Math.max(0, ye))); }
+      if (n.end) { const ye = Math.max(0, HIT - (n.end - t) / RHY.LEAD * HIT), yb = n.holding ? HIT : y; if (yb > ye) { x.fillStyle = P.k; x.fillRect(LX[n.lane] + 8, ye, 8, yb - ye); x.fillStyle = c.f; x.fillRect(LX[n.lane] + 9, ye, 6, yb - ye); } }
       if (!n.holding) { const ny = y - 4 | 0; x.fillStyle = P.k; x.fillRect(LX[n.lane] + 1, ny - 1, LW - 2, 9); x.fillStyle = c.F; x.fillRect(LX[n.lane] + 2, ny, LW - 4, 7); x.fillStyle = c.f; x.fillRect(LX[n.lane] + 2, ny, LW - 4, 2); x.fillStyle = c[9]; x.fillRect(LX[n.lane] + 2, ny + 6, LW - 4, 1); x.fillStyle = P.W; x.fillRect(LX[n.lane] + 10, ny + 3, 4, 1); }
     }
-    for (let i = 0; i < 4; i++) {   // receptores na linha de acerto
+    for (let i = 0; i < 4; i++) {
       flash[i] = Math.max(0, flash[i] - dt); const c = COL[i];
       x.fillStyle = P.k; x.fillRect(LX[i], HIT - 5, LW, 11); x.fillStyle = flash[i] > 0 || held[i] ? c.f : c[9]; x.fillRect(LX[i] + 1, HIT - 4, LW - 2, 9);
       x.fillStyle = c.F; x.fillRect(LX[i] + 3, HIT - 2, LW - 6, 5);
       if (!touch) Pixel.text(x, 'DFJK'[i], LX[i] + 11, HIT + 9, P.W);
     }
     x.fillStyle = P.W; x.fillRect(LX[0], HIT, LX[3] + LW - LX[0], 1);
+    if (inf) { x.fillStyle = P.k; x.fillRect(4, 4, 4, 82); x.fillStyle = life > 3 ? P.F : P.R; x.fillRect(5, 5 + (10 - life) * 8, 2, life * 8); }   // energia do modo infinito
     mgDrawParticles(x, parts, dt);
     if (t < 0) Pixel.text(x, String(Math.ceil(-t)), 62, 70, P.y);
     st.hud.textContent = `${u.mgScore} ${fmt(score)} · ${u.mgCombo} ${combo}`;
-    const last = notes[notes.length - 1];
-    if (t > (last.end || last.t) + 1.2) return finish(false);
+    if (inf ? life <= 0 : (nextBar >= song.bars && !notes.some(n => !n.done) && t > barT)) return finish(false);
     requestAnimationFrame(frame);
   };
   const finish = aborted => {
     if (over) return; over = true;
     removeEventListener('keydown', kd, true); removeEventListener('keyup', ku, true); clock.stop();
     if (aborted) return;
-    const acc = (perfect + good * .6) / notes.length, grade = acc >= .85 ? 'good' : acc >= .6 ? 'ok' : 'bad';
+    const total = perfect + good + miss || 1, acc = (perfect + good * .6) / total, grade = inf ? (score >= 15000 ? 'good' : score >= 5000 ? 'ok' : 'bad') : acc >= .85 ? 'good' : acc >= .6 ? 'ok' : 'bad';
     mgResult(st, host, [[u.mgScore, fmt(score)], [u.mgBest, best], [u.mgAcc, Math.round(acc * 100) + '%']], grade, g => done({ score, grade: g, acc }));
   };
   mgPop(st, u.mgReady);
-  host._rhythm = { notes, start, clock, press, release, songT };   // usado pelos testes automatizados
+  genAhead();
+  host._rhythm = { notes, start, clock, press, release, songT, get genAhead() { return genAhead; } };   // usado pelos testes automatizados
   requestAnimationFrame(frame);
 }
 

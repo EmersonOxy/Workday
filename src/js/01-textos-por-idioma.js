@@ -367,3 +367,12 @@ Object.assign(LANGS.en.ui, { mgRhythm: 'Punch-In Beat', mgShooter: 'Backlog Exte
 Object.assign(LANGS.es.ui, { mgRhythm: 'Ritmo de Fichaje', mgShooter: 'Exterminador de Pendientes', mgRhythmHelp: 'D F J K o toca las columnas cuando la nota llegue a la línea', mgRhythmHelpT: 'Toca las columnas cuando la nota llegue a la línea',
   mgShooterHelp: 'A/D o ← → para moverte · Espacio dispara', mgShooterHelpT: 'Arrastra la nave · el disparo es automático', mgPerfect: 'PERFECTO', mgGood: 'BIEN', mgMiss: 'FALLO', mgScore: 'Puntos', mgCombo: 'Combo', mgLives: 'Vidas', mgReady: '¡Prepárate!', mgEnd: 'Fin del juego', mgBest: 'Mejor combo', mgAcc: 'Precisión',
   lights: 'Lámpara', lightOn: 'Encendida', lightOff: 'Apagada', arcadeBtn: 'Arcade' });
+Object.assign(LANGS.pt.ui, { mgInfinite: 'Modo infinito', songs: ['Segunda-feira', 'Hora do Café', 'Fechamento do Mês'], mgPickGame: 'Escolha o jogo', mgPickSong: 'Escolha a música', mgSurprise: 'Surpresa' });
+Object.assign(LANGS.en.ui, { mgInfinite: 'Endless mode', songs: ['Monday Morning', 'Coffee Break', 'Month-End Close'], mgPickGame: 'Pick a game', mgPickSong: 'Pick a song', mgSurprise: 'Surprise me' });
+Object.assign(LANGS.es.ui, { mgInfinite: 'Modo infinito', songs: ['Lunes', 'Hora del Café', 'Cierre de Mes'], mgPickGame: 'Elige el juego', mgPickSong: 'Elige la canción', mgSurprise: 'Sorpresa' });
+LANGS.pt.call.inviteG = ['Bora jogar {g}? Cinco minutos. Ou quarenta segundos.', 'Achei o {g} no servidor de testes. Bora?', 'Hoje é dia de {g}. Topa?'];
+LANGS.en.call.inviteG = ['Wanna play {g}? Five minutes. Or forty seconds.', 'I found {g} on the test server. Shall we?', 'Today is a {g} kind of day. You in?'];
+LANGS.es.call.inviteG = ['¿Jugamos {g}? Cinco minutos. O cuarenta segundos.', 'Encontré {g} en el servidor de pruebas. ¿Vamos?', 'Hoy toca {g}. ¿Te animas?'];
+LANGS.pt.call.byeArcade = ['Volta quando quiser. O arcade nunca fecha.', 'Até a próxima, PLAYER ONE!'];
+LANGS.en.call.byeArcade = ['Come back anytime. The arcade never closes.', 'See you next time, PLAYER ONE!'];
+LANGS.es.call.byeArcade = ['Vuelve cuando quieras. El arcade nunca cierra.', '¡Hasta la próxima, PLAYER ONE!'];

@@ -280,22 +280,25 @@ async function entrega2(browser, url) {
   ok(await p.evaluate(() => !S.resting && !S.paused && !document.querySelector('.vcall') && !document.querySelector('.countdown')), 'pausa: recusar encerra a chamada e o expediente volta após 3, 2, 1');
   ok(await p.evaluate(s => JSON.parse(s).sc === S.score, s1), 'pausa: recusar não penaliza');
   // aceitar e jogar até o fim; o estado volta igual
-  await p.evaluate(() => { S.restDone = false; S.restAt = 0; window._pick = window.pick; window.pick = a => a.includes('rhythm') ? 'rhythm' : a[0]; });
+  await p.evaluate(() => { S.restDone = false; S.restAt = 0; save('ultimo-minigame', 'shooter'); });
   await p.waitForTimeout(300); const before = await snap();
   await waitOpts(); await p.click('.vc-opts button.main');                 // atender
   await waitOpts(); await p.click('.vc-opts button >> nth=0');              // resposta à conversa
   await waitOpts(); await p.click('.vc-opts button.main');                 // aceitar o convite
-  await p.waitForSelector('.mg-host', { timeout: 10000 }); await p.evaluate(() => { window.pick = window._pick; });
+  await p.waitForSelector('.mg-host', { timeout: 10000 });
   // Batida de Ponto: acerta todas as notas no tempo do relógio do jogo
   const res = await p.evaluate(async () => {
-    const R = document.querySelector('.mg-host')._rhythm, KEYS = ['KeyD', 'KeyF', 'KeyJ', 'KeyK'];
-    for (const n of R.notes) {
-      while (R.songT() < n.t - .01) await new Promise(r => setTimeout(r, 5));
-      dispatchEvent(new KeyboardEvent('keydown', { code: KEYS[n.lane], key: 'x' }));
+    const R = document.querySelector('.mg-host')._rhythm, KEYS = ['KeyD', 'KeyF', 'KeyJ', 'KeyK'], sleep = ms => new Promise(r => setTimeout(r, ms));
+    let sent = 0, hit = 0;
+    while (document.querySelector('.mg-host canvas') && sent < 400) {
+      const n = R.notes.find(k => !k._sent && !k.done && !k.hit); if (!n) { await sleep(10); if (!R.notes.some(k => !k.done)) await sleep(200); continue; }
+      while (R.songT() < n.t - .01) await sleep(3);
+      n._sent = 1; sent++;
+      dispatchEvent(new KeyboardEvent('keydown', { code: KEYS[n.lane], key: 'x' })); if (n.hit) hit++;
       if (!n.end) dispatchEvent(new KeyboardEvent('keyup', { code: KEYS[n.lane], key: 'x' }));
       else setTimeout(() => dispatchEvent(new KeyboardEvent('keyup', { code: KEYS[n.lane], key: 'x' })), (n.end - n.t) * 1000 + 30);
     }
-    return R.notes.filter(n => n.hit).length / R.notes.length;
+    return hit / Math.max(1, sent);
   });
   ok(res > .95, 'Batida de Ponto: notas no tempo certo são acertadas (' + Math.round(res * 100) + '%)');
   await p.waitForSelector('.countdown', { timeout: 30000 });
@@ -331,7 +334,7 @@ async function entrega2(browser, url) {
   await p.evaluate(() => { PROFILE.name = '  player One '; saveProfile(); showMenu(); });
   ok(await p.evaluate(() => !!document.querySelector('#arc')), 'arcade: "PLAYER ONE" (sem diferenciar maiúsculas e espaços) mostra o controle');
   const w0 = await p.evaluate(() => JSON.stringify([P.wallet, P.best, localStorage.getItem('expediente-carreira')]));
-  await p.click('#arc'); await waitOpts(); await p.click('.vc-opts button.main');
+  await p.click('#arc'); await waitOpts(); await p.click('.vc-opts button >> nth=1');
   await p.waitForSelector('.mg-host', { timeout: 10000 });
   await p.evaluate(() => { const h = document.querySelector('.mg-host'); if (h._shooter) h._shooter.lives = 0; else h._rhythm.notes.forEach(n => { n.t = -9; n.end = null; }); });
   await p.waitForFunction(() => !document.querySelector('.vcall') && !!document.querySelector('#play'), null, { timeout: 30000 });
