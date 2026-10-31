@@ -259,3 +259,6 @@
   .os-off.done { clip-path: none !important; background: #2a1f2d !important; color: transparent; }
   .os-off.done::after { content: ''; position: absolute; left: 0; right: 0; top: calc(50% - 1px); height: 2px; background: #c3d5ff; animation: offline .5s steps(5) forwards; }
   @keyframes offline { to { left: 50%; right: 50%; opacity: 0; } }
+  .os-task.on { box-shadow: 0 0 0 2px #2a1f2d, inset 2px 2px 0 #8f7d63, inset -2px -2px 0 #fff8ec; background: #fff8ec; }
+  .app-win { width: min(40em, 94vw); max-height: 88%; }
+  .app-win .mw-in { overflow: auto; background: var(--card); }

@@ -1,12 +1,15 @@
 /* ================= Telas ================= */
 function modal(html) {
-  // a área de trabalho (ícones, Iniciar, barra) continua enquanto estiver no menu; janelas e o aviso legal são refeitos
-  $('modal').querySelectorAll('.legalbar, .os-smenu, .os-win' + (document.body.classList.contains('menu-mode') ? '' : ', .os-start, .os-icons, .os-tasks')).forEach(e => e.remove());
+  // Telas abertas de dentro de um aplicativo da área de trabalho (Personalizar, Perfil) continuam na janela dele
+  if (modal.into && modal.into.isConnected) { const b = modal.into; b.innerHTML = html; b.classList.add('card-in'); return b; }
+  modal.into = null;
+  // a área de trabalho (ícones, Iniciar, barra e janelas abertas) continua enquanto estiver no menu
+  $('modal').querySelectorAll('.legalbar, .os-smenu' + (document.body.classList.contains('menu-mode') ? '' : ', .os-win, .os-start, .os-icons, .os-tasks')).forEach(e => e.remove());
   $('modal').classList.remove('allmin');
   const card = $('modal').querySelector('.card');
   card.className = 'card'; card.style.display = ''; card.innerHTML = html;
-  $('modal').querySelectorAll('.os-task').forEach(b => { if (b._win === card) b.remove(); });   // a janela minimizada deu lugar a outra
   winChrome(card);
+  osFocus(card);
   const was = $('modal').classList.contains('hidden');
   $('modal').classList.remove('hidden');
   if (was) Motion.play(card, [{ transform: 'translateY(14px) scale(.94)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: Motion.T.med, easing: Motion.E.back, fill: 'none' });
@@ -25,7 +28,8 @@ function winChrome(card) {
   card.style.removeProperty('--dx'); card.style.removeProperty('--dy'); delete card.dataset.dx; delete card.dataset.dy; osDrag(card, bar);
   bar.querySelector('.mw-app').append(Pixel.el(MENU_ICO.app, 2));
   bar.querySelectorAll('.mw-b b').forEach(b => b.append(Pixel.el(MENU_ICO[b.dataset.g], 2)));
-  bar.querySelector('.min').onclick = () => osMinimize(card, title);
+  bar.querySelector('.min').onclick = () => osMinimize(card);
+  osTaskBtn(card, title);
   bar.querySelector('.max').onclick = () => { sfx('click'); card.classList.toggle('maxi'); };
   bar.querySelector('.x').onclick = () => {
     const u = U(), names = [u.back, u.cancel, u.backToWork, u.close].filter(Boolean);
@@ -33,7 +37,10 @@ function winChrome(card) {
     if (b) b.click(); else { sfx('click'); closeModal(); if (document.body.classList.contains('menu-mode')) showMenu(); }
   };
 }
-function closeModal() { $('modal').classList.add('hidden'); }
+function closeModal() {
+  if (modal.into && modal.into.isConnected) { const w = modal.into.closest('.os-win'); modal.into = null; if (w) w.close(); return; }
+  $('modal').classList.add('hidden'); const t = osTaskOf($('modal').querySelector('.card')); if (t) t.remove();
+}
 
 // Ícones do menu: todos 12×12, contorno de tinta, mesma luz (de cima à esquerda); botões da barra de título 7×7
 const MENU_ICO = {
@@ -143,19 +150,34 @@ function osDrag(win, bar) {
 // Minimizar: a janela some e vira um botão na barra de tarefas; clicar nele restaura
 function osTasks() { let t = $('modal').querySelector('.os-tasks'); if (!t) { t = document.createElement('div'); t.className = 'os-tasks'; $('modal').append(t); } return t; }
 function osSyncMin() { const m = $('modal'), open = [...m.querySelectorAll('.card, .os-win')].some(w => w.style.display !== 'none' && !(w.classList.contains('card') && m.classList.contains('hidden'))); m.classList.toggle('allmin', !open); }
-function osMinimize(win, title) {
-  sfx('click');
-  const btn = document.createElement('button'); btn.className = 'os-task'; btn._win = win;
-  btn.append(Pixel.el(MENU_ICO.app, 1)); btn.append(document.createTextNode(' ' + title));
-  osTasks().append(btn);
-  // a janela encolhe e voa até o próprio botão na barra; ao restaurar, faz o caminho de volta
-  const toBtn = () => { const a = win.getBoundingClientRect(), c = btn.getBoundingClientRect();
-    return `translate(${Math.round(c.left + c.width / 2 - a.left - a.width / 2)}px, ${Math.round(c.top + c.height / 2 - a.top - a.height / 2)}px) scale(.08)`; };
-  const fly = toBtn();
-  Motion.play(win, [{ transform: 'none', opacity: 1 }, { transform: fly, opacity: .2 }], { duration: 200, easing: 'steps(6)', fill: 'none' });
+// Barra de tarefas: cada janela aberta tem um botão. Clicar: se minimizada, restaura; se é a da frente, minimiza; senão traz para a frente
+let OS_Z = 10;
+function osTaskOf(win) { return [...$('modal').querySelectorAll('.os-task')].find(b => b._win === win); }
+function osFocus(win) { win.style.zIndex = ++OS_Z; $('modal').querySelectorAll('.os-task').forEach(b => b.classList.toggle('on', b._win === win)); }
+function osTaskBtn(win, title) {
+  let btn = osTaskOf(win);
+  if (!btn) {
+    btn = document.createElement('button'); btn.className = 'os-task'; btn._win = win;
+    btn.append(Pixel.el(MENU_ICO.app, 1)); btn.append(document.createTextNode(''));
+    btn.onclick = () => { if (win.style.display === 'none') osRestore(win); else if (btn.classList.contains('on')) osMinimize(win); else { sfx('click'); osFocus(win); } };
+    osTasks().append(btn);
+    if (!win._taskWatch) { win._taskWatch = true; win.addEventListener('pointerdown', () => osFocus(win)); }
+  }
+  btn.lastChild.textContent = ' ' + title;
+  return btn;
+}
+const osFly = (win, btn) => { const a = win.getBoundingClientRect(), c = btn.getBoundingClientRect();
+  return `translate(${Math.round(c.left + c.width / 2 - a.left - a.width / 2)}px, ${Math.round(c.top + c.height / 2 - a.top - a.height / 2)}px) scale(.08)`; };
+// minimizar: a janela encolhe e voa até o próprio botão na barra; restaurar faz o caminho de volta
+function osMinimize(win) {
+  const btn = osTaskOf(win); if (!btn) return; sfx('click');
+  Motion.play(win, [{ transform: 'none', opacity: 1 }, { transform: osFly(win, btn), opacity: .2 }], { duration: 200, easing: 'steps(6)', fill: 'none' });
+  btn.classList.remove('on');
   setTimeout(() => { win.style.display = 'none'; osSyncMin(); }, 190);
-  btn.onclick = () => { sfx('pop'); win.style.display = ''; const back = toBtn(); btn.remove(); osSyncMin();
-    Motion.play(win, [{ transform: back, opacity: .2 }, { transform: 'none', opacity: 1 }], { duration: 200, easing: 'steps(6)' }); };
+}
+function osRestore(win) {
+  const btn = osTaskOf(win); sfx('pop'); win.style.display = ''; osSyncMin(); osFocus(win);
+  if (btn) Motion.play(win, [{ transform: osFly(win, btn), opacity: .2 }, { transform: 'none', opacity: 1 }], { duration: 200, easing: 'steps(6)' });
 }
 // Ícones dos aplicativos do WorkOS (12×12, mesma luz e contorno dos outros)
 const APP_ICO = {
@@ -210,12 +232,19 @@ function osNotes() {
   ta.focus();
 }
 function osApp(id) {
-  if (id === 'workday') { const tb = [...$('modal').querySelectorAll('.os-task')].find(b => b.textContent.includes('PORTAL')); if (tb) tb.click(); else { const c = $('modal').querySelector('.menu-card'); if (c) Motion.shake(c, 3); else showMenu(); } return; }
+  if (id === 'workday') { const c = $('modal').querySelector('.menu-card'); if (!c) showMenu(); else if (c.style.display === 'none') osRestore(c); else { osFocus(c); Motion.shake(c, 3); } return; }
   if (id === 'cal') return osCalendar();
   if (id === 'calc') return osCalc();
   if (id === 'notes') return osNotes();
-  if (id === 'paint') return showCustomize(showMenu);
-  if (id === 'prof') return showBadge(showMenu);
+  if (id === 'paint' || id === 'prof') {   // a tela existente roda dentro de uma janela própria, sem tirar o portal do lugar
+    const u = U(), w = osWindow(id === 'paint' ? u.osApps.paint : u.profile, '', { icon: id === 'paint' ? APP_ICO.paint : MENU_ICO.prof, cls: 'app-win', onClose: () => { if (modal.into && !modal.into.isConnected) modal.into = null; } });
+    const body = w.querySelector('.mw-in'), route = () => { modal.into = body; };
+    w.addEventListener('pointerdown', route, true); route();
+    if (!osApp.hooked) { osApp.hooked = true; $('modal').addEventListener('pointerdown', e => { if (!e.target.closest('.app-win')) modal.into = null; }, true); }
+    const close = () => w.close();
+    if (id === 'paint') showCustomize(close); else showBadge(close);
+    return;
+  }
 }
 function osIcons() {
   const m = $('modal'), t = U().osApps; m.querySelectorAll('.os-icons').forEach(e => e.remove());
@@ -235,19 +264,19 @@ function osWindow(title, html, { icon = MENU_ICO.app, cls = '', onClose } = {}) 
   const w = document.createElement('div'); w.className = 'os-win ' + cls;
   w.innerHTML = `<div class="mw-bar"><span class="mw-ttl"><i class="mw-app"></i>${title}</span><i class="mw-stripes"></i><span class="mw-b"><b data-g="x"></b></span></div><div class="mw-in">${html}</div>`;
   w.querySelector('.mw-app').append(Pixel.el(icon, 2)); w.querySelector('.mw-b b').append(Pixel.el(MENU_ICO.x, 2));
-  const close = () => { sfx('click'); const a = Motion.play(w, [{ transform: 'none', opacity: 1 }, { transform: 'scale(.6)', opacity: 0 }], { duration: 140, easing: 'steps(4)' }); const end = () => { w.remove(); if (onClose) onClose(); }; if (a) a.onfinish = end; else end(); };
+  const close = () => { sfx('click'); const a = Motion.play(w, [{ transform: 'none', opacity: 1 }, { transform: 'scale(.6)', opacity: 0 }], { duration: 140, easing: 'steps(4)' }); const end = () => { const t = osTaskOf(w); if (t) t.remove(); w.remove(); if (onClose) onClose(); }; if (a) a.onfinish = end; else end(); };
   w.querySelector('.mw-b').insertAdjacentHTML('afterbegin', '<b data-g="min" class="min"></b><b data-g="max" class="max"></b>');
   w.querySelectorAll('.mw-b .min, .mw-b .max').forEach(b => b.append(Pixel.el(MENU_ICO[b.dataset.g], 2)));
-  w.querySelector('.mw-b .min').onclick = () => osMinimize(w, title);
+  w.querySelector('.mw-b .min').onclick = () => osMinimize(w);
   w.querySelector('.mw-b .max').onclick = () => { sfx('click'); w.classList.toggle('maxi'); };
   w.querySelector('.mw-b [data-g=x]').onclick = close; w.close = close;
-  $('modal').append(w); sfx('pop'); osDrag(w, w.querySelector('.mw-bar'));
+  $('modal').append(w); sfx('pop'); osDrag(w, w.querySelector('.mw-bar')); osTaskBtn(w, title); osFocus(w);
   Motion.play(w, [{ transform: 'scale(.3)', opacity: 0 }, { transform: 'scale(1.04)', opacity: 1, offset: .7 }, { transform: 'none', opacity: 1 }], { duration: 220, easing: 'steps(6)' });
   return w;
 }
 function pickDifficulty(back) {
   const u = U(); let sel = CFG.diff || 'normal';
-  $('modal').querySelectorAll('.os-win').forEach(e => e.remove());
+  $('modal').querySelectorAll('.diff-win').forEach(e => { const t = osTaskOf(e); if (t) t.remove(); e.remove(); });
   const inMenu = $('modal').querySelector('.menu-card');
   if (!inMenu) { showMenu(); return pickDifficulty(back); }
   const w = osWindow(`${u.diffLabel.toUpperCase()}.EXE`, `<div class="diff-list">${Object.keys(DIFFS).map(k => `<button class="pxbtn diff-opt" data-d="${k}"><span class="dmeter">${'<i></i>'.repeat(4)}</span><b>${u.diffNames[k]}</b><small>${u.diffDesc[k]}</small></button>`).join('')}</div>
@@ -341,7 +370,8 @@ function showMenu() {
   card.querySelectorAll('.mico').forEach(i => { const n = i.dataset.i === 'snd' && !soundOn ? 'mute' : i.dataset.i; i.append(Pixel.el(MENU_ICO[n], 2)); });
   card.querySelectorAll('.mw-b b').forEach(b => b.append(Pixel.el(MENU_ICO[b.dataset.g], 2)));
   // o portal não fecha: minimizar (ou fechar) manda para a barra de tarefas; maximizar alterna o tamanho
-  card.querySelector('.mw-b [data-g=min]').onclick = card.querySelector('.mw-b [data-g=x]').onclick = () => osMinimize(card, 'PORTAL_RH.EXE');
+  osTaskBtn(card, 'PORTAL_RH.EXE');
+  card.querySelector('.mw-b [data-g=min]').onclick = card.querySelector('.mw-b [data-g=x]').onclick = () => osMinimize(card);
   card.querySelector('.mw-b [data-g=max]').onclick = () => { sfx('click'); card.classList.toggle('maxi'); };
   card.style.removeProperty('--dx'); card.style.removeProperty('--dy'); delete card.dataset.dx; delete card.dataset.dy; osDrag(card, card.querySelector('.mw-bar'));
   card.querySelector('.mw-app').append(Pixel.el(MENU_ICO.app, 2));
@@ -352,7 +382,7 @@ function showMenu() {
   $('modal').insertAdjacentHTML('beforeend', `<div class="legalbar"><p>${u.footer}</p></div>`);
   fitLegal();
   osStart(u); osIcons();
-  $('modal').querySelectorAll('.os-tasks').forEach(e => e.remove()); osSyncMin();
+  osSyncMin();
   card.querySelector('#play').onclick = () => pickDifficulty(showMenu);
   if (saved) card.querySelector('#cont').onclick = resumeCareer;
   card.querySelector('#how').onclick = () => { const c = modal(`<h2>${u.how}</h2>${u.howText}<div class="actions"><button class="pxbtn main" id="b">${u.back}</button></div>`); c.querySelector('#b').onclick = showMenu; };
