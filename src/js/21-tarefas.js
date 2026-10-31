@@ -65,7 +65,7 @@ function spawnTask() {
     body.querySelector('button').onclick = () => { if (S.paused) return; removeTask(t, 'ok'); sfx('click'); startVideo(); };
   }
   el.append(body);
-  el.insertAdjacentHTML('beforeend', '<div class="timer"></div>');
+  el.insertAdjacentHTML('beforeend', '<div class="timer">' + '<i></i>'.repeat(10) + '</div>');
   tasksEl.append(el);
   Motion.enter(el, 'right');
   makeChip(t);

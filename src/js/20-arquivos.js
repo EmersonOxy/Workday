@@ -12,6 +12,7 @@ function spawnFile() {
   } else {
     el.style.borderColor = dest.color;
     el.style.setProperty('--c', kind === 'urgent' ? 'var(--danger)' : dest.color);
+    if (kind === 'urgent') el.insertAdjacentHTML('beforeend', `<i class="stampu">${u.urgent}</i>`);
     const tile = document.createElement('span'); tile.className = 'tile'; tile.append(Pixel.el(SPR2[GLYPH[dest.id]], 2)); el.append(tile);
     el.insertAdjacentHTML('beforeend', `<div class="txt"><span class="tag" style="color:${dest.color}">${kind === 'urgent' ? '! ' : ''}${sectorName(dest.id)}</span><span class="sub">${kind === 'urgent' ? u.urgent + ' · ' : ''}${pick(L.docs[dest.id])}</span></div>`);
   }
@@ -26,7 +27,9 @@ function spawnFile() {
 function fallVis(y, H) { if (H <= 0 || y <= 0) return y; const u = Math.min(1, y / H); return H * (.72 * u + .28 * u * u); }
 function placeFile() {
   const f = S.file, w = laneWidth(), H = board.clientHeight - S.trays[0].offsetHeight - f.el.offsetHeight;
-  f.el.style.left = (f.lane * w + 8) + 'px'; f.el.style.width = (w - 16) + 'px'; f.el.style.top = f.y + 'px';
+  f.el.style.left = (f.lane * w + 8) + 'px'; f.el.style.width = (w - 16) + 'px'; const u = H > 0 ? Math.min(1, Math.max(0, f.y / H)) : 0, red = Motion.reduced.matches;
+  f.el.style.top = (red ? f.y : fallVis(f.y, H)) + 'px';
+  f.el.style.rotate = red ? '' : (u < .5 ? -1.5 + u * 6 : 1.5 - (u - .5) * 3).toFixed(2) + 'deg';   // balanço do guia: −1,5° → 1,5° → 0
 }
 // O documento que saiu de jogo continua na tela só para terminar a animação
 function retireFile(el, how) {

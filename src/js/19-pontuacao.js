@@ -20,7 +20,9 @@ function stressBar() {
   hudSet('stress', 'width', S.stress.toFixed(1) + '%');
   hudSet('stress', 'background', S.stress < 50 ? 'var(--fin)' : S.stress < 75 ? 'var(--warn)' : 'var(--danger)');
   const w = $('stressWrap'); if (!w) return;
+  if (!w._segs) { w._segs = []; for (let n = 0; n < 12; n++) { const i = document.createElement('i'); i.className = 'sseg'; i.style.setProperty('--c', n < 6 ? 'var(--fin)' : n < 9 ? 'var(--warn)' : 'var(--danger)'); w.append(i); w._segs.push(i); } }
   const v = Math.ceil(S.stress / 100 * 12 - 1e-6);
+  if (v !== w._lit) w._segs.forEach((s, n) => s.classList.toggle('on', n < v));
   if (v > (w._lit || 0) && v >= 8) Motion.shake(w, v - 6);
   w._lit = v; w.classList.toggle('hot', v >= 10);
 }
@@ -28,7 +30,7 @@ function blame(cause, n) { S.causes[cause] = (S.causes[cause] || 0) + n; S.caree
 function success(base, x, y) {
   const m0 = mult();
   S.combo++;
-  if (mult() > m0) { setTimeout(() => sfx('combo'), 90); Motion.punch($('mult'), 1 + mult() * .1); comboLook(); }
+  if (mult() > m0) { setTimeout(() => sfx('combo'), 90); Motion.punch($('mult'), 1 + mult() * .1); comboLook(); } else Motion.punch($('mult'), 1.12);
   const pts = Math.round(base * S.level * mult() * (mod().ptsMul || 1));
   S.score += pts; S.dayScore += pts; addStress(-2); sfx('ok');
   if (x !== undefined) Motion.floatText(board, '+' + pts, x, y, 'ok');

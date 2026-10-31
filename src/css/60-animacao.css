@@ -9,3 +9,25 @@
   #combo.broke b { color: #ff9d86 !important; text-shadow: none; }
   #toast .env-ico { transform-origin: 50% 80%; flex: none; }
   @media (prefers-reduced-motion: reduce) { #stressWrap.hot #stress { animation: none; } }
+  /* Medidor de estresse do guia: 12 células pequenas, cor pela posição, pisca em degraus perto do fim */
+  #stressWrap { display: flex !important; gap: 2px; align-items: center; background: none !important; box-shadow: none !important; height: auto !important; overflow: visible; }
+  #stressWrap::after { display: none !important; }
+  #stress { position: absolute; width: 0 !important; opacity: 0; }
+  .sseg { display: block; width: .42em; height: .9em; background: #c7b595; box-shadow: inset 0 -2px 0 rgba(42,31,45,.18); }
+  .sseg.on { background: var(--c); }
+  #stressWrap.hot { animation: meterhot .5s steps(2) infinite; }
+  @keyframes meterhot { 50% { opacity: .55; } }
+  #stressWrap.hot #stress { animation: none; }
+  body.office #stressWrap { flex: none !important; min-width: 0 !important; }
+  body.mobile #stressWrap .sseg { flex: 1; width: auto; height: 10px; }
+  /* Prazo do guia: 10 células; as vencidas ficam bege */
+  .task .timer { display: flex; gap: 2px; background: none !important; width: auto; right: 0; }
+  .task .timer i { flex: 1; background: #5fa79a; }
+  .task .timer i.off { background: #e9dcc2; }
+  .task.soon .timer i:not(.off) { background: #ffb938; }
+  .task.late .timer i:not(.off) { background: #ef4b3f; }
+  /* Carimbo URGENTE do documento */
+  .file .stampu { position: absolute; right: -.4em; top: -.6em; background: #ef4b3f; color: #fff8ec; padding: 0 .3em; font: .8em/1.2 var(--pixel); transform: rotate(8deg); box-shadow: 0 0 0 2px #2a1f2d; z-index: 1; }
+  @media (prefers-reduced-motion: reduce) { #stressWrap.hot { animation: none; } }
+  /* Queda: o balanço acompanha a descida (inline); o balanço contínuo antigo sai para não brigar com ele */
+  body.office .file:not(.gone):not(.urgent), body.mobile .file:not(.gone):not(.urgent) { animation: none; }
