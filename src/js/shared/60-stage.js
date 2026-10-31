@@ -387,7 +387,9 @@ const Stage = {
       const P = WD_PAL;
       // Uma lâmpada pisca de vez em quando; poeira no feixe da janela
       if ((t * 10 | 0) % 53 < 2) { const lx = L.cx >= 120 ? L.cx - 120 : L.cx; this.F(x, P.e, lx - 16, 7, 32, 3); }
-      if (L.win) for (let i = 0; i < 6; i++) { const W = L.win, ph = t * .15 + i * .37, dx = W.x + 8 + ((ph * 53 + i * 31) % (W.w + 40)), dy = W.y + 20 + ((ph * 17 + i * 23) % (L.floor - W.y - 30)); this.F(x, o.eve ? P.y : P.W, dx | 0, dy | 0, 1, 1); }
+      // poeira só dentro do feixe de luz (e só com a cortina aberta e a luz acesa): partículas discretas que descem devagar
+      if (L.win && (+o.curtain || 0) < .5 && (+o.dark || 0) < .5) for (let i = 0; i < 5; i++) { const W = L.win, ph = (t * .04 + i * .21) % 1, dy = W.y + W.h + ph * (L.floor - W.y - W.h - 4), dx = W.x + (dy - W.y) * .8 + ((i * 37) % Math.max(4, W.w - 4)) + Math.sin(t * .7 + i) * 2;
+        if (Math.sin(t * 1.1 + i * 2.3) > -.3) this.F(x, P.w, dx | 0, dy | 0, 1, 1); }
     },
     shop(x, L, o, t) { if ((t * 10 | 0) % 37 === 0) this.F(x, WD_PAL.e, L.cx % 96 + 96 - 16, 7, 32, 2); },
     cash(x, L, o, t) { if ((t * 2 | 0) % 2) this.F(x, WD_PAL.Y, L.VW - 46 + 10, 18, 8, 5); else this.F(x, WD_PAL.Z, L.VW - 46 + 10, 18, 8, 5); },

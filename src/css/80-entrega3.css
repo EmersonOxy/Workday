@@ -364,3 +364,6 @@
   .cur-btn { width: 40px !important; height: 40px !important; display: grid; place-items: center; font: 1.2em var(--pixel); color: var(--ink); }
   .cur-btn img { image-rendering: pixelated; max-width: 30px; max-height: 30px; }
   .cur-btn.on { background: var(--card) !important; box-shadow: 0 0 0 3px var(--ink), inset 0 3px 0 var(--line) !important; }
+  /* janelas nunca invadem a barra de tarefas */
+  body.office.menu-mode #modal, #modal.apps { padding-bottom: 2.7em !important; }
+  #modal .os-win:not(.maxi) { top: calc(50% - 1.3em) !important; max-height: calc(100% - 3.4em) !important; }

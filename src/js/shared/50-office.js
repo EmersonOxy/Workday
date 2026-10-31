@@ -518,7 +518,18 @@ const Office = {
     { const b = lit.beamRGB, g = ctx.createLinearGradient(W.x, 0, W.x + L.VW * .75, 0), a = b[3] * .55 * open;
       g.addColorStop(0, `rgba(${b[0] | 0},${b[1] | 0},${b[2] | 0},${a.toFixed(3)})`); g.addColorStop(1, `rgba(${b[0] | 0},${b[1] | 0},${b[2] | 0},0)`);
       ctx.fillStyle = g; ctx.fillRect(0, 0, L.VW, L.VH); }
-    if (st.blind) { ctx.fillStyle = `rgba(40,28,60,${.07 * st.blind})`; ctx.fillRect(0, 0, L.VW, L.VH); }
+    // Cortina fechada: a sala escurece de verdade e o que tem luz própria ganha destaque (tela do monitor, luminária, aquário)
+    if (st.blind) { const b = st.blind;
+      ctx.save(); ctx.globalCompositeOperation = 'multiply'; ctx.fillStyle = `rgba(70,52,98,${(.55 * b).toFixed(3)})`; ctx.fillRect(0, 0, L.VW, L.VH); ctx.restore();
+      ctx.save(); ctx.globalCompositeOperation = 'screen';
+      const glow = (cx, cy, r, rgb, a) => { const g = ctx.createRadialGradient(cx, cy, 2, cx, cy, r); g.addColorStop(0, `rgba(${rgb},${(a * b).toFixed(3)})`); g.addColorStop(1, `rgba(${rgb},0)`); ctx.fillStyle = g; ctx.fillRect(cx - r, cy - r, r * 2, r * 2); };
+      // brilho frio da tela espalhando pela moldura, mesa e parede próximas
+      glow(s.x + s.w / 2, s.y + s.h * .7, Math.max(s.w, s.h) * .8, '120,190,200', .32);
+      glow(s.x + s.w / 2, L.desk + 8, s.w * .55, '140,200,210', .28);
+      if (D.has('lamp') && (lampLv || 0) > 0) glow(Z.lamp.x, Z.lamp.y - 30, 70, '255,214,140', .45 * lampLv);
+      if (D.has('aquario')) glow(Z.win.x + 20, Z.win.y + Z.win.h + 30, 26, '120,200,220', .3);
+      if (D.has('neon')) glow(L.VW - 12, 74, 30, '239,75,63', .35);
+      ctx.restore(); }
     if (D.has('lamp') && lampLv > 0) { const fl = (.2 + Math.sin(t * 9) * .01) * lampLv; ctx.fillStyle = `rgba(255,231,163,${fl})`; const hx = Z.lamp.x - 14, hy = Z.lamp.y - 44;
       for (let j = 0; j < 44; j++) ctx.fillRect(hx - (j * .5 | 0), hy + 8 + j, 14 + (j * 1.1 | 0), 1); }
     ctx.globalCompositeOperation = lit.tint[1]; ctx.fillStyle = lit.tint[0]; ctx.fillRect(0, 0, L.VW, L.VH);

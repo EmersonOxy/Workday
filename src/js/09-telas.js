@@ -146,7 +146,8 @@ function osDrag(win, bar) {
     const mv = ev => {
       let dx = ev.clientX - sx, dy = ev.clientY - sy;
       dx = Math.max(ox - r0.left - r0.width + 80, Math.min(ox + innerWidth - r0.left - 80, dx));     // sempre sobra um pedaço visível
-      dy = Math.max(oy - r0.top, Math.min(oy + innerHeight - r0.top - 40, dy));
+      const mb = $('modal').getBoundingClientRect(), fs = parseFloat(getComputedStyle($('modal')).fontSize) || 16, floor = mb.bottom - fs * 2.5;   // nunca por cima da barra de tarefas
+      dy = Math.max(oy - r0.top + mb.top, Math.min(oy + floor - r0.bottom, dy));
       win.dataset.dx = dx; win.dataset.dy = dy; win.style.setProperty('--dx', dx + 'px'); win.style.setProperty('--dy', dy + 'px');
     };
     const up = () => { bar.removeEventListener('pointermove', mv); bar.removeEventListener('pointerup', up); };
