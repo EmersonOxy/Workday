@@ -118,9 +118,9 @@ const Office = {
       // Detalhes do ambiente (não dependem de compras)
       phone: L.kx - 158 > M.x - 4 ? { x: L.kx - 158, y: L.desk + 11 } : null,
       pens: L.kx - 126 > M.x - 4 ? { x: L.kx - 125, y: L.desk + 9 } : null,
-      cal: L.right >= 26 ? { x: M.x + M.w + Math.max(5, Math.min(14, (L.right / 2 | 0) - 10)), y: 44 } : null,
+      cal: L.right >= 30 ? { x: M.x + M.w + Math.max(5, Math.min(14, (L.right / 2 | 0) - 12)), y: 52 } : null,
       sideMon: { x: M.x + M.w + 4, y: Math.max(40, (s.y + s.h * .28) | 0) },
-      clock: { x: M.x + M.w + Math.max(15, Math.min(24, (L.right / 2) | 0)), y: 24 },
+      clock: { x: M.x + M.w + Math.max(18, Math.min(26, (L.right / 2) | 0)), y: 26 },
       mug: { x: L.kx - 26, y: L.desk + 9 },
       cat: { x: L.kx + L.kw + 66, y: L.desk + 5 },
       nameplate: { x: (L.VW / 2 | 0) - 22, y: L.desk + 2 },
@@ -176,13 +176,15 @@ const Office = {
     const C = Z.clock;
     if (L.right > 26) {
       // Relógio de parede: aro de latão com volume, marcações e ponteiros
-      const R2 = 13;
+      const R2 = 16;
       for (let j = -R2; j <= R2; j++) for (let i = -R2; i <= R2; i++) { const d = i * i + j * j; if (d > R2 * R2) continue;
         F(d > (R2 - 1) ** 2 ? P.k : d > (R2 - 3) ** 2 ? (i + j < 0 ? P.Y : P.z) : (i + j > 6 ? P.w : P.W), C.x + i, C.y + j, 1, 1); }
-      for (let h = 0; h < 12; h++) { const a = h / 12 * Math.PI * 2, rr = h % 3 ? 8 : 7; F(h % 3 ? P.P : P.k, C.x + Math.round(Math.cos(a) * 9), C.y + Math.round(Math.sin(a) * 9), 1, h % 3 ? 1 : 2); }
+      for (let h = 0; h < 12; h++) { const a = h / 12 * Math.PI * 2; F(h % 3 ? P.P : P.k, C.x + Math.round(Math.cos(a) * 11), C.y + Math.round(Math.sin(a) * 11), h % 3 ? 1 : 2, h % 3 ? 1 : 2); }
+      Pixel.text(x, 'WD', C.x - 3, C.y + 4, P.p);   // marca no mostrador
+      F(P.z, C.x - 1, C.y + R2 + 1, 3, 1);
       const ang = ((st.hour % 12) / 12) * Math.PI * 2 - Math.PI / 2, mang = ((st.hour % 1)) * Math.PI * 2 - Math.PI / 2;
-      for (let r = 0; r < 6; r++) F(P.k, C.x + Math.round(Math.cos(ang) * r), C.y + Math.round(Math.sin(ang) * r), 1, 1);
-      for (let r = 0; r < 9; r++) F(P.K, C.x + Math.round(Math.cos(mang) * r), C.y + Math.round(Math.sin(mang) * r), 1, 1);
+      for (let r = 0; r < 7; r++) F(P.k, C.x + Math.round(Math.cos(ang) * r), C.y + Math.round(Math.sin(ang) * r), 1, 1);
+      for (let r = 0; r < 11; r++) F(P.K, C.x + Math.round(Math.cos(mang) * r), C.y + Math.round(Math.sin(mang) * r), 1, 1);
       F(P.R, C.x, C.y, 1, 1);
     }
     // Pôster corporativo (telas largas)
@@ -250,9 +252,10 @@ const Office = {
     if (Z.cal && st.day) this.calendar(x, Z.cal.x, Z.cal.y, st.day);
     // Porta-canetas e marca de café na mesa
     if (Z.pens) { const px = Z.pens.x, py = Z.pens.y;
-      this.shadow(x, px - 1, py + 12, 10, 2);
-      for (const [dx, h, col] of [[1, 8, P.R], [3, 10, P.L], [5, 7, P.Q]]) { F(P.k, px + dx - 1, py - h + 2, 3, h); F(col, px + dx, py - h + 2, 1, h - 1); }
-      F(P.k, px - 1, py + 1, 10, 12); F(P.j, px, py + 2, 8, 10); F(P.M, px, py + 2, 2, 10); F(P.J, px + 6, py + 2, 2, 10); F(P.m, px, py + 2, 8, 1); }
+      // copo de metal em tela, com lápis (borracha rosa), caneta azul, régua e tesoura
+      this.shadow(x, px - 2, py + 12, 14, 2);
+      x.drawImage(Pixel.master(['..kk........', '.krrk....kk.', '.kmmk...kLLk', '.kQQk.k.kLLk', '.kQQkkmkkLLk', '.kQQkkmkkLLk', '.kQQkkmkk7Lk', 'kkkkkkkkkkkk',
+        'kJjmjmjmjmJk', 'kjMjMjMjMjjk', 'kJjmjmjmjmJk', 'kjMjMjMjMjjk', 'kJjmjmjmjmJk', 'kjMjMjMjMjjk', 'kJjjjjjjjjJk', '.kkkkkkkkkk.'], P), px - 2, py - 4); }
     if (Z.phone) this.shadow(x, Z.phone.x - 2, Z.phone.y + 15, 31, 2);
     for (let i = 0; i < 12; i++) { const a = i / 12 * Math.PI * 2; F(P[3], Z.mug.x - 8 + Math.round(Math.cos(a) * 5), L.desk + 22 + Math.round(Math.sin(a) * 2), 1, 1); }
     // Objetos parados: porta-retrato, plaquinha do cargo, coroa de CEO, monitor extra (moldura)
@@ -270,12 +273,15 @@ const Office = {
     return c;
   },
   calendar(x, px, py, day) { const P = WD_PAL, F = (c, a, b, w, h) => { x.fillStyle = c; x.fillRect(a, b, w, h); };
-    F(P.j, px + 9, py - 3, 2, 3);
-    F(P.k, px - 1, py - 1, 22, 25); F(P.W, px, py, 20, 23); F(P.R, px, py, 20, 6); F(P.q, px, py + 5, 20, 1); F(P.w, px, py + 20, 20, 3); F(P.p, px + 1, py + 22, 19, 1);
-    Pixel.text(x, 'DIA', px + 5, py + 1, P.W);
+    // folhinha de parede com espiral, cabeçalho vermelho, número grande e a grade da semana embaixo
+    F(P.j, px + 11, py - 5, 2, 4); F(P.k, px + 10, py - 6, 4, 1);
+    F(P.k, px - 1, py - 1, 26, 31); F(P.W, px, py, 24, 29); F(P.R, px, py, 24, 8); F(P.r, px, py, 24, 1); F(P.q, px, py + 7, 24, 1);
+    for (let i = 0; i < 5; i++) { F(P.k, px + 2 + i * 5, py - 2, 2, 3); F(P.m, px + 2 + i * 5, py - 2, 1, 1); }
+    Pixel.text(x, 'DIA', px + 7, py + 2, P.W);
     const s = String(day % 1000);
-    Pixel.text(x, s, px + 10 - s.length * 2, py + 10, P.k);
-    F(P.k, px + 10 - s.length * 2, py + 16, s.length * 4 - 1, 1); },
+    Pixel.text(x, s, px + 12 - s.length * 2, py + 10, P.k); Pixel.text(x, s, px + 13 - s.length * 2, py + 10, P.k);
+    for (let j = 0; j < 2; j++) for (let i = 0; i < 7; i++) F((i + j * 7) === (day - 1) % 14 ? P.R : P.p, px + 2 + i * 3, py + 19 + j * 3, 2, 2);
+    F(P.w, px, py + 26, 24, 3); F(P.p, px + 1, py + 28, 23, 1); F(P.w, px + 20, py + 25, 4, 1); F(P.p, px + 22, py + 26, 2, 2); },
   // Telefone de mesa: toca (fone pula, luz pisca) enquanto há uma ligação na fila
   phone(x, px, py, ring, t) { const P = WD_PAL, F = (c, a, b, w, h) => { x.fillStyle = c; x.fillRect(a, b, w, h); };
     const j = ring && (t * 14 | 0) % 2 ? -1 : 0, sh = ring ? ((t * 22 | 0) % 2 ? 1 : 0) : 0;
@@ -330,6 +336,10 @@ const Office = {
     for (let i = 0; i < n; i++) { const ox = px + (i % 2 ? 1 : -1) * (i % 3), oy = py - i * 2;
       x.fillStyle = P.k; x.fillRect(ox - 1, oy - 1, 32, 15); x.fillStyle = P.W; x.fillRect(ox, oy, 30, 13); x.fillStyle = P.w; x.fillRect(ox, oy + 11, 30, 2);
       x.fillStyle = P.p; for (let l = 3; l < 11; l += 2) x.fillRect(ox + 3, oy + l, 16 + (l * 5 % 8), 1); }
+    if (n > 0) { const ox = px + ((n - 1) % 2 ? 1 : -1) * ((n - 1) % 3), oy = py - (n - 1) * 2;   // folha de cima: cabeçalho, assinatura e clipe
+      x.fillStyle = P.L; x.fillRect(ox + 3, oy + 2, 10, 2); x.fillStyle = P.k; x.fillRect(ox + 20, oy + 9, 6, 1); x.fillRect(ox + 22, oy + 8, 2, 1);
+      x.fillStyle = P.k; x.fillRect(ox + 24, oy - 2, 4, 6); x.fillStyle = P.m; x.fillRect(ox + 25, oy - 1, 2, 4); x.fillStyle = P.M; x.fillRect(ox + 25, oy + 2, 2, 1);
+      x.fillStyle = P.w; x.fillRect(ox + 27, oy, 3, 3); x.fillStyle = P.p; x.fillRect(ox + 28, oy + 1, 2, 2); }
   },
   frame(x, px, py) { const P = WD_PAL, F = (c, a, b, w, h) => { x.fillStyle = c; x.fillRect(a, b, w, h); };
     this.shadow(x, px - 1, py + 19, 20, 2);
@@ -391,9 +401,12 @@ const Office = {
     // Troféu com brilho que passa de vez em quando
     if (D.has('trofeu')) this.trophy(ctx, Z.trophy.x, Z.trophy.y, t);
     // Caneca com vapor (enquanto o café está quente)
-    const mug = st.rank >= 1 ? SPR2.mug.map((r, j) => j === 1 ? r.replace(/t/g, 'Y') : r) : SPR2.mug;
-    ctx.drawImage(Pixel.master(mug, WD_PAL), Z.mug.x, Z.mug.y);
-    if (st.hour < 16 || st.clutter < 2) ctx.drawImage(Pixel.master(SPR2.steam[(t * 5 | 0) % 3], WD_PAL), Z.mug.x + 3, Z.mug.y - 7);
+    // caneca vista um pouco de cima: boca oval com café, alça, brilho e faixa com o logotipo (dourada a partir de Assistente)
+    const MUG = ['...kkkkkkkk.....', '.kkTTTTTTTTkk...', 'kTT44444444TTk..', 'kT4333333334Tk..', 'ktT44444444Tuk..', 'ktTTTTTTTTTTukkk', 'ktTWWTTTTTTTuk.k', 'ktTWTTyyyyTTuk.k',
+      'ktTWTyYYYYyTuk.k', 'ktTTTTyyyyTTukkk', 'ktTTTTTTTTTTuk..', 'ktTTTTTTTTTTuk..', '.kTTTTTTTTTTk...', '..kuuuuuuuuk....', '...kkkkkkkk.....'];
+    const mug = st.rank >= 1 ? MUG : MUG.map(r => r.replace(/[yY]/g, 'W'));
+    ctx.drawImage(Pixel.master(mug, WD_PAL), Z.mug.x - 1, Z.mug.y - 3);
+    if (st.hour < 16 || st.clutter < 2) ctx.drawImage(Pixel.master(SPR2.steam[(t * 5 | 0) % 3], WD_PAL), Z.mug.x + 3, Z.mug.y - 10);
     // Gato: rabo balança, pisca, mexe a orelha
     if (D.has('gato')) { const cx = Z.cat.x, cy = Z.cat.y, ph = (t % 4) < .7 ? ((t * 8 | 0) % 3) : 0;
       const coat = st.cat || 'laranja'; ctx.drawImage(catCoat(SPR2.catTail[ph], coat, true), cx + 12, cy + 4); ctx.drawImage(catCoat(SPR2.cat, coat), cx, cy);
