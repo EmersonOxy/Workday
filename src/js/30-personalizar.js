@@ -3,9 +3,9 @@
 // Salvo em CFG.hw (localStorage "expediente-config"); saves antigos sem essa chave usam o padrão.
 const HW_DEFAULT = { phone: 'graphite', mon: 'cream', kb: 'cream', mouse: 'cream', wall: 'teal', cat: 'tricolor', accent: 'azul', bar: 'bege', badge: 'azul', lanyard: 'azul' };
 // Cores do WorkOS (barra de título das janelas e barra de tarefas) e do crachá (cordão e faixa do cartão)
-const OS_ACCENTS = { azul: ['#44609f', '#6f93d9'], verde: ['#2f8a45', '#6fbf73'], uva: ['#7656a8', '#a983d6'], tijolo: ['#a24a33', '#d9714a'], petroleo: ['#2f6f78', '#5fa79a'], grafite: ['#3b3f48', '#626875'] };
+const OS_ACCENTS = { azul: ['#44609f', '#6f93d9'], verde: ['#2f8a45', '#6fbf73'], uva: ['#7656a8', '#a983d6'], tijolo: ['#a24a33', '#d9714a'], petroleo: ['#2f6f78', '#5fa79a'], grafite: ['#3b3f48', '#626875'], ouro: ['#8a5420', '#c98a2e'] };   // ouro: libera na Semana da produtividade
 const OS_BARS = { bege: ['#c7b595', '#fff8ec', '#8f7d63', '#e9dcc2'], cinza: ['#9aa0ab', '#d7d9de', '#626875', '#d7d9de'], noite: ['#2b2340', '#4a3a4e', '#2a1f2d', '#463462'], menta: ['#5fa79a', '#a9dccf', '#2f6f78', '#a9dccf'] };
-const BADGE_COLORS = { azul: ['#6f93d9', '#44609f'], vermelho: ['#ef4b3f', '#a8262a'], verde: ['#6fbf73', '#3f8f50'], amarelo: ['#f4c15d', '#c98a2e'], roxo: ['#a983d6', '#7656a8'], preto: ['#4a3a4e', '#2a1f2d'] };
+const BADGE_COLORS = { azul: ['#6f93d9', '#44609f'], vermelho: ['#ef4b3f', '#a8262a'], verde: ['#6fbf73', '#3f8f50'], amarelo: ['#f4c15d', '#c98a2e'], roxo: ['#a983d6', '#7656a8'], preto: ['#4a3a4e', '#2a1f2d'], coral: ['#ff9d86', '#c25f3b'] };   // coral: libera no Amigo secreto
 function applyOsTheme() {
   const h = hw(), r = document.documentElement.style, a = OS_ACCENTS[h.accent] || OS_ACCENTS.azul, b = OS_BARS[h.bar] || OS_BARS.bege, bc = BADGE_COLORS[h.badge] || BADGE_COLORS.azul;
   r.setProperty('--os-ac', a[0]); r.setProperty('--os-ac-hi', a[1]);
@@ -104,6 +104,27 @@ const WALLS = {
     for (let j = h * .5 | 0; j < h; j++) { x.fillStyle = j < h * .6 ? P.G : j < h * .75 ? P.h : P.H; x.fillRect(0, j, w, 1); }
     for (let n = 0; n < 140; n++) { const fx = R() * w | 0, fy = h * .52 + Math.pow(R(), .7) * h * .46 | 0, s = fy > h * .8 ? 2 : 1; x.fillStyle = [P.R, P.Y, P.W, P.I, P.O][R() * 5 | 0]; x.fillRect(fx, fy, s, s); if (s > 1) { x.fillStyle = P.y; x.fillRect(fx, fy, 1, 1); } }
     x.fillStyle = P.W; for (let n = 0; n < 4; n++) { const cx = R() * w | 0, cy = 4 + R() * h * .25 | 0; x.fillRect(cx, cy, 14, 3); x.fillRect(cx + 3, cy - 2, 8, 2); } },
+  // Recompensas de missões (aparecem com cadeado até serem liberadas)
+  confete(x, w, h) { const P = WD_PAL, R = Office.rng(57);
+    x.fillStyle = P.n; x.fillRect(0, 0, w, h);
+    for (let j = 0; j < h; j += 6) for (let i = (j / 6 % 2) * 6; i < w; i += 12) { x.fillStyle = P.N; x.fillRect(i, j, 6, 6); }   // xadrez suave de fundo
+    for (let n = 0; n < w * h / 40; n++) { const cx = R() * w | 0, cy = R() * h | 0, k = R() * 3 | 0; x.fillStyle = [P.Y, P.r, P.l, P.d, P.i, P.W][R() * 6 | 0];
+      if (k === 0) x.fillRect(cx, cy, 2, 1); else if (k === 1) x.fillRect(cx, cy, 1, 2); else { x.fillRect(cx, cy, 1, 1); x.fillRect(cx + 1, cy + 1, 1, 1); } }
+    // serpentinas: zigue-zague em degraus de 1 px
+    for (let s = 0; s < 4; s++) { let sx = R() * w | 0, sy = 0; x.fillStyle = [P.Y, P.R, P.L, P.F][s];
+      while (sy < h) { x.fillRect(sx, sy, 1, 2); sy += 2; sx += (sy / 4 | 0) % 2 ? 1 : -1; } } },
+  festa(x, w, h) { const P = WD_PAL, R = Office.rng(33);
+    for (let j = 0; j < h; j++) { x.fillStyle = j < h * .35 ? P[0] : j < h * .7 ? P.N : P.n; x.fillRect(0, j, w, 1); }
+    for (let j = h * .35 | 0; j < h * .35 + 2; j++) for (let i = j % 2; i < w; i += 2) { x.fillStyle = P[0]; x.fillRect(i, j, 1, 1); }   // transição pontilhada
+    x.fillStyle = P.W; for (let n = 0; n < 40; n++) x.fillRect(R() * w | 0, R() * h * .6 | 0, 1, 1);
+    // fogos: raios em 8 direções, pontas mais claras, rastro até o chão
+    for (let f = 0; f < 4; f++) { const cx = 14 + R() * (w - 28) | 0, cy = 10 + R() * h * .35 | 0, r = 6 + R() * 6 | 0, c = [[P.Y, P.y], [P.R, P.r], [P.L, P.l], [P.I, P.i]][f];
+      x.fillStyle = c[0]; for (let yy = cy + 3; yy < h * .78; yy += 3) x.fillRect(cx, yy, 1, 1);
+      for (let a = 0; a < 8; a++) { const dx = Math.round(Math.cos(a * Math.PI / 4)), dy = Math.round(Math.sin(a * Math.PI / 4));
+        for (let k = 2; k <= r; k++) { x.fillStyle = k > r - 2 ? c[1] : c[0]; if (k % 2 || k > r - 2) x.fillRect(cx + dx * k, cy + dy * k, 1, 1); } }
+      x.fillStyle = P.W; x.fillRect(cx, cy, 1, 1); }
+    let bx = 0; while (bx < w) { const bw = 8 + R() * 14 | 0, bh = 6 + R() * h * .22 | 0; x.fillStyle = P[0]; x.fillRect(bx, h - bh, bw, bh);
+      x.fillStyle = P.Y; for (let j = h - bh + 2; j < h - 1; j += 3) for (let i = bx + 1; i < bx + bw - 1; i += 3) if (R() < .35) x.fillRect(i, j, 1, 1); bx += bw; } },
   night(x, w, h) { const P = WD_PAL, R = Office.rng(9);
     x.fillStyle = P[0]; x.fillRect(0, 0, w, h); x.fillStyle = P.N; x.fillRect(0, h * .55, w, h);
     for (let n = 0; n < w * h / 60; n++) { x.fillStyle = R() < .8 ? P.W : P.y; x.fillRect(R() * w | 0, R() * h * .55 | 0, 1, 1); }
@@ -192,6 +213,7 @@ function showCustomize(back) {
   const paintCurCol = () => { const id = (CFG.hw || {}).cursor || 'padrao', ok = !!CUR_FILL[id], cur = (((CFG.hw || {}).curColor) || {})[id] || 'padrao';
     curCol.parentElement.style.display = ok ? '' : 'none';
     curCol.innerHTML = Object.entries(CUR_COLORS).map(([k, l]) => `<button class="cur-dot${cur === k ? ' on' : ''}" data-c="${k}" title="${u.curColors[k]}" aria-label="${u.curColors[k]}" style="background:${l ? WD_PAL[l] : 'transparent'}">${l ? '' : '×'}</button>`).join('');
+    lockUI(curCol, () => card.querySelector('.hw-note'));
     curCol.querySelectorAll('.cur-dot').forEach(d => d.onclick = () => { const id2 = (CFG.hw || {}).cursor; setHw({ curColor: Object.assign({}, (CFG.hw || {}).curColor, { [id2]: d.dataset.c }) }); applyCursor(); curPaint(); paintCurCol(); sfx('click'); }); };
   card.querySelectorAll('.cur-btn').forEach(b => b.addEventListener('click', () => setTimeout(paintCurCol, 0)));
   paintCurCol();
@@ -200,6 +222,7 @@ function showCustomize(back) {
     const k = b.parentElement.dataset.hw, v = b.dataset.v;
     setHw(k === 'all' ? { mon: v, kb: v, mouse: v } : { [k]: v }); if (k === 'cursor') applyCursor(); draw();
   });
+  lockUI(card, () => card.querySelector('.hw-note'));   // personalizações de missões (cadeado + dica)
   card.querySelector('#hwOk').onclick = () => { card.classList.remove('hw-card'); if (back) back(); else closeModal(); };
   draw();
 }

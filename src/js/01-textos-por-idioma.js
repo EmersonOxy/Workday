@@ -536,11 +536,11 @@ Object.assign(LANGS.pt.ui.walls, { listras: 'Listras', entardecer: 'Entardecer',
 Object.assign(LANGS.en.ui.walls, { listras: 'Stripes', entardecer: 'Sunset', xadrez: 'Checkers', aquario: 'Aquarium' });
 Object.assign(LANGS.es.ui.walls, { listras: 'Rayas', entardecer: 'Atardecer', xadrez: 'Ajedrez', aquario: 'Acuario' });
 LANGS.pt.ui.osc = { accent: 'Cor das janelas', bar: 'Barra de tarefas', badge: 'Cor do crachá', lanyard: 'Cordão do crachá',
-  names: { azul: 'Azul', verde: 'Verde', uva: 'Uva', tijolo: 'Tijolo', petroleo: 'Petróleo', grafite: 'Grafite', bege: 'Bege', cinza: 'Cinza', noite: 'Noite', menta: 'Menta', vermelho: 'Vermelho', amarelo: 'Amarelo', roxo: 'Roxo', preto: 'Preto' } };
+  names: { azul: 'Azul', verde: 'Verde', uva: 'Uva', tijolo: 'Tijolo', petroleo: 'Petróleo', grafite: 'Grafite', bege: 'Bege', cinza: 'Cinza', noite: 'Noite', menta: 'Menta', vermelho: 'Vermelho', amarelo: 'Amarelo', roxo: 'Roxo', preto: 'Preto', ouro: 'Ouro', coral: 'Coral' } };
 LANGS.en.ui.osc = { accent: 'Window color', bar: 'Taskbar', badge: 'Badge color', lanyard: 'Lanyard',
-  names: { azul: 'Blue', verde: 'Green', uva: 'Grape', tijolo: 'Brick', petroleo: 'Teal', grafite: 'Graphite', bege: 'Beige', cinza: 'Gray', noite: 'Night', menta: 'Mint', vermelho: 'Red', amarelo: 'Yellow', roxo: 'Purple', preto: 'Black' } };
+  names: { azul: 'Blue', verde: 'Green', uva: 'Grape', tijolo: 'Brick', petroleo: 'Teal', grafite: 'Graphite', bege: 'Beige', cinza: 'Gray', noite: 'Night', menta: 'Mint', vermelho: 'Red', amarelo: 'Yellow', roxo: 'Purple', preto: 'Black', ouro: 'Gold', coral: 'Coral' } };
 LANGS.es.ui.osc = { accent: 'Color de ventanas', bar: 'Barra de tareas', badge: 'Color de credencial', lanyard: 'Cordón',
-  names: { azul: 'Azul', verde: 'Verde', uva: 'Uva', tijolo: 'Ladrillo', petroleo: 'Petróleo', grafite: 'Grafito', bege: 'Beige', cinza: 'Gris', noite: 'Noche', menta: 'Menta', vermelho: 'Rojo', amarelo: 'Amarillo', roxo: 'Morado', preto: 'Negro' } };
+  names: { azul: 'Azul', verde: 'Verde', uva: 'Uva', tijolo: 'Ladrillo', petroleo: 'Petróleo', grafite: 'Grafito', bege: 'Beige', cinza: 'Gris', noite: 'Noche', menta: 'Menta', vermelho: 'Rojo', amarelo: 'Amarillo', roxo: 'Morado', preto: 'Negro', ouro: 'Oro', coral: 'Coral' } };
 Object.assign(LANGS.pt.shop, { globo: ['Globo terrestre', 'Para planejar as férias que você não vai tirar.'], livros: ['Pilha de livros', 'Gestão, produtividade e um romance escondido no meio.'], pato: ['Pato de borracha', 'Escuta seus problemas sem marcar reunião.'],
   webcam: ['Webcam', 'Em cima do monitor. Sim, ela está ligada.'], caixas: ['Caixinhas de som', 'Duas, uma de cada lado do monitor.'], adesivos: ['Adesivos', 'Personalidade colada na moldura do monitor.'],
   diploma: ['Diploma emoldurado', 'Na parede, para lembrar que valeu a pena. Talvez.'], quadro: ['Quadro de paisagem', 'Uma janela para um lugar sem e-mails.'], neon: ['Letreiro neon', 'CAFE em luz vermelha. Motivação garantida.'] });
@@ -553,8 +553,11 @@ Object.assign(LANGS.es.shop, { globo: ['Globo terráqueo', 'Para planear las vac
 LANGS.pt.ui.setSec = { lang: '🌐 Idioma e aparência', game: '🎯 Jogo', screen: '🖥️ Tela', sound: '🔊 Som e música', desk: '💼 Crachá e escritório', data: '💾 Progresso e dados' };
 LANGS.en.ui.setSec = { lang: '🌐 Language and look', game: '🎯 Game', screen: '🖥️ Display', sound: '🔊 Sound and music', desk: '💼 Badge and office', data: '💾 Progress and data' };
 LANGS.es.ui.setSec = { lang: '🌐 Idioma y apariencia', game: '🎯 Juego', screen: '🖥️ Pantalla', sound: '🔊 Sonido y música', desk: '💼 Credencial y oficina', data: '💾 Progreso y datos' };
+Object.assign(LANGS.pt.ui.walls, { confete: 'Confete', festa: 'Fogos' });
 Object.assign(LANGS.pt.ui.walls, { praia: 'Praia', floresta: 'Floresta', espaco: 'Espaço', neve: 'Montanhas', campo: 'Campo florido' });
+Object.assign(LANGS.en.ui.walls, { confete: 'Confetti', festa: 'Fireworks' });
 Object.assign(LANGS.en.ui.walls, { praia: 'Beach', floresta: 'Forest', espaco: 'Space', neve: 'Mountains', campo: 'Flower field' });
+Object.assign(LANGS.es.ui.walls, { confete: 'Confeti', festa: 'Fuegos' });
 Object.assign(LANGS.es.ui.walls, { praia: 'Playa', floresta: 'Bosque', espaco: 'Espacio', neve: 'Montañas', campo: 'Campo de flores' });
 Object.assign(LANGS.pt.ui, { focusLabel: 'Modo foco (só a tela)', keysHint: 'As setas, Espaço, Delete, 1 e 2 sempre funcionam. Clique numa ação e aperte a nova tecla.', keysReset: 'Restaurar teclas', keysPress: 'Aperte…',
   keyNames: { left: '← Esquerda', right: '→ Direita', drop: '↓ Descer rápido', del: '🗑 Descartar', pause: '⏸ Pausar', coffee: '☕ Café', tea: '🍵 Chá' } });
@@ -571,9 +574,9 @@ LANGS.pt.ui.mkCats = { use: '☕ Do dia', desk: '🪴 Mesa', pc: '🖥️ Comput
 LANGS.en.ui.mkCats = { use: '☕ For today', desk: '🪴 Desk', pc: '🖥️ Computer', wall: '🖼️ Wall' };
 LANGS.es.ui.mkCats = { use: '☕ Del día', desk: '🪴 Escritorio', pc: '🖥️ Computadora', wall: '🖼️ Pared' };
 Object.assign(LANGS.pt.ui, { phoneRing: 'CHAMANDO', phoneLine: 'EM LINHA' }); Object.assign(LANGS.en.ui, { phoneRing: 'RINGING', phoneLine: 'ON LINE' }); Object.assign(LANGS.es.ui, { phoneRing: 'LLAMANDO', phoneLine: 'EN LÍNEA' });
-LANGS.pt.ui.curColors = { padrao: 'Original', branco: 'Branco', azul: 'Azul', verde: 'Verde', rosa: 'Rosa', amarelo: 'Amarelo', uva: 'Uva', menta: 'Menta', laranja: 'Laranja' };
-LANGS.en.ui.curColors = { padrao: 'Original', branco: 'White', azul: 'Blue', verde: 'Green', rosa: 'Pink', amarelo: 'Yellow', uva: 'Grape', menta: 'Mint', laranja: 'Orange' };
-LANGS.es.ui.curColors = { padrao: 'Original', branco: 'Blanco', azul: 'Azul', verde: 'Verde', rosa: 'Rosa', amarelo: 'Amarillo', uva: 'Uva', menta: 'Menta', laranja: 'Naranja' };
+LANGS.pt.ui.curColors = { padrao: 'Original', branco: 'Branco', azul: 'Azul', verde: 'Verde', rosa: 'Rosa', amarelo: 'Amarelo', uva: 'Uva', menta: 'Menta', laranja: 'Laranja', ouro: 'Ouro' };
+LANGS.en.ui.curColors = { padrao: 'Original', branco: 'White', azul: 'Blue', verde: 'Green', rosa: 'Pink', amarelo: 'Yellow', uva: 'Grape', menta: 'Mint', laranja: 'Orange', ouro: 'Gold' };
+LANGS.es.ui.curColors = { padrao: 'Original', branco: 'Blanco', azul: 'Azul', verde: 'Verde', rosa: 'Rosa', amarelo: 'Amarillo', uva: 'Uva', menta: 'Menta', laranja: 'Naranja', ouro: 'Oro' };
 LANGS.pt.ui.curColorLabel = 'Cor do ponteiro'; LANGS.en.ui.curColorLabel = 'Pointer color'; LANGS.es.ui.curColorLabel = 'Color del puntero';
 LANGS.pt.ui.phoneLabel = 'Telefone'; LANGS.en.ui.phoneLabel = 'Desk phone'; LANGS.es.ui.phoneLabel = 'Teléfono';
 LANGS.pt.ui.hwTabs = { pc: '🖥️ Computador', os: '🪟 WorkOS', badge: '📛 Crachá', desk: '🐈 Mesa', ptr: '🖱️ Ponteiro' };

@@ -222,21 +222,7 @@ function osCalc() {
     if (/^[\d.+\-*/%=C←]$/.test(k)) { e.preventDefault(); e.stopPropagation(); press(k); } };
   addEventListener('keydown', key, true);
 }
-// Calendário: mês do aparelho (datas reais) e, separado, o dia fictício da carreira salva
-function osCalendar() {
-  const u = U(), t = u.osApps, now = new Date(); let y = now.getFullYear(), mo = now.getMonth();
-  const w = osWindow(t.calendar, `<div class="cal"><div class="cal-h"><button class="pxbtn" data-m="-1">◀</button><b></b><button class="pxbtn" data-m="1">▶</button></div><div class="cal-g"></div><p class="cal-note"></p></div>`, { icon: APP_ICO.cal });
-  const saved = load('carreira', null);
-  w.querySelector('.cal-note').textContent = saved ? t.careerDay(saved.day + 1) : t.noCareer;
-  const paint = () => {
-    const first = new Date(y, mo, 1).getDay(), days = new Date(y, mo + 1, 0).getDate();
-    w.querySelector('.cal-h b').textContent = new Date(y, mo, 1).toLocaleDateString(CFG.lang === 'en' ? 'en-US' : CFG.lang === 'es' ? 'es-ES' : 'pt-BR', { month: 'long', year: 'numeric' });
-    w.querySelector('.cal-g').innerHTML = t.week.map(d => `<i>${d}</i>`).join('') + '<span></span>'.repeat(first) +
-      Array.from({ length: days }, (_, i) => `<span class="${y === now.getFullYear() && mo === now.getMonth() && i + 1 === now.getDate() ? 'today' : ''}">${i + 1}</span>`).join('');
-  };
-  w.querySelectorAll('[data-m]').forEach(b => b.onclick = () => { mo += +b.dataset.m; if (mo < 0) { mo = 11; y--; } if (mo > 11) { mo = 0; y++; } sfx('click'); paint(); });
-  paint();
-}
+// Calendário (expediente e data real) e Arquivo de conquistas: ver 40-eventos.js
 // Bloco de notas: salva sozinho no aparelho
 function osNotes() {
   const w = osWindow(U().osApps.notes, `<textarea class="notes" spellcheck="false" maxlength="5000"></textarea><small class="notes-st"></small>`, { icon: APP_ICO.notes, cls: 'notes-win' });
@@ -265,6 +251,7 @@ function osApp(id) {
   if (id === 'workday') { const c = $('modal').querySelector('.menu-card'); if (!c) showMenu(); else if (c.style.display === 'none') osRestore(c); else { osFocus(c); Motion.shake(c, 3); } return; }
   if (id === 'cal') return osCalendar();
   if (id === 'calc') return osCalc();
+  if (id === 'arq') return osArchive();
   if (id === 'notes') return osNotes();
   if (id === 'paint' || id === 'prof') {   // a tela existente roda dentro de uma janela própria, sem tirar o portal do lugar
     const u = U(), w = osWindow(id === 'paint' ? u.osApps.paint : u.profile, '', { icon: id === 'paint' ? APP_ICO.paint : MENU_ICO.prof, cls: 'app-win', onClose: () => { if (modal.into && !modal.into.isConnected) modal.into = null; } });
@@ -280,7 +267,7 @@ function osIcons() {
   const m = $('modal'), t = U().osApps; m.querySelectorAll('.os-icons').forEach(e => e.remove());
   if (!document.body.classList.contains('office')) return;
   const g = document.createElement('div'); g.className = 'os-icons';
-  for (const [id, rows, label, pal] of [...(S && S.onBreak ? [] : [['workday', SPR2.doc, 'PORTAL_RH.EXE', WD_SECTOR_RAMP.ti]]), ['cal', APP_ICO.cal, t.calendar], ['calc', APP_ICO.calc, t.calc], ['notes', APP_ICO.notes, t.notes], ['music', APP_ICO.music, t.music], ['paint', APP_ICO.paint, t.paint], ['prof', MENU_ICO.prof, U().profile]]) {
+  for (const [id, rows, label, pal] of [...(S && S.onBreak ? [] : [['workday', SPR2.doc, 'PORTAL_RH.EXE', WD_SECTOR_RAMP.ti]]), ['cal', APP_ICO.cal, t.calendar], ['calc', APP_ICO.calc, t.calc], ['notes', APP_ICO.notes, t.notes], ['music', APP_ICO.music, t.music], ['paint', APP_ICO.paint, t.paint], ['prof', MENU_ICO.prof, U().profile], ['arq', APP_ICO.arq, U().ev.archive]]) {
     const d = document.createElement('button'); d.className = 'osicon'; d.append(Pixel.el(rows, 3, pal)); d.insertAdjacentHTML('beforeend', `<span>${label}</span>`);
     const open = () => { g.querySelectorAll('.osicon').forEach(x => x.classList.remove('sel')); sfx('pop'); osApp(id); };
     d.onclick = () => { const n = performance.now(); if (n - (osIcons.last || 0) < 700) return; osIcons.last = n; open(); };   // um clique abre; cliques repetidos não duplicam

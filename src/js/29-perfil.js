@@ -12,7 +12,7 @@ function showBadge(back) {
   const draft = { name: PROFILE.name, av: avConfig(), photo: PROFILE.photo, data: undefined };   // data: undefined = sem mudança, null = excluir, {big,mini} = nova
   const card = modal(`<div class="badge-big"><div class="bg-clip"></div><div class="bg-card">
       <div class="bg-head">${u.company}</div><div class="bg-photo"></div>
-      <b class="bg-name"></b><span class="bg-rank">${S ? L.ranks[S.rankIdx] : L.ranks[0]}</span><span class="bg-num">Nº ${EMP_ID}</span><i class="bg-bar"></i></div></div>
+      <b class="bg-name"></b><span class="bg-rank">${S ? L.ranks[S.rankIdx] : L.ranks[0]}</span><span class="bg-num">Nº ${EMP_ID}</span><span class="bg-pins"></span><i class="bg-bar"></i></div></div>
     <div class="bg-edit">
       <label>${u.nameLabel}<input id="bgName" maxlength="18" autocomplete="off" placeholder="${u.namePh}"></label>
       <div class="bg-row"><button class="pxbtn" id="bgChar">${t.editChar}</button><button class="pxbtn" id="bgPick">${t.importPhoto}</button><button class="pxbtn" id="bgNoPhoto">${t.useChar}</button>
@@ -20,6 +20,7 @@ function showBadge(back) {
     </div>
     <div class="actions"><button class="pxbtn main" id="bgSave">${u.save}</button><button class="pxbtn" id="bgBack">${u.cancel}</button></div>`);
   card.classList.add('badge-card');
+  { const bp = card.querySelector('.bg-pins'); (QST.pins || []).slice(-5).forEach(k => PIN_SPR[k] && bp.append(pinEl(k, 2))); }   // broches das missões presos no crachá
   const photoOv = () => draft.data === null ? null : draft.data ? draft.data.imgs : undefined;
   const paint = () => {
     const keepN = PROFILE.name, keepP = PROFILE.photo; PROFILE.name = draft.name; PROFILE.photo = draft.photo;

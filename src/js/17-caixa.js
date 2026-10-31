@@ -143,6 +143,7 @@ function checkout() {
     setTimeout(() => {
       tot.textContent = `${u.approved} · ${money(total)}`; sc.querySelector('#lcd').classList.add('good'); sfx('coin');
       P.wallet -= total;
+      Quests.ev('buy', bought.length);   // missão do amigo secreto (só conta no período do evento)
       funds.textContent = `${u.wallet}: ${money(P.wallet)}`;
       for (const id of bought) {
         const it = SHOP.find(i => i.id === id);

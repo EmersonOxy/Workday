@@ -186,6 +186,7 @@ function startCall(mode, onExit) {
     runMinigame(kind, host, result => {
       host.remove(); el.classList.remove('playing');
       if (mode === 'work') addStress(-10);          // descanso de verdade: alivia um pouco, sem pontos nem dinheiro
+      if (!result.quit) Quests.ev('duda');
       finish(result.quit ? null : result.grade, result.quit ? null : result.vs);
     }, opts);
   })();

@@ -15,7 +15,7 @@ const CURSORS = {
 };
 // Cores: a letra de preenchimento de cada ponteiro é trocada pela cor escolhida (ponteiros com cor própria não mudam)
 const CUR_FILL = { triangulo: 'L', pequeno: 'W', grande: 'W', mao: 'W', estrela: 'Y', patinha: 'o', mira: 'R' };
-const CUR_COLORS = { padrao: null, branco: 'W', azul: 'L', verde: 'F', rosa: 'r', amarelo: 'Y', uva: 'I', menta: 'v', laranja: 'O' };
+const CUR_COLORS = { padrao: null, branco: 'W', azul: 'L', verde: 'F', rosa: 'r', amarelo: 'Y', uva: 'I', menta: 'v', laranja: 'O', ouro: 'z' };   // ouro: libera no Aniversário do Duda
 function curRows(id, mode) {
   const c = CURSORS[id], col = CUR_COLORS[((CFG.hw || {}).curColor || {})[id]], f = CUR_FILL[id];
   let rows = c.rows.map(r => col && f ? r.split(f).join(col) : r);
