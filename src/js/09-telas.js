@@ -162,6 +162,10 @@ function osTasks() { let t = $('modal').querySelector('.os-tasks'); if (!t) { t 
 function osSyncMin() { const m = $('modal'), open = [...m.querySelectorAll('.card, .os-win')].some(w => w.style.display !== 'none' && !(w.classList.contains('card') && m.classList.contains('hidden'))); m.classList.toggle('allmin', !open); }
 // Barra de tarefas: cada janela aberta tem um botão. Clicar: se minimizada, restaura; se é a da frente, minimiza; senão traz para a frente
 let OS_Z = 10;
+// Um botão da barra nunca sobrevive à sua janela: qualquer caminho que remova a janela (fechar, trocar de tela,
+// carregar o jogo, encerrar o intervalo) leva o botão junto. Sem isso, botões vazios se acumulavam e viravam riscos.
+new MutationObserver(() => $('modal').querySelectorAll('.os-task').forEach(b => { if (!b._win || !b._win.isConnected) b.remove(); }))
+  .observe($('modal'), { childList: true, subtree: true });
 function osTaskOf(win) { return [...$('modal').querySelectorAll('.os-task')].find(b => b._win === win); }
 function osFocus(win) { win.style.zIndex = ++OS_Z; $('modal').querySelectorAll('.os-task').forEach(b => b.classList.toggle('on', b._win === win)); }
 function osTaskBtn(win, title) {
