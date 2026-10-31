@@ -239,7 +239,9 @@ const Office = {
     F(bd.shirt, bx0 + 1, by0 + 1, 12, 3); F(P.W, bx0 + 2, by0 + 2, 3, 1);
     F(P.k, bx0 + 3, by0 + 5, 8, 9);
     if (bd.px) bd.px.forEach((row, j) => row.forEach((c, i) => F(c, bx0 + 4 + i, by0 + 6 + j, 1, 1)));
-    F(P.p, bx0 + 3, by0 + 15, 8, 1); F(P.p, bx0 + 4, by0 + 17, 6, 1);
+    F(P.k, bx0 + 4, by0 + 15, 6, 1); F(P.p, bx0 + 3, by0 + 17, 8, 1);                                  // nome e cargo
+    for (let i = 0; i < 8; i++) if ((i * 5) % 3) F(P.K, bx0 + 3 + i, by0 + 18, 1, 1);                    // código de barras
+    F(P.l, bx0 + 11, by0 + 5, 1, 2); F(P.i, bx0 + 11, by0 + 7, 1, 1); F(P.W, bx0 + 6, by0 + 2, 2, 1);      // holograma e furo
     // Bagunça: bolinhas de papel
     const RC = this.rng(31);
     for (let n = 0; n < st.clutter * 3; n++) { const px = 8 + RC() * (L.VW - 16) | 0, py = L.desk + 6 + RC() * 14 | 0;
@@ -284,13 +286,18 @@ const Office = {
     F(P.w, px, py + 26, 24, 3); F(P.p, px + 1, py + 28, 23, 1); F(P.w, px + 20, py + 25, 4, 1); F(P.p, px + 22, py + 26, 2, 2); },
   // Telefone de mesa: toca (fone pula, luz pisca) enquanto há uma ligação na fila
   phone(x, px, py, ring, t) { const P = WD_PAL, F = (c, a, b, w, h) => { x.fillStyle = c; x.fillRect(a, b, w, h); };
-    const j = ring && (t * 14 | 0) % 2 ? -1 : 0, sh = ring ? ((t * 22 | 0) % 2 ? 1 : 0) : 0;
-    F(P.k, px - 1 + sh, py + 3, 28, 12); F(P.C, px + sh, py + 4, 26, 10); F(P.c, px + sh, py + 4, 26, 1); F(P.e, px + sh, py + 12, 26, 2);
-    for (let r = 0; r < 2; r++) for (let i = 0; i < 4; i++) F(P.e, px + 9 + i * 4 + sh, py + 6 + r * 3, 2, 2);
-    F(P.k, px + 2 + sh, py + 6, 5, 5); F(ring && (t * 4 | 0) % 2 ? P.R : P.q, px + 3 + sh, py + 7, 3, 3);
-    F(P.k, px - 2 + sh, py - 1 + j, 30, 5); F(P.J, px - 1 + sh, py + j, 28, 3); F(P.j, px - 1 + sh, py + j, 28, 1); F(P.J, px - 1 + sh, py + 3 + j, 5, 2); F(P.J, px + 22 + sh, py + 3 + j, 5, 2);
-    for (let i = 0; i < 5; i++) F(P.j, px - 3 - (i % 2) + sh, py + 5 + i * 2, 1, 1);
-    if (ring && (t * 3 | 0) % 2) { F(P.W, px + 4, py - 5, 1, 2); F(P.W, px + 12, py - 6, 1, 3); F(P.W, px + 20, py - 5, 1, 2); } },
+    // telefone de mesa: base inclinada com visor, teclado 3×4, grade do alto-falante e fone com fio enrolado
+    const j = ring && (t * 14 | 0) % 2 ? -1 : 0, sh = ring ? ((t * 22 | 0) % 2 ? 1 : 0) : 0, X = px + sh;
+    F(P.k, X - 1, py + 3, 30, 14); F(P.C, X, py + 4, 28, 12); F(P.c, X, py + 4, 28, 1); F(P.e, X, py + 13, 28, 2); F(P.E, X, py + 15, 28, 1);
+    F(P.k, X + 2, py + 6, 9, 5); F(ring && (t * 4 | 0) % 2 ? P.v : P.V, X + 3, py + 7, 7, 3); F(P.x, X + 4, py + 8, 4, 1);     // visor
+    for (let r = 0; r < 3; r++) for (let i = 0; i < 4; i++) { F(P.k, X + 13 + i * 4, py + 5 + r * 3, 3, 3); F(i === 3 && r === 2 ? P.F : P.c, X + 13 + i * 4, py + 5 + r * 3, 2, 2); }
+    for (let i = 0; i < 4; i++) F(P.e, X + 3 + i * 2, py + 12, 1, 1);                                                          // alto-falante
+    F(P.k, X + 9, py + 13, 2, 2); F(ring && (t * 4 | 0) % 2 ? P.R : P.q, X + 9, py + 13, 1, 1);                               // luz de chamada
+    // fone
+    F(P.k, X - 2, py - 2 + j, 32, 6); F(P.J, X - 1, py - 1 + j, 30, 4); F(P.j, X + 6, py - 1 + j, 16, 1); F(P.M, X + 7, py + j, 14, 1);
+    F(P.k, X - 2, py + 3 + j, 7, 3); F(P.J, X - 1, py + 3 + j, 5, 2); F(P.k, X + 23, py + 3 + j, 7, 3); F(P.J, X + 24, py + 3 + j, 5, 2);
+    for (let i = 0; i < 6; i++) F(i % 2 ? P.J : P.j, X - 3 - (i % 2), py + 5 + i * 2, 1, 2);                                     // fio enrolado
+    if (ring && (t * 3 | 0) % 2) { F(P.W, px + 4, py - 6, 1, 2); F(P.W, px + 13, py - 7, 1, 3); F(P.W, px + 22, py - 6, 1, 2); } },
   // Camada de resposta imediata: teclas e botão do mouse, desenhados a cada quadro só enquanto há interação.
   // Apertada: a tecla afunda 1 px e acende; ao soltar, sobe com um brilho de 1 px (sobre-impulso) por ~90 ms.
   keyCell(L, k) {
