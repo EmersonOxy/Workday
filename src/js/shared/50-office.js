@@ -195,6 +195,10 @@ const Office = {
     peach:    { hi: '#ffd0b0', base: '#f2a27a', sh: '#d9714a', dk: '#a24a33', txt: '#ffd0b0', key: '#ffd0b0', keySh: '#f2a27a' },
     grape:    { hi: '#e0cff7', base: '#a983d6', sh: '#7656a8', dk: '#463462', txt: '#e0cff7', key: '#e0cff7', keySh: '#a983d6' },
     lemon:    { hi: '#ffe7a3', base: '#f4c15d', sh: '#c98a2e', dk: '#8a5420', txt: '#ffe7a3', key: '#ffe7a3', keySh: '#f4c15d' },
+    cherry:   { hi: '#ff9d86', base: '#ef4b3f', sh: '#a8262a', dk: '#2a1f2d', txt: '#ff9d86', key: '#ff9d86', keySh: '#ef4b3f' },
+    sage:     { hi: '#c4ebb5', base: '#6fbf73', sh: '#3f8f50', dk: '#2f5a33', txt: '#c4ebb5', key: '#c4ebb5', keySh: '#6fbf73' },
+    caramel:  { hi: '#f0b778', base: '#d48a4f', sh: '#a8623a', dk: '#6e3b26', txt: '#f0b778', key: '#f0b778', keySh: '#d48a4f' },
+    night:    { hi: '#6c4a7e', base: '#463462', sh: '#2b2340', dk: '#2a1f2d', txt: '#6c4a7e', key: '#6c4a7e', keySh: '#463462' },
   },
   ramp(name) { return this.HW[name] || this.HW.cream; },
   // Teclado da mesa em QWERTY físico (KeyboardEvent.code = posição da tecla, independente do idioma do teclado)

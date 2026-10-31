@@ -1,5 +1,5 @@
 /* ================= Mercado ================= */
-const cartTotal = () => S.cart.reduce((a, id) => a + SHOP.find(i => i.id === id).price, 0);
+const cartTotal = () => S.cart.reduce((a, id) => a + priceOf(id).price, 0);   // mesma regra de preço do catálogo
 function canAdd(it) {
   if (it.kind === 'decor' && (P.decor.includes(it.id) || S.cart.includes(it.id))) return false;
   if (it.kind === 'day' && (S.today.has(it.id) || S.cart.includes(it.id))) return false;
@@ -72,7 +72,7 @@ function shelfSlot(it, sc) {
   // cabe na prateleira: até 62% da altura e a largura de uma vaga, sempre em escala inteira
   pxFit(spr, () => { const sh = el.parentElement; return sh ? [sh.clientWidth / Math.max(3, sh.children.length) * .8, sh.clientHeight * .62] : [80, 80]; });
   el.append(spr);
-  el.insertAdjacentHTML('beforeend', `<span class="nm">${L.shop[it.id][0]}</span><span class="ds">${L.shop[it.id][1]}</span><span class="ptag">${money(it.price)}</span>`);
+  el.insertAdjacentHTML('beforeend', `<span class="nm">${L.shop[it.id][0]}</span><span class="ds">${L.shop[it.id][1]}</span><span class="ptag">${priceTag(it.id)}</span>`);
   el.onclick = () => {
     if (!canAdd(it)) return;
     S.cart.push(it.id); sfx('pop');

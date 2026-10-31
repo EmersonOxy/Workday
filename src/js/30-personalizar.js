@@ -3,13 +3,13 @@
 // Salvo em CFG.hw (localStorage "expediente-config"); saves antigos sem essa chave usam o padrão.
 const HW_DEFAULT = { phone: 'graphite', mon: 'cream', kb: 'cream', mouse: 'cream', wall: 'teal', cat: 'tricolor', accent: 'azul', bar: 'bege', badge: 'azul', lanyard: 'azul' };
 // Cores do WorkOS (barra de título das janelas e barra de tarefas) e do crachá (cordão e faixa do cartão)
-const OS_ACCENTS = { azul: ['#44609f', '#6f93d9'], verde: ['#2f8a45', '#6fbf73'], uva: ['#7656a8', '#a983d6'], tijolo: ['#a24a33', '#d9714a'], petroleo: ['#2f6f78', '#5fa79a'], grafite: ['#3b3f48', '#626875'], ouro: ['#8a5420', '#c98a2e'] };   // ouro: libera na Semana da produtividade
-const OS_BARS = { bege: ['#c7b595', '#fff8ec', '#8f7d63', '#e9dcc2'], cinza: ['#9aa0ab', '#d7d9de', '#626875', '#d7d9de'], noite: ['#2b2340', '#4a3a4e', '#2a1f2d', '#463462'], menta: ['#5fa79a', '#a9dccf', '#2f6f78', '#a9dccf'] };
-const BADGE_COLORS = { azul: ['#6f93d9', '#44609f'], vermelho: ['#ef4b3f', '#a8262a'], verde: ['#6fbf73', '#3f8f50'], amarelo: ['#f4c15d', '#c98a2e'], roxo: ['#a983d6', '#7656a8'], preto: ['#4a3a4e', '#2a1f2d'], coral: ['#ff9d86', '#c25f3b'] };   // coral: libera no Amigo secreto
+const OS_ACCENTS = { azul: ['#44609f', '#6f93d9'], verde: ['#2f8a45', '#6fbf73'], uva: ['#7656a8', '#a983d6'], tijolo: ['#a24a33', '#d9714a'], petroleo: ['#2f6f78', '#5fa79a'], grafite: ['#3b3f48', '#626875'], cereja: ['#a8262a', '#ef4b3f'], laranja: ['#c25f3b', '#f0915f'], noite: ['#2b2340', '#463462'], ouro: ['#8a5420', '#c98a2e'] };   // ouro: libera na Semana da produtividade
+const OS_BARS = { bege: ['#c7b595', '#fff8ec', '#8f7d63', '#e9dcc2'], cinza: ['#9aa0ab', '#d7d9de', '#626875', '#d7d9de'], noite: ['#2b2340', '#4a3a4e', '#2a1f2d', '#463462'], menta: ['#5fa79a', '#a9dccf', '#2f6f78', '#a9dccf'], creme: ['#e9dcc2', '#fbf3e2', '#c7b595', '#fbf3e2'], lavanda: ['#a983d6', '#e0cff7', '#7656a8', '#e0cff7'], pessego: ['#f2a27a', '#ffd0b0', '#d9714a', '#ffd0b0'], madeira: ['#a8623a', '#d48a4f', '#6e3b26', '#f0b778'] };
+const BADGE_COLORS = { azul: ['#6f93d9', '#44609f'], vermelho: ['#ef4b3f', '#a8262a'], verde: ['#6fbf73', '#3f8f50'], amarelo: ['#f4c15d', '#c98a2e'], roxo: ['#a983d6', '#7656a8'], preto: ['#4a3a4e', '#2a1f2d'], laranja: ['#f0915f', '#c25f3b'], menta: ['#5fa79a', '#2f6f78'], cinza: ['#9aa0ab', '#626875'], branco: ['#fbf3e2', '#c7b595'], coral: ['#ff9d86', '#c25f3b'] };   // coral: libera no Amigo secreto
 function applyOsTheme() {
   const h = hw(), r = document.documentElement.style, a = OS_ACCENTS[h.accent] || OS_ACCENTS.azul, b = OS_BARS[h.bar] || OS_BARS.bege, bc = BADGE_COLORS[h.badge] || BADGE_COLORS.azul;
   r.setProperty('--os-ac', a[0]); r.setProperty('--os-ac-hi', a[1]);
-  r.setProperty('--os-bar', b[0]); r.setProperty('--os-bar-hi', b[1]); r.setProperty('--os-bar-sh', b[2]); r.setProperty('--os-btn', b[3]); r.setProperty('--os-bar-ink', h.bar === 'noite' ? '#fff8ec' : '#2a1f2d');
+  r.setProperty('--os-bar', b[0]); r.setProperty('--os-bar-hi', b[1]); r.setProperty('--os-bar-sh', b[2]); r.setProperty('--os-btn', b[3]); r.setProperty('--os-bar-ink', ['noite', 'madeira'].includes(h.bar) ? '#fff8ec' : '#2a1f2d');
   r.setProperty('--badge', bc[0]); r.setProperty('--badge-sh', bc[1]); r.setProperty('--lanyard', (BADGE_COLORS[h.lanyard] || BADGE_COLORS.azul)[0]);
 }
 function hw() { return Object.assign({}, HW_DEFAULT, CFG.hw || {}); }

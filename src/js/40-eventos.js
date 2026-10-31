@@ -295,3 +295,48 @@ function lockUI(root, note) {
     root.addEventListener('click', ev => { const b = ev.target.closest('[data-lock]'); if (!b) return; ev.stopImmediatePropagation(); ev.preventDefault(); sfx('err'); Motion.shake && Motion.shake(b, 2);
       const n = note && note(); if (n) n.textContent = b.dataset.lock; }, true); }
 }
+
+// ===== Promoções pelo calendário interno: uma regra só para mercado, caixa e catálogo =====
+// Vale o dia de trabalho "de agora" (Quests.today). O maior desconto aplicável vence; descontos não se somam.
+const GIFTS = ['pato', 'adesivos', 'cacto', 'livros', 'foto', 'planta'];
+const PROMOS = [
+  { id: 'cafe', off: .4, ids: ['cafe', 'cha'], on: d => !!Quests.on(SPECIAL.find(e => e.id === 'cafe'), d) },
+  { id: 'integracao', off: .15, kind: 'decor', on: d => (d - 1) % CYCLE < 5 },
+  { id: 'amigo', off: .25, ids: GIFTS, on: d => !!Quests.on(SPECIAL.find(e => e.id === 'amigo'), d) },
+];
+function promoFor(id, d = Quests.today()) {
+  const it = SHOP.find(i => i.id === id); if (!it) return null;
+  let best = null; for (const p of PROMOS) if ((p.ids ? p.ids.includes(id) : it.kind === p.kind) && p.on(d) && (!best || p.off > best.off)) best = p;
+  return best;
+}
+function priceOf(id, d) {
+  const it = SHOP.find(i => i.id === id), base = it ? it.price : 0, pr = promoFor(id, d);
+  return { base, price: pr ? Math.max(1, Math.round(base * (1 - pr.off))) : base, promo: pr };
+}
+const priceTag = id => { const p = priceOf(id); return p.promo ? `<s>${money(p.base)}</s> <b class="promo">${money(p.price)}</b>` : money(p.price); };
+
+LANGS.pt.ui.cat = { app: 'Catálogo', all: 'Tudo', use: 'Consumíveis', day: 'Do dia', decor: 'Enfeites', owned: 'Na mesa', inBag: n => `Na bolsa: ${n}`, onlyMarket: 'Compra no mercado, no fim do expediente.', usedToday: 'Vale para um dia de trabalho.',
+  promo: { cafe: 'Dia do café', integracao: 'Semana de integração', amigo: 'Amigo secreto' }, off: n => `−${n}%`, next: 'Próximas promoções', none: 'Nenhuma promoção à vista.', from: (n, d) => `${n} · dia ${d}` };
+LANGS.en.ui.cat = { app: 'Catalog', all: 'All', use: 'Consumables', day: 'Daily', decor: 'Decorations', owned: 'On your desk', inBag: n => `In bag: ${n}`, onlyMarket: 'Bought at the market after work.', usedToday: 'Lasts one workday.',
+  promo: { cafe: 'Coffee day', integracao: 'Onboarding week', amigo: 'Secret Santa' }, off: n => `−${n}%`, next: 'Upcoming deals', none: 'No deals in sight.', from: (n, d) => `${n} · day ${d}` };
+LANGS.es.ui.cat = { app: 'Catálogo', all: 'Todo', use: 'Consumibles', day: 'Del día', decor: 'Adornos', owned: 'En tu mesa', inBag: n => `En la bolsa: ${n}`, onlyMarket: 'Se compra en el mercado, al final de la jornada.', usedToday: 'Vale para una jornada.',
+  promo: { cafe: 'Día del café', integracao: 'Semana de integración', amigo: 'Amigo invisible' }, off: n => `−${n}%`, next: 'Próximas ofertas', none: 'Ninguna oferta a la vista.', from: (n, d) => `${n} · día ${d}` };
+APP_ICO.shop = ['............', '..kkkkkkkk..', '.kRWRWRWRWk.', 'kRRWWRRWWRRk', 'kkkkkkkkkkkk', '.kWWWWWWWWk.', '.kWkkkWYYWk.', '.kWkLkWYYWk.', '.kWkLkWWWWk.', '.kWkLkWWWWk.', '.kkkkkkkkkk.', '............'];
+
+// Catálogo do WorkOS: só consulta (as compras continuam no mercado), com o mesmo preço que o caixa vai cobrar
+function osCatalog() {
+  const c = U().cat, kinds = ['all', 'use', 'day', 'decor'];
+  const w = osWindow(c.app, `<div class="ctl"><div class="cal-tabs">${kinds.map((k, i) => `<button class="pxbtn${i ? '' : ' on'}" data-k="${k}">${c[k]}</button>`).join('')}</div><div class="ctl-promo"></div><div class="ctl-list"></div><p class="hint">${c.onlyMarket}</p></div>`, { icon: APP_ICO.shop, cls: 'ctl-win' });
+  const d0 = Quests.today(), up = [];
+  for (let d = d0; d < d0 + 6; d++) for (const p of PROMOS) if (p.on(d) && !up.some(x => x[0] === p.id)) up.push([p.id, d, p.off]);
+  w.querySelector('.ctl-promo').innerHTML = `<b>${c.next}</b> ` + (up.length ? up.map(([id, d, off]) => `<span class="ctl-tag${d === d0 ? ' now' : ''}">${c.from(c.promo[id], d)} ${c.off(off * 100)}</span>`).join(' ') : c.none);
+  const inv = (S && S.inv) || (load('carreira', null) || {}).inv || {};
+  const paint = k => { w.querySelectorAll('[data-k]').forEach(b => b.classList.toggle('on', b.dataset.k === k));
+    const list = w.querySelector('.ctl-list'); list.innerHTML = '';
+    for (const it of SHOP.filter(i => k === 'all' || i.kind === k).sort((a, b) => priceOf(a.id).price - priceOf(b.id).price)) {
+      const p = priceOf(it.id), own = it.kind === 'decor' && P.decor.includes(it.id), r = document.createElement('div'); r.className = 'ctl-row' + (own ? ' own' : '') + (p.promo ? ' sale' : '');
+      r.innerHTML = `<span class="ctl-spr"></span><div><b>${L.shop[it.id][0]}</b><small>${L.shop[it.id][1]}</small><small class="ctl-k">${c[it.kind]}${it.kind === 'day' ? ' · ' + c.usedToday : ''}${it.kind === 'use' && inv[it.id] ? ' · ' + c.inBag(inv[it.id]) : ''}${own ? ' · ' + c.owned : ''}${p.promo ? ' · ' + c.promo[p.promo.id] : ''}</small></div><em>${priceTag(it.id)}</em>`;
+      const spr = sprite(SPR[it.spr], 2); pxFit(spr, () => [48, 40]); r.querySelector('.ctl-spr').append(spr); list.append(r); } };
+  w.querySelectorAll('[data-k]').forEach(b => b.onclick = () => { sfx('click'); paint(b.dataset.k); });
+  paint('all');
+}

@@ -45,7 +45,7 @@ function checkout() {
       if (paid) return;
       const k = bought.indexOf(id);
       if (k >= 0) bought.splice(k, 1);
-      total -= SHOP.find(i => i.id === id).price;
+      total -= priceOf(id).price;
       const line = lines.querySelector(`[data-id="${id}"]`); if (line) line.remove();
       tot.textContent = `${u.total}: ${money(total)}`;
       // o item sai da sacola e volta voando para a esteira, onde pode ser passado de novo
@@ -68,8 +68,8 @@ function checkout() {
   };
   const registerItem = id => {
     const it = SHOP.find(i => i.id === id);
-    bought.push(id); total += it.price;
-    lines.insertAdjacentHTML('beforeend', `<div data-id="${id}"><span>${L.shop[id][0]}</span><span>${money(it.price)}</span></div>`);
+    bought.push(id); total += priceOf(id).price;
+    lines.insertAdjacentHTML('beforeend', `<div data-id="${id}"><span>${L.shop[id][0]}</span><span>${priceTag(id)}</span></div>`);
     tot.textContent = `${u.total}: ${money(total)}`;
     finish.disabled = false;
     checkFunds();

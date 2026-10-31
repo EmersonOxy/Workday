@@ -252,6 +252,7 @@ function osApp(id) {
   if (id === 'cal') return osCalendar();
   if (id === 'calc') return osCalc();
   if (id === 'arq') return osArchive();
+  if (id === 'shop') return osCatalog();
   if (id === 'notes') return osNotes();
   if (id === 'paint' || id === 'prof') {   // a tela existente roda dentro de uma janela própria, sem tirar o portal do lugar
     const u = U(), w = osWindow(id === 'paint' ? u.osApps.paint : u.profile, '', { icon: id === 'paint' ? APP_ICO.paint : MENU_ICO.prof, cls: 'app-win', onClose: () => { if (modal.into && !modal.into.isConnected) modal.into = null; } });
@@ -267,7 +268,7 @@ function osIcons() {
   const m = $('modal'), t = U().osApps; m.querySelectorAll('.os-icons').forEach(e => e.remove());
   if (!document.body.classList.contains('office')) return;
   const g = document.createElement('div'); g.className = 'os-icons';
-  for (const [id, rows, label, pal] of [...(S && S.onBreak ? [] : [['workday', SPR2.doc, 'PORTAL_RH.EXE', WD_SECTOR_RAMP.ti]]), ['cal', APP_ICO.cal, t.calendar], ['calc', APP_ICO.calc, t.calc], ['notes', APP_ICO.notes, t.notes], ['music', APP_ICO.music, t.music], ['paint', APP_ICO.paint, t.paint], ['prof', MENU_ICO.prof, U().profile], ['arq', APP_ICO.arq, U().ev.archive]]) {
+  for (const [id, rows, label, pal] of [...(S && S.onBreak ? [] : [['workday', SPR2.doc, 'PORTAL_RH.EXE', WD_SECTOR_RAMP.ti]]), ['cal', APP_ICO.cal, t.calendar], ['calc', APP_ICO.calc, t.calc], ['notes', APP_ICO.notes, t.notes], ['music', APP_ICO.music, t.music], ['paint', APP_ICO.paint, t.paint], ['prof', MENU_ICO.prof, U().profile], ['arq', APP_ICO.arq, U().ev.archive], ['shop', APP_ICO.shop, U().cat.app]]) {
     const d = document.createElement('button'); d.className = 'osicon'; d.append(Pixel.el(rows, 3, pal)); d.insertAdjacentHTML('beforeend', `<span>${label}</span>`);
     const open = () => { g.querySelectorAll('.osicon').forEach(x => x.classList.remove('sel')); sfx('pop'); osApp(id); };
     d.onclick = () => { const n = performance.now(); if (n - (osIcons.last || 0) < 700) return; osIcons.last = n; open(); };   // um clique abre; cliques repetidos não duplicam

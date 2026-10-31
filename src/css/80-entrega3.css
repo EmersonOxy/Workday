@@ -491,3 +491,16 @@
   [data-lock] .lock-ic { position: absolute; right: 2px; bottom: 2px; z-index: 1; }
   .cur-dot[data-lock] { background: #9aa0ab !important; }
   .bg-pins { display: flex; gap: 3px; justify-content: center; line-height: 0; min-height: 0; }
+  .ctl-win { width: min(36em, 96vw) !important; }
+  .ctl-promo { margin: .3em 0 .5em; font-size: .9em; display: flex; flex-wrap: wrap; gap: .3em; align-items: center; }
+  .ctl-tag { padding: 1px 6px; background: var(--card); box-shadow: 0 0 0 1px var(--line); }
+  .ctl-tag.now { background: var(--warn, #ffb938); color: #2a1f2d; box-shadow: 0 0 0 2px #2a1f2d; }
+  .ctl-list { display: flex; flex-direction: column; gap: 4px; max-height: 24em; overflow: auto; padding: 2px; }
+  .ctl-row { display: grid; grid-template-columns: 52px 1fr auto; gap: .6em; align-items: center; padding: 4px 6px; background: var(--card); box-shadow: 0 0 0 1px var(--line); }
+  .ctl-row div { display: flex; flex-direction: column; } .ctl-row small { color: var(--muted); font-size: .8em; }
+  .ctl-row .ctl-k { color: var(--ink); opacity: .75; }
+  .ctl-row.own { opacity: .7; } .ctl-row.sale { box-shadow: 0 0 0 2px var(--ink); }
+  .ctl-row em { font-style: normal; white-space: nowrap; text-align: right; }
+  .ctl-spr { display: flex; justify-content: center; line-height: 0; }
+  s + .promo, .ptag s, .ctl-row s { opacity: .6; }
+  .promo { color: var(--danger, #a8262a); }
