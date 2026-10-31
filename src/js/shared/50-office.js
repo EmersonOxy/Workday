@@ -447,13 +447,16 @@ const Office = {
     const led = st.stress > 80 ? ((t * 4 | 0) % 2 ? P.R : P.q) : st.stress > 50 ? P.Q : P.d;
     ctx.fillStyle = P.k; ctx.fillRect(M.x + M.w - 20, M.y + M.h - 7, 4, 4); ctx.fillStyle = led; ctx.fillRect(M.x + M.w - 19, M.y + M.h - 6, 2, 2);
     // Luz: feixe da janela, poeira, cone da luminária e tom da hora, sem tocar na tela do monitor
-    ctx.save(); ctx.beginPath(); ctx.rect(0, 0, L.VW, L.VH); ctx.rect(s.x - 1, s.y - 1, s.w + 2, s.h + 2); ctx.clip('evenodd');
-    const open = 1 - (st.blind || 0) * .9;
-    ctx.globalAlpha = open; ctx.fillStyle = lit.beam;
-    const slope = .55 + lit.k * .5;
-    for (let j = W.y + 18; j < L.VH; j++) { const a = W.x + (j - W.y - 18) * slope | 0; ctx.fillRect(a, j, 24 + (j >> 3), 1); }
-    ctx.fillStyle = 'rgba(255,248,220,.8)';
-    for (let n = 0; n < 8; n++) { const ph = (t * .05 + n * .137) % 1, j = W.y + 30 + ph * (L.desk - W.y - 40) | 0, a = W.x + (j - W.y - 18) * slope + ((n * 7 + Math.sin(t + n) * 3) | 0) % 22; ctx.fillRect(a | 0, j, 1, 1); }
+    // feixe largo e suave: nasce do vão inteiro da janela (do peitoril para baixo), fica atrás do monitor e some aos poucos
+    ctx.save(); ctx.beginPath(); ctx.rect(0, 0, L.VW, L.VH); ctx.rect(M.x - 2, M.y - 2, M.w + 4, L.desk - M.y + 6); ctx.rect(W.x, W.y, W.w, W.h); ctx.clip('evenodd');
+    const open = 1 - (st.blind || 0) * .9, slope = .45 + lit.k * .45, sill = W.y + W.h, H2 = Math.max(1, L.VH - sill);
+    ctx.fillStyle = lit.beam;
+    for (let j = W.y; j < L.VH; j++) {
+      const d = Math.max(0, j - W.y), a = W.x + d * slope | 0, w = (W.vis || W.w) + d * .35 | 0, fade = j < sill ? .35 : 1 - (j - sill) / H2 * .75;
+      ctx.globalAlpha = open * .42 * fade; ctx.fillRect(a, j, w, 1);
+    }
+    ctx.globalAlpha = open * .7; ctx.fillStyle = 'rgba(255,248,220,.8)';
+    for (let n = 0; n < 10; n++) { const ph = (t * .05 + n * .137) % 1, j = W.y + 20 + ph * (L.desk - W.y - 30) | 0, a = W.x + (j - W.y) * slope + ((n * 13 + Math.sin(t + n) * 3) | 0) % Math.max(4, W.vis || W.w); ctx.fillRect(a | 0, j, 1, 1); }
     ctx.globalAlpha = 1;
     // a cor do céu entra pela janela e banha o ambiente, mais forte perto dela (some com a persiana fechada)
     { const b = lit.beamRGB, g = ctx.createLinearGradient(W.x, 0, W.x + L.VW * .75, 0), a = b[3] * .55 * open;

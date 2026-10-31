@@ -307,3 +307,40 @@
   #osdesk .taskbar { background: var(--os-bar, #c7b595) !important; box-shadow: inset 0 3px 0 var(--os-bar-hi, #fff8ec), inset 0 -3px 0 var(--os-bar-sh, #8f7d63) !important; color: var(--os-bar-ink, #2a1f2d); }
   #osdesk .start, .os-start, .os-task { background: var(--os-btn, #e9dcc2) !important; color: var(--os-bar-ink, #2a1f2d) !important; }
   .bg-head { background: var(--badge, #6f93d9) !important; box-shadow: inset 0 -3px 0 var(--badge-sh, #44609f) !important; }
+
+  /* ===== Janelas de aplicativo: margens e grade de opções ===== */
+  .os-win .card-in { padding: .9em 1.1em !important; }
+  .os-win .card-in > h2:first-child { display: none; }
+  .hw-card .setting, .os-win .card-in .setting { display: grid !important; grid-template-columns: 9.5em 1fr; gap: .4em .8em; align-items: start; margin: 0 0 .7em; }
+  .hw-card .setting > span, .card-in .setting > span { display: flex; flex-direction: column; padding-top: .15em; }
+  .hw-card .setting > span small { color: var(--muted); font-size: .8em; }
+  .swatches { display: flex; flex-wrap: wrap; gap: 6px; }
+  .sw-btn { width: 30px; height: 30px; padding: 3px; border: 0; cursor: pointer; background: var(--card); box-shadow: 0 0 0 2px var(--ink), inset 0 -3px 0 var(--line); line-height: 0; }
+  .sw-btn i { display: block; width: 100%; height: 100%; box-shadow: 0 0 0 1px #2a1f2d; }
+  .sw-btn:hover { translate: 0 -1px; }
+  .sw-btn.on { translate: 0 2px; box-shadow: 0 0 0 2px var(--ink), inset 0 2px 0 var(--line); }
+  .sw-btn.on::after { content: ''; position: absolute; }
+  .hw-card .hw-prev { display: flex; justify-content: center; margin: .4em 0 .9em; }
+  @media (max-width: 600px) { .hw-card .setting, .card-in .setting { grid-template-columns: 1fr; } }
+  .sw-btn.on { background: var(--ink); }
+
+  /* ===== Configurações: seções, rótulos alinhados e barras deslizantes em pixel ===== */
+  .set-h { margin: 1em 0 .5em; padding: .15em .5em .25em; font: 1.05em var(--pixel); font-weight: normal; color: var(--card); background: var(--ink); box-shadow: inset 0 -3px 0 rgba(120,100,110,.55); }
+  .set-h:first-of-type { margin-top: 0; }
+  .win-body .setting, .card-in .setting { display: grid !important; grid-template-columns: 8em 1fr; gap: .3em .8em; align-items: center; margin: 0 0 .55em; }
+  .win-body .setting > .seg, .card-in .setting > .seg { flex-wrap: wrap; gap: 6px; }
+  .win-body .setting .hint, .card-in .setting .hint { grid-column: 2; margin: 0; font-size: .8em; }
+  .pxrange { -webkit-appearance: none; appearance: none; height: 12px; max-width: 100%; background: var(--line); box-shadow: 0 0 0 2px var(--ink), inset 0 3px 0 rgba(42,31,45,.25); border-radius: 0; }
+  .pxrange::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 24px; background: #e9dcc2; box-shadow: 0 0 0 2px #2a1f2d, inset 2px 2px 0 #fff8ec, inset -2px -3px 0 #8f7d63; cursor: grab; }
+  .pxrange::-moz-range-thumb { width: 16px; height: 24px; border: 0; border-radius: 0; background: #e9dcc2; box-shadow: 0 0 0 2px #2a1f2d, inset 2px 2px 0 #fff8ec, inset -2px -3px 0 #8f7d63; cursor: grab; }
+  .pxrange::-moz-range-progress { height: 12px; background: var(--os-ac, #44609f); }
+  @media (max-width: 600px) { .win-body .setting, .card-in .setting { grid-template-columns: 1fr; } }
+
+  /* ===== Portal: botões com a mesma largura e ícones na mesma coluna ===== */
+  .menu-card .menu { display: grid !important; grid-template-columns: 1fr; max-width: 17em !important; }
+  .menu-card .menu .pxbtn { width: 100% !important; justify-self: stretch !important; display: grid !important; grid-template-columns: 28px 1fr; gap: .6em; text-align: left; padding-left: .7em !important; }
+  .menu-card .menu .mico { width: 28px !important; justify-self: center; }
+
+  /* ===== Barra de tarefas sempre acima das janelas (o Iniciar nunca fica coberto) ===== */
+  .os-start, .os-tasks, .os-back { z-index: 2000 !important; } .os-smenu { z-index: 2001 !important; }
+  #modal .os-win, #modal .card { max-height: calc(100% - 2.6em); }

@@ -198,8 +198,12 @@ const Stage = {
       x.globalCompositeOperation = 'multiply'; F(`rgba(60,50,95,${(.62 * dk).toFixed(3)})`, 0, 0, L.VW, L.VH); x.restore();
     }
     if (L.win && cur < .9) {
-      const W = L.win, col = o.eve ? 'rgba(255,160,100,.22)' : 'rgba(255,244,200,.20)';
-      for (let j = 0; j < L.VH - W.y; j++) Pixel.dither(x, W.x + j * .9 | 0, W.y + j, W.w, 1, col, j);
+      // feixe suave e largo saindo do vão da janela (sem pontilhado, sem cobrir a própria janela)
+      const W = L.win, c0 = o.eve ? [255, 160, 100] : [255, 244, 200], H2 = Math.max(1, L.VH - W.y - W.h);
+      x.save(); x.beginPath(); x.rect(0, 0, L.VW, L.VH); x.rect(W.x, W.y, W.w, W.h); x.clip('evenodd');
+      for (let j = W.y; j < L.VH; j++) { const d = j - W.y, k = j < W.y + W.h ? .5 : 1 - (j - W.y - W.h) / H2 * .8;
+        x.fillStyle = `rgba(${c0[0]},${c0[1]},${c0[2]},${(.11 * k).toFixed(3)})`; x.fillRect(W.x + d * .8 | 0, j, W.w + d * .3 | 0, 1); }
+      x.restore();
     }
     return c;
   },

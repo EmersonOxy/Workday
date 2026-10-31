@@ -64,19 +64,20 @@ addEventListener('resize', applyWallpaper);
 function showCustomize(back) {
   const u = U(), cur = hw();
   const HWK = Object.keys(Office.HW), nm = o => (u.hwNames && u.hwNames[o]) || u[o] || o;
-  const sw = o => { const r = Office.HW[o]; return `<i class="hw-sw" style="background:${r.base};box-shadow:inset 2px 2px 0 ${r.hi},inset -2px -2px 0 ${r.sh}"></i>`; };
-  const cseg = (key, map, i) => `<div class="seg hw-seg" data-hw="${key}">${Object.entries(map).map(([k, c]) => `<button class="pxbtn${cur[key] === k ? ' on' : ''}" data-v="${k}" title="${u.osc.names[k] || k}"><i class="hw-sw" style="background:${c[i]}"></i>${u.osc.names[k] || k}</button>`).join('')}</div>`;
-  const seg = (key, opts) => `<div class="seg hw-seg" data-hw="${key}">${opts.map(o => `<button class="pxbtn${cur[key] === o ? ' on' : ''}" data-v="${o}" title="${nm(o)}">${sw(o)}${nm(o)}</button>`).join('')}</div>`;
+  const sw = o => { const r = Office.HW[o]; return `<i style="background:${r.base};box-shadow:inset 3px 3px 0 ${r.hi},inset -3px -3px 0 ${r.sh}"></i>`; };
+  // amostras quadradas (o nome da cor aparece no rótulo da linha e na dica)
+  const cseg = (key, map, i) => `<div class="swatches" data-hw="${key}" data-names='${JSON.stringify(Object.fromEntries(Object.keys(map).map(k => [k, u.osc.names[k] || k])))}'>${Object.entries(map).map(([k, c]) => `<button class="sw-btn${cur[key] === k ? ' on' : ''}" data-v="${k}" title="${u.osc.names[k] || k}" aria-label="${u.osc.names[k] || k}"><i style="background:${c[i]};box-shadow:inset 3px 3px 0 ${c[1] || c[0]}"></i></button>`).join('')}</div>`;
+  const seg = (key, opts) => `<div class="swatches" data-hw="${key}" data-names='${JSON.stringify(Object.fromEntries(opts.map(o => [o, nm(o)])))}'>${opts.map(o => `<button class="sw-btn${cur[key] === o ? ' on' : ''}" data-v="${o}" title="${nm(o)}" aria-label="${nm(o)}">${sw(o)}</button>`).join('')}</div>`;
   const card = modal(`<h2>${u.hwTitle}</h2><p class="hint">${u.hwNote}</p>
     <div class="hw-prev"><canvas class="hw-scene" width="120" height="44"></canvas></div>
-    <div class="setting"><span>${u.allLabel}</span>${seg('all', HWK)}</div>
-    <div class="setting"><span>${u.monitorLabel}</span>${seg('mon', HWK)}</div>
-    <div class="setting"><span>${u.keyboardLabel}</span>${seg('kb', HWK)}</div>
-    <div class="setting"><span>${u.mouseLabel}</span>${seg('mouse', HWK)}</div>
-    <div class="setting"><span>${u.osc.accent}</span>${cseg('accent', OS_ACCENTS, 0)}</div>
-    <div class="setting"><span>${u.osc.bar}</span>${cseg('bar', OS_BARS, 0)}</div>
-    <div class="setting"><span>${u.osc.badge}</span>${cseg('badge', BADGE_COLORS, 0)}</div>
-    <div class="setting"><span>${u.osc.lanyard}</span>${cseg('lanyard', BADGE_COLORS, 0)}</div>
+    <div class="setting"><span>${u.allLabel}<small></small></span>${seg('all', HWK)}</div>
+    <div class="setting"><span>${u.monitorLabel}<small></small></span>${seg('mon', HWK)}</div>
+    <div class="setting"><span>${u.keyboardLabel}<small></small></span>${seg('kb', HWK)}</div>
+    <div class="setting"><span>${u.mouseLabel}<small></small></span>${seg('mouse', HWK)}</div>
+    <div class="setting"><span>${u.osc.accent}<small></small></span>${cseg('accent', OS_ACCENTS, 0)}</div>
+    <div class="setting"><span>${u.osc.bar}<small></small></span>${cseg('bar', OS_BARS, 0)}</div>
+    <div class="setting"><span>${u.osc.badge}<small></small></span>${cseg('badge', BADGE_COLORS, 0)}</div>
+    <div class="setting"><span>${u.osc.lanyard}<small></small></span>${cseg('lanyard', BADGE_COLORS, 0)}</div>
     <div class="setting"><span>${u.catLabel}</span><div class="walls cats">${CAT_COATS.map(c2 => `<button class="pxbtn wall cat${cur.cat === c2 ? ' on' : ''}" data-c="${c2}"><span class="cimg"></span><small>${u.coats[c2]}</small></button>`).join('')}</div></div>
     <div class="setting"><span>${u.wallLabel}</span><div class="walls">${Object.keys(WALLS).map(w => `<button class="pxbtn wall${cur.wall === w ? ' on' : ''}" data-w="${w}"><canvas width="64" height="36"></canvas><small>${u.walls[w]}</small></button>`).join('')}</div></div>
     <div class="actions"><button class="pxbtn main" id="hwOk">${u.resume}</button></div>`);
@@ -84,7 +85,8 @@ function showCustomize(back) {
   const prev = card.querySelector('.hw-scene');
   const draw = () => {
     const h = hw();
-    card.querySelectorAll('.seg[data-hw]').forEach(s => { const k = s.dataset.hw; s.querySelectorAll('button').forEach(b => b.classList.toggle('on', k === 'all' ? ['mon', 'kb', 'mouse'].every(q => h[q] === b.dataset.v) : h[k] === b.dataset.v)); });
+    card.querySelectorAll('[data-hw]').forEach(s => { const k = s.dataset.hw; s.querySelectorAll('button').forEach(b => b.classList.toggle('on', k === 'all' ? ['mon', 'kb', 'mouse'].every(q => h[q] === b.dataset.v) : h[k] === b.dataset.v));
+      const lb = s.parentElement.querySelector(':scope > span small'), names = JSON.parse(s.dataset.names || '{}'), on = s.querySelector('.on'); if (lb) lb.textContent = on ? names[on.dataset.v] || '' : '—'; });
     card.querySelectorAll('.wall:not(.cat)').forEach(b => b.classList.toggle('on', b.dataset.w === h.wall));
     Office.hwPreview(prev, h);
   };
@@ -93,7 +95,7 @@ function showCustomize(back) {
     pxFit(c, () => [80, 45]); b.onclick = () => { setHw({ wall: b.dataset.w }); draw(); }; });
   card.querySelectorAll('.cat').forEach(b => { const c2 = catCoat(SPR2.cat, b.dataset.c), cv = document.createElement('canvas'); cv.width = c2.width; cv.height = c2.height; cv.getContext('2d').drawImage(c2, 0, 0); b.querySelector('.cimg').append(pxSize(cv, 3));
     b.onclick = () => { setHw({ cat: b.dataset.c }); card.querySelectorAll('.cat').forEach(x => x.classList.toggle('on', x === b)); sfx('pop'); }; });
-  card.querySelectorAll('.seg[data-hw] button').forEach(b => b.onclick = () => {
+  card.querySelectorAll('[data-hw] button').forEach(b => b.onclick = () => { sfx('click');
     const k = b.parentElement.dataset.hw, v = b.dataset.v;
     setHw(k === 'all' ? { mon: v, kb: v, mouse: v } : { [k]: v }); draw();
   });

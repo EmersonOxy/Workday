@@ -173,13 +173,15 @@ const osFly = (win, btn) => { const a = win.getBoundingClientRect(), c = btn.get
 // minimizar: a janela encolhe e voa até o próprio botão na barra; restaurar faz o caminho de volta
 function osMinimize(win) {
   const btn = osTaskOf(win); if (!btn) return; sfx('click');
-  Motion.play(win, [{ transform: 'none', opacity: 1 }, { transform: osFly(win, btn), opacity: .2 }], { duration: 200, easing: 'steps(6)', fill: 'none' });
-  btn.classList.remove('on');
-  setTimeout(() => { win.style.display = 'none'; osSyncMin(); }, 190);
+  // efeito "gênio": a janela estreita primeiro e depois escorre até o botão
+  const fly = osFly(win, btn);
+  Motion.play(win, [{ transform: 'none', opacity: 1 }, { transform: 'scale(.92, .98)', opacity: 1, offset: .2 }, { transform: fly.replace('scale(.08)', 'scale(.25, .5)'), opacity: .7, offset: .7 }, { transform: fly, opacity: 0 }], { duration: 300, easing: 'steps(10)', fill: 'none' });
+  btn.classList.remove('on'); Motion.punch && Motion.punch(btn, 1.08);
+  setTimeout(() => { win.style.display = 'none'; osSyncMin(); }, 290);
 }
 function osRestore(win) {
   const btn = osTaskOf(win); sfx('pop'); win.style.display = ''; osSyncMin(); osFocus(win);
-  if (btn) Motion.play(win, [{ transform: osFly(win, btn), opacity: .2 }, { transform: 'none', opacity: 1 }], { duration: 200, easing: 'steps(6)' });
+  if (btn) { const fly = osFly(win, btn); Motion.play(win, [{ transform: fly, opacity: 0 }, { transform: fly.replace('scale(.08)', 'scale(.25, .5)'), opacity: .7, offset: .3 }, { transform: 'scale(1.02)', opacity: 1, offset: .85 }, { transform: 'none', opacity: 1 }], { duration: 300, easing: 'steps(10)' }); }
 }
 // Ícones dos aplicativos do WorkOS (12×12, mesma luz e contorno dos outros)
 const APP_ICO = {
@@ -283,14 +285,14 @@ function osWindow(title, html, { icon = MENU_ICO.app, cls = '', onClose } = {}) 
   const w = document.createElement('div'); w.className = 'os-win ' + cls;
   w.innerHTML = `<div class="mw-bar"><span class="mw-ttl"><i class="mw-app"></i>${title}</span><i class="mw-stripes"></i><span class="mw-b"><b data-g="x"></b></span></div><div class="mw-in">${html}</div>`;
   w.querySelector('.mw-app').append(Pixel.el(icon, 2)); w.querySelector('.mw-b b').append(Pixel.el(MENU_ICO.x, 2));
-  const close = () => { sfx('click'); const a = Motion.play(w, [{ transform: 'none', opacity: 1 }, { transform: 'scale(.6)', opacity: 0 }], { duration: 140, easing: 'steps(4)' }); const end = () => { const t = osTaskOf(w); if (t) t.remove(); w.remove(); if (onClose) onClose(); if (typeof workAppsClosed === 'function') workAppsClosed(); }; if (a) a.onfinish = end; else end(); };
+  const close = () => { sfx('click'); const a = Motion.play(w, [{ transform: 'none', opacity: 1 }, { transform: 'scale(1.03)', opacity: 1, offset: .25 }, { transform: 'translateY(10px) scale(.82)', opacity: 0 }], { duration: 190, easing: 'steps(7)' }); const end = () => { const t = osTaskOf(w); if (t) t.remove(); w.remove(); if (onClose) onClose(); if (typeof workAppsClosed === 'function') workAppsClosed(); }; if (a) a.onfinish = end; else end(); };
   w.querySelector('.mw-b').insertAdjacentHTML('afterbegin', '<b data-g="min" class="min"></b><b data-g="max" class="max"></b>');
   w.querySelectorAll('.mw-b .min, .mw-b .max').forEach(b => b.append(Pixel.el(MENU_ICO[b.dataset.g], 2)));
   w.querySelector('.mw-b .min').onclick = () => osMinimize(w);
   w.querySelector('.mw-b .max').onclick = () => { sfx('click'); w.classList.toggle('maxi'); };
   w.querySelector('.mw-b [data-g=x]').onclick = close; w.close = close;
   $('modal').append(w); sfx('pop'); osDrag(w, w.querySelector('.mw-bar')); osTaskBtn(w, title); osFocus(w);
-  Motion.play(w, [{ transform: 'scale(.3)', opacity: 0 }, { transform: 'scale(1.04)', opacity: 1, offset: .7 }, { transform: 'none', opacity: 1 }], { duration: 220, easing: 'steps(6)' });
+  Motion.play(w, [{ transform: 'translateY(14px) scale(.55)', opacity: 0 }, { transform: 'translateY(-2px) scale(1.025)', opacity: 1, offset: .65 }, { transform: 'none', opacity: 1 }], { duration: 280, easing: 'steps(10)' });
   return w;
 }
 function pickDifficulty(back) {
@@ -428,18 +430,18 @@ function showSettings(onBack) {
   const u = U();
   const seg = (name, opts, cur) => `<div class="seg" data-set="${name}">${opts.map(([v, l]) => `<button class="pxbtn${v === cur ? ' on' : ''}" data-v="${v}">${l}</button>`).join('')}</div>`;
   const card = modal(`<h2>${u.settings}</h2>
-    <div class="setting"><span>${u.language}</span>${seg('lang', Object.entries(LANGS).map(([k, v]) => [k, v.label]), CFG.lang)}</div>
+    <h3 class="set-h">${u.setSec.lang}</h3><div class="setting"><span>${u.language}</span>${seg('lang', Object.entries(LANGS).map(([k, v]) => [k, v.label]), CFG.lang)}</div>
     <div class="setting"><span>${u.theme}</span>${seg('theme', [['system', u.themeSystem], ['light', u.themeLight], ['dark', u.themeDark]], CFG.theme)}</div>
-    <div class="setting"><span>${u.diffLabel}</span>${seg('diff', Object.keys(DIFFS).map(k => [k, u.diffNames[k]]), CFG.diff || 'normal')}${diffLocked() ? `<small class="hint">${u.diffLocked}</small>` : ''}</div>
-    <div class="setting"><span>${u.display}</span>${seg('display', [['window', u.windowed], ['full', u.fullscreen]], document.fullscreenElement ? 'full' : 'window')}</div>
+    <h3 class="set-h">${u.setSec.game}</h3><div class="setting"><span>${u.diffLabel}</span>${seg('diff', Object.keys(DIFFS).map(k => [k, u.diffNames[k]]), CFG.diff || 'normal')}${diffLocked() ? `<small class="hint">${u.diffLocked}</small>` : ''}</div>
+    <h3 class="set-h">${u.setSec.screen}</h3><div class="setting"><span>${u.display}</span>${seg('display', [['window', u.windowed], ['full', u.fullscreen]], document.fullscreenElement ? 'full' : 'window')}</div>
     <div class="setting"><span>${u.resolution}</span><select id="resSel" class="pxsel">${RESOLUTIONS.map(r => `<option value="${r}"${(CFG.res || 'auto') === r ? ' selected' : ''}>${r === 'auto' ? u.autoRes : r.replace('x', '×')}</option>`).join('')}</select></div>
-    <div class="setting"><span>${u.soundLabel}</span>${seg('sound', [['1', u.soundOn], ['0', u.soundOff]], soundOn ? '1' : '0')}</div>
+    <h3 class="set-h">${u.setSec.sound}</h3><div class="setting"><span>${u.soundLabel}</span>${seg('sound', [['1', u.soundOn], ['0', u.soundOff]], soundOn ? '1' : '0')}</div>
     <div class="setting"><span>${u.musicLabel}</span><input type="range" class="pxrange" id="volMusic" min="0" max="100" value="${Math.round(VOL.music * 100)}" aria-label="${u.musicLabel}"></div>
     <div class="setting"><span>${u.sfxLabel}</span><input type="range" class="pxrange" id="volSfx" min="0" max="100" value="${Math.round(VOL.sfx * 100)}" aria-label="${u.sfxLabel}"></div>
     <div class="setting"><span>${u.osApps.music}</span><div class="seg"><button class="pxbtn" id="plOpen">${u.osApps.musicOpen}</button></div></div>
-    <div class="setting"><span>${u.badgeTitle}</span><div class="seg"><button class="pxbtn" id="editBadge">${u.editBadge}</button><button class="pxbtn" id="custom">${u.customize}</button></div></div>
+    <h3 class="set-h">${u.setSec.desk}</h3><div class="setting"><span>${u.badgeTitle}</span><div class="seg"><button class="pxbtn" id="editBadge">${u.editBadge}</button><button class="pxbtn" id="custom">${u.customize}</button></div></div>
     <div class="setting"><span>${u.lights}</span>${seg('light', [['1', u.lightOn], ['0', u.lightOff]], lightState().lamp ? '1' : '0')}</div>
-    <div class="setting"><span>${u.backup}</span><div class="seg" id="bkBox"><button class="pxbtn" id="bkOut">${u.exportSave}</button><button class="pxbtn" id="bkIn">${u.importSave}</button><input type="file" id="bkFile" accept=".json,application/json" hidden></div></div>
+    <h3 class="set-h">${u.setSec.data}</h3><div class="setting"><span>${u.backup}</span><div class="seg" id="bkBox"><button class="pxbtn" id="bkOut">${u.exportSave}</button><button class="pxbtn" id="bkIn">${u.importSave}</button><input type="file" id="bkFile" accept=".json,application/json" hidden></div></div>
     <div class="setting"><span>${u.experimental}</span><div class="seg"><button class="pxbtn" id="balBtn">${u.balTitle}: ${u.balNames[BAL_KEY]}</button></div></div>
     <div class="setting"><span>${u.tutorial}</span><div class="seg"><button class="pxbtn" id="tut">${u.tutorialReset}</button></div></div>
     <div class="setting"><span>${u.progress}</span><div class="seg" id="eraseBox"><button class="pxbtn" id="erase">${u.erase}</button></div></div>
