@@ -70,6 +70,15 @@ function callSay(text, opts, face) {
       else {
         face.talk(false);
         if (!opts) { waiting = callLater(() => { waiting = null; res(); }, 1400); return; }
+        if (opts.inline) {   // escolhas dentro do próprio balão: nomes destacados e clicáveis
+          const row = document.createElement('span'); row.className = 'vc-picks'; line.append(row);
+          opts.forEach(([label, val, cls]) => {
+            const b = document.createElement('button'); b.className = 'vc-pick' + (cls ? ' ' + cls : ''); b.innerHTML = `<i>▶</i>${label}`;
+            b.onclick = e => { e.stopPropagation(); row.querySelectorAll('button').forEach(x => x.disabled = true); b.classList.add('chosen'); sfx('click'); res(val); };
+            row.append(b); Motion.enter(b, 'down');
+          });
+          return;
+        }
         opts.forEach(([label, val, main], n) => {
           const b = document.createElement('button'); b.className = 'pxbtn' + (main ? ' main' : ''); b.textContent = label;
           b.onclick = () => { box.querySelectorAll('button').forEach(x => x.disabled = true); res(val); };
@@ -149,18 +158,15 @@ function startCall(mode, onExit) {
     }
     face.set('smile', 'happy');
     let kind, opts = {};
-    if (mode === 'arcade') {
-      // arcade: o jogador escolhe o jogo e, no ritmo, a música ou o modo infinito
-      const g = await callSay(u.mgPickGame, [[u.mgRhythm, 'rhythm', true], [u.mgShooter, 'shooter', true], [u.mgSurprise, '?'], [c.no, false]], face);
-      if (!g) { face.set('shut'); await callSay(pick(c.declined), null, face); closeCall(mode, onExit); return; }
-      kind = g === '?' ? pick(MINIGAMES) : g;
-      if (kind === 'rhythm') { const sg = await callSay(u.mgPickSong, [...u.songs.map((n, i) => [n, i, true]), [u.mgInfinite, 'inf', true]], face); opts.song = sg; }
-    } else {
-      kind = nextGame();
-      const go = await callSay(pick(c.inviteG).replace('{g}', gameName(kind)), [[c.yes, true, true], [c.no, false]], face);
-      if (!go) { face.set('shut'); await callSay(pick(c.declined), null, face); closeCall(mode, onExit); return; }
-      if (kind === 'rhythm') opts.song = Math.random() * RHY.SONGS.length | 0;
-    }
+    // um balão só: Duda convida e os nomes dos jogos já são as opções (mesma estrutura no expediente e no arcade)
+    const picks = [[u.mgRhythm, 'rhythm', 'game'], [u.mgShooter, 'shooter', 'game'], [u.mgSurprise, '?', 'game alt']];
+    if (mode === 'arcade') picks.splice(1, 0, [u.mgRhythm + ' · ' + u.mgInfinite, 'inf', 'game']);
+    picks.push([c.no, false, 'no']); picks.inline = true;
+    const g = await callSay(pickNew(c.inviteAny, 'inv'), picks, face);
+    if (!g) { face.set('shut'); await callSay(pick(c.declined), null, face); closeCall(mode, onExit); return; }
+    kind = g === '?' ? pick(MINIGAMES) : g === 'inf' ? 'rhythm' : g;
+    if (mode === 'work') save('ultimo-minigame', kind);
+    if (kind === 'rhythm') opts.song = g === 'inf' ? 'inf' : Math.random() * RHY.SONGS.length | 0;
     if (mode === 'work') music(null);
     const host = document.createElement('div'); host.className = 'mg-host'; el.querySelector('.vc-win').append(host);
     el.classList.add('playing');

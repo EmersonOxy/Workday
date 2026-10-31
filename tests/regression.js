@@ -288,7 +288,7 @@ async function entrega2(browser, url) {
   await p.waitForTimeout(300); const before = await snap();
   await p.waitForSelector('.vc-ring .accept'); await p.click('.vc-ring .accept');   // atender
   await waitOpts(); await p.click('.vc-opts button >> nth=0');              // resposta à conversa
-  await waitOpts(); await p.click('.vc-opts button.main');                 // aceitar o convite
+  await p.waitForSelector('.vc-pick'); await p.click('.vc-pick >> nth=0');   // escolhe o jogo no balão
   await p.waitForSelector('.mg-host', { timeout: 10000 });
   // Batida de Ponto: acerta todas as notas no tempo do relógio do jogo
   const res = await p.evaluate(async () => {
@@ -338,7 +338,7 @@ async function entrega2(browser, url) {
   await p.evaluate(() => { PROFILE.name = '  player One '; saveProfile(); showMenu(); });
   ok(await p.evaluate(() => !!document.querySelector('#arc')), 'arcade: "PLAYER ONE" (sem diferenciar maiúsculas e espaços) mostra o controle');
   const w0 = await p.evaluate(() => JSON.stringify([P.wallet, P.best, localStorage.getItem('expediente-carreira')]));
-  await p.click('#arc'); await waitOpts(); await p.click('.vc-opts button >> nth=1');
+  await p.click('#arc'); await p.waitForSelector('.vc-pick'); await p.click('.vc-pick >> nth=2');
   await p.waitForSelector('.mg-host', { timeout: 10000 });
   await p.evaluate(() => { const h = document.querySelector('.mg-host'); if (h._shooter) h._shooter.lives = 0; else h._rhythm.notes.forEach(n => { n.t = -9; n.end = null; }); });
   await p.waitForFunction(() => !document.querySelector('.vcall') && !!document.querySelector('#play'), null, { timeout: 30000 });

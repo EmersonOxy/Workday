@@ -123,3 +123,27 @@
   .os-off { position: absolute; inset: 0; z-index: 60; display: grid; place-items: center; background: #1f4a52; color: #fff8ec; font: 1.6em var(--pixel); animation: osoff .25s steps(3); }
   .os-off.done { background: #2a1f2d; clip-path: inset(49.5% 0); transition: clip-path .5s steps(5); }
   @keyframes osoff { from { opacity: 0; } }
+
+  /* ===== Escolha do jogo dentro do balão ===== */
+  .vc-picks { display: flex; flex-wrap: wrap; gap: .35em .5em; margin-top: .45em; pointer-events: auto; }
+  .vc-bubbles { pointer-events: none; } .vc-bub .vc-picks { pointer-events: auto; }
+  .vc-pick { display: inline-flex; align-items: center; gap: .3em; padding: .1em .5em .25em; border: 0; cursor: pointer; font: .9em var(--pixel);
+    color: #fff8ec; background: #44609f; box-shadow: 0 0 0 2px #2a1f2d, inset 0 -3px 0 #2b2340; }
+  .vc-pick i { font-style: normal; font-size: .75em; color: #a9dccf; }
+  .vc-pick.alt { background: #7656a8; }
+  .vc-pick.no { color: #2a1f2d; background: #e9dcc2; box-shadow: 0 0 0 2px #2a1f2d, inset 0 -3px 0 #c7b595; }
+  .vc-pick.no i { color: #a8262a; }
+  .vc-pick:hover:not(:disabled) { filter: brightness(1.15); }
+  .vc-pick:active:not(:disabled) { transform: translateY(2px); }
+  .vc-pick:disabled:not(.chosen) { opacity: .4; }
+  .vc-pick.chosen { box-shadow: 0 0 0 2px #2a1f2d, inset 0 3px 0 #2b2340; transform: translateY(2px); }
+  body.touch .vc-pick { min-height: 44px; padding: .2em .8em .3em; font-size: 1em; }
+  body.touch .vc-pick i { animation: vcnudge .8s steps(2) infinite; }
+  @keyframes vcnudge { 50% { transform: translateX(3px); } }
+
+  /* ===== Barra de tarefas também durante o expediente ===== */
+  body.office:not(.menu-mode):not(.mobile) #app { padding-bottom: 2.7em; }
+  body.office:not(.menu-mode):not(.mobile) #osdesk { display: block; position: absolute; left: 0; right: 0; bottom: 0; height: 2.1em; z-index: 2; background: none; }
+  body.office:not(.menu-mode) #osdesk .icons { display: none; }
+  body.office:not(.menu-mode) #osdesk .start { cursor: pointer; }
+  body.office:not(.menu-mode):not(.mobile) #sysclock { display: none; }

@@ -480,3 +480,6 @@ LANGS.pt.ui.diffNames = { facil: 'Fácil', normal: 'Normal', dificil: 'Difícil'
 LANGS.en.ui.diffNames = { facil: 'Easy', normal: 'Normal', dificil: 'Hard', burnout: 'Burnout' };
 LANGS.es.ui.diffNames = { facil: 'Fácil', normal: 'Normal', dificil: 'Difícil', burnout: 'Burnout' };
 LANGS.pt.ui.diffLocked = 'Só pode mudar entre dias.'; LANGS.en.ui.diffLocked = 'Can only change between days.'; LANGS.es.ui.diffLocked = 'Solo se cambia entre días.';
+LANGS.pt.call.inviteAny = ['Bora uma partida? Escolhe aí:', 'Tenho dois jogos rodando no servidor de testes. Qual vai ser?', 'Pausa merecida. Cinco minutos. Ou quarenta segundos. Qual jogo?', 'Ninguém da TI está olhando. Quer dizer, eu sou a TI. Escolhe:'];
+LANGS.en.call.inviteAny = ['Up for a round? Pick one:', 'I have two games running on the test server. Which one?', 'Well-deserved break. Five minutes. Or forty seconds. Which game?', 'Nobody from IT is watching. Well, I am IT. Pick:'];
+LANGS.es.call.inviteAny = ['¿Una partida? Elige:', 'Tengo dos juegos en el servidor de pruebas. ¿Cuál?', 'Pausa merecida. Cinco minutos. O cuarenta segundos. ¿Qué juego?', 'Nadie de TI está mirando. Bueno, yo soy TI. Elige:'];
