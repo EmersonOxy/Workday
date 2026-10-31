@@ -34,7 +34,7 @@ function buildSheet(paused) {
   for (const k of ['new', 'open', 'save', 'print', 'sum', 'chart']) { const b = document.createElement('span'); b.className = 'xl-btn'; b.append(Pixel.el(XL_ICON[k], 2)); tools.append(b); }
   tools.insertAdjacentHTML('beforeend', '<span class="xl-font">Arial · 10</span>');
   // Gráfico embutido, desenhado em pixels com a paleta do jogo
-  const cv = box.querySelector('.xl-chart'); cv.width = 64; cv.height = 40;
+  const cv = box.querySelector('.xl-chart'); cv.width = 64; cv.height = 40; pxSize(cv, 3);
   const x = cv.getContext('2d'), P = WD_PAL, mx = Math.max(...tot);
   x.fillStyle = P.W; x.fillRect(0, 0, 64, 40); x.fillStyle = P.k; x.fillRect(0, 0, 64, 1); x.fillRect(0, 39, 64, 1); x.fillRect(0, 0, 1, 40); x.fillRect(63, 0, 1, 40);
   x.fillStyle = P.p; for (let j = 8; j < 36; j += 7) x.fillRect(4, j, 56, 1);
@@ -82,10 +82,10 @@ function promote() {
   card.classList.add('promo-card');
   card.querySelector('.seal').append(Pixel.el(ENV.seal, 3));
   // Assinatura: traço em pixels (canvas pequeno ampliado por escala inteira)
-  const cv = card.querySelector('.sig'), cx = cv.getContext('2d');
+  const cv = pxFit(card.querySelector('.sig'), () => [Math.min(320, innerWidth * .6), 80]), cx = cv.getContext('2d');
   let last = null, ink = 0, signed = false;
   const at = e => { const r = cv.getBoundingClientRect(); return [Math.round((e.clientX - r.left) / r.width * cv.width), Math.round((e.clientY - r.top) / r.height * cv.height)]; };
-  const dot = (x, y) => { cx.fillStyle = '#2c3fa0'; cx.fillRect(x, y, 1, 1); };
+  const dot = (x, y) => { cx.fillStyle = '#463462'; cx.fillRect(x, y, 1, 1); };
   const line = (a, b) => { let [x0, y0] = a; const [x1, y1] = b, dx = Math.abs(x1 - x0), dy = -Math.abs(y1 - y0), sx = x0 < x1 ? 1 : -1, sy = y0 < y1 ? 1 : -1; let err = dx + dy;
     for (;;) { dot(x0, y0); if (x0 === x1 && y0 === y1) break; const e2 = 2 * err; if (e2 >= dy) { err += dy; x0 += sx; } if (e2 <= dx) { err += dx; y0 += sy; } } };
   cv.onpointerdown = e => { if (signed) return; cv.setPointerCapture(e.pointerId); last = at(e); dot(...last); };

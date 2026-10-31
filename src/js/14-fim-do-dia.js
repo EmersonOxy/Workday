@@ -25,7 +25,7 @@ function thanos() {
     const r = el.getBoundingClientRect();
     if (!r.width || !r.height) { el.remove(); continue; }
     const cs = getComputedStyle(el);
-    const colors = [cs.backgroundColor, cs.borderTopColor, cs.color].filter(c => c && c !== 'rgba(0, 0, 0, 0)');
+    const colors = [cs.backgroundColor, cs.borderTopColor, cs.color].filter(c => c && c !== 'rgba(42,31,45,0)');
     const n = Math.min(90, Math.max(20, Math.round(r.width * r.height / 220)));
     for (let i = 0; i < n; i++) {
       const p = document.createElement('i');
@@ -51,10 +51,10 @@ function clockOut() {
   const wrap = document.createElement('div');
   wrap.className = 'devwrap';
   const fit = (h) => Math.min(1.7, (innerHeight - 70) / h, (innerWidth - 24) / 330);
-  wrap.style.transform = `translateX(-50%) scale(${fit(350)})`;
+  wrap.style.transform = `translateX(-50%) scale(${fit(350)})`; pxSnap(dev.querySelector('.pad canvas'), 5, fit(350));
   wrap.append(dev);
   sc.append(wrap);
-  fingerprint(dev, () => { wrap.style.transform = `translateX(-50%) scale(${fit(690)})`; setTimeout(() => printTicket(sc, dev), 650); });
+  fingerprint(dev, () => { wrap.style.transform = `translateX(-50%) scale(${fit(690)})`; pxSnap(dev.querySelector('.pad canvas'), 5, fit(690)); setTimeout(() => printTicket(sc, dev), 650); });
 }
 
 function ticketHTML() {

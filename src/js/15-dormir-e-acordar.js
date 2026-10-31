@@ -28,7 +28,7 @@ function segDigits(str) {
   let ox = 0;
   for (const g of glyphs) {
     g.forEach((row, j) => [...row].forEach((v, i) => {
-      x.fillStyle = v === '1' ? '#ff4636' : '#3a1310';
+      x.fillStyle = v === '1' ? '#ef4b3f' : '#2a1f2d';
       x.fillRect((ox + i) * cell, j * cell, cell - gap, cell - gap);
     }));
     ox += g[0].length + 1;
@@ -39,7 +39,7 @@ function alarm(sc) {
   const box = document.createElement('button');
   box.className = 'alarm';
   box.innerHTML = `<i class="bell l"></i><i class="bell r"></i><span class="face"></span><i class="leg l"></i><i class="leg r"></i>`;
-  box.querySelector('.face').append(segDigits('06:00'));
+  box.querySelector('.face').append(pxFit(segDigits('06:00'), () => { const t = box.closest('.onstand') ? Math.min(150, Math.max(90, innerWidth * .09)) : Math.min(360, Math.max(200, innerWidth * .4)); return [t, t]; }));
   const hint = document.createElement('p');
   hint.className = 'sc-hint'; hint.textContent = U().wakeHint;
   if (sc.stage) Stage.set(sc.stage, { dawn: true });
@@ -47,6 +47,7 @@ function alarm(sc) {
   const stand = sc.stage && sc.stage.anchors.stand;
   if (stand) { const w = document.createElement('div'); w.className = 'onstand'; w.style.cssText = `left:${stand.x}px;top:${stand.y}px`; w.append(box); sc.append(w, hint); }
   else sc.append(box, hint);
+  pxRefit(box.querySelector('.segs'));   // o tamanho depende de onde o despertador ficou
   sfx('clock');
   const ring = setInterval(() => sfx('clock'), 1000);
   box.onclick = () => {

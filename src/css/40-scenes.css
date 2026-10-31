@@ -1,6 +1,6 @@
   /* ===== Cenas com cenário em pixel art: o mesmo mundo do escritório ===== */
   /* As peças do cenário são objetos do mundo (papel, madeira, plástico): usam a paleta fixa, nos dois temas */
-  #scene.staged { --ink: #2a1f2d; --card: #fff8ec; --panel: #f3e6cc; --line: #dcc6a0; --muted: #8f7d63; --hl: #fff1a8; --wood: #a8623a; --wood-dark: #6e3b26;
+  #scene.staged { --ink: #2a1f2d; --card: #fff8ec; --panel: #f3e6cc; --line: #dcc6a0; --muted: #8f7d63; --hl: #ffe7a3; --wood: #a8623a; --wood-dark: #6e3b26;
     --ok: #2f8a45; --danger: #ef4b3f; --rh: #ef4b3f; background: transparent !important; color: var(--ink); font-family: var(--pixel); }
   #scene > .stage { position: fixed; left: 0; top: 0; z-index: -1; image-rendering: pixelated; pointer-events: none; }
   #scene.staged .hint { font: 18px/1.15 var(--pixel); color: var(--ink); }
@@ -41,13 +41,13 @@
   .sc-cash.staged .mk-top h2 { font-size: 36px; margin: 0; }
   .sc-cash.staged .mk-hint { background: var(--card); box-shadow: 0 0 0 2px var(--ink); padding: 1px 8px 3px; width: fit-content; margin: 10px auto 0; font-size: 16px; }
   .sc-cash.staged .register { filter: drop-shadow(0 6px 0 rgba(42,31,45,.3)); }
-  .sc-cash.staged .lcd2 { box-shadow: inset 3px 3px 0 #0f1f12, 0 0 0 4px #626875, 0 0 0 6px var(--ink); }
+  .sc-cash.staged .lcd2 { box-shadow: inset 3px 3px 0 #2a1f2d, 0 0 0 4px #626875, 0 0 0 6px var(--ink); }
   .sc-cash.staged .pay h4 { color: var(--muted); }
 
   /* Quarto: o despertador fica no chão do quarto, à frente da cama */
   .sc-sleep.staged { justify-content: flex-end; padding-bottom: calc(var(--ak, 2px) * 10); }
   .sc-sleep.staged .zz { color: #c3d5ff; text-shadow: 0 0 0 transparent, 2px 2px 0 #2b2340; }
-  .sc-sleep.staged .alarm { box-shadow: 0 0 0 3px var(--ink), inset 0 -6px 0 #1a1a1f, 0 8px 0 rgba(20,14,30,.5); }
+  .sc-sleep.staged .alarm { box-shadow: 0 0 0 3px var(--ink), inset 0 -6px 0 #2a1f2d, 0 8px 0 rgba(20,14,30,.5); }
 
   /* Fim da carreira: a caixa de papelão e o carimbo da rescisão */
   .card.over-card { position: relative; overflow: visible; }
@@ -58,7 +58,6 @@
   @media (max-width: 600px) { .over-card .over-stamp { font-size: 18px; top: 4%; right: 4%; } .sc-in.staged .sc-col h2 { font-size: 32px; } .sc-shop.staged .mk-top h2, .sc-cash.staged .mk-top h2 { font-size: 28px; } }
   .sc-sleep .onstand { position: fixed; transform: translate(-50%, -100%); z-index: 2; }
   .onstand .alarm { padding: 12px 14px; } .onstand .alarm .face { padding: 6px; }
-  .onstand .alarm .segs { width: clamp(90px, 9vw, 150px); }
   .onstand .alarm .bell { top: -14px; width: 24px; height: 12px; } .onstand .alarm .leg { bottom: -8px; width: 10px; height: 8px; } .onstand .alarm .leg.l { left: 14px; } .onstand .alarm .leg.r { right: 14px; }
   .over-card p { font-family: var(--pixel); font-size: 1.15em; line-height: 1.15; }
   div.skyline { overflow: hidden; }

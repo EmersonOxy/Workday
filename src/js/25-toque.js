@@ -21,4 +21,14 @@ document.addEventListener('contextmenu', e => { if (document.body.classList.cont
 document.addEventListener('selectstart', e => { if (e.target !== kb) e.preventDefault(); });
 kb.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); key('Enter'); } });
 
+// Teclado virtual aberto: o app ocupa só a área visível; o tabuleiro encolhe mas não some (regra do guia)
+if (window.visualViewport) {
+  const vv = visualViewport, fitVV = () => {
+    const kbOpen = innerHeight - vv.height > 120;
+    document.documentElement.style.setProperty('--vvh', vv.height + 'px');
+    document.documentElement.style.setProperty('--vvt', vv.offsetTop + 'px');
+    document.body.classList.toggle('kb-open', kbOpen);
+  };
+  vv.addEventListener('resize', fitVV); vv.addEventListener('scroll', fitVV); fitVV();
+}
 applyTheme(); applyLang(); showMenu();

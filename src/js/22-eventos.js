@@ -15,7 +15,7 @@ function startEvent() {
 function bossComing() {
   const el = document.createElement('div');
   el.id = 'bossAlert'; el.className = 'px';
-  el.append(face('#4a3426', '#2a2f45', false, 3));
+  el.append(face('#6e3b26', '#2b2340', false, 3));
   el.insertAdjacentHTML('beforeend', `<span>${U().bossComing} ${document.body.classList.contains('touch') ? '' : '<b>Esc</b> '}<span class="cd"></span></span>`);
   el.onclick = () => { if (S.bossAlert && !S.paused) dodgeBoss(); };
   uiRoot().append(el);
@@ -99,8 +99,9 @@ function startVideo() {
   const win = document.createElement('div');
   win.id = 'video'; win.className = 'px';
   win.innerHTML = `<div class="title"><span>${U().meeting}</span><span>●</span></div><div class="cam"><span class="rec">REC</span></div>`;
-  const hair = pick(['#4a3426', '#d9a441', '#1d1d1b', '#a0452c']), shirt = pick(['#3c5aa8', '#2f7d4f', '#8a5bb5', '#c2562f']);
-  const a = face(hair, shirt, false, 7), b = face(hair, shirt, true, 7);
+  const hair = pick(['#6e3b26', '#c98a2e', '#2a1f2d', '#a24a33']), shirt = pick(['#44609f', '#2f8a45', '#7656a8', '#c25f3b']);
+  const fs = document.body.classList.contains('mobile') ? 4 : innerWidth <= 760 ? 5 : 7;
+  const a = face(hair, shirt, false, fs), b = face(hair, shirt, true, fs);
   b.style.display = 'none';
   win.querySelector('.cam').append(a, b);
   const lane = document.createElement('div');

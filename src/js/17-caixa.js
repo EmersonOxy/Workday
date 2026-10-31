@@ -39,6 +39,7 @@ function checkout() {
     }
     const n = bag.querySelectorAll('.inbag').length;
     const c = sprite(SPR[SHOP.find(i => i.id === id).spr], 3);
+    pxFit(c, () => innerWidth <= 760 ? [30, 30] : [c.width * 3, c.height * 3]);
     c.classList.add('inbag'); c.style.left = (4 + n * 26) + '%';
     c.onclick = () => {
       if (paid) return;
@@ -109,7 +110,7 @@ function checkout() {
     document.addEventListener('pointercancel', up);
   };
   for (const id of S.cart) {
-    const el = sprite(SPR[SHOP.find(i => i.id === id).spr], 5);
+    const el = pxFit(sprite(SPR[SHOP.find(i => i.id === id).spr], 5), () => { const t = Math.min(96, Math.max(TOUCH ? 60 : 48, innerWidth * .06)); return [t, t]; });
     el.classList.add('belt-item');
     el.onpointerdown = e => startDrag(e, el, id);
     laneIn.append(el);

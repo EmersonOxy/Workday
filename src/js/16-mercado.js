@@ -9,15 +9,25 @@ function basketSprite() {
   const W = 26, rows = ['k'.repeat(W)];
   for (let i = 0; i < 6; i++) rows.push('k' + (i % 2 ? 'r'.repeat(W - 2) : [...Array(W - 2)].map((_, j) => j % 3 === 1 ? '.' : 'r').join('')) + 'k');
   rows.push('.k' + 'r'.repeat(W - 4) + 'k.', '..' + 'k'.repeat(W - 4) + '..');
-  const c = sprite(rows, 10, { ...PAL, r: '#d94a3a' });
+  const c = sprite(rows, 10, { ...PAL, r: '#ef4b3f' });
   c.classList.add('bfront');
   return c;
 }
+// A cesta usa a maior escala inteira que cabe em 25% da altura e 38% da largura
+function fitBasket(sc) {
+  const b = sc.querySelector('.basket'), front = b.querySelector('.bfront'), dpr = window.devicePixelRatio || 1;
+  const n = Math.max(1, Math.floor(Math.min(innerHeight * .25, innerWidth * .38) * dpr / 15)), k = n / dpr;
+  b.style.width = 26 * k + 'px'; b.style.height = 15 * k + 'px';
+  front.style.width = front.width * k + 'px'; front.style.height = front.height * k + 'px';
+  sc.style.setProperty('--bh', 15 * k + 'px');
+  if (!b._fit) { b._fit = true; addEventListener('resize', () => b.isConnected && fitBasket(sc)); }
+}
 function bagSprite() {
-  const pal = { ...PAL, a: '#d9b382', A: '#a87d4a' };
+  const pal = { ...PAL, a: '#c7b595', A: '#8f7d63' };
   const c = sprite(['.kkkkkkkkkkkkkkkk.', '.kAaAaAaAaAaAaAak.', '.kaaaaaaaaaaaaaak.', '.kaaaaaaaaaaaaaAk.', '.kaaaaakkkkaaaaAk.',
     '.kaaaaakaakaaaaAk.', '.kaaaaakkkkaaaaAk.', '.kaaaaaaaaaaaaaAk.', '.kaaaaaaaaaaaaaAk.', '.kaaaaaaaaaaaaaAk.', '.kaaaaaaaaaaaaaAk.',
     '.kaaaaaaaaaaaaaAk.', '.kaaaaaaaaaaaaaAk.', '.kaaaaaaaaaaaaaAk.', '.kAAAAAAAAAAAAAAk.', '.kkkkkkkkkkkkkkkk.'], 5, pal);
+  pxFit(c, () => innerWidth <= 760 ? [54, 999] : [c.width * 5, c.height * 5]);
   c.classList.add('bagfront');
   return c;
 }
@@ -40,6 +50,8 @@ function market() {
   sc.querySelector('#tocash').onclick = () => { if (S.cart.length) wipe(checkout); };
   sc.querySelector('#mkhome').onclick = () => { S.cart = []; sleep(); };
   updateCart(sc);
+  fitBasket(sc);
+  sc.querySelectorAll('.slot canvas').forEach(pxRefit);
   sceneIn(sc, '.mk-top, .mk-hint, .shelf', 60, 300);
   sceneIn(sc, '.slot', 25, 520);
 }
@@ -47,6 +59,8 @@ function shelfSlot(it, sc) {
   const el = document.createElement('button');
   el.className = 'slot'; el.dataset.id = it.id; el.title = L.shop[it.id][1];
   const spr = sprite(SPR[it.spr], 5);
+  // cabe na prateleira: até 62% da altura e a largura de uma vaga, sempre em escala inteira
+  pxFit(spr, () => { const sh = el.parentElement; return sh ? [sh.clientWidth / Math.max(3, sh.children.length) * .8, sh.clientHeight * .62] : [80, 80]; });
   el.append(spr);
   el.insertAdjacentHTML('beforeend', `<span class="nm">${L.shop[it.id][0]}</span><span class="ds">${L.shop[it.id][1]}</span><span class="ptag">${money(it.price)}</span>`);
   el.onclick = () => {
@@ -69,7 +83,7 @@ function burst(sc, cx, cy) {
     const p = document.createElement('i');
     p.className = 'spark';
     p.style.left = cx + 'px'; p.style.top = cy + 'px';
-    p.style.background = pick(['#ffffff', '#fff1a8', '#f2c14e']);
+    p.style.background = pick(['#ffffff', '#ffe7a3', '#f4c15d']);
     sc.append(p);
     const a = i / 10 * Math.PI * 2, d = rand(26, 44);
     p.animate([{ transform: 'translate(0,0)', opacity: 1 }, { transform: `translate(${Math.cos(a) * d}px,${Math.sin(a) * d}px)`, opacity: 0 }],
@@ -94,9 +108,9 @@ function flyToBasket(spr, it, sc) {
   ], { duration: 500, fill: 'forwards' }).onfinish = () => {
     clone.remove(); sfx('key');
     basket.animate([{ translate: '0 0' }, { translate: '0 6px' }, { translate: '0 0' }], { duration: 160, easing: 'steps(3)' });
-    const inB = sprite(SPR[it.spr], 5);
+    const inB = pxFit(sprite(SPR[it.spr], 5), () => [w, w * 2]);
     inB.classList.add('inbasket');
-    inB.style.width = w + 'px'; inB.style.left = x + 'px'; inB.style.bottom = y + 'px';
+    inB.style.left = x + 'px'; inB.style.bottom = y + 'px';
     inB.onclick = () => { const k = S.cart.indexOf(it.id); if (k >= 0) S.cart.splice(k, 1); inB.remove(); updateCart(sc); sfx('click'); };
     bi.append(inB);
   };

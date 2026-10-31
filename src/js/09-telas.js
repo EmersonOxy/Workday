@@ -30,7 +30,7 @@ function showMenu() {
     </div>`);
   card.querySelector('#msnd').onclick = () => { setSound(!soundOn); showMenu(); };
   $('modal').insertAdjacentHTML('beforeend', `<div class="legalbar"><p>${u.footer}</p></div>`);
-  card.querySelector('#lf').replaceWith(face('#4a3426', '#2a2f45', false, 4));
+  card.querySelector('#lf').replaceWith(face('#6e3b26', '#2b2340', false, 4));
   card.querySelector('#play').onclick = () => newCareer();
   if (saved) card.querySelector('#cont').onclick = resumeCareer;
   card.querySelector('#how').onclick = () => { const c = modal(`<h2>${u.how}</h2>${u.howText}<div class="actions"><button class="pxbtn main" id="b">${u.back}</button></div>`); c.querySelector('#b').onclick = showMenu; };

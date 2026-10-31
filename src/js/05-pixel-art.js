@@ -1,10 +1,10 @@
 /* ================= Pixel art ================= */
 const PAL = {
-  k: '#1d1d1b', w: '#ffffff', W: '#e8e4d8', x: '#c9c4b5',
-  r: '#d94a3a', R: '#9e2e24', q: '#f58a78', g: '#4fb35c', G: '#2d7a3a', t: '#a6e88f',
-  y: '#f2c14e', Y: '#c48a1c', u: '#fff1a8', b: '#4a72c4', B: '#2c4a8a', v: '#9ec0ff',
-  c: '#7a4a28', C: '#4e2e16', o: '#e8873a', O: '#b85e1c', s: '#f0c09a', S: '#d1916a',
-  h: '#4a3426', H: '#2e1f16', n: '#2a2f45', N: '#181b29', e: '#b8b8b8', l: '#c4c0b5', L: '#85827a', d: '#5c5a55', p: '#ec93a6',
+  k: '#2a1f2d', w: '#ffffff', W: '#fbf3e2', x: '#c7b595',
+  r: '#ef4b3f', R: '#a8262a', q: '#ff9d86', g: '#6fbf73', G: '#2f8a45', t: '#b8d98a',
+  y: '#f4c15d', Y: '#c98a2e', u: '#ffe7a3', b: '#44609f', B: '#44609f', v: '#c3d5ff',
+  c: '#8a5420', C: '#6e3b26', o: '#d48a4f', O: '#a8623a', s: '#f2c4a0', S: '#d99a76',
+  h: '#6e3b26', H: '#2a1f2d', n: '#2b2340', N: '#2a1f2d', e: '#9aa0ab', l: '#c7b595', L: '#8f7d63', d: '#626875', p: '#ff9d86',
 };
 const SPRITE_CACHE = new Map();
 function spriteMaster(rows, pal) {
@@ -19,13 +19,24 @@ function spriteMaster(rows, pal) {
   }
   return m;
 }
+// Escala inteira (regra do guia): cada pixel da arte ocupa um número inteiro de pixels físicos, em qualquer zoom
+function pxScale(scale) { const dpr = window.devicePixelRatio || 1; return Math.max(1, Math.round(scale * dpr)) / dpr; }
+function pxSize(c, scale) { const s = pxScale(scale); c.style.width = c.width * s + 'px'; c.style.height = c.height * s + 'px'; return c; }
+// Maior escala inteira que cabe numa caixa (largura, altura em px CSS); refeita quando a janela muda de tamanho
+const PX_FITS = new Set();
+function pxRefit(c) {
+  const [w, h] = c._box(), dpr = window.devicePixelRatio || 1;
+  const n = Math.max(1, Math.floor(Math.min(w * dpr / c.width, h * dpr / c.height)));
+  c.style.width = c.width * n / dpr + 'px'; c.style.height = c.height * n / dpr + 'px';
+}
+function pxFit(c, box) { c._box = box; PX_FITS.add(c); pxRefit(c); return c; }
+addEventListener('resize', () => { for (const c of PX_FITS) { if (c.isConnected) { c._on = true; pxRefit(c); } else if (c._on) PX_FITS.delete(c); } });
 function sprite(rows, scale = 3, pal = PAL) {
   const m = spriteMaster(rows, pal), c = document.createElement('canvas');
   c.className = 'sp';
   c.width = m.width; c.height = m.height;
   c.getContext('2d').drawImage(m, 0, 0);
-  c.style.width = c.width * scale + 'px'; c.style.height = c.height * scale + 'px';
-  return c;
+  return pxSize(c, scale);
 }
 const SPR = {
   phone: ['...kkkkkkkkkk...', '.kkrrrrrrrrrrkk.', 'krrqqrrrrrrrrRrk', 'kRRkkkkkkkkkkRRk', '.kk..kkkkkk..kk.', '....krrrrrrk....',
@@ -80,7 +91,10 @@ const SPR = {
   card: ['kkkkkkkkkkkkkkkk', 'kvvvvvvvvvvvvvBk', 'kkkkkkkkkkkkkkkk', 'kbbbbbbbbbbbbbBk', 'kbuyybbbbbbbbbBk', 'kbyYybbbbbbbbbBk', 'kbbbbbbbbwwwwbBk', 'kBBBBBBBBBBBBBBk', 'kkkkkkkkkkkkkkkk'],
   paycel: ['.kkkkkkk.', 'kdddddddk', 'kdvvvvvdk', 'kdvkkkvdk', 'kdvkwkvdk', 'kdvkkkvdk', 'kdvvvvvdk', 'kdvwwwvdk', 'kdvvvvvdk', 'kdddkdddk', '.kkkkkkk.'],
 };
-const darken = (hex, f = 0.62) => '#' + [1, 3, 5].map(i => Math.round(parseInt(hex.slice(i, i + 2), 16) * f).toString(16).padStart(2, '0')).join('');
+// Sombra de uma cor = o tom seguinte da mesma rampa da paleta (nunca uma cor calculada fora dela)
+const darken = hex => { for (const m of Object.values(WD_PALETTE)) { const t = Object.values(m.tones), i = t.indexOf(hex.toLowerCase()); if (i >= 0) return t[Math.min(t.length - 1, i + 1)]; } return WD_PAL.k; };
+// Sprite dentro de algo ampliado (zoom/transform): corrige o tamanho para o resultado final ficar em escala inteira
+function pxSnap(c, scale, factor) { const dpr = window.devicePixelRatio || 1, s = Math.max(1, Math.round(scale * factor * dpr)) / (factor * dpr); c.style.width = c.width * s + 'px'; c.style.height = c.height * s + 'px'; }
 function face(hair, shirt, open, scale) {
   const pal = { ...PAL, h: hair, H: darken(hair), n: shirt, N: darken(shirt) };
   return sprite(['.....kkkkkk.....', '...kkhhhhhhkk...', '..khhhhhhhhhhk..', '.khhHhhhhhhhhhk.', '.khHssssssssHhk.', '.kHsssssssssSHk.',

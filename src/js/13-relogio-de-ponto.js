@@ -10,7 +10,7 @@ function clockDevice(time) {
     </div>
     <div class="cd-row cd-bottom"><span class="sticker">WORKDAY LTDA.<br>Nº ${EMP_ID}</span>
       <div class="reader"><div class="pad"><span class="fp"></span><i class="scan"></i><b class="prog"></b></div></div></div>`;
-  dev.querySelector('.fp').replaceWith(sprite(SPR.finger, 5, { ...PAL, k: '#cfe0ff' }));
+  dev.querySelector('.fp').replaceWith(sprite(SPR.finger, 5, { ...PAL, k: '#c3d5ff' }));
   return dev;
 }
 // Segurar na digital por 1,1 s; às vezes a leitura falha e é preciso repetir
@@ -54,7 +54,8 @@ function clockIn() {
     <p class="sc-hint">${u.holdFinger}</p></div>`;
   Stage.mount(sc, 'hall', { eve: false });
   const dev = clockDevice('09:00');
-  dev.style.zoom = Math.max(0.8, Math.min(1.4, (innerHeight - 330) / 330, (innerWidth - 32) / 330)).toFixed(2);
+  const z = +Math.max(0.8, Math.min(1.4, (innerHeight - 330) / 330, (innerWidth - 32) / 330)).toFixed(2);
+  dev.style.zoom = z; pxSnap(dev.querySelector('.pad canvas'), 5, z);
   sc.querySelector('.sc-col').append(dev);
   sceneIn(sc, 'h2, .note, .sc-hint', 70, 380);
   fingerprint(dev, () => wipe(() => { closeScene(); startDay(); }));

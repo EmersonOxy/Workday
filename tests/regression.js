@@ -123,6 +123,17 @@ async function mobile(browser, url) {
   const bx = await (await p.$('#board')).boundingBox();
   await p.tap('#board', { position: { x: bx.width * 0.9, y: bx.height * 0.5 } });
   ok(await p.evaluate(() => S.file.lane === 3), 'tocar na coluna move o arquivo');
+  // deslizar: arrastar leva coluna a coluna, peteleco anda uma, para baixo solta
+  const drag = async (x0, y0, x1, y1, steps, ms) => { await p.mouse.move(x0, y0); await p.mouse.down(); for (let i = 1; i <= steps; i++) { await p.mouse.move(x0 + (x1 - x0) * i / steps, y0 + (y1 - y0) * i / steps); await p.waitForTimeout(ms); } await p.mouse.up(); };
+  const lw = bx.width / 4, my = bx.y + bx.height * 0.4;
+  await p.evaluate(() => { S.file.lane = 0; S.file.y = 10; placeFile(); });
+  await drag(bx.x + lw * 0.5, my, bx.x + lw * 2.5, my, 10, 20);
+  ok(await p.evaluate(() => S.file.lane === 2), 'arrastar para o lado leva o arquivo junto (2 colunas)');
+  await drag(bx.x + lw * 2.5, my, bx.x + lw * 2.5 - 34, my, 2, 10);
+  ok(await p.evaluate(() => S.file.lane === 1), 'peteleco curto anda uma coluna');
+  await p.evaluate(() => { S.dropNow = false; });
+  await drag(bx.x + lw * 1.5, my, bx.x + lw * 1.5, my + 90, 6, 15);
+  ok(await p.evaluate(() => S.dropNow === true || S.file.y < 20), 'deslizar para baixo solta o arquivo');
   ok(await p.evaluate(() => !document.querySelector('#pad').classList.contains('hidden') && !document.querySelector('[data-k=ArrowLeft]')), 'barra de toque sem setas');
   await p.evaluate(() => { S.file.kind = 'dead'; }); await p.waitForTimeout(60);
   ok(await p.evaluate(() => document.querySelector('#padDel').classList.contains('show')), 'botão APAGAR aparece com arquivo morto');
@@ -156,7 +167,15 @@ async function offline(browser, url) {
   await ctx.close();
 }
 
+// Regras do guia que se verificam no código-fonte: paleta fechada, sem preto puro
+function paletteLint() {
+  console.log('\n[guia visual] paleta');
+  const r = require('child_process').spawnSync('python3', [path.join(ROOT, 'tools', 'palette.py')], { encoding: 'utf8' });
+  ok(r.status === 0, 'todas as cores do código na paleta WORKDAY' + (r.status ? ': ' + r.stdout.trim().split('\n').slice(-3).join(' / ') : ''));
+}
+
 (async () => {
+  paletteLint();
   const browser = await chromium.launch({ args: ['--autoplay-policy=no-user-gesture-required'] });
   const target = process.argv[2];
   if (target) { await desktop(browser, target, target); await mobile(browser, target); }
