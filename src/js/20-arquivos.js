@@ -29,7 +29,8 @@ function placeFile() {
   const f = S.file, w = laneWidth(), H = board.clientHeight - S.trays[0].offsetHeight - f.el.offsetHeight;
   f.el.style.left = (f.lane * w + 8) + 'px'; f.el.style.width = (w - 16) + 'px'; const u = H > 0 ? Math.min(1, Math.max(0, f.y / H)) : 0, red = Motion.reduced.matches;
   f.el.style.top = (red ? f.y : fallVis(f.y, H)) + 'px';
-  f.el.style.rotate = red ? '' : (u < .5 ? -1.5 + u * 6 : 1.5 - (u - .5) * 3).toFixed(2) + 'deg';   // balanço do guia: −1,5° → 1,5° → 0
+  // balanço do guia sem girar (girar pixel art borra a grade): desloca em pixels inteiros, −2 → 2 → 0
+  f.el.style.rotate = ''; f.el.style.translate = red ? '' : Math.round(u < .5 ? -2 + u * 8 : 2 - (u - .5) * 4) + 'px 0';
 }
 // O documento que saiu de jogo continua na tela só para terminar a animação
 function retireFile(el, how) {

@@ -519,17 +519,19 @@ const Office = {
       for (let n = 0; n < N; n++) { ctx.fillStyle = `rgba(${b[0] | 0},${b[1] | 0},${b[2] | 0},${(a * (1 - n / N)).toFixed(3)})`; ctx.fillRect(n === 0 ? 0 : Math.round(W.x + span * n / N), 0, Math.round(n === 0 ? W.x + span / N : span / N), L.VH); } }
     // Cortina fechada: a sala escurece de verdade e o que tem luz própria ganha destaque (tela do monitor, luminária, aquário)
     if (st.blind) { const b = st.blind;
-      ctx.save(); ctx.globalCompositeOperation = 'multiply'; ctx.fillStyle = `rgba(70,52,98,${(.55 * b).toFixed(3)})`; ctx.fillRect(0, 0, L.VW, L.VH); ctx.restore();
+      // escurece com um tom roxo-azulado (sombra com matiz frio), sem virar preto
+      ctx.save(); ctx.globalCompositeOperation = 'multiply'; ctx.fillStyle = `rgba(86,70,120,${(.5 * b).toFixed(3)})`; ctx.fillRect(0, 0, L.VW, L.VH); ctx.restore();
       ctx.save(); ctx.globalCompositeOperation = 'screen';
-      // brilho em anéis de pixel (4 degraus), sem degradê suave: cada anel soma um pouco de luz
-      const glow = (cx, cy, r, rgb, a) => { ctx.fillStyle = `rgba(${rgb},${(a * b / 4).toFixed(3)})`;
-        for (let k = 4; k >= 1; k--) { const rr = r * k / 4; for (let j = -rr | 0; j <= rr; j++) { const w = Math.round(Math.sqrt(rr * rr - j * j)); ctx.fillRect(Math.round(cx - w), Math.round(cy + j), w * 2, 1); } } };
-      // brilho frio da tela espalhando pela moldura, mesa e parede próximas
-      glow(s.x + s.w / 2, s.y + s.h * .7, Math.max(s.w, s.h) * .8, '120,190,200', .32);
-      glow(s.x + s.w / 2, L.desk + 8, s.w * .55, '140,200,210', .28);
-      if (D.has('lamp') && (lampLv || 0) > 0) glow(Z.lamp.x, Z.lamp.y - 30, 70, '255,214,140', .45 * lampLv);
-      if (D.has('aquario')) glow(Z.win.x + 20, Z.win.y + Z.win.h + 30, 26, '120,200,220', .3);
-      if (D.has('neon')) glow(L.VW - 12, 74, 30, '239,75,63', .35);
+      // luz própria em poças de pixel: 6 degraus pequenos (invisíveis como anéis) e em elipse achatada sobre a mesa
+      const pool = (cx, cy, rx, ry, rgb, a) => { ctx.fillStyle = `rgba(${rgb},${(a * b / 6).toFixed(3)})`;
+        for (let k = 6; k >= 1; k--) { const fx = rx * k / 6, fy = ry * k / 6; for (let j = -Math.ceil(fy); j <= fy; j++) { const w = Math.round(fx * Math.sqrt(Math.max(0, 1 - (j / fy) ** 2))); if (w > 0) ctx.fillRect(Math.round(cx - w), Math.round(cy + j), w * 2, 1); } } };
+      // a tela ilumina a moldura e uma faixa da mesa logo à frente (frio e fraco); a parede quase não recebe
+      pool(s.x + s.w / 2, M.y + M.h - 4, s.w * .62, 14, '110,170,190', .22);
+      pool(s.x + s.w / 2, L.desk + 10, s.w * .7, Math.max(10, (L.VH - L.desk) * .7), '120,180,200', .26);
+      // luminária: cone quente para baixo, mais forte no tampo
+      if (D.has('lamp') && (lampLv || 0) > 0) { pool(Z.lamp.x, L.desk + 8, 46, 16, '255,206,130', .55 * lampLv); pool(Z.lamp.x, Z.lamp.y - 26, 20, 26, '255,214,140', .3 * lampLv); }
+      if (D.has('aquario')) pool(Z.win.x + 20, Z.win.y + Z.win.h + 30, 18, 12, '120,200,220', .3);
+      if (D.has('neon')) pool(L.VW - 12, 74, 18, 14, '239,75,63', .35);
       ctx.restore(); }
     if (D.has('lamp') && lampLv > 0) { const fl = (.2 + Math.sin(t * 9) * .01) * lampLv; ctx.fillStyle = `rgba(255,231,163,${fl})`; const hx = Z.lamp.x - 14, hy = Z.lamp.y - 44;
       for (let j = 0; j < 44; j++) ctx.fillRect(hx - (j * .5 | 0), hy + 8 + j, 14 + (j * 1.1 | 0), 1); }
