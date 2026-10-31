@@ -64,19 +64,31 @@ const Office = {
       x.putImageData(img, 0, 0);
     }
     ctx.drawImage(this._skyC, W.x, W.y);
+    // sol (e depois lua) atravessando o céu ao longo do expediente
+    { const k = lit.k, sx = W.x + W.w * (.12 + k * .76), sy = W.y + W.h * (.58 - Math.sin(Math.min(1, k * 1.1) * Math.PI) * .42), moon = k > .86, r = moon ? 3 : 4;
+      const c1 = moon ? P.m : k > .6 ? P.O : P.y, c2 = moon ? P.M : k > .6 ? P.T : P.Y;
+      if (!(wx === 'rain' || wx === 'snow')) for (let j = -r; j <= r; j++) for (let i = -r; i <= r; i++) { const d = i * i + j * j; if (d > r * r) continue; if (moon && (i + 2) ** 2 + (j - 1) ** 2 < 6) continue; F(i + j > 1 ? c2 : c1, sx + i, sy + j, 1, 1); }
+      if (!moon && wx === 'clear') { ctx.globalAlpha = .18; F(P.y, sx - 6, sy, 13, 1); F(P.y, sx, sy - 6, 1, 13); ctx.globalAlpha = 1; } }
     // estrelas no fim do dia
     if (lit.k > .8 && wx === 'clear') for (let i = 0; i < 14; i++) if (Math.sin(t * 1.3 + i * 2.1) > -.2) F(i % 4 ? P.W : P.y, W.x + (i * 37) % W.w, W.y + (i * 23) % (W.h * .4), 1, 1);
     // nuvens: quantidade e cor pelo clima
     const nC = wx === 'clear' ? 3 : wx === 'cloudy' ? 7 : 9, cc = wx === 'rain' ? P.M : wx === 'snow' ? P.m : lit.cloud;
     for (let n = 0; n < nC; n++) { const sp = 1 + (n % 3) * .6, w = 10 + (n * 7) % 14, cx = ((t * sp + n * 41) % (W.w + w + 20)) - w - 10 + W.x, cy = W.y + 6 + (n * 13) % (W.h * .45);
-      F(cc, cx, cy, w, 3); F(cc, cx + 2, cy - 2, w - 5, 2); F(cc, cx + 4, cy - 3, Math.max(2, w - 9), 1); if (wx !== 'clear') F(P.j, cx, cy + 3, w, 1); }
+      F(cc, cx, cy, w, 3); F(cc, cx + 2, cy - 2, w - 5, 2); F(cc, cx + 4, cy - 3, Math.max(2, w - 9), 1);
+      F(wx === 'clear' ? P.W : cc, cx + 4, cy - 3, Math.max(2, w - 11), 1);                                   // topo iluminado
+      F(wx === 'clear' ? (lit.k > .7 ? P.r : P.l) : P.j, cx + 1, cy + 2, w - 2, 1); }                           // base sombreada
     // passantes: um por vez, escolhido pelo tempo (avião, helicóptero, balão, bando de pássaros)
     const slot = t / 18 | 0, ph = (t % 18) / 18, kind = ['plane', 'birds', 'heli', 'birds', 'balloon', 'plane'][(slot * 2654435761 >>> 0) % 6];
     if (wx !== 'rain' || kind === 'plane') {
       const yy = W.y + 10 + ((slot * 37) % (W.h * .3));
-      if (kind === 'plane') { const ax = W.x + W.w + 10 - ph * (W.w + 40); F(P.m, ax, yy, 6, 1); F(P.m, ax + 3, yy - 1, 2, 1); F(P.W, ax + 6, yy, Math.min(30, ph * 60), 1); if ((t * 3 | 0) % 2) F(P.R, ax, yy, 1, 1); }
+      if (kind === 'plane') { const ax = W.x + W.w + 10 - ph * (W.w + 40) | 0;
+        ctx.globalAlpha = .55; F(P.W, ax + 8, yy, Math.min(34, ph * 70), 1); ctx.globalAlpha = .3; F(P.W, ax + 8, yy + 1, Math.min(24, ph * 50), 1); ctx.globalAlpha = 1;   // rastro
+        F(P.m, ax, yy, 8, 1); F(P.M, ax + 1, yy + 1, 6, 1); F(P.m, ax + 3, yy - 1, 3, 1); F(P.M, ax + 3, yy + 2, 2, 1); F(P.m, ax + 7, yy - 2, 1, 2); F(P.l, ax + 1, yy, 1, 1);
+        if ((t * 3 | 0) % 2) F(P.R, ax + 4, yy - 1, 1, 1); }
       if (kind === 'heli') { const hx = W.x - 10 + ph * (W.w + 20), hy = yy + Math.sin(t * 2) * 2; F(P.J, hx, hy, 5, 3); F(P.J, hx - 4, hy + 1, 4, 1); F(P.m, hx - 2 + ((t * 20 | 0) % 2) * 3, hy - 1, 7, 1); if ((t * 4 | 0) % 2) F(P.R, hx + 5, hy + 1, 1, 1); }
-      if (kind === 'balloon') { const bx = W.x + W.w * .2 + ph * W.w * .6, by = W.y + W.h * .5 - ph * W.h * .35; F(P.R, bx, by, 5, 5); F(P.Q, bx + 1, by, 1, 5); F(P.y, bx + 3, by, 1, 5); F(P.k, bx + 1, by + 6, 3, 2); }
+      if (kind === 'balloon') { const bx = W.x + W.w * .2 + ph * W.w * .6 | 0, by = W.y + W.h * .5 - ph * W.h * .35 + Math.sin(t * 1.4) | 0;
+        F(P.R, bx + 1, by, 5, 1); F(P.R, bx, by + 1, 7, 4); F(P.R, bx + 1, by + 5, 5, 1); F(P.Q, bx + 2, by, 1, 6); F(P.y, bx + 4, by, 1, 6); F(P.r, bx + 1, by + 1, 1, 2);
+        F(P.q, bx + 2, by + 6, 3, 1); F(P.j, bx + 2, by + 7, 1, 1); F(P.j, bx + 4, by + 7, 1, 1); F(P[3], bx + 2, by + 8, 3, 2); }
       if (kind === 'birds') for (let n = 0; n < 4; n++) {
         const near = n === 0, bx = W.x - 6 + ph * (W.w + 12) - n * 6, by = yy + n * 3 + Math.round(Math.sin(t * 3 + n)), wg = (t * 8 + n | 0) % 2, c = near ? P.k : P.K;
         if (near) { F(c, bx, by - wg, 2, 1); F(c, bx + 2, by + 1 - wg, 2, 1); F(c, bx + 4, by + 1, 1, 1); F(c, bx + 5, by + 1 - wg, 2, 1); F(c, bx + 7, by - wg, 2, 1); }
@@ -90,7 +102,13 @@ const Office = {
       const big = this._bld.reduce((a, b) => b.h > a.h ? b : a, this._bld[0]); big.sign = true;
     }
     const night = lit.k, base = W.y + W.h, on = Math.max(0, (night - .45) * 1.6);
+    // camada distante: silhuetas mais claras (perspectiva atmosférica)
+    if (!this._bld2 || this._bld2Key !== W.w + 'x' + W.h) { this._bld2Key = W.w + 'x' + W.h; const R2 = this.rng(17); this._bld2 = []; let bx2 = W.x - 3;
+      while (bx2 < W.x + W.w) { const bw = 4 + R2() * 7 | 0; this._bld2.push({ x: bx2, w: bw, h: 14 + R2() * W.h * .55 | 0 }); bx2 += bw; } }
+    for (const b of this._bld2) { F(night > .75 ? P.n : night > .55 ? P.a : P.v, b.x, base - b.h, b.w, b.h); if (night > .6 && (b.h * 7 + b.x) % 5 === 0) F(P.y, b.x + 1, base - b.h + 3, 1, 1); }
     for (const b of this._bld) {
+      if (b.seed % 3 === 0 && b.w >= 5 && !b.sign) { F(P.k, b.x + 2, base - b.h - 4, 1, 4); if (night > .5 && (t * 1.5 | 0) % 2) F(P.R, b.x + 2, base - b.h - 5, 1, 1); }   // antena
+      if (b.seed % 5 === 1 && b.w >= 7) { F(P.k, b.x + 1, base - b.h - 3, 4, 3); F(P[3], b.x + 2, base - b.h - 2, 2, 2); }                                            // caixa-d'água
       F(night > .75 ? P.N : night > .55 ? P.A : P.b, b.x, base - b.h, b.w, b.h);
       for (let j = base - b.h + 2, r = 0; j < base - 1; j += 3, r++) for (let i = b.x + 1, c = 0; i < b.x + b.w - 1; i += 2, c++) {
         const h = ((b.seed + r * 31 + c * 17) * 2654435761 >>> 0) % 1000 / 1000, flick = ((b.seed + r * 7 + c * 3 + (t / 9 | 0)) * 2246822519 >>> 0) % 100;
@@ -172,8 +190,13 @@ const Office = {
     F(P.b, 0, L.back - 22, L.VW, 1); F(P.B, 0, L.back - 21, L.VW, 21); F(P.b, 0, L.back - 20, L.VW, 1);
     // Janela alta: moldura de madeira, céu em pontilhado, prédios, persiana recolhida, peitoril
     const W = Z.win;
-    F(P.k, W.x - 2, W.y - 2, W.w + 4, W.h + 4); F(P[3], W.x - 1, W.y - 1, W.w + 2, W.h + 2);
-    F(P.k, W.x - 4, W.y + W.h + 1, W.w + 8, 5); F(P[1], W.x - 3, W.y + W.h + 2, W.w + 6, 1); F(P[2], W.x - 3, W.y + W.h + 3, W.w + 6, 2);  // peitoril
+    // moldura de madeira em relevo (luz de cima à esquerda), batente interno escuro e peitoril com espessura e sombra
+    F(P.k, W.x - 5, W.y - 5, W.w + 10, W.h + 10); F(P[2], W.x - 4, W.y - 4, W.w + 8, W.h + 8);
+    F(P[1], W.x - 4, W.y - 4, W.w + 8, 1); F(P[1], W.x - 4, W.y - 4, 1, W.h + 8); F(P[3], W.x + W.w + 3, W.y - 3, 1, W.h + 7); F(P[3], W.x - 3, W.y + W.h + 3, W.w + 7, 1);
+    F(P.k, W.x - 1, W.y - 1, W.w + 2, W.h + 2); F(P[4], W.x - 2, W.y - 2, W.w + 4, 1); F(P[4], W.x - 2, W.y - 2, 1, W.h + 4);
+    F(P.k, W.x - 7, W.y + W.h + 4, W.w + 14, 6); F(P[1], W.x - 6, W.y + W.h + 5, W.w + 12, 1); F(P[2], W.x - 6, W.y + W.h + 6, W.w + 12, 2); F(P[3], W.x - 6, W.y + W.h + 8, W.w + 12, 1);  // peitoril
+    for (let i = 0; i < W.w + 12; i += 9) F(P[3], W.x - 4 + i, W.y + W.h + 6, 3, 1);                                                       // veios do peitoril
+    this.shadow(x, W.x - 6, W.y + W.h + 10, W.w + 12, 3);
     // Estante (só em telas largas)
     if (L.right > 110) {
       const sx = M.x + M.w + 64, sw = Math.min(110, L.VW - sx - 8);
@@ -390,15 +413,22 @@ const Office = {
     ctx.drawImage(baked, 0, 0);
     const W = Z.win;
     ctx.save(); ctx.beginPath(); ctx.rect(W.x - 1, W.y - 1, W.w + 2, W.h + 40); ctx.rect(M.x - 1, M.y - 1, M.w + 2, M.h + 30); ctx.clip('evenodd');
-    ctx.save(); ctx.beginPath(); ctx.rect(W.x, W.y, W.w, W.h); ctx.clip(); this.sky(ctx, W, st, t, lit); ctx.restore();
+    ctx.save(); ctx.beginPath(); ctx.rect(W.x, W.y, W.w, W.h); ctx.clip(); this.sky(ctx, W, st, t, lit);
+    // reflexo no vidro: duas faixas diagonais bem leves que deslizam devagar
+    { const off = (t * 2) % (W.w + W.h); ctx.fillStyle = 'rgba(255,255,255,.07)';
+      for (const [d0, wd] of [[0, 6], [11, 2]]) for (let j = 0; j < W.h; j++) ctx.fillRect(W.x + ((off + d0 - j * .6) % (W.w + W.h)) - W.h * .3 | 0, W.y + j, wd, 1); }
+    ctx.restore();
     // Persiana: 0 = recolhida, 1 = fechada. Lâminas de 3 px descem uma a uma; a luz diminui junto
     const bl = st.blind || 0, slats = Math.max(4, Math.round(4 + bl * (W.h / 3 - 4))), yEnd = W.y + slats * 3;
     ctx.fillStyle = P[4]; ctx.fillRect(W.x - 1, W.y - 1, W.w + 2, 3);
-    for (let j = 0; j < slats; j++) { const y = W.y + 2 + j * 3; if (y + 2 > W.y + W.h) break; ctx.fillStyle = P.C; ctx.fillRect(W.x, y, W.w, 2); ctx.fillStyle = P.e; ctx.fillRect(W.x, y + 2, W.w, 1); }
+    for (let j = 0; j < slats; j++) { const y = W.y + 2 + j * 3; if (y + 2 > W.y + W.h) break; ctx.fillStyle = P.c; ctx.fillRect(W.x, y, W.w, 1); ctx.fillStyle = P.C; ctx.fillRect(W.x, y + 1, W.w, 1); ctx.fillStyle = P.e; ctx.fillRect(W.x, y + 2, W.w, 1);
+      ctx.fillStyle = P.E; ctx.fillRect(W.x + (W.w * .3 | 0), y, 1, 3); ctx.fillRect(W.x + (W.w * .7 | 0), y, 1, 3); }        // fitas que seguram as lâminas
     ctx.fillStyle = P.k; ctx.fillRect(W.x - 1, Math.min(yEnd + 1, W.y + W.h - 2), W.w + 2, 3); ctx.fillStyle = P.z; ctx.fillRect(W.x, Math.min(yEnd + 2, W.y + W.h - 1), W.w, 1);
     const cy = Math.min(yEnd + 4, W.y + W.h - 2);
     const cdx = W.x + 4;   // cordão da persiana na ponta visível da janela
-    ctx.fillStyle = P.j; ctx.fillRect(cdx, W.y + 2, 1, cy + 12 - W.y); ctx.fillStyle = P.k; ctx.fillRect(cdx - 2, cy + 13, 5, 4); ctx.fillStyle = P.z; ctx.fillRect(cdx - 1, cy + 14, 3, 2);
+    const sway = Math.round(Math.sin(t * 1.3) * (1 + (st.blindMoving ? 2 : 0)));      // o cordão balança de leve
+    ctx.fillStyle = P.j; ctx.fillRect(cdx, W.y + 2, 1, cy + 8 - W.y); ctx.fillRect(cdx + (sway > 0 ? 1 : sway < 0 ? -1 : 0), cy + 8, 1, 5);
+    ctx.fillStyle = P.k; ctx.fillRect(cdx - 2 + sway, cy + 13, 5, 4); ctx.fillStyle = P.z; ctx.fillRect(cdx - 1 + sway, cy + 14, 3, 2); ctx.fillStyle = P.y; ctx.fillRect(cdx - 1 + sway, cy + 14, 1, 1);
     ctx.restore();
     // Itens da loja numa prateleira de parede embaixo da janela (rádio com notinhas, aquário com bolhas, cacto)
     const shelfItems = ['radio', 'cacto', 'aquario'].filter(k => D.has(k));
