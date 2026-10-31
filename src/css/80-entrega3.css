@@ -414,3 +414,9 @@
   .dphone.held .dp-hand { transform: translate(calc(var(--u) * -6), calc(var(--u) * -14)) rotate(-14deg); }
   @keyframes dpring { 0% { translate: calc(var(--u) * -1) 0; } 50% { translate: calc(var(--u) * 1) 0; } }
   @keyframes dpjump { 50% { transform: translateY(calc(var(--u) * -3)); } }
+  .swatches.cursors { position: relative; }
+  .cur-pal { position: absolute; top: calc(100% + 4px); z-index: 20; display: flex; gap: 4px; padding: 5px; background: #e9dcc2; box-shadow: 0 0 0 2px #2a1f2d, inset 2px 2px 0 #fff8ec, inset -2px -2px 0 #8f7d63, 4px 4px 0 rgba(42,31,45,.35); }
+  .cur-dot { width: 20px; height: 20px; padding: 0; border: 0; cursor: pointer; font: 14px var(--pixel); color: #2a1f2d; box-shadow: 0 0 0 2px #2a1f2d, inset 0 -3px 0 rgba(42,31,45,.25); }
+  .cur-dot.on { translate: 0 2px; box-shadow: 0 0 0 2px #2a1f2d, 0 0 0 4px #fff8ec; }
+  .cur-dot:hover { translate: 0 -1px; }
+  .cur-btn { transition: none; } .cur-btn:hover img { translate: 0 -1px; }

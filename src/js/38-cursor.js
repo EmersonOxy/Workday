@@ -13,14 +13,32 @@ const CURSORS = {
   lapis: { rows: ['kk............', 'kpk...........', '.kpYk.........', '..kYYYk.......', '...kYzYk......', '....kYYYk.....', '.....kYzYk....', '......kYYYk...', '.......kYzYk..', '........kYYrk.', '.........krrk.', '..........kk..'], hx: 0, hy: 0, s: 2 },
   estrela: { rows: ['.....k.....', '....kYk....', '....kYk....', 'kkkkYYYkkkk', '.kYYYYYYYk.', '..kYYYYYk..', '..kYYkYYk..', '.kYk...kYk.', '.kk.....kk.'], hx: 5, hy: 4, s: 2 },
 };
-function cursorURL(c, scale) {
-  const m = Pixel.master(c.rows, WD_PAL), k = scale || c.s, cv = document.createElement('canvas'); cv.width = m.width * k; cv.height = m.height * k;
+// Cores: a letra de preenchimento de cada ponteiro é trocada pela cor escolhida (ponteiros com cor própria não mudam)
+const CUR_FILL = { triangulo: 'L', pequeno: 'W', grande: 'W', mao: 'W', estrela: 'Y', patinha: 'o', mira: 'R' };
+const CUR_COLORS = { padrao: null, branco: 'W', azul: 'L', verde: 'F', rosa: 'r', amarelo: 'Y', uva: 'I', menta: 'v', laranja: 'O' };
+function curRows(id, mode) {
+  const c = CURSORS[id], col = CUR_COLORS[((CFG.hw || {}).curColor || {})[id]], f = CUR_FILL[id];
+  let rows = c.rows.map(r => col && f ? r.split(f).join(col) : r);
+  if (mode === 'hover') rows = rows.map(r => r.replace(/k/g, '7'));                         // sobre algo clicável: contorno azul
+  if (mode === 'press') rows = ['.'.repeat(rows[0].length + 1), ...rows.map(r => '.' + r.replace(/W/g, 'w').replace(/L/g, '7').replace(/Y/g, 'z'))];   // clique: afunda 1 px e escurece
+  return rows;
+}
+function cursorURL(c, scale, rows) {
+  const m = Pixel.master(rows || c.rows, WD_PAL), k = scale || c.s, cv = document.createElement('canvas'); cv.width = m.width * k; cv.height = m.height * k;
   const x = cv.getContext('2d'); x.imageSmoothingEnabled = false; x.drawImage(m, 0, 0, cv.width, cv.height); return cv.toDataURL();
 }
 function applyCursor() {
   let st = document.getElementById('curStyle'); if (!st) { st = document.createElement('style'); st.id = 'curStyle'; document.head.append(st); }
   const c = CURSORS[(CFG.hw || {}).cursor];
   if (!c || document.body.classList.contains('touch')) { st.textContent = ''; return; }
-  st.textContent = `html, body, body * { cursor: url(${cursorURL(c)}) ${c.hx * c.s} ${c.hy * c.s}, auto !important; }`;
+  const id = (CFG.hw || {}).cursor, hs = `${c.hx * c.s} ${c.hy * c.s}`, url = m => `url(${cursorURL(c, 0, curRows(id, m))})`;
+  const CLICK = 'button, a, select, label, summary, [role=button], .osicon, .slot, .dphone, .belt-item, .inbag, .task, .vc-pick, .sw-btn, .os-task, .os-start, .xl-tab, .mw-b b, input[type=range]';
+  st.textContent = `html, body, body * { cursor: ${url()} ${hs}, auto !important; }
+    body :is(${CLICK}), body :is(${CLICK}) * { cursor: ${url('hover')} ${hs}, pointer !important; }
+    html.cur-press, html.cur-press body * { cursor: ${url('press')} ${hs}, auto !important; }`;
 }
+// animação de clique: enquanto o botão do mouse está apertado, o ponteiro afunda
+addEventListener('pointerdown', e => { if (e.pointerType === 'mouse') document.documentElement.classList.add('cur-press'); }, true);
+addEventListener('pointerup', () => document.documentElement.classList.remove('cur-press'), true);
+addEventListener('blur', () => document.documentElement.classList.remove('cur-press'));
 applyCursor();

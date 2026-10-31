@@ -135,7 +135,18 @@ function showCustomize(back) {
     pxFit(c, () => [80, 45]); b.onclick = () => { setHw({ wall: b.dataset.w }); draw(); }; });
   card.querySelectorAll('.cat').forEach(b => { const c2 = catCoat(SPR2.cat, b.dataset.c), cv = document.createElement('canvas'); cv.width = c2.width; cv.height = c2.height; cv.getContext('2d').drawImage(c2, 0, 0); b.querySelector('.cimg').append(pxSize(cv, 3));
     b.onclick = () => { setHw({ cat: b.dataset.c }); card.querySelectorAll('.cat').forEach(x => x.classList.toggle('on', x === b)); sfx('pop'); }; });
-  card.querySelectorAll('.cur-btn').forEach(b => { const c = CURSORS[b.dataset.v]; if (c) { const im = new Image(); im.src = cursorURL(c, 2); b.append(im); } else b.textContent = '↖'; });
+  // ponteiros: prévia na cor escolhida; passar o mouse sobre um ponteiro que aceita cor mostra as cores dele
+  const curPaint = () => card.querySelectorAll('.cur-btn').forEach(b => { const c = CURSORS[b.dataset.v]; b.replaceChildren(); if (c) { const im = new Image(); im.src = cursorURL(c, 2, curRows(b.dataset.v)); b.append(im); } else b.textContent = '↖'; });
+  curPaint();
+  card.querySelectorAll('.cur-btn').forEach(b => { if (!CUR_FILL[b.dataset.v]) return;
+    b.addEventListener('pointerenter', () => {
+      card.querySelectorAll('.cur-pal').forEach(p => p.remove());
+      const pal = document.createElement('div'); pal.className = 'cur-pal';
+      pal.innerHTML = Object.entries(CUR_COLORS).map(([k, l]) => `<button class="cur-dot${(((CFG.hw || {}).curColor || {})[b.dataset.v] || 'padrao') === k ? ' on' : ''}" data-c="${k}" title="${u.curColors[k]}" style="background:${l ? WD_PAL[l] : 'transparent'}">${l ? '' : '·'}</button>`).join('');
+      pal.querySelectorAll('.cur-dot').forEach(d => d.onclick = e => { e.stopPropagation(); const cc = Object.assign({}, (CFG.hw || {}).curColor, { [b.dataset.v]: d.dataset.c }); setHw({ curColor: cc, cursor: b.dataset.v }); applyCursor(); curPaint(); draw(); pal.remove(); sfx('click'); });
+      b.after(pal); const r = b.getBoundingClientRect(), pr = b.parentElement.getBoundingClientRect(); pal.style.left = (r.left - pr.left) + 'px';
+      const leave = ev => { if (!pal.contains(ev.relatedTarget) && ev.relatedTarget !== b) { pal.remove(); } }; pal.addEventListener('pointerleave', leave); b.addEventListener('pointerleave', leave, { once: true });
+    }); });
   card.querySelectorAll('[data-hw] button').forEach(b => b.onclick = () => { sfx('click');
     const k = b.parentElement.dataset.hw, v = b.dataset.v;
     setHw(k === 'all' ? { mon: v, kb: v, mouse: v } : { [k]: v }); if (k === 'cursor') applyCursor(); draw();
