@@ -32,6 +32,7 @@ function pxRefit(c) {
 function pxFit(c, box) { c._box = box; PX_FITS.add(c); pxRefit(c); return c; }
 addEventListener('resize', () => { for (const c of PX_FITS) { if (c.isConnected) { c._on = true; pxRefit(c); } else if (c._on) PX_FITS.delete(c); } });
 function sprite(rows, scale = 3, pal = PAL) {
+  if (SPR_V2.has(rows)) pal = WD_PAL;          // redesenhados na grade nova usam a paleta WORKDAY
   const m = spriteMaster(rows, pal), c = document.createElement('canvas');
   c.className = 'sp';
   c.width = m.width; c.height = m.height;
@@ -103,3 +104,39 @@ function face(hair, shirt, open, scale) {
                  '..kNnnnwrwnnnNk.', '.kNnnnnwrwnnnnNk', '.kNnnnnnrnnnnnNk', '.kkkkkkkkkkkkkkk'], scale, pal);
 }
 
+
+/* ================= Sprites da v1 redesenhados na grade nova ================= */
+// Mesmos nomes (SPR.x) para não mexer em quem usa; sprite() reconhece estes e desenha com a paleta WORKDAY.
+const SPR_V2 = new Set();
+function sprV2(name, rows) { SPR[name] = rows; SPR_V2.add(rows); }
+sprV2('mail', SPR2.envelope); sprV2('virus', SPR2.virus); sprV2('coffee', SPR2.mug); sprV2('postit', SPR2.postit); sprV2('plant', SPR2.plant); sprV2('cat', SPR2.cat);
+sprV2('tea', SPR2.mug.map(r => r.replace(/t/g, 'v').replace(/T/g, 'V').replace(/u/g, 'x').replace(/4/g, 'X')));
+sprV2('phone', ['..kkkkkkkkkkkk..', '.krrrrrrrrrrrrk.', 'krRRkkkkkkkkRRqk', 'kRqk........kqqk', '.kk..kkkkkk..kk.', '....kRRRRRRk....', '...krRWWWWRqk...', '..krRWkWkWWRqk..',
+  '..kRRWWWWWWRqk..', '.krRRWkWkWWRRqk.', '.kRRRRWWWWRRRqk.', 'kRRRRRRRRRRRRqqk', 'kqqqqqqqqqqqqqqk', '.kkkkkkkkkkkkkk.']);
+sprV2('printer', ['...kkkkkkkkkk...', '...kWWWWWWWWk...', '...kWppppppWk...', '.kkkkkkkkkkkkkk.', 'kccccccccccccCek', 'kcCCCCCCCCCCCCek', 'kcCCCCCCCCCFCRek', 'kcCCCCCCCCCCCCek',
+  'keeeeeeeeeeeeeEk', 'kEkkkkkkkkkkkkEk', '.kkWWWWWWWWWWkk.', '..kWppppppppWk..', '..kWWWWWWWWWWk..', '..kkkkkkkkkkkk..']);
+sprV2('camera', ['..kkkkkkkkkkk...', '.kmmmmmmmmmmMk..', 'kmMkkkkkMMMMMjk.', 'kmkllLLkMMMMMjk.', 'kmklWLLkMRrMMjk.', 'kmkLLL7kMMMMMjk.', 'kmMkkkkkMMMMMjk.', '.kjjjjjjjjjjjk..',
+  '..kkkkkkkkkkk...', '......kjk.......', '....kkjjjkk.....', '...kjjjjjjjk....', '....kkkkkkk.....']);
+sprV2('hourglass', ['kkkkkkkkkkkk', 'k1111111112k', 'kkkkkkkkkkkk', '.kWyyyyyyWk.', '.kWYYYYYYlk.', '..kWYYYYlk..', '...kWYYlk...', '....kWlk....', '....klYk....', '...klWYYk...',
+  '..klWYYYYk..', '.klWYYYYYYk.', '.klYYYYYYYk.', 'kkkkkkkkkkkk', 'k1111111112k', 'kkkkkkkkkkkk']);
+sprV2('trash', ['....kkkk....', '....kmmk....', 'kkkkkkkkkkkk', 'kmmmmmmmmmjk', 'kkkkkkkkkkkk', '.kmMjMMjMjk.', '.kmMjMMjMjk.', '.kmMjMMjMjk.', '.kmMjMMjMjk.', '.kmMjMMjMjk.',
+  '.kmMjMMjMjk.', '.kMMjMMjMjk.', '.kjjjjjjjjk.', '..kkkkkkkk..']);
+sprV2('headphones', ['....kkkkkkkk....', '..kkjjjjjjjjkk..', '.kjkk......kkjk.', 'kjk..........kjk', 'kjk..........kjk', 'kjk..........kjk', 'kkkk........kkkk', 'kLlLk......kLlLk',
+  'kLLLk......kLLLk', 'kLLLk......kLLLk', 'k777k......k777k', '.kkk........kkk.']);
+sprV2('shield', ['kkkkkkkkkkkk', 'klllllllllLk', 'klLLLWWLLL7k', 'klLLLWWLLL7k', 'klLWWWWWWL7k', 'klLWWWWWWL7k', 'klLLLWWLLL7k', '.klLLWWLL7k.', '.klLLLLLL7k.', '..klLLLL7k..',
+  '...klLL7k...', '....kL7k....', '.....kk.....']);
+sprV2('frame', ['kkkkkkkkkkkkkk', 'kyYYYYYYYYYYzk', 'kYkkkkkkkkkkzk', 'kYkvvvvvvyvkzk', 'kYkvvvvvvvvkzk', 'kYkvvvvvvvvkzk', 'kYkGGvvvGGGkzk', 'kYkGGGGGGGhkzk', 'kYkhhhhhhhhkzk',
+  'kYkkkkkkkkkkzk', 'kzzzzzzzzzzzZk', 'kkkkkkkkkkkkkk']);
+sprV2('lamp', ['.....kkkkk....', '....kyYYYzk...', '...kyYYYYYzk..', '..kyYYYYYYYzk.', '..kkkkkkkkkkk.', '.....kWWk.....', '......kk......', '......kzk.....', '.....kzk......',
+  '....kzk.......', '....kzk.......', '.....kzk......', '......kzk.....', '...kkkkkkkk...', '..kyYYYYYYzk..', '..kkkkkkkkkk..']);
+sprV2('monitor', ['kkkkkkkkkkkkkkkk', 'kcCCCCCCCCCCCCek', 'kCkkkkkkkkkkkkek', 'kCkXXXXXXXXXXkek', 'kCkXVVVVXXXXXkek', 'kCkXXXXXXXXXXkek', 'kCkXFQvXXXXXXkek', 'kCkXFQvVXXXXXkek',
+  'kCkkkkkkkkkkkkek', 'keeeeeeeeeeeFeEk', 'kkkkkkkkkkkkkkkk', '......kCek......', '....kkkkkkkk....', '....kCCCCCek....', '....kkkkkkkk....']);
+sprV2('trophy', ['..kkkkkkkkkk..', 'kkkyYYYYYYzkkk', 'kYkyYYYYYYzkzk', 'kYkyYYYYYYzkzk', '.kkyYYYYYYzkk.', '...kyYYYYzk...', '....kyYYzk....', '.....kYzk.....', '.....kYzk.....',
+  '....kyYYzk....', '...kkkkkkkk...', '...k333333k...', '...k444444k...', '...kkkkkkkk...']);
+sprV2('bill', ['kkkkkkkkkkkkkkkk', 'kfffffffffffff9k', 'kfFFFFFFFFFFFF9k', 'kfFkFFFffFFFkF9k', 'kfFFFFfFFfFFFF9k', 'kfFFFFfFFfFFFF9k', 'kfFkFFFffFFFkF9k', 'kfFFFFFFFFFFFF9k',
+  'k99999999999999k', 'kkkkkkkkkkkkkkkk']);
+sprV2('card', ['kkkkkkkkkkkkkkkk', 'klllllllllllll7k', 'klLLLLLLLLLLLL7k', 'kkkkkkkkkkkkkkkk', 'klLLLLLLLLLLLL7k', 'klYYkLLLLLLLLL7k', 'klYzkLLLLLLLLL7k', 'klLLLWWWWLWWWL7k',
+  'k77777777777777k', 'kkkkkkkkkkkkkkkk']);
+sprV2('paycel', ['.kkkkkkk.', 'kJjjjjjJk', 'kjXXXXXjk', 'kjXvvvXjk', 'kjXvXvXjk', 'kjXvvvXjk', 'kjXXXXXjk', 'kjXFFFXjk', 'kjXXXXXjk', 'kjXXXXXjk', 'kjjjjjjjk', 'kjjjmjjjk', 'kJjjjjjJk', '.kkkkkkk.']);
+sprV2('finger', ['...llllll...', '..l......l..', '.l..llll..l.', 'l..l....l..l', 'l.l..ll..l.l', 'l.l.l..l.l.l', 'l.l.l..l.l.l', 'l.l.l.l..l.l', 'l.l..l..l..l', 'l..l...l..l.',
+  '.l..lll..l..', '..l.....l...', '...lllll....']);
