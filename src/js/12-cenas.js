@@ -55,6 +55,12 @@ function sceneIn(sc, sel, gap = 45, delay = 260) {
     { translate: '0 -14px', scale: '.94 1.08', opacity: 0 }, { translate: '0 2px', scale: '1.06 .9', opacity: 1, offset: .6 }, { translate: '0 0', scale: '1 1', opacity: 1 },
   ], { duration: Motion.T.long, delay: delay + i * gap, easing: Motion.E.out, fill: 'backwards' }));
 }
+// O eletroduto do corredor termina no topo do relógio de ponto: mede o aparelho no HTML e avisa o cenário
+function hallAttach(st, dev) {
+  const fit = () => { if (!dev.isConnected) return; const r = dev.getBoundingClientRect(); Stage.set(st, { devTop: Math.round(r.top / st.M.k) }); };
+  requestAnimationFrame(fit); setTimeout(fit, 700); addEventListener('resize', fit);
+  return fit;
+}
 function sceneMsg(sc, text) {
   const old = sc.querySelector('.msg'); if (old) old.remove();
   const m = document.createElement('div');

@@ -21,13 +21,23 @@ const Stage = {
       requestAnimationFrame(loop);
     };
     this.render(st, 0);
+    if (kind === 'hall') {
+      Object.assign(opt, { dark: !!(CFG.hall && CFG.hall.dark), curtain: !!(CFG.hall && CFG.hall.curtain) });
+      sc.addEventListener('pointerdown', e => {
+        if (e.target !== sc || !st.hit) return;
+        const x = e.clientX / st.M.k, y = e.clientY / st.M.k, inR = r => r && x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h;
+        const k = inR(st.hit.sw) ? 'dark' : inR(st.hit.win) ? 'curtain' : null; if (!k) return;
+        CFG.hall = Object.assign({}, CFG.hall, { [k]: !st.opt[k] }); persist(); sfx(k === 'dark' ? 'switch' : 'blind'); this.set(st, { [k]: !st.opt[k] });
+      });
+      sc.addEventListener('pointermove', e => { if (e.target !== sc || !st.hit) return; const x = e.clientX / st.M.k, y = e.clientY / st.M.k, inR = r => r && x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h; sc.style.cursor = inR(st.hit.sw) || inR(st.hit.win) ? 'pointer' : ''; });
+    }
     if (!Motion.reduced.matches) requestAnimationFrame(loop);
     else addEventListener('resize', () => c.isConnected && this.render(st, 0));
     return st;
   },
   set(st, opt) { Object.assign(st.opt, opt); st.key = ''; this.render(st, performance.now() / 1000); },
   render(st, t) {
-    const M = this.measure(innerWidth, innerHeight, st.kind === 'bed' ? 180 : 280), key = [M.VW, M.VH, M.k, JSON.stringify(st.opt)].join();
+    const M = this.measure(innerWidth, innerHeight, st.kind === 'bed' ? 150 : 280), key = [M.VW, M.VH, M.k, JSON.stringify(st.opt)].join();
     if (key !== st.key) {
       st.key = key; st.M = M;
       st.c.width = M.VW; st.c.height = M.VH;
@@ -102,20 +112,23 @@ const Stage = {
   },
 
   /* ---------- Corredor do relógio de ponto (manhã ou fim de tarde) ---------- */
-  hall(L, o) {
+  hall(L, o, st) {
     const [c, x] = this.ctx(L), P = WD_PAL, R = Office.rng(11), F = (...a) => this.F(x, ...a);
     const side = L.cx - 100;                                         // espaço livre de cada lado do relógio
     F(P.C, 0, 0, L.VW, L.floor);
     for (let i = (L.cx % 48) - 24; i < L.VW; i += 48) { F(P.e, i, 7, 1, L.floor); F(P.c, i + 1, 7, 1, L.floor); }
-    this.ceiling(x, L, 120, P.c);
+    this.ceiling(x, L, 120, o.dark ? null : P.c);
     // Rodapé alto de madeira com almofadas
     const wy = L.floor - 26;
     F(P.k, 0, wy - 1, L.VW, 1); F(P[1], 0, wy, L.VW, 2); F(P[3], 0, wy + 2, L.VW, 24); F(P[4], 0, L.floor - 3, L.VW, 3);
     for (let i = (L.cx % 40) - 40; i < L.VW; i += 40) { F(P[4], i + 4, wy + 6, 32, 1); F(P[4], i + 4, wy + 6, 1, 14); F(P[2], i + 5, wy + 19, 31, 1); F(P[2], i + 35, wy + 7, 1, 13); }
     this.tiles(x, L, P.w, P.p, P.P);
     // Eletroduto descendo do teto até o relógio
-    F(P.k, L.cx - 3, 7, 6, L.floor * .45); F(P.M, L.cx - 2, 7, 4, L.floor * .45); F(P.m, L.cx - 2, 7, 1, L.floor * .45);
-    for (let j = 18; j < L.floor * .45; j += 22) F(P.j, L.cx - 3, j, 6, 2);
+    // eletroduto desce do teto até o topo do relógio (o HTML informa onde o aparelho está: o.devTop)
+    const cl = o.devTop ? Math.max(12, o.devTop - 6) : L.floor * .45;
+    F(P.k, L.cx - 3, 7, 6, cl); F(P.M, L.cx - 2, 7, 4, cl); F(P.m, L.cx - 2, 7, 1, cl);
+    for (let j = 18; j < cl; j += 22) F(P.j, L.cx - 3, j, 6, 2);
+    if (o.devTop) { F(P.k, L.cx - 8, cl, 16, 6); F(P.M, L.cx - 7, cl + 1, 14, 4); F(P.m, L.cx - 7, cl + 1, 14, 1); F(P.j, L.cx - 5, cl + 2, 1, 1); F(P.j, L.cx + 4, cl + 2, 1, 1); }   // caixa de passagem
     const sky = Office.light(o.eve ? 17.6 : 9.2).sky;
     // Janela (lado esquerdo) e mural de recados (lado direito) quando cabem
     if (side > 70) {
@@ -162,7 +175,19 @@ const Stage = {
     }
     // Luz: manhã clara entrando pela janela; fim de tarde alaranjado e sombra arroxeada
     if (o.eve) { x.globalCompositeOperation = 'multiply'; F('rgba(150,100,170,.35)', 0, 0, L.VW, L.VH); x.globalCompositeOperation = 'source-over'; }
+    // cortina (clique na janela) e interruptor (clique na plaquinha): só estética
+    if (L.win && o.curtain) { const W = L.win; for (let i = -2; i < W.w + 2; i++) { const f = (i + 2) % 6; F(f === 0 ? P.x : f < 3 ? P.v : P.V, W.x + i, W.y - 2, 1, W.h + 6); } F(P.k, W.x - 4, W.y - 5, W.w + 8, 3); F(P.Z, W.x - 3, W.y - 4, W.w + 6, 1); F(P.x, W.x + (W.w >> 1), W.y - 2, 1, W.h + 6); }
+    st.hit = {};
     if (L.win) {
+      const sx = L.cx + 120, sy = L.floor - 26 - 18;
+      if (sx + 8 < L.VW) { F(P.k, sx, sy, 8, 12); F(P.c, sx + 1, sy + 1, 6, 10); F(P.e, sx + 6, sy + 1, 1, 10); F(P.k, sx + 3, sy + 3, 2, 6); F(o.dark ? P.e : P.W, sx + 3, o.dark ? sy + 6 : sy + 3, 2, 3); st.hit.sw = { x: sx - 2, y: sy - 2, w: 12, h: 16 }; }
+      st.hit.win = { x: L.win.x - 4, y: L.win.y - 4, w: L.win.w + 8, h: L.win.h + 8 };
+    }
+    if (o.dark) {   // luzes apagadas: o corredor escurece, a janela (se aberta) continua clara
+      x.save(); x.beginPath(); x.rect(0, 0, L.VW, L.VH); if (L.win && !o.curtain) x.rect(L.win.x, L.win.y, L.win.w, L.win.h); x.clip('evenodd');
+      x.globalCompositeOperation = 'multiply'; F('rgba(60,50,95,.62)', 0, 0, L.VW, L.VH); x.restore();
+    }
+    if (L.win && !o.curtain) {
       const W = L.win, col = o.eve ? 'rgba(255,160,100,.22)' : 'rgba(255,244,200,.20)';
       for (let j = 0; j < L.VH - W.y; j++) Pixel.dither(x, W.x + j * .9 | 0, W.y + j, W.w, 1, col, j);
     }
@@ -236,57 +261,64 @@ const Stage = {
     return c;
   },
 
-  /* ---------- Quarto à noite (e ao amanhecer, quando o despertador toca) ---------- */
+  /* ---------- Quarto: noite aconchegante (e amanhecer quando o despertador toca) ---------- */
   bed(L, o, st) {
     const [c, x] = this.ctx(L), P = WD_PAL, R = Office.rng(5), F = (...a) => this.F(x, ...a), dawn = !!o.dawn;
     st.anchors = {};
-    const wall = dawn ? [P.n, P.N] : [P.N, P[0]];
-    F(wall[0], 0, 0, L.VW, L.floor);
-    for (let i = L.cx % 24; i < L.VW; i += 24) Pixel.dither(x, i, 0, 4, L.floor, wall[1], 0);
-    // Piso de tacos
-    F(P[4], 0, L.floor, L.VW, L.VH - L.floor);
-    for (let y = L.floor + 5, r = 0; y < L.VH; y += 6, r++) { F(P.k, 0, y, L.VW, 1); for (let i = (r % 2) * 20; i < L.VW; i += 40) F(P.k, i, y - 5, 1, 5); }
-    F(P.k, 0, L.floor, L.VW, 2);
-    // Janela central com lua (ou nascer do sol), estrelas e cidade
-    const ww = Math.min(150, L.VW * .5 | 0), wh = Math.min(96, L.floor * .45 | 0), W = { x: L.cx - (ww >> 1), y: Math.max(14, L.floor * .1 | 0), w: ww, h: wh };
+    const fl = L.floor;
+    // parede com papel listrado pontilhado, rodapé e sanca
+    F(dawn ? '#6c4a7e' : '#463462', 0, 0, L.VW, fl);
+    for (let i = L.cx % 12; i < L.VW; i += 12) Pixel.dither(x, i, 0, 3, fl, dawn ? P.N : P[0], 0);
+    F(P.k, 0, 5, L.VW, 1); F(dawn ? P.n : P.N, 0, 0, L.VW, 5);
+    F(P.k, 0, fl - 6, L.VW, 1); F(P[3], 0, fl - 5, L.VW, 5); F(P[2], 0, fl - 5, L.VW, 1);
+    // piso de tábuas em perspectiva
+    F(P[4], 0, fl, L.VW, L.VH - fl);
+    let y = fl, row = 0;
+    while (y < L.VH) { const h = 3 + row, w = 18 + row * 6, off = (row % 2) * (w >> 1); F(P.k, 0, y, L.VW, 1); for (let i = (L.cx % w) - w + off; i < L.VW; i += w) F(P.k, i, y, 1, h); for (let i = (L.cx % w) - w + off + 3; i < L.VW; i += w) F(P[3], i, y + 1, w - 6, 1); y += h; row++; }
+    // janela com cortinas amarradas
+    const ww = Math.min(78, L.VW * .38 | 0), wh = Math.min(58, fl * .52 | 0), W = { x: L.cx + (L.VW > 300 ? 14 : -(ww >> 1)), y: Math.max(14, fl * .16 | 0), w: ww, h: wh };
     st.W = W;
-    const sky = dawn ? ['#f6a96c', '#ffe0a8'] : [P[0], P.N];
-    this.window(x, W, sky, !dawn, R);
-    if (!dawn) {
-      const mx = W.x + W.w * .72 | 0, my = W.y + 14;
-      for (let j = -7; j <= 7; j++) for (let i = -7; i <= 7; i++) if (i * i + j * j <= 49) F((i + 3) ** 2 + (j - 2) ** 2 <= 30 ? P[0] : i + j < -2 ? P.W : P.y, mx + i, my + j, 1, 1);
-    } else {
-      for (let j = -9; j <= 0; j++) { const w = Math.round(Math.sqrt(81 - j * j)); F(P.y, W.x + W.w * .3 - w | 0, W.y + W.h - 14 + j, w * 2, 1); }
+    this.window(x, W, dawn ? ['#ffe0a8', '#f6a96c'] : [P[0], P.N], !dawn, R);
+    if (!dawn) { const mx = W.x + W.w * .74 | 0, my = W.y + 11; for (let j = -6; j <= 6; j++) for (let i = -6; i <= 6; i++) if (i * i + j * j <= 36) F((i + 3) ** 2 + (j - 2) ** 2 <= 22 ? P[0] : i + j < -2 ? P.W : P.y, mx + i, my + j, 1, 1); }
+    else for (let j = -7; j <= 0; j++) { const w2 = Math.round(Math.sqrt(49 - j * j)); F(P.y, W.x + W.w * .3 - w2 | 0, W.y + W.h - 12 + j, w2 * 2, 1); }
+    const cw = 9;
+    F(P.k, W.x - cw - 6, W.y - 6, W.w + cw * 2 + 12, 2); F(P.Z, W.x - cw - 5, W.y - 5, W.w + cw * 2 + 10, 1);
+    for (const [sx, dir] of [[W.x - cw - 4, 1], [W.x + W.w + 4, -1]]) for (let j = 0; j < W.h + 14; j++) {
+      const pinch = j > W.h * .55 && j < W.h * .7 ? 4 : 0, w2 = cw - pinch;
+      for (let i = 0; i < w2; i++) { const xx = dir > 0 ? sx + i : sx + cw - 1 - i, f = i % 3; F(f === 0 ? P.q : f === 1 ? (dawn ? P.r : P.R) : P.R, xx, W.y - 4 + j, 1, 1); }
+      if (pinch && j === Math.round(W.h * .62)) F(P.Y, dir > 0 ? sx : sx + cw - 6, W.y - 4 + j, 6, 1);
     }
-    // Cortinas com dobras e varão
-    const cw = Math.max(10, ww * .2 | 0);
-    F(P.k, W.x - cw - 10, W.y - 8, ww + cw * 2 + 20, 3); F(P.Z, W.x - cw - 9, W.y - 7, ww + cw * 2 + 18, 1);
-    for (const sx of [W.x - cw - 6, W.x + W.w + 6]) {
-      F(P.k, sx - 1, W.y - 5, cw + 2, W.h + 22);
-      for (let i = 0; i < cw; i++) F(i % 5 === 0 ? P[0] : i % 5 < 2 ? (dawn ? P.o : P.n) : dawn ? P.O : P.N, sx + i, W.y - 4, 1, W.h + 20);
+    // estante com livros e planta, quadro
+    const shX = 10, shY = fl * .3 | 0;
+    if (W.x - cw - 60 > shX) {
+      for (let n = 0; n < 2; n++) { const yy = shY + n * 22; F(P.k, shX - 1, yy + 14, 50, 3); F(P[2], shX, yy + 14, 48, 1); let bx = shX + 2;
+        while (bx < shX + (n ? 30 : 44)) { const bw = 3 + R() * 3 | 0, bh = 8 + R() * 5 | 0, col = [P.L, P.T, P.F, P.Y, P.I, P.O][R() * 6 | 0]; F(P.k, bx - 1, yy + 14 - bh - 1, bw + 2, bh + 1); F(col, bx, yy + 14 - bh, bw, bh); F(P.W, bx, yy + 14 - bh + 2, bw, 1); bx += bw + 2; }
+        if (n) { F(P.k, shX + 34, yy + 7, 9, 8); F(P.T, shX + 35, yy + 8, 7, 6); for (let k = 0; k < 6; k++) F(k % 2 ? P.G : P.g, shX + 33 + k * 2, yy + 3 + (k % 3), 2, 4); } }
+      const fx = shX + 6, fy = shY + 52; F(P.k, fx - 1, fy - 1, 26, 20); F(P.Z, fx, fy, 24, 18); F(dawn ? P.v : P.x, fx + 2, fy + 2, 20, 14); F(P.y, fx + 15, fy + 4, 3, 3); F(P.h, fx + 2, fy + 10, 20, 6); F(P.G, fx + 4, fy + 9, 8, 2);
     }
-    // Feixe de luz da janela até o chão
-    const beam = dawn ? 'rgba(255,214,150,.28)' : 'rgba(200,210,255,.14)';
-    for (let j = 0; j < L.VH - W.y - W.h; j++) Pixel.dither(x, W.x - j * .35 | 0, W.y + W.h + j, W.w + j * .7 | 0, 1, beam, j);
-    // Cama: cabeceira, colchão; o dorminhoco é desenhado na animação (respira)
-    const bw = Math.min(L.VW * .78 | 0, 230), bx = L.cx - (bw >> 1), by = L.floor + Math.min(20, (L.VH - L.floor) * .4 | 0);
+    // tapete oval sob a cama
+    const bw = Math.min(L.VW * .66 | 0, 168), bx = L.cx - (bw >> 1) - (L.VW > 300 ? 28 : 0), by = fl + Math.min(12, (L.VH - fl) * .3 | 0);
+    for (let j = -6; j <= 6; j++) { const w2 = Math.round(Math.sqrt(1 - (j / 6.5) ** 2) * (bw / 2 + 16)); F(Math.abs(j) > 4 ? P.k : Math.abs(j) > 3 ? P.Y : (j + 20) % 3 ? P.q : P.R, L.cx - (L.VW > 300 ? 28 : 0) - w2, by + 18 + j, w2 * 2, 1); }
+    // cama: cabeceira alta, pés, colchão; a colcha e quem dorme são desenhados na animação
     st.bedR = { x: bx, y: by, w: bw };
-    F(P.k, bx - 1, by - 34, 12, 34 + 14); F(P[3], bx, by - 33, 10, 33 + 12); F(P[2], bx + 1, by - 33, 3, 33 + 12); F(P[4], bx, by - 33, 10, 2);
-    F(P.k, bx + bw - 9, by - 18, 10, 32); F(P[3], bx + bw - 8, by - 17, 8, 30); F(P[2], bx + bw - 7, by - 17, 2, 30);
-    F(P.k, bx + 10, by - 2, bw - 18, 14); F(P.W, bx + 11, by - 1, bw - 20, 4); F(P[3], bx + 11, by + 3, bw - 20, 8); F(P[4], bx + 11, by + 9, bw - 20, 2);
-    // Criado-mudo com abajur e copo d'água
-    const nx = bx + bw + 8;
-    if (nx + 28 < L.VW) {
-      st.anchors.stand = { x: (nx + 13) * st.M.k, y: (by - 15) * st.M.k };
-      F(P.k, nx - 1, by - 15, 28, 27); F(P[2], nx, by - 14, 26, 25); F(P[3], nx, by - 3, 26, 1); F(P.Y, nx + 11, by - 9, 4, 2);
-      F(P.k, nx + 3, by - 33, 13, 10); F(dawn ? P.y : P.n, nx + 4, by - 32, 11, 8); F(P.k, nx + 9, by - 24, 2, 9);
-      F(P.k, nx + 19, by - 22, 6, 7); F(P.l, nx + 20, by - 21, 4, 5); F(P.L, nx + 20, by - 18, 4, 2);
+    F(P.k, bx - 2, by - 40, 14, 54); F(P[3], bx - 1, by - 39, 12, 52); F(P[2], bx, by - 39, 3, 52); F(P[4], bx + 8, by - 39, 3, 52); F(P[1], bx - 1, by - 39, 12, 2); F(P[4], bx + 2, by - 30, 6, 1); F(P[4], bx + 2, by - 20, 6, 1);
+    F(P.k, bx + bw - 10, by - 22, 12, 36); F(P[3], bx + bw - 9, by - 21, 10, 34); F(P[2], bx + bw - 8, by - 21, 3, 34); F(P[1], bx + bw - 9, by - 21, 10, 1);
+    F(P.k, bx + 10, by - 2, bw - 20, 16); F(P.W, bx + 11, by - 1, bw - 22, 4); F(P[3], bx + 11, by + 3, bw - 22, 9); F(P[4], bx + 11, by + 10, bw - 22, 3);
+    // criado-mudo com abajur aceso e copo d'água
+    const nx = bx + bw + 6;
+    if (nx + 30 < L.VW) {
+      st.anchors.stand = { x: (nx + 14) * st.M.k, y: (by - 17) * st.M.k };
+      F(P.k, nx - 1, by - 17, 30, 31); F(P[2], nx, by - 16, 28, 29); F(P[1], nx, by - 16, 28, 1); F(P[3], nx, by - 4, 28, 1); F(P.Y, nx + 12, by - 10, 4, 2); F(P.Y, nx + 12, by + 3, 4, 2);
+      st.lampAt = { x: nx + 7, y: by - 32 };
+      F(P.k, nx + 2, by - 36, 12, 10); F(dawn ? P.y : P.Y, nx + 3, by - 35, 10, 8); F(P.y, nx + 3, by - 35, 10, 2); F(P.k, nx + 7, by - 26, 2, 9);
+      F(P.k, nx + 19, by - 24, 6, 8); F(P.l, nx + 20, by - 23, 4, 6); F(P.L, nx + 20, by - 20, 4, 3);
     }
-    // Quadro na parede (só se couber ao lado da janela)
-    if (W.x - cw - 60 > 8) { const fx = W.x - cw - 56, fy = W.y + 10; F(P.k, fx - 1, fy - 1, 34, 26); F(P.Z, fx, fy, 32, 24); F(dawn ? P.g : P.h, fx + 3, fy + 3, 26, 18); F(dawn ? P.G : P.H, fx + 3, fy + 14, 26, 7); F(P.y, fx + 20, fy + 6, 3, 3); }
-    if (!dawn) { x.globalCompositeOperation = 'multiply'; F('rgba(90,80,150,.45)', 0, 0, L.VW, L.VH); x.globalCompositeOperation = 'source-over'; }
-    // Posição da cabeça em pixels CSS, para os "Z" saírem dela
-    st.anchors.head = { x: (bx + 27) * st.M.k, y: (by - 14) * st.M.k };
+    if (!dawn) { x.save(); x.globalCompositeOperation = 'multiply'; F('rgba(90,80,150,.42)', 0, 0, L.VW, L.VH); x.restore(); }
+    // luz: luar (ou sol) da janela até o chão; halo quente do abajur
+    const beam = dawn ? 'rgba(255,214,150,.30)' : 'rgba(200,210,255,.16)';
+    for (let j = 0; j < L.VH - W.y - W.h; j++) Pixel.dither(x, W.x - j * .4 | 0, W.y + W.h + j, W.w + j * .5 | 0, 1, beam, j);
+    if (st.lampAt && !dawn) for (let r = 34; r > 4; r -= 5) { x.fillStyle = `rgba(255,214,140,${(.05 + (34 - r) / 300).toFixed(3)})`; for (let j = -r; j <= r; j++) { const w2 = Math.round(Math.sqrt(r * r - j * j)); if ((j + r) % 2 === 0) x.fillRect(st.lampAt.x - w2, st.lampAt.y + j, w2 * 2, 1); } }
+    st.anchors.head = { x: (bx + 30) * st.M.k, y: (by - 16) * st.M.k };
     return c;
   },
 
@@ -346,25 +378,24 @@ const Stage = {
     shop(x, L, o, t) { if ((t * 10 | 0) % 37 === 0) this.F(x, WD_PAL.e, L.cx % 96 + 96 - 16, 7, 32, 2); },
     cash(x, L, o, t) { if ((t * 2 | 0) % 2) this.F(x, WD_PAL.Y, L.VW - 46 + 10, 18, 8, 5); else this.F(x, WD_PAL.Z, L.VW - 46 + 10, 18, 8, 5); },
     bed(x, L, o, t, st) {
-      const P = WD_PAL, F = (...a) => this.F(x, ...a), B = st.bedR, W = st.W;
-      // Estrelas cintilando
-      if (!o.dawn) for (let i = 0; i < 10; i++) { const sx = W.x + 3 + (i * 37) % (W.w - 6), sy = W.y + 2 + (i * 13) % (W.h * .4 | 0); if (Math.sin(t * 2 + i * 1.7) > .2) F(i % 3 ? P.W : P.y, sx, sy, 1, 1); }
-      // Dorminhoco: travesseiro, cabeça e cobertor que sobe e desce com a respiração (desenhado à parte para receber a luz da noite)
-      const bw2 = B.w - 44, sw = bw2 + 40, shh = 34;
-      if (!st.sl) { st.sl = document.createElement('canvas'); }
-      st.sl.width = sw; st.sl.height = shh;
-      const y = st.sl.getContext('2d'), G = (...a) => this.F(y, ...a), ox = B.x + 13, oy = B.y - 20;
-      const br = o.dawn ? 0 : Math.sin(t * 1.6) > 0 ? 1 : 0, sh = o.dawn ? ((t * 16 | 0) % 2 ? 1 : -1) : 0, hx = 1, hy = 6, by = B.y - oy;
-      G(P.k, hx - 1, hy + 2, 22, 11); G(P.W, hx, hy + 3, 20, 9); G(P.w, hx, hy + 9, 20, 3);
-      G(P.k, hx + 5 + sh, hy - 3, 13, 12); G(P.s, hx + 6 + sh, hy - 2, 11, 10); G(P.S, hx + 14 + sh, hy - 2, 3, 10); G(P[4], hx + 6 + sh, hy - 2, 11, 3); G(P[4], hx + 6 + sh, hy + 1, 2, 4);
-      if (o.dawn) { G(P.k, hx + 10 + sh, hy + 3, 2, 2); G(P.k, hx + 14 + sh, hy + 3, 1, 2); G(P.k, hx + 11 + sh, hy + 6, 3, 1); }
-      else { G(P.k, hx + 10, hy + 4, 2, 1); G(P.k, hx + 14, hy + 4, 1, 1); }
-      const top = by - 10 - br;
-      G(P.k, hx + 16, top - 1, bw2 + 1, by + 4 - top);
-      G(P.L, hx + 17, top, bw2 - 1, by + 3 - top); G(P.l, hx + 17, top, bw2 - 1, 2); G(P[7], hx + 17, by, bw2 - 1, 3);
-      for (let i = 14; i < bw2 - 6; i += 14) G(P[7], hx + 17 + i, top + 3, 1, by - top - 2);
-      if (!o.dawn) { y.globalCompositeOperation = 'source-atop'; G('rgba(46,36,96,.42)', 0, 0, sw, shh); y.globalCompositeOperation = 'source-over'; }
-      x.drawImage(st.sl, ox, oy);
+      const P = WD_PAL, B = st.bedR, W = st.W, G = (...a) => this.F(x, ...a);
+      if (!o.dawn) for (let i = 0; i < 9; i++) { const sx = W.x + 3 + (i * 37) % (W.w - 6), sy = W.y + 2 + (i * 13) % (W.h * .4 | 0); if (Math.sin(t * 2 + i * 1.7) > .2) G(i % 3 ? P.W : P.y, sx, sy, 1, 1); }
+      // quem dorme tem o cabelo e a pele do personagem do jogador; a colcha de retalhos sobe e desce com a respiração
+      let hair = AV_RAMPS.hair.castanho, skin = AV_RAMPS.skin[1], cloth = AV_RAMPS.cloth.azul;
+      try { const a = avConfig(); hair = AV_RAMPS.hair[a.hairColor] || hair; skin = AV_RAMPS.skin[a.skin] || skin; cloth = AV_RAMPS.cloth[a.outfitColor] || cloth; } catch (e) {}
+      const br = o.dawn ? 0 : Math.sin(t * 1.4) > 0 ? 1 : 0, shake = o.dawn ? ((t * 16 | 0) % 2 ? 1 : -1) : 0, hx = B.x + 12, hy = B.y - 16;
+      G(P.k, hx - 1, hy + 3, 26, 13); G(P.W, hx, hy + 4, 24, 11); G(P.w, hx, hy + 12, 24, 3); G(P.p, hx + 20, hy + 5, 3, 9);   // travesseiro
+      const fx = hx + 6 + shake;
+      G(P.k, fx - 1, hy - 4, 16, 15); G(skin[1], fx, hy - 3, 14, 13); G(skin[2], fx + 10, hy - 3, 4, 13); G(skin[0], fx + 1, hy - 2, 3, 3);
+      G(hair[1], fx, hy - 3, 14, 4); G(hair[0], fx + 1, hy - 3, 6, 1); G(hair[2], fx, hy + 1, 3, 6); G(hair[3], fx, hy - 4, 14, 1);
+      if (o.dawn) { G(P.k, fx + 6, hy + 3, 2, 2); G(P.k, fx + 10, hy + 3, 2, 2); G(P.k, fx + 7, hy + 7, 4, 1); }
+      else { G(P.k, fx + 6, hy + 4, 2, 1); G(P.k, fx + 10, hy + 4, 2, 1); G(skin[3], fx + 8, hy + 7, 2, 1); }
+      const top = B.y - 10 - br, w2 = B.w - 40, qx = hx + 22;
+      G(P.k, qx - 1, top - 1, w2 + 2, B.y + 5 - top);
+      for (let j = top; j < B.y + 4; j++) for (let i = qx; i < qx + w2; i += 6) { const cell = ((i - qx) / 6 + ((j - top) / 5 | 0)) % 3; G(cell === 0 ? cloth[1] : cell === 1 ? cloth[0] : P.W, i, j, Math.min(6, qx + w2 - i), 1); }
+      G(cloth[2], qx, B.y + 2, w2, 2); G(P.W, qx, top, w2, 1); for (let i = qx + 6; i < qx + w2; i += 6) G(cloth[3], i, top + 1, 1, B.y + 2 - top);
+      // gato dormindo no pé da cama (se o jogador comprou)
+      if (o.cat) { const cxp = qx + w2 - 22, cyp = top - 8; x.drawImage(Pixel.master(SPR2.cat, WD_PAL), cxp, cyp); G(P[2], cxp + 3, cyp + 4, 2, 1); G(P[2], cxp + 9, cyp + 4, 2, 1); }
     },
   },
 };

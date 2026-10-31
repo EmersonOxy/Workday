@@ -52,11 +52,12 @@ function clockIn() {
   sc.innerHTML = `<div class="sc-col"><h2>${u.day} ${S.day}</h2>
     <div class="note px"><small>${u.today}</small><b>${name}</b><span>${desc}</span></div>
     <p class="sc-hint">${u.holdFinger}</p></div>`;
-  Stage.mount(sc, 'hall', { eve: false });
+  const stg = Stage.mount(sc, 'hall', { eve: false });
   const dev = clockDevice('09:00');
   const z = +Math.max(0.8, Math.min(1.4, (innerHeight - 330) / 330, (innerWidth - 32) / 330)).toFixed(2);
   dev.style.zoom = z; pxSnap(dev.querySelector('.pad canvas'), 5, z);
   sc.querySelector('.sc-col').append(dev);
+  hallAttach(stg, dev);
   sceneIn(sc, 'h2, .note, .sc-hint', 70, 380);
   fingerprint(dev, () => wipe(() => { closeScene(); startDay(); }));
 }

@@ -3,11 +3,14 @@
 // e chama done({ score, grade: 'good' | 'ok' | 'bad' }) ao terminar. Não toca em pontos, dinheiro ou cargo.
 const MG = { W: 128, H: 160 };
 function mgStage(host, title, help) {
-  host.innerHTML = `<div class="mg-head"><b>${title}</b><span class="mg-hud"></span></div><div class="mg-view"><canvas width="${MG.W}" height="${MG.H}"></canvas><div class="mg-pop"></div></div><p class="mg-help">${help}</p>`;
+  host.innerHTML = `<div class="mg-head"><b>${title}</b><span class="mg-hud"></span><button class="pxbtn mg-x" aria-label="${U().mgQuit}" title="${U().mgQuit}">✕ ${U().mgQuit}</button></div><div class="mg-view"><canvas width="${MG.W}" height="${MG.H}"></canvas><div class="mg-pop"></div></div><p class="mg-help">${help}</p>`;
   const cv = host.querySelector('canvas');
   pxFit(cv, () => { const v = host.querySelector('.mg-view'); return [v.clientWidth || 256, v.clientHeight || 320]; });
   requestAnimationFrame(() => pxRefit(cv));
-  return { cv, x: cv.getContext('2d'), hud: host.querySelector('.mg-hud'), pop: host.querySelector('.mg-pop') };
+  const esc = e => { if (e.key === 'Escape' && host.isConnected && host._quit) { e.preventDefault(); e.stopPropagation(); host._quit(); } };
+  addEventListener('keydown', esc, true);
+  host.querySelector('.mg-x').onclick = () => host._quit && host._quit();
+  return { cv, x: cv.getContext('2d'), hud: host.querySelector('.mg-hud'), pop: host.querySelector('.mg-pop'), off: () => removeEventListener('keydown', esc, true) };
 }
 function mgPop(stage, text, cls) {
   const p = document.createElement('span'); p.className = 'mg-msg ' + (cls || ''); p.textContent = text; stage.pop.replaceChildren(p);
@@ -161,13 +164,14 @@ function mgRhythm(host, done, opts = {}) {
   };
   const finish = aborted => {
     if (over) return; over = true;
-    removeEventListener('keydown', kd, true); removeEventListener('keyup', ku, true); clock.stop();
+    removeEventListener('keydown', kd, true); removeEventListener('keyup', ku, true); clock.stop(); st.off();
     if (aborted) return;
     const total = perfect + good + miss || 1, acc = (perfect + good * .6) / total, grade = inf ? (score >= 15000 ? 'good' : score >= 5000 ? 'ok' : 'bad') : acc >= .85 ? 'good' : acc >= .6 ? 'ok' : 'bad';
     mgResult(st, host, [[u.mgScore, fmt(score)], [u.mgBest, best], [u.mgAcc, Math.round(acc * 100) + '%']], grade, g => done({ score, grade: g, acc }));
   };
   mgPop(st, u.mgReady);
   genAhead();
+  host._quit = () => { finish(true); done({ score, grade: 'bad', quit: true }); };
   host._rhythm = { notes, start, clock, press, release, songT, get genAhead() { return genAhead; } };   // usado pelos testes automatizados
   requestAnimationFrame(frame);
 }
@@ -197,8 +201,8 @@ function mgShooter(host, done) {
   addEventListener('keydown', kd, true); addEventListener('keyup', ku, true);
   const toVX = e => { const r = st.cv.getBoundingClientRect(); return (e.clientX - r.left) / r.width * MG.W; };
   st.cv.onpointerdown = e => { st.cv.setPointerCapture(e.pointerId); target = toVX(e); };
-  st.cv.onpointermove = e => { if (target !== null || e.pointerType === 'mouse') target = toVX(e); };
-  st.cv.onpointerup = st.cv.onpointercancel = e => { if (e.pointerType !== 'mouse') target = null; };
+  st.cv.onpointermove = e => { if (target !== null) target = toVX(e); };          // só segue o ponteiro enquanto o botão/dedo está apertado
+  st.cv.onpointerup = st.cv.onpointercancel = () => { target = null; };
   const onVis = () => { hidden = document.hidden; last = performance.now(); };
   document.addEventListener('visibilitychange', onVis);
   const loseLife = () => { if (ship.inv > 0) return; lives--; combo = 0; ship.inv = 1.4; sfx('err'); Motion.shake(st.cv, 4); mgParticles(parts, ship.x + 5, ship.y + 3, P.R, 14); };
@@ -211,7 +215,7 @@ function mgShooter(host, done) {
     else ship.vx += (dir * 130 - ship.vx) * Math.min(1, dt * 12);
     ship.x = Math.max(0, Math.min(MG.W - 11, ship.x + ship.vx * dt));
     ship.cd -= dt; ship.inv = Math.max(0, ship.inv - dt);
-    const firing = t > 0 && (keys.Space || touch || target !== null);
+    const firing = t > 0 && (keys.Space || (touch && target !== null) || target !== null);
     if (firing && ship.cd <= 0) { shots.push({ x: ship.x + 5, y: ship.y - 2 }); ship.cd = .2; sfx('key'); }
     if (t > 0 && t < DUR) { spawnT -= dt; if (spawnT <= 0) { spawn(); if (t > 18 && Math.random() < .4) spawn(); spawnT = Math.max(.35, 1.1 - t * .02); } }
     for (const s of shots) s.y -= 150 * dt;
@@ -244,12 +248,13 @@ function mgShooter(host, done) {
   };
   const finish = aborted => {
     if (over) return; over = true;
-    removeEventListener('keydown', kd, true); removeEventListener('keyup', ku, true); document.removeEventListener('visibilitychange', onVis);
+    removeEventListener('keydown', kd, true); removeEventListener('keyup', ku, true); document.removeEventListener('visibilitychange', onVis); st.off();
     if (aborted) return;
     const grade = score >= 400 && lives > 0 ? 'good' : score >= 180 ? 'ok' : 'bad';
     mgResult(st, host, [[u.mgScore, fmt(score)], [u.mgBest, best], [u.mgLives, Math.max(0, lives)]], grade, g => done({ score, grade: g }));
   };
   mgPop(st, u.mgReady);
+  host._quit = () => { finish(true); done({ score, grade: 'bad', quit: true }); };
   host._shooter = { foes, shots, ship, get t() { return t; }, set t(v) { t = v; }, get lives() { return lives; }, set lives(v) { lives = v; } };
   requestAnimationFrame(frame);
 }

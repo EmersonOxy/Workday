@@ -44,7 +44,7 @@ function thanos() {
 function clockOut() {
   const sc = scene('sc-out');
   sc.innerHTML = `<p class="sc-hint">${U().holdFinger}</p>`;
-  Stage.mount(sc, 'hall', { eve: true });
+  const stg = Stage.mount(sc, 'hall', { eve: true });
   const dev = clockDevice('18:00');
   dev.classList.add('slide-in');
   // Grande enquanto lê a digital; depois encolhe para baixo e abre espaço para o ticket sair por cima
@@ -54,7 +54,8 @@ function clockOut() {
   wrap.style.transform = `translateX(-50%) scale(${fit(350)})`; pxSnap(dev.querySelector('.pad canvas'), 5, fit(350));
   wrap.append(dev);
   sc.append(wrap);
-  fingerprint(dev, () => { wrap.style.transform = `translateX(-50%) scale(${fit(690)})`; pxSnap(dev.querySelector('.pad canvas'), 5, fit(690)); setTimeout(() => printTicket(sc, dev), 650); });
+  const refit = hallAttach(stg, dev);
+  fingerprint(dev, () => { wrap.style.transform = `translateX(-50%) scale(${fit(690)})`; pxSnap(dev.querySelector('.pad canvas'), 5, fit(690)); setTimeout(() => { refit(); printTicket(sc, dev); }, 650); });
 }
 
 function ticketHTML() {

@@ -409,3 +409,53 @@ Object.assign(LANGS.en.ui, { experimental: 'Experimental', balTitle: 'Balance (t
 Object.assign(LANGS.es.ui, { experimental: 'Experimental', balTitle: 'Balance (prueba)', balNote: 'Solo para evaluación. Cada opción tiene su billetera, adornos, récord y carrera; cambiar recarga el juego.',
   balNames: { original: 'Original', intermediaria: 'Intermedia', longa: 'Larga' }, balDesc: { original: 'Valores actuales del juego.', intermediaria: 'Progresión más equilibrada (CEO cerca del día 12 a 15).', longa: 'Carrera larga (CEO cerca del día 18).' },
   backup: 'Copia', exportSave: 'Exportar', importSave: 'Importar', importBad: 'Archivo inválido: no se cambió nada.', importOk: 'Copia importada. Recargando…', importAsk: '¿Reemplazar el progreso actual con esta copia?' });
+LANGS.pt.ui.mgQuit = 'Sair'; LANGS.en.ui.mgQuit = 'Quit'; LANGS.es.ui.mgQuit = 'Salir';
+// Duda (TI): sarcástico e carinhoso, cuida do cacto "Firewall", tem rixa com a impressora do 3º andar, coleciona fliperamas
+Object.assign(LANGS.pt.call, {
+  greet: ['Psiu! Tá ocupado? Pergunta retórica, eu sei que tá.', 'Oi! Fingi uma reunião pra te ligar. Ninguém percebeu.', 'E aí! Minha planilha travou e eu decidi que isso é um sinal.',
+    'Fala! Acabei de reiniciar o servidor. Temos uns dez minutos de paz.', 'Oi, aqui é o Duda. Sim, da TI. Não, não vou resetar sua senha agora.', 'Ei! O Firewall, meu cacto, mandou um oi. Ele te acha produtivo demais.',
+    'Oi! A impressora do 3º andar me desafiou de novo. Preciso de uma pausa antes do segundo round.'],
+  talk: [['Você também sente que o dia tem 40 horas?', 'Sinto 50', 'Tá tranquilo', 'Isso é o espírito da firma.', 'Mentira boa, gostei.'],
+    ['O café da copa acabou de novo. Suspeito do RH.', 'Sabotagem', 'Eu trouxe o meu', 'Concordo. Vou abrir um chamado.', 'Traidor... mas inteligente.'],
+    ['Meu chefe pediu "um ajuste rapidinho". Faz três semanas.', 'Clássico', 'Coragem', 'Rapidinho é unidade de tempo infinita.', 'Valeu. Vou precisar.'],
+    ['Alguém usou "Senha123" de novo. Adivinha quem foi?', 'Fui eu', 'O chefe?', 'Eu sei. Já troquei pra "Senha124".', 'Quase. Foi o diretor. Duas vezes.'],
+    ['Você já tentou desligar e ligar de novo? Digo, você mesmo. Funciona.', 'Vou tentar', 'Já tô desligado', 'Faz bem. Eu faço todo dia às 18h.', 'Modo economia de energia. Respeito.'],
+    ['A impressora do 3º andar imprimiu um PDF em branco 400 vezes.', 'Ela te odeia', 'Que poético', 'É recíproco.', 'Arte moderna. Vou emoldurar.'],
+    ['Encontrei um fliperama velho no depósito. Liga e tudo.', 'Mentira!', 'Sério?', 'Juro! Tá na sala do servidor, não conta pra ninguém.', 'Sério. É por isso que eu sumo às vezes.']],
+  good: ['Uau! Vou colocar isso no seu currículo.', 'Isso foi lindo. Quase chorei no headset.', 'Recorde do andar! O Firewall ficou impressionado. Bom, ele é um cacto.', 'Você joga melhor que o estagiário que eu treinei por um ano.'],
+  ok: ['Nada mal! Dá pra melhorar, como tudo nessa empresa.', 'Mandou bem. Sem hora extra, mas mandou bem.', 'Média sólida. Tipo nosso Wi-Fi às sextas.'],
+  bad: ['Pelo menos você tentou. É o que a gente fala na avaliação.', 'Hmm. Vamos chamar isso de aquecimento.', 'Tudo bem, eu também perdi pra impressora hoje.'],
+  bye: ['Fui! O chefe tá passando.', 'Tchau! Se perguntarem, era reunião de alinhamento.', 'Valeu! Volto em três dias. Ou quando a planilha travar.', 'Vou lá regar o Firewall. Até!', 'Round dois contra a impressora. Me deseja sorte!'],
+});
+Object.assign(LANGS.en.call, {
+  greet: ['Psst! Busy? Rhetorical question, I know you are.', 'Hi! I faked a meeting to call you. Nobody noticed.', 'Hey! My spreadsheet crashed and I took it as a sign.',
+    'Hey! I just rebooted the server. We have about ten minutes of peace.', 'Hi, Duda here. Yes, from IT. No, I will not reset your password right now.', 'Hey! Firewall, my cactus, says hi. He thinks you are too productive.',
+    'Hi! The third-floor printer challenged me again. I need a break before round two.'],
+  talk: [['Do you also feel the day has 40 hours?', 'Feels like 50', 'All good here', 'That is the company spirit.', 'Nice lie, I like it.'],
+    ['The break room coffee ran out again. I suspect HR.', 'Sabotage', 'I brought mine', 'Agreed. I will open a ticket.', 'Traitor... but smart.'],
+    ['My boss asked for "a quick tweak". Three weeks ago.', 'Classic', 'Hang in there', '"Quick" is an infinite unit of time.', 'Thanks. I will need it.'],
+    ['Someone used "Password123" again. Guess who?', 'It was me', 'The boss?', 'I know. I changed it to "Password124".', 'Close. The director. Twice.'],
+    ['Have you tried turning it off and on again? I mean you. It works.', 'I will try', 'Already off', 'Good. I do it every day at 6 p.m.', 'Power saving mode. Respect.'],
+    ['The third-floor printer printed a blank PDF 400 times.', 'It hates you', 'How poetic', 'The feeling is mutual.', 'Modern art. I will frame it.'],
+    ['I found an old arcade cabinet in storage. It even turns on.', 'No way!', 'Seriously?', 'I swear! It is in the server room, do not tell anyone.', 'Seriously. That is why I disappear sometimes.']],
+  good: ['Wow! I am putting this on your résumé.', 'That was beautiful. I almost cried into my headset.', 'Floor record! Firewall is impressed. Well, he is a cactus.', 'You play better than the intern I trained for a year.'],
+  ok: ['Not bad! Room for improvement, like everything here.', 'Nice one. No overtime pay, but nice.', 'Solid average. Like our Wi-Fi on Fridays.'],
+  bad: ['At least you tried. That is what we say in reviews.', 'Hmm. Let us call that a warm-up.', 'It is fine, I lost to the printer today too.'],
+  bye: ['Gotta go! The boss is coming.', 'Bye! If anyone asks, it was an alignment meeting.', 'Thanks! See you in three days. Or when the spreadsheet crashes.', 'Off to water Firewall. See you!', 'Round two against the printer. Wish me luck!'],
+});
+Object.assign(LANGS.es.call, {
+  greet: ['¡Pss! ¿Ocupado? Pregunta retórica, ya sé que sí.', '¡Hola! Inventé una reunión para llamarte. Nadie se dio cuenta.', '¡Ey! Mi planilla se colgó y lo tomé como una señal.',
+    '¡Hola! Acabo de reiniciar el servidor. Tenemos unos diez minutos de paz.', 'Hola, soy Duda. Sí, de TI. No, no voy a resetear tu contraseña ahora.', '¡Ey! Firewall, mi cactus, te manda saludos. Dice que eres demasiado productivo.',
+    '¡Hola! La impresora del tercer piso me desafió otra vez. Necesito una pausa antes del segundo round.'],
+  talk: [['¿También sientes que el día tiene 40 horas?', 'Siento 50', 'Todo tranquilo', 'Ese es el espíritu de la empresa.', 'Buena mentira, me gusta.'],
+    ['Se acabó el café de la cocina otra vez. Sospecho de RR. HH.', 'Sabotaje', 'Traje el mío', 'De acuerdo. Abro un ticket.', 'Traidor... pero listo.'],
+    ['Mi jefe pidió "un ajuste rapidito". Hace tres semanas.', 'Clásico', 'Ánimo', 'Rapidito es una unidad de tiempo infinita.', 'Gracias. Lo voy a necesitar.'],
+    ['Alguien usó "Clave123" otra vez. ¿Adivina quién?', 'Fui yo', '¿El jefe?', 'Lo sé. Ya la cambié a "Clave124".', 'Casi. El director. Dos veces.'],
+    ['¿Probaste apagar y prender de nuevo? Digo, tú mismo. Funciona.', 'Lo intentaré', 'Ya estoy apagado', 'Bien. Yo lo hago todos los días a las 18 h.', 'Modo ahorro de energía. Respeto.'],
+    ['La impresora del tercer piso imprimió un PDF en blanco 400 veces.', 'Te odia', 'Qué poético', 'Es mutuo.', 'Arte moderno. Lo voy a enmarcar.'],
+    ['Encontré un arcade viejo en el depósito. Hasta prende.', '¡No puede ser!', '¿En serio?', '¡Lo juro! Está en la sala del servidor, no le digas a nadie.', 'En serio. Por eso desaparezco a veces.']],
+  good: ['¡Guau! Voy a poner esto en tu currículum.', 'Eso fue hermoso. Casi lloro en el auricular.', '¡Récord del piso! Firewall quedó impresionado. Bueno, es un cactus.', 'Juegas mejor que el pasante que entrené durante un año.'],
+  ok: ['¡Nada mal! Se puede mejorar, como todo en esta empresa.', 'Bien hecho. Sin horas extra, pero bien.', 'Promedio sólido. Como nuestro Wi-Fi los viernes.'],
+  bad: ['Al menos lo intentaste. Es lo que decimos en la evaluación.', 'Hmm. Llamémoslo calentamiento.', 'Tranquilo, yo también perdí contra la impresora hoy.'],
+  bye: ['¡Me voy! Viene el jefe.', '¡Chau! Si preguntan, era reunión de alineamiento.', '¡Gracias! Nos vemos en tres días. O cuando se cuelgue la planilla.', 'Voy a regar a Firewall. ¡Hasta luego!', 'Segundo round contra la impresora. ¡Deséame suerte!'],
+});

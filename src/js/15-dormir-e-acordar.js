@@ -5,7 +5,7 @@ function sleep() {
 }
 function sleepScene() {
   const sc = scene('sc-sleep');
-  const st = sc.stage = Stage.mount(sc, 'bed'), head = st.anchors.head;
+  const st = sc.stage = Stage.mount(sc, 'bed', { cat: P.decor.includes('gato') }), head = st.anchors.head;
   for (let i = 0; i < 11; i++) {
     const z = document.createElement('span');
     z.className = 'zz'; z.textContent = i % 3 ? 'z' : 'Z';

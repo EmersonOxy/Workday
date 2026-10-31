@@ -5,6 +5,8 @@
 const REST_EVERY = 3;                 // dias entre as pausas para descansar
 const SECRET_NAME = 'PLAYER ONE';     // nome no crachá que revela o arcade secreto no menu
 const MINIGAMES = ['rhythm', 'shooter'];
+// sorteia sem repetir as últimas falas (lembra as 3 mais recentes de cada grupo)
+function pickNew(arr, key) { const seen = load('duda-' + key, []), pool = arr.map((_, i) => i).filter(i => !seen.includes(i)), i = pick(pool.length ? pool : arr.map((_, i) => i)); save('duda-' + key, [i, ...seen].slice(0, Math.min(3, arr.length - 1))); return arr[i]; }
 function nextGame() { const last = load('ultimo-minigame', null), g = last === 'rhythm' ? 'shooter' : last === 'shooter' ? 'rhythm' : pick(MINIGAMES); save('ultimo-minigame', g); return g; }
 const gameName = k => k === 'rhythm' ? U().mgRhythm : U().mgShooter;
 function arcadeUnlocked() { return (PROFILE.name || '').trim().toUpperCase() === SECRET_NAME; }
@@ -93,9 +95,9 @@ function startCall(mode, onExit) {
   const face = dudaFace(el.querySelector('.vc-face'));
   Motion.play(el.querySelector('.vc-win'), [{ transform: 'scale(.4)', opacity: 0 }, { transform: 'scale(1.06)', opacity: 1, offset: .7 }, { transform: 'scale(1)', opacity: 1 }], { duration: 260, easing: Motion.E.out });
   const finish = async (reaction) => {
-    if (reaction) { face.set(reaction === 'bad' ? 'wow' : 'smile', reaction === 'good' ? 'happy' : 'open'); await callSay(pick(c[reaction]), null, face); }
+    if (reaction) { face.set(reaction === 'bad' ? 'wow' : 'smile', reaction === 'good' ? 'happy' : 'open'); await callSay(pickNew(c[reaction], reaction), null, face); }
     face.set('smile', 'happy');
-    await callSay(pick(mode === 'arcade' ? c.byeArcade : c.bye), null, face);
+    await callSay(pickNew(mode === 'arcade' ? c.byeArcade : c.bye, mode + 'b'), null, face);
     closeCall(mode, onExit);
   };
   (async () => {
@@ -107,9 +109,9 @@ function startCall(mode, onExit) {
     if (!ans) { closeCall(mode, onExit); return; }
     sfx('join'); el.querySelector('.vc-title span').textContent = c.who;
     face.set('smile');
-    await callSay(pick(mode === 'arcade' ? c.arcade : c.greet), null, face);
+    await callSay(pickNew(mode === 'arcade' ? c.arcade : c.greet, mode + 'g'), null, face);
     if (mode === 'work') {
-      const t = pick(c.talk); face.set('shut');
+      const t = pickNew(c.talk, 'talk'); face.set('shut');
       const r = await callSay(t[0], [[t[1], 3], [t[2], 4]], face);
       face.set('smile'); await callSay(t[r], null, face);
     }
@@ -133,7 +135,7 @@ function startCall(mode, onExit) {
     runMinigame(kind, host, result => {
       host.remove(); el.classList.remove('playing');
       if (mode === 'work') addStress(-10);          // descanso de verdade: alivia um pouco, sem pontos nem dinheiro
-      finish(result.grade);
+      finish(result.quit ? null : result.grade);
     }, opts);
   })();
 }

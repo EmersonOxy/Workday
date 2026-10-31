@@ -11,17 +11,17 @@ function officeState() {
   const stress = S ? S.stress : 0;
   const clutter = day ? Math.min(3, Math.floor(stress / 30) + (S.level >= 8 ? 1 : 0)) : 0;
   const ringing = (day && S.tasks.some(t => t.type === 'call')) || !!OFFICE.call;
-  return { hour, stress, clutter, decor: P.decor, rank: S ? S.rankIdx : 0, blind: OFFICE.blind, day: S ? S.day : 0, ringing, press: OFFICE.press, click: OFFICE.click, hw: hw(), badge: badgeInfo(), lights: lightState() };
+  return { hour, stress, clutter, decor: P.decor, rank: S ? S.rankIdx : 0, blind: OFFICE.blind, day: S ? S.day : 0, ringing, press: OFFICE.press, click: OFFICE.click, hw: hw(), badge: badgeInfo(), lights: lightState(), weather: Office.weather(S ? S.day : 1) };
 }
 // Crachá da mesa: cores do avatar ou miniatura 4×5 da foto
 function badgeInfo() {
   // miniatura 4×5 do crachá da mesa: amostra do retrato atual (foto ou personagem)
   const src = PROFILE.photo === 'local' && PHOTO.mini ? PHOTO.mini : Array.isArray(PROFILE.photo) ? Pixel.master(PROFILE.photo, WD_PAL) : avRender(avConfig());
-  const c = document.createElement('canvas'); c.width = 4; c.height = 5; const x = c.getContext('2d'); x.imageSmoothingEnabled = true;
-  x.drawImage(src, src.width * .18, src.height * .12, src.width * .64, src.height * .6, 0, 0, 4, 5);
-  const d = x.getImageData(0, 0, 4, 5).data, hex = i => '#' + [d[i], d[i + 1], d[i + 2]].map(v => v.toString(16).padStart(2, '0')).join('');
+  const c = document.createElement('canvas'); c.width = 6; c.height = 7; const x = c.getContext('2d'); x.imageSmoothingEnabled = true;
+  x.drawImage(src, src.width * .14, src.height * .08, src.width * .72, src.height * .72, 0, 0, 6, 7);
+  const d = x.getImageData(0, 0, 6, 7).data, hex = i => '#' + [d[i], d[i + 1], d[i + 2]].map(v => v.toString(16).padStart(2, '0')).join('');
   const av = avConfig();
-  return { shirt: (AV_RAMPS.cloth[av.outfitColor] || AV_RAMPS.cloth.azul)[1], px: [0, 1, 2, 3, 4].map(j => [0, 1, 2, 3].map(i => hex((j * 4 + i) * 4))) };
+  return { shirt: (AV_RAMPS.cloth[av.outfitColor] || AV_RAMPS.cloth.azul)[1], px: [0, 1, 2, 3, 4, 5, 6].map(j => [0, 1, 2, 3, 4, 5].map(i => hex((j * 6 + i) * 4))) };
 }
 function officeLayout() {
   const want = officeWanted();
@@ -58,7 +58,7 @@ function officeFrame(now) {
   const want = CFG.blinds ? 1 : 0;
   if (OFFICE.blind !== want) { OFFICE.blind = want > OFFICE.blind ? Math.min(want, OFFICE.blind + .09) : Math.max(want, OFFICE.blind - .12); st.blind = OFFICE.blind; sfx('blind'); }
   Office.draw(OFFICE.ctx, OFFICE.L, st, OFFICE.baked, now / 1000);
-  if (document.body.classList.contains('menu-mode')) { const d = new Date(); hudSet('osclock', 'text', String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0')); }
+  sysClock();
 }
 // Área de trabalho do "WorkOS" no menu inicial: ícones decorativos e barra de tarefas
 (() => {
@@ -69,6 +69,12 @@ function officeFrame(now) {
   $('osdesk').querySelector('.start').insertAdjacentHTML('beforeend', ' WorkOS');
 })();
 // Clicar na janela abre ou fecha a persiana
+// Hora e data reais do aparelho: na barra do WorkOS (menu) e no canto do cabeçalho durante o expediente
+function sysClock() {
+  const d = new Date(), t = d.toLocaleTimeString(L.htmlLang, { hour: '2-digit', minute: '2-digit' }), dt = d.toLocaleDateString(L.htmlLang, { day: '2-digit', month: '2-digit', year: 'numeric' });
+  hudSet('osclock', 'text', t + ' · ' + dt); hudSet('sysclock', 'text', t + ' ' + dt.slice(0, 5));
+}
+setInterval(sysClock, 15000);
 function onWindow(e) {
   if (!OFFICE.on || !OFFICE.L) return false;
   const w = Office.spots(OFFICE.L).win, x = e.clientX / OFFICE.M.k, y = e.clientY / OFFICE.M.k;
@@ -97,7 +103,7 @@ function openBadgeFromDesk() {
   showBadge(() => { closeModal(); if (S && S.phase === 'day') { S.paused = was; S.last = performance.now(); } });
 }
 OFFICE.cv.addEventListener('pointerdown', e => { if (onWindow(e)) { CFG.blinds = !CFG.blinds; persist(); } else if (onLamp(e)) toggleLight('lamp'); else if (onBadge(e) && $('modal').classList.contains('hidden')) openBadgeFromDesk(); });
-OFFICE.cv.addEventListener('pointermove', e => { OFFICE.cv.style.cursor = onWindow(e) || onBadge(e) || onLamp(e) ? 'pointer' : ''; });
+OFFICE.cv.addEventListener('pointermove', e => { const hov = onBadge(e) ? 'badge' : onLamp(e) ? 'lamp' : onWindow(e) ? 'win' : null; OFFICE.cv.style.cursor = hov ? 'pointer' : ''; if (hov !== OFFICE.hover) { OFFICE.hover = hov; fxWake(); } });
 async function toggleFullscreen() {
   try { if (document.fullscreenElement) await document.exitFullscreen(); else await document.documentElement.requestFullscreen(); } catch (e) {}
 }
@@ -115,7 +121,7 @@ document.addEventListener('pointerdown', e => { const b = e.target.closest('.pxb
 function fxFrame() {
   if (!OFFICE.on || !OFFICE.L) { OFFICE.fxRun = false; return; }
   const now = performance.now();
-  const active = Office.drawInput(OFFICE.fxCtx, OFFICE.L, hw(), OFFICE.keys, OFFICE.mouse, now);
+  const active = Office.drawInput(OFFICE.fxCtx, OFFICE.L, hw(), OFFICE.keys, OFFICE.mouse, now, OFFICE.hover);
   for (const [k, s] of OFFICE.keys) if (s.up !== null && now - s.up > 120) OFFICE.keys.delete(k);
   if (active) requestAnimationFrame(fxFrame); else OFFICE.fxRun = false;
 }

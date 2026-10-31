@@ -77,6 +77,7 @@ function checkout() {
     if (closed) return;
     e.preventDefault();
     const r = el.getBoundingClientRect(), ox = e.clientX - r.left, oy = e.clientY - r.top;
+    const hold = document.createElement('span'); hold.className = 'belt-hold'; hold.style.cssText = `display:inline-block;width:${r.width}px;height:${r.height}px`; el.before(hold);   // a esteira não encolhe
     el.style.setProperty('--dw', r.width + 'px');
     el.classList.add('dragging');
     el.style.left = r.left + 'px'; el.style.top = r.top + 'px';
@@ -102,8 +103,8 @@ function checkout() {
       document.removeEventListener('pointercancel', up);
       el.classList.remove('dragging');
       el.style.left = el.style.top = '';
+      if (!read) hold.replaceWith(el); else hold.remove();
       if (read) { el.remove(); addToBag(id); if (!laneIn.querySelector('.belt-item')) showPay(); }
-      else laneIn.append(el);
     };
     document.addEventListener('pointermove', move);
     document.addEventListener('pointerup', up);

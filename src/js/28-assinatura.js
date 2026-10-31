@@ -4,9 +4,9 @@
 function sigPad(label, onConfirm) {
   const u = U(), el = document.createElement('div');
   el.className = 'cert-sign';
-  el.innerHTML = `<canvas class="sig" width="160" height="40"></canvas><i class="line"></i><small>${label}</small>
+  el.innerHTML = `<canvas class="sig" width="200" height="56"></canvas><i class="line"></i><small>${label}</small>
     <div class="sig-actions"><button class="pxbtn" data-s="clear" disabled>${u.clearSig}</button><button class="pxbtn main" data-s="ok" disabled>${u.confirmSig}</button></div>`;
-  const cv = pxFit(el.querySelector('.sig'), () => [Math.min(320, innerWidth * .6), 80]), cx = cv.getContext('2d');
+  const cv = pxFit(el.querySelector('.sig'), () => [Math.min(600, innerWidth * .78), Math.min(170, innerHeight * .24)]), cx = cv.getContext('2d');
   const clearB = el.querySelector('[data-s=clear]'), okB = el.querySelector('[data-s=ok]');
   let last = null, ink = 0, done = false, ticks = 0;
   const at = e => { const r = cv.getBoundingClientRect(); return [Math.round((e.clientX - r.left) / r.width * cv.width), Math.round((e.clientY - r.top) / r.height * cv.height)]; };
