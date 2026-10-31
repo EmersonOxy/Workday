@@ -130,7 +130,7 @@ const Office = {
   // largura própria e é ancorado pela base (y = onde encosta no tampo), então nada se sobrepõe nem fica cortado.
   DESK_ITEMS: {
     left:  [['mug', 22, true], ['badge', 16, true], ['papersL', 33, true], ['pens', 17, true], ['foto', 22], ['livros', 31]],
-    right: [['papersR', 33, true], ['gato', 30], ['trofeu', 20], ['pato', 18], ['globo', 19]],
+    right: [['papersR', 33, true], ['gato', 40], ['trofeu', 20], ['pato', 18], ['globo', 19]],
     sideL: [['planta', 26], ['caixaL', 13]],
     sideR: [['caixaR', 13], ['lamp', 36]],
   },
@@ -387,7 +387,7 @@ const Office = {
     // Sombras dos objetos animados (desenhados por cima a cada quadro)
     if (D.has('planta')) this.shadow(x, Z.plant.x, Z.plant.y - 1, 24, 2);
     if (D.has('gato') && this._slots.gato) { const q = this._slots.gato, cx = q.x, cy = q.y - 5;   // almofada sob o gato
-      this.shadow(x, cx - 1, cy + 5, 32, 2); F(P.k, cx - 1, cy, 32, 6); F(P.L, cx, cy + 1, 30, 4); F(P.l, cx, cy + 1, 30, 1); F(P[7], cx, cy + 4, 30, 1); F(P.Y, cx - 1, cy + 1, 1, 1); F(P.Y, cx + 30, cy + 1, 1, 1); }
+      this.shadow(x, cx - 1, cy + 5, 42, 2); F(P.k, cx - 1, cy, 42, 6); F(P.L, cx, cy + 1, 40, 4); F(P.l, cx, cy + 1, 40, 1); F(P[7], cx, cy + 4, 40, 1); F(P.Y, cx - 1, cy + 1, 1, 1); F(P.Y, cx + 40, cy + 1, 1, 1); }
     if (D.has('trofeu')) this.shadow(x, Z.trophy.x - 1, Z.trophy.y + 18, 16, 2);
     if (D.has('lamp')) this.shadow(x, Z.lamp.x - 2, Z.lamp.y - 1, 22, 2);
     this.shadow(x, Z.mug.x, Z.mug.y + 12, 16, 2);
@@ -515,6 +515,7 @@ const Office = {
     ctx.restore();
     // Prateleira sob a janela com rádio, cacto e aquário em tamanho real (arte própria, animados)
     // livros sem lugar na mesa (telas estreitas) vão para a prateleira
+    let aqua = null;   // posição do aquário (reflexos da água na parede quando a sala escurece)
     const shelfItems = [['radio', 34], ['cacto', 18], ['aquario', 38], ['livros', 31]].filter(([k]) => D.has(k) && (k !== 'livros' || !(this._slots || {}).livros));
     if (shelfItems.length) {
       const sx = Math.max(3, W.x + 2), maxW = M.x - 6 - sx, rowsS = [[]]; let used = 0;
@@ -524,7 +525,7 @@ const Office = {
         ctx.fillStyle = P[4]; ctx.fillRect(sx + 3, sy + 5, 2, 4); ctx.fillRect(sx + sw - 5, sy + 5, 2, 4); ctx.fillStyle = 'rgba(42,31,45,.25)'; ctx.fillRect(sx, sy + 5, sw, 2);
         let x0 = sx + 3;
         for (const [k, w] of row) { const dy = drop(k);
-          if (k === 'radio') { ART.radio(ctx, x0, sy + dy, t, st); if (st.sound) glows.push([x0 + 26, sy - 10, 10, 6, '255,214,140', .3]); } if (k === 'cacto') ART.cactus(ctx, x0, sy + dy, t); if (k === 'livros') ART.books(ctx, x0, sy + dy); if (k === 'aquario') { ART.aquarium(ctx, x0, sy + dy, t, st); glows.push([x0 + 19, sy - 14, 26, 18, '120,200,220', .4]); }
+          if (k === 'radio') { ART.radio(ctx, x0, sy + dy, t, st); if (st.sound) glows.push([x0 + 26, sy - 10, 10, 6, '255,214,140', .3]); } if (k === 'cacto') ART.cactus(ctx, x0, sy + dy, t); if (k === 'livros') ART.books(ctx, x0, sy + dy); if (k === 'aquario') { ART.aquarium(ctx, x0, sy + dy, t, st); glows.push([x0 + 19, sy - 14, 26, 18, '120,200,220', .4]); aqua = [x0, sy - 30]; }
           x0 += w + 3; } });
     }
     // Telefone de mesa (toca quando há uma ligação esperando)
@@ -544,8 +545,9 @@ const Office = {
     // Caneca com vapor (enquanto o café está quente)
     // caneca vista um pouco de cima: boca oval com café, alça, brilho e faixa com o logotipo (dourada a partir de Assistente)
     // caneca maior (22x22): boca oval com café, corpo com luz à esquerda e sombra à direita, alça e faixa do logo
-    const MUG = ['....kkkkkkkkkkk.......', '..kTTTTTTTTTTTTTk.....', '.k4t44444444444u4k....', '.k333333333333333k....', '..kkkkkkkkkkkkkkk.....', '.kttTTTTTTTTTTTuuqk...', '.ktWTTTTTTTTTTTuuqk...', '.ktWTTTTTTTTTTTuuqkkk.', '.ktWTTTTTTTTTTTuuqku.k', '.kttTTyyyyyyyTTuuqku.k', '.kttTTyYYYYYyTTuuqkq.k', '.kttTTyYYYYYyTTuuqkq.k', '.kttTTyyyyyyyTTuuqkq.k', '.kttTTTTTTTTTTTuuqkq.k', '.kttTTTTTTTTTTTuuqkq.k', '.kttTTTTTTTTTTTuuqkq.k', '.kttTTTTTTTTTTTuuqkkk.', '.kttTTTTTTTTTTTuuqk...', '.kttTTTTTTTTTTTuuqk...', '.kuuuuuuuuuuuuuuuuk...', '..kkkkkkkkkkkkkkkk....', '......................'];
-    const mug = st.rank >= 1 ? MUG : MUG.map(r => r.replace(/[yY]/g, 'W'));
+    // caneca de cerâmica branca com faixa lavanda (logo dourado a partir de Assistente), café escuro com reflexo
+    const MUG = ['....kkkkkkkkkkk.......', '..kWWWWWWWWWWWwk......', '.kw3444444444443pk....', '.kW4433444444444pk....', '..kkkkkkkkkkkkkkk.....', '.k+WWWWWWWWWWWwwpk....', '.k+WWWWWWWWWWWwwpk....', '.k+WWWWWWWWWWWwwpkkk..', '.k+WWWWWWWWWWWwwpkwpk.', '.kiiIIIIIIIIIII66kw.pk', '.kiIIIIyyyIIIII66kw.pk', '.kiIIIIyYyIIIII66kw.pk', '.kiiIIIIIIIIIII66kw.pk', '.k+WWWWWWWWWWWwwpkw.pk', '.k+WWWWWWWWWWWwwpkwpk.', '.k+WWWWWWWWWWWwwpkkk..', '.kWWWWWWWWWWWWwwpk....', '.kWWWWWWWWWWWWwwpk....', '.kwwwwwwwwwwwwwppk....', '..kppppppppppppPk.....', '...kkkkkkkkkkkkk......', '......................'];
+    const mug = st.rank >= 1 ? MUG : MUG.map(r => r.replace(/[yY]/g, 'I'));
     ctx.drawImage(Pixel.master(mug, WD_PAL), Z.mug.x - 5, Z.mug.y - 9);
     if (st.hour < 16 || st.clutter < 2) ctx.drawImage(Pixel.master(SPR2.steam[(t * 5 | 0) % 3], WD_PAL), Z.mug.x + 1, Z.mug.y - 16);
     // Gato: rabo balança, pisca, mexe a orelha
@@ -557,7 +559,7 @@ const Office = {
     if (D.has('livros') && Q.livros) ART.books(ctx, Q.livros.x, Q.livros.y + drop('livros'));
     if (D.has('caixas')) { if (Q.caixaL) ART.speaker(ctx, Q.caixaL.x, Q.caixaL.y + drop('caixas'), t, st); if (Q.caixaR) ART.speaker(ctx, Q.caixaR.x, Q.caixaR.y + drop('caixas'), t, st); }
     // parede: neon e diploma acima do monitor (ladeando a webcam); quadro na faixa da direita, abaixo do monitor extra
-    if (M.y >= 22) { if (D.has('neon')) { ART.neon(ctx, M.x + (M.w >> 1) + 26, M.y - 21 + drop('neon'), t); glows.push([M.x + (M.w >> 1) + 42, M.y - 13, 26, 14, '239,75,63', .45]); } if (D.has('diploma')) ART.diploma(ctx, M.x + (M.w * .78 | 0), M.y - 25 + drop('diploma')); }
+    if (M.y >= 22) { if (D.has('neon')) { ART.neon(ctx, M.x + (M.w >> 1) + 26, M.y - 21 + drop('neon'), t); const nOff = (t % 11) < .12 || ((t % 11) > .3 && (t % 11) < .38); if (!nOff) glows.push([M.x + (M.w >> 1) + 42, M.y - 13, 26, 14, '239,75,63', .45]); /* o brilho falha junto com o tubo */ } if (D.has('diploma')) ART.diploma(ctx, M.x + (M.w * .78 | 0), M.y - 25 + drop('diploma')); }
     if (D.has('quadro') && L.right >= 40) { const rx = M.x + M.w + ((L.right - 34) >> 1); ART.painting(ctx, rx, (D.has('monitor') ? Z.sideMon.y + 46 : 112) + drop('quadro'), t); }
     if (D.has('webcam')) ART.webcam(ctx, M.x + (M.w >> 1), M.y - 13 + drop('webcam'), t, { live: !!st.ringing || !!OFFICE_LIVE() });
     // Papel do topo da pilha levanta com o caos
@@ -594,6 +596,9 @@ const Office = {
       for (const [k, a] of [[1, .07], [.8, .07], [.6, .08]]) { ctx.fillStyle = `rgba(130,190,205,${(a * b).toFixed(3)})`;
         for (let j = 0; j < deskH; j++) { const half = Math.round((s.w * .5 + j * 1.2) * k); ctx.fillRect(Math.round(s.x + s.w / 2 - half), L.desk + j, half * 2, 1); } }
       glows.forEach(g => pool(...g));
+      // aquário: faixas de luz da água ondulando na parede acima do tanque (pixels soltos, 3 linhas, sem borrão)
+      if (aqua) { ctx.fillStyle = `rgba(150,220,230,${(.32 * b).toFixed(3)})`;
+        for (let k = 0; k < 3; k++) for (let i = 0; i < 36; i++) if (Math.sin(i * .55 + t * 2.2 + k * 1.7) > .55) ctx.fillRect(aqua[0] + i, aqua[1] - k * 4 + Math.round(Math.sin(i * .3 + t * 1.3 + k)), 1, 1); }
       ctx.restore(); }
     // Luminária acesa: cone em duas faixas de borda definida (externa mais fraca, miolo mais forte), da boca da cúpula até
     // o tampo, e uma poça de luz em três degraus na mesa. Nada de degradê suave; o brilho oscila 1 degrau, bem de leve.
@@ -627,29 +632,29 @@ const Office = {
   },
 
   lamp(x, px, deskY, t, on = true) {
-    // Luminária articulada. Luz de cima à esquerda: lado esquerdo das peças em y/Y, direito em z/Z (latão puxa para o
-    // laranja na sombra = variação de matiz). Braços em inclinação limpa 1:2 (degraus regulares), juntas com mola.
-    const P = WD_PAL, F = (c, a, b, w, h) => { x.fillStyle = c; x.fillRect(a, b, w, h); };
+    // Luminária articulada azul com juntas vermelhas. Luz de cima à esquerda: azul claro no lado iluminado, sombra puxando
+    // para o violeta (variação de matiz); juntas e parafusos em vermelho. Braços em inclinação limpa 1:2 (degraus regulares), juntas com mola.
+    const P = WD_PAL, A = { y: P.l, Y: P.L, z: P[7], Z: P.N }, J = { hi: P.r, b: P.R, sh: P.q }, F = (c, a, b, w, h) => { x.fillStyle = c; x.fillRect(a, b, w, h); };
     // base: disco pesado (tampo iluminado à esquerda, frente na sombra) com sombra de contato
-    F(P.k, px - 2, deskY - 6, 20, 7); F(P.Y, px - 1, deskY - 5, 18, 2); F(P.y, px - 1, deskY - 5, 7, 1); F(P.z, px + 12, deskY - 5, 5, 2);
-    F(P.Z, px - 1, deskY - 3, 18, 2); F(P.z, px - 1, deskY - 3, 6, 1); F(P.k, px - 1, deskY - 1, 18, 1);
-    F(P.k, px + 5, deskY - 8, 6, 3); F(P.z, px + 6, deskY - 7, 4, 1);                                              // pé da haste
+    F(P.k, px - 2, deskY - 6, 20, 7); F(A.Y, px - 1, deskY - 5, 18, 2); F(A.y, px - 1, deskY - 5, 7, 1); F(A.z, px + 12, deskY - 5, 5, 2);
+    F(A.Z, px - 1, deskY - 3, 18, 2); F(A.z, px - 1, deskY - 3, 6, 1); F(P.k, px - 1, deskY - 1, 18, 1);
+    F(P.k, px + 5, deskY - 8, 6, 3); F(J.b, px + 6, deskY - 7, 4, 1); F(J.hi, px + 6, deskY - 7, 1, 1);                                              // pé da haste
     // haste vertical (2 px + contorno), luz no lado esquerdo
-    for (let i = 0; i < 6; i++) { const yy = deskY - 9 - i; F(P.k, px + 6, yy, 4, 1); F(P.Y, px + 7, yy, 1, 1); F(P.Z, px + 8, yy, 1, 1); }
+    for (let i = 0; i < 6; i++) { const yy = deskY - 9 - i; F(P.k, px + 6, yy, 4, 1); F(A.Y, px + 7, yy, 1, 1); F(A.Z, px + 8, yy, 1, 1); }
     // cotovelo: junta redonda com parafuso
-    const jx = px + 5, jy = deskY - 19; F(P.k, jx, jy, 6, 5); F(P.Y, jx + 1, jy + 1, 4, 3); F(P.y, jx + 1, jy + 1, 2, 1); F(P.Z, jx + 3, jy + 3, 2, 1); F(P.k, jx + 2, jy + 2, 2, 1);
+    const jx = px + 5, jy = deskY - 19; F(P.k, jx, jy, 6, 5); F(J.b, jx + 1, jy + 1, 4, 3); F(J.hi, jx + 1, jy + 1, 2, 1); F(J.sh, jx + 3, jy + 3, 2, 1); F(P.k, jx + 2, jy + 2, 2, 1);
     // mola acompanhando a haste
     for (let i = 0; i < 3; i++) F(i % 2 ? P.j : P.m, px + 10, deskY - 11 - i * 3, 2, 1);
     // braço superior em 1:2 (sobe 1 a cada 2 para a esquerda) até a articulação da cúpula
-    for (let i = 0; i < 9; i++) { const ax = jx - 1 - i * 2, ay = jy - 1 - i; F(P.k, ax - 1, ay - 1, 4, 3); F(P.Y, ax, ay, 2, 1); F(P.Z, ax, ay + 1, 2, 0); }
+    for (let i = 0; i < 9; i++) { const ax = jx - 1 - i * 2, ay = jy - 1 - i; F(P.k, ax - 1, ay - 1, 4, 3); F(A.Y, ax, ay, 2, 1); F(A.Z, ax, ay + 1, 2, 0); }
     // cúpula cônica: contorno, três tons por direção da luz, aro inferior iluminado e interior escuro
     const hx = px - 16, hy = deskY - 34;
     F(P.k, hx + 4, hy - 1, 12, 2); F(P.k, hx + 2, hy + 1, 16, 2); F(P.k, hx, hy + 3, 20, 7);
-    F(P.y, hx + 5, hy, 6, 1); F(P.Y, hx + 11, hy, 4, 1);
-    F(P.y, hx + 3, hy + 1, 5, 2); F(P.Y, hx + 8, hy + 1, 7, 2); F(P.z, hx + 15, hy + 1, 2, 2);
-    F(P.y, hx + 1, hy + 3, 4, 5); F(P.Y, hx + 5, hy + 3, 9, 5); F(P.z, hx + 14, hy + 3, 4, 5); F(P.Z, hx + 18, hy + 3, 1, 5);
-    F(P.Z, hx + 1, hy + 8, 18, 1); F(P.y, hx + 1, hy + 8, 3, 1);                                                  // aro
-    F(P.k, hx + 8, hy - 3, 4, 3); F(P.z, hx + 9, hy - 2, 2, 2);                                                   // articulação no topo
+    F(A.y, hx + 5, hy, 6, 1); F(A.Y, hx + 11, hy, 4, 1);
+    F(A.y, hx + 3, hy + 1, 5, 2); F(A.Y, hx + 8, hy + 1, 7, 2); F(A.z, hx + 15, hy + 1, 2, 2);
+    F(A.y, hx + 1, hy + 3, 4, 5); F(A.Y, hx + 5, hy + 3, 9, 5); F(A.z, hx + 14, hy + 3, 4, 5); F(A.Z, hx + 18, hy + 3, 1, 5);
+    F(A.Z, hx + 1, hy + 8, 18, 1); F(A.y, hx + 1, hy + 8, 3, 1);                                                  // aro
+    F(P.k, hx + 8, hy - 3, 4, 3); F(J.b, hx + 9, hy - 2, 2, 2); F(J.hi, hx + 9, hy - 2, 1, 1);                                                   // articulação no topo
     // lâmpada: acesa com miolo claro e halo de 1 px; apagada cinza
     if (on) { F(P.W, hx + 6, hy + 9, 8, 2); F(P.y, hx + 5, hy + 9, 1, 2); F(P.y, hx + 14, hy + 9, 1, 2); if ((t * 9 | 0) % 7 === 0) F(P.y, hx + 7, hy + 9, 6, 1); }
     else { F(P.e, hx + 6, hy + 9, 8, 2); F(P.E, hx + 6, hy + 10, 8, 1); }

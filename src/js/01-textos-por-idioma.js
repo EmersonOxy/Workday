@@ -553,11 +553,11 @@ Object.assign(LANGS.es.shop, { globo: ['Globo terráqueo', 'Para planear las vac
 LANGS.pt.ui.setSec = { lang: '🌐 Idioma e aparência', game: '🎯 Jogo', screen: '🖥️ Tela', sound: '🔊 Som e música', desk: '💼 Crachá e escritório', data: '💾 Progresso e dados' };
 LANGS.en.ui.setSec = { lang: '🌐 Language and look', game: '🎯 Game', screen: '🖥️ Display', sound: '🔊 Sound and music', desk: '💼 Badge and office', data: '💾 Progress and data' };
 LANGS.es.ui.setSec = { lang: '🌐 Idioma y apariencia', game: '🎯 Juego', screen: '🖥️ Pantalla', sound: '🔊 Sonido y música', desk: '💼 Credencial y oficina', data: '💾 Progreso y datos' };
-Object.assign(LANGS.pt.ui.walls, { confete: 'Confete', festa: 'Fogos' });
+Object.assign(LANGS.pt.ui.walls, { confete: 'Confete', festa: 'Fogos', crepusculo: 'Crepúsculo' });
 Object.assign(LANGS.pt.ui.walls, { praia: 'Praia', floresta: 'Floresta', espaco: 'Espaço', neve: 'Montanhas', campo: 'Campo florido' });
-Object.assign(LANGS.en.ui.walls, { confete: 'Confetti', festa: 'Fireworks' });
+Object.assign(LANGS.en.ui.walls, { confete: 'Confetti', festa: 'Fireworks', crepusculo: 'Dusk' });
 Object.assign(LANGS.en.ui.walls, { praia: 'Beach', floresta: 'Forest', espaco: 'Space', neve: 'Mountains', campo: 'Flower field' });
-Object.assign(LANGS.es.ui.walls, { confete: 'Confeti', festa: 'Fuegos' });
+Object.assign(LANGS.es.ui.walls, { confete: 'Confeti', festa: 'Fuegos', crepusculo: 'Crepúsculo' });
 Object.assign(LANGS.es.ui.walls, { praia: 'Playa', floresta: 'Bosque', espaco: 'Espacio', neve: 'Montañas', campo: 'Campo de flores' });
 Object.assign(LANGS.pt.ui, { focusLabel: 'Modo foco (só a tela)', keysHint: 'As setas, Espaço, Delete, 1 e 2 sempre funcionam. Clique numa ação e aperte a nova tecla.', keysReset: 'Restaurar teclas', keysPress: 'Aperte…',
   keyNames: { left: '← Esquerda', right: '→ Direita', drop: '↓ Descer rápido', del: '🗑 Descartar', pause: '⏸ Pausar', coffee: '☕ Café', tea: '🍵 Chá' } });

@@ -104,6 +104,23 @@ const WALLS = {
     for (let j = h * .5 | 0; j < h; j++) { x.fillStyle = j < h * .6 ? P.G : j < h * .75 ? P.h : P.H; x.fillRect(0, j, w, 1); }
     for (let n = 0; n < 140; n++) { const fx = R() * w | 0, fy = h * .52 + Math.pow(R(), .7) * h * .46 | 0, s = fy > h * .8 ? 2 : 1; x.fillStyle = [P.R, P.Y, P.W, P.I, P.O][R() * 5 | 0]; x.fillRect(fx, fy, s, s); if (s > 1) { x.fillStyle = P.y; x.fillRect(fx, fy, 1, 1); } }
     x.fillStyle = P.W; for (let n = 0; n < 4; n++) { const cx = R() * w | 0, cy = 4 + R() * h * .25 | 0; x.fillRect(cx, cy, 14, 3); x.fillRect(cx + 3, cy - 2, 8, 2); } },
+  // Crepúsculo: faixas de cor em degraus (roxo profundo → violeta → rosa → pêssego) com pontilhado ordenado nas
+  // transições, estrelas só no alto, nuvens iluminadas por baixo (o sol já se pôs) e sombra violeta em cima
+  crepusculo(x, w, h) { const P = WD_PAL, R = Office.rng(404), C = [P[0], P.N, P.n, P[6], P.I, P.r, P.t, P.o], bh = h / C.length;
+    for (let j = 0; j < h; j++) { const b = Math.min(C.length - 1, j / bh | 0), f = j / bh - b;
+      for (let i = 0; i < w; i++) { const nxt = f > .72 && b < C.length - 1 && ((i + j) % 2 === 0 || (f > .86 && i % 2 === 0)); x.fillStyle = nxt ? C[b + 1] : C[b]; x.fillRect(i, j, 1, 1); } }
+    for (let n = 0; n < w * h / 160; n++) { const sx = R() * w | 0, sy = R() * h * .42 | 0; x.fillStyle = sy < h * .2 ? P.W : P.i; x.fillRect(sx, sy, 1, 1); }
+    for (let n = 0; n < 5; n++) { const sx = 4 + R() * (w - 8) | 0, sy = 3 + R() * h * .25 | 0; x.fillStyle = P.y; x.fillRect(sx, sy, 1, 1); x.fillStyle = P.i; x.fillRect(sx - 1, sy, 1, 1); x.fillRect(sx + 1, sy, 1, 1); x.fillRect(sx, sy - 1, 1, 1); x.fillRect(sx, sy + 1, 1, 1); }
+    // nuvem = união de círculos com base reta; topo na sombra violeta, miolo rosado, base acesa em pêssego
+    const cloud = (cx, cy, len, hgt) => { const m = new Set(), puffs = [];
+      for (let k = 0; k <= len; k += 3 + (R() * 3 | 0)) { const e = Math.sin(k / len * Math.PI), r = 2 + (R() * 3 | 0) + (e * hgt * .45 | 0); puffs.push([cx + k, cy - r + 1 - (e * hgt * .35 | 0) - (R() * 2 | 0), r]); }   // bolhas de tamanhos diferentes: contorno irregular
+      // cada bolha pintada inteira, das de trás (topo) para as da frente: as bordas entre bolhas ficam visíveis
+      puffs.sort((a, b) => a[1] - b[1]);
+      for (const [px, py, r] of puffs) for (let j = -r; j <= r; j++) for (let i = -r; i <= r; i++) { const q = i * i + j * j; if (q > r * r + r || py + j > cy) continue;
+        const d = cy - (py + j), rim = q > (r - 1) * (r - 1) + r - 1;
+        x.fillStyle = d <= 0 ? P.o : d === 1 ? P.t : rim && j > 0 ? P.r : rim && j < 0 ? P.n : j > r / 3 ? P.i : P.I; x.fillRect(px + i, py + j, 1, 1); } };
+    cloud(w * .06 | 0, h * .62 | 0, 30, 5); cloud(w * .52 | 0, h * .55 | 0, 46, 7); cloud(w * .28 | 0, h * .78 | 0, 24, 4); cloud(w * .8 | 0, h * .84 | 0, 22, 4);
+    x.fillStyle = P.y; x.fillRect(0, h - 2, w, 1); x.fillStyle = P.o; x.fillRect(0, h - 1, w, 1); },
   // Recompensas de missões (aparecem com cadeado até serem liberadas)
   confete(x, w, h) { const P = WD_PAL, R = Office.rng(57);
     x.fillStyle = P.n; x.fillRect(0, 0, w, h);
@@ -178,7 +195,7 @@ function showCustomize(back) {
     lay.innerHTML = `<div class="hw-main"><div class="hw-tabs">${['pc', 'os', 'badge', 'desk', 'ptr'].map(k => `<button class="pxbtn hw-tab" data-t="${k}">${u.hwTabs[k]}</button>`).join('')}</div><div class="hw-opts"></div></div>
       <aside class="hw-side"><div class="hw-pv hw-pv-pc"></div><div class="hw-pv hw-pv-os"><div class="pv-win"><i class="pv-bar"><b></b><b></b><b class="x"></b></i><div class="pv-body"></div></div><i class="pv-task"><i class="pv-orb"></i></i></div>
         <div class="hw-pv hw-pv-badge"><div class="pv-badge"><i class="pv-lan"></i><div class="pv-card"><i class="pv-head"></i><span class="pv-face"></span><b></b></div></div></div>
-        <div class="hw-pv hw-pv-desk"><canvas class="pv-cat" width="40" height="34"></canvas></div><p class="hint hw-note"></p></aside>`;
+        <div class="hw-pv hw-pv-desk"><canvas class="pv-cat" width="52" height="44"></canvas></div><p class="hint hw-note"></p></aside>`;
     const opts = lay.querySelector('.hw-opts'); rows.forEach((r, i) => { r.dataset.cat = CAT[i] || 'os'; opts.append(r); });
     card.querySelector('.hw-prev').remove(); const pcBox = lay.querySelector('.hw-pv-pc'); pcBox.innerHTML = '<canvas class="hw-scene" width="120" height="44"></canvas>';
     card.querySelector('.hint').remove(); card.querySelector('h2').after(lay);
@@ -189,7 +206,7 @@ function showCustomize(back) {
     lay.querySelectorAll('.hw-tab').forEach(b => b.onclick = () => { sfx('click'); tab(b.dataset.t); });
     let t0 = 'pc'; try { t0 = sessionStorage.getItem('hwTab') || 'pc'; } catch (e) {} tab(t0);
     // gato da prévia animado com a mesma lógica da mesa
-    const pc = lay.querySelector('.pv-cat'), ai = CatAI.make(); const anim = () => { if (!pc.isConnected) return; const t = performance.now() / 1000; CatAI.step(ai, t); const x = pc.getContext('2d'); x.clearRect(0, 0, 40, 34); catDrawBound(x, 5, 32, hw().cat, ai, t); requestAnimationFrame(anim); };
+    const pc = lay.querySelector('.pv-cat'), ai = CatAI.make(); const anim = () => { if (!pc.isConnected) return; const t = performance.now() / 1000; CatAI.step(ai, t); const x = pc.getContext('2d'); x.clearRect(0, 0, 52, 44); catDrawBound(x, 5, 42, hw().cat, ai, t); requestAnimationFrame(anim); };
     pc.onclick = () => CatAI.poke(ai, performance.now() / 1000); requestAnimationFrame(anim); }
   const prev = card.querySelector('.hw-scene');
   const draw = () => {
@@ -203,7 +220,7 @@ function showCustomize(back) {
   requestAnimationFrame(() => { if (prev.isConnected) pxRefit(prev); });   // a coluna lateral só tem largura real depois do layout
   card.querySelectorAll('.wall:not(.cat)').forEach(b => { const c = b.querySelector('canvas'); if (WALLS[b.dataset.w]) WALLS[b.dataset.w](c.getContext('2d'), 64, 36); else { const x = c.getContext('2d'); x.fillStyle = WD_PAL.X; x.fillRect(0, 0, 64, 36); }   // miniatura desenhada já pequena
     pxFit(c, () => [80, 45]); b.onclick = () => { setHw({ wall: b.dataset.w }); draw(); }; });
-  card.querySelectorAll('.cat').forEach(b => { const c2 = catCoat(SPR2.cat, b.dataset.c), cv = document.createElement('canvas'); cv.width = c2.width; cv.height = c2.height; cv.getContext('2d').drawImage(c2, 0, 0); b.querySelector('.cimg').append(pxSize(cv, 3));
+  card.querySelectorAll('.cat').forEach(b => { const cv = document.createElement('canvas'); cv.width = 34; cv.height = 28; catDrawBound(cv.getContext('2d'), 2, 27, b.dataset.c, Object.assign(CatAI.make(), { t0: -99 }), 2, 1); b.querySelector('.cimg').append(pxSize(cv, 2));   // mesmo modelo do gato da mesa
     b.onclick = () => { setHw({ cat: b.dataset.c }); card.querySelectorAll('.cat').forEach(x => x.classList.toggle('on', x === b)); sfx('pop'); }; });
   // ponteiros: prévia na cor escolhida; passar o mouse sobre um ponteiro que aceita cor mostra as cores dele
   const curPaint = () => card.querySelectorAll('.cur-btn').forEach(b => { const c = CURSORS[b.dataset.v]; b.replaceChildren(); if (c) { const im = new Image(); im.src = cursorURL(c, 2, curRows(b.dataset.v)); b.append(im); } else b.textContent = '↖'; });
