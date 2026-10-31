@@ -69,6 +69,22 @@ const Office = {
     graphite: { hi: '#626875', base: '#3b3f48', sh: '#2b2340', dk: '#2a1f2d', txt: '#626875', key: '#4a3a4e', keySh: '#2b2340' },
   },
   ramp(name) { return this.HW[name] || this.HW.cream; },
+  // Teclado da mesa em QWERTY físico (KeyboardEvent.code = posição da tecla, independente do idioma do teclado)
+  KEYS: (() => {
+    const k = [];
+    'QWERTYUIOP'.split('').forEach((c, i) => k.push(['Key' + c, 0, 1 + i, 1])); k.push(['Backspace', 0, 11, 2]);
+    'ASDFGHJKL'.split('').forEach((c, i) => k.push(['Key' + c, 1, 1.5 + i, 1])); k.push(['Enter', 1, 10.5, 2]);
+    k.push(['ShiftLeft', 2, 0, 2]); 'ZXCVBNM'.split('').forEach((c, i) => k.push(['Key' + c, 2, 2 + i, 1])); k.push(['ShiftRight', 2, 9, 2], ['ArrowUp', 2, 12, 1]);
+    k.push(['ControlLeft', 3, 0, 1], ['AltLeft', 3, 1, 1], ['Space', 3, 2.5, 6], ['AltRight', 3, 8.5, 1], ['ArrowLeft', 3, 11, 1], ['ArrowDown', 3, 12, 1], ['ArrowRight', 3, 13, 1]);
+    return k;
+  })(),
+  keyRects(L) {
+    if (L._keys) return L._keys;
+    const base = L.kx + Math.max(2, (L.kw - 14 * 7) >> 1), ky = L.VH - 15, m = new Map();
+    for (const [code, r, c, w] of this.KEYS) { const x = base + Math.round(c * 7); if (x + w * 7 - 1 > L.kx + L.kw - 2) continue; m.set(code, { x, y: ky + 1 + r * 4, w: w * 7 - 1 }); }
+    return (L._keys = m);
+  },
+  lampRect(L) { const Z = this.spots(L); return { x: Z.lamp.x - 16, y: Z.lamp.y - 46, w: 36, h: 50 }; },
   badgeRect(L) { return { x: L.kx - 44, y: L.desk + 2, w: 14, h: 25 }; },
   // Parte estática em cache (parede, janela, mesa, monitor, objetos parados)
   bake(L, st) {
@@ -132,11 +148,11 @@ const Office = {
     const kx = L.kx, kw = L.kw, ky = L.VH - 15;
     this.shadow(x, kx - 2, ky - 3, kw + 4, 2);
     F(P.k, kx - 1, ky - 1, kw + 2, 20); F(HK.base, kx, ky, kw, 19); F(HK.hi, kx, ky, kw, 1); F(HK.sh, kx, ky + 12, kw, 7);
-    for (let r = 0; r < 3; r++) for (let i = 0; i < (kw - 6) / 7 | 0; i++) { const ox = kx + 3 + i * 7 + (r % 2) * 3, oy = ky + 2 + r * 5; if (ox + 6 > kx + kw - 2) continue; F(HK.key, ox, oy, 6, 3); F(HK.keySh, ox, oy + 3, 6, 1); if (HK === this.HW.graphite) F(HK.hi, ox, oy, 6, 1); }
+    for (const k of this.keyRects(L).values()) { F(HK.key, k.x, k.y, k.w, 2); F(HK.keySh, k.x, k.y + 2, k.w, 1); if (HK === this.HW.graphite) F(HK.hi, k.x, k.y, k.w, 1); }
     // Mouse com fio
     const mx = kx + kw + 18, my = L.VH - 15;
     this.shadow(x, mx - 1, my + 12, 12, 2);
-    F(P.k, mx - 1, my - 1, 11, 16); F(HO.base, mx, my, 9, 15); F(HO.hi, mx, my, 9, 1); F(HO.hi, mx, my, 1, 8); F(HO.sh, mx + 4, my, 1, 5); F(HO.sh, mx + 7, my + 2, 2, 13);
+    F(P.k, mx - 1, my - 1, 11, 16); F(HO.base, mx, my, 9, 15); F(HO.hi, mx, my, 9, 1); F(HO.hi, mx, my, 1, 8); F(HO.sh, mx + 4, my, 1, 6); F(HO.sh, mx, my + 6, 9, 1); F(HO.dk, mx + 4, my + 2, 1, 2); F(HO.sh, mx + 7, my + 2, 2, 13);
     for (let i = 0; i < 16; i++) F(P.j, mx + 4 + Math.round(Math.sin(i / 3) * 3), my - 2 - i, 1, 1);
     // Papéis (crescem com o caos) e crachá
     this.paperStack(x, kx - 84, L.desk + 10, 2 + (st.clutter > 1 ? 3 : 0));
@@ -202,17 +218,20 @@ const Office = {
     return ox + 6 <= L.kx + L.kw - 2 ? [ox, oy] : null;
   },
   drawInput(ctx, L, hwSel, keys, mouse, now) {
-    const P = WD_PAL, HK = this.ramp(hwSel.kb), HO = this.ramp(hwSel.mouse);
+    const P = WD_PAL, HK = this.ramp(hwSel.kb), HO = this.ramp(hwSel.mouse), R = this.keyRects(L);
     ctx.clearRect(0, 0, L.VW, L.VH);
     let active = false;
-    for (const [k, s] of keys) {
-      const c = this.keyCell(L, k); if (!c) continue; const [ox, oy] = c;
-      if (s.up === null) { active = true; ctx.fillStyle = HK.base; ctx.fillRect(ox, oy, 6, 4); ctx.fillStyle = HK.keySh; ctx.fillRect(ox, oy + 1, 6, 3); ctx.fillStyle = P.y; ctx.fillRect(ox, oy + 2, 6, 1); }
-      else if (now - s.up < 90) { active = true; ctx.fillStyle = P.W; ctx.fillRect(ox, oy, 6, 1); }
+    for (const [code, s] of keys) {
+      const k = R.get(code); if (!k) continue;
+      if (s.up === null) { active = true; ctx.fillStyle = HK.base; ctx.fillRect(k.x, k.y, k.w, 3); ctx.fillStyle = HK.keySh; ctx.fillRect(k.x, k.y, k.w, 1); ctx.fillStyle = P.y; ctx.fillRect(k.x, k.y + 1, k.w, 1); }   // afundada (topo escurece) e acesa, visível até na última fileira
+      else if (now - s.up < 90) { active = true; ctx.fillStyle = P.W; ctx.fillRect(k.x, k.y, k.w, 1); }   // volta com um brilho (acomodação)
     }
-    const mx = L.kx + L.kw + 18, my = L.VH - 15;
-    if (mouse.down) { active = true; ctx.fillStyle = HO.sh; ctx.fillRect(mx, my, 4, 6); ctx.fillStyle = P.k; ctx.fillRect(mx, my + 1, 4, 1); }
-    else if (now - mouse.up < 90) { active = true; ctx.fillStyle = HO.hi; ctx.fillRect(mx, my, 4, 1); }
+    const mx = L.kx + L.kw + 18, my = L.VH - 15, BTN = [[mx, 4], [mx + 5, 4], [mx + 4, 1]];   // esquerdo, direito, meio
+    mouse.btn.forEach((b, i) => {
+      const [bx, bw] = BTN[i === 1 ? 2 : i === 2 ? 1 : 0];
+      if (b.down) { active = true; ctx.fillStyle = HO.sh; ctx.fillRect(bx, my, bw, 6); ctx.fillStyle = P.y; ctx.fillRect(bx, my + 4, bw, 1); }
+      else if (now - b.up < 90) { active = true; ctx.fillStyle = HO.hi; ctx.fillRect(bx, my, bw, 1); }
+    });
     return active;
   },
   // Miniatura do equipamento para a tela de personalização (mesmos acabamentos)
@@ -283,7 +302,8 @@ const Office = {
       for (let i = 0; i < (w - 10) / 4 | 0; i++) { const v = 2 + ((Math.sin(t * 1.5 + i * .9) + 1) * (h - 14) / 4 | 0) + i; ctx.fillStyle = [P.F, P.Q, P.v][i % 3]; ctx.fillRect(px + 5 + i * 4, py + h - 6 - Math.min(v, h - 10), 3, Math.min(v, h - 10)); }
       if ((t * 2 | 0) % 2) { ctx.fillStyle = P.v; ctx.fillRect(px + w - 8, py + 5, 2, 3); } }
     // Luminária
-    if (D.has('lamp')) this.lamp(ctx, Z.lamp.x, Z.lamp.y, t);
+    const lampOn = !st.lights || st.lights.lamp !== false;
+    if (D.has('lamp')) this.lamp(ctx, Z.lamp.x, Z.lamp.y, t, lampOn);
     // Troféu com brilho que passa de vez em quando
     if (D.has('trofeu')) this.trophy(ctx, Z.trophy.x, Z.trophy.y, t);
     // Caneca com vapor (enquanto o café está quente)
@@ -310,7 +330,7 @@ const Office = {
     for (let n = 0; n < 8; n++) { const ph = (t * .05 + n * .137) % 1, j = W.y + 30 + ph * (L.desk - W.y - 40) | 0, a = W.x + (j - W.y - 18) * slope + ((n * 7 + Math.sin(t + n) * 3) | 0) % 22; ctx.fillRect(a | 0, j, 1, 1); }
     ctx.globalAlpha = 1;
     if (st.blind) { ctx.fillStyle = `rgba(40,28,60,${.07 * st.blind})`; ctx.fillRect(0, 0, L.VW, L.VH); }
-    if (D.has('lamp')) { const fl = .2 + Math.sin(t * 9) * .01; ctx.fillStyle = `rgba(255,231,163,${fl})`; const hx = Z.lamp.x - 14, hy = Z.lamp.y - 44;
+    if (D.has('lamp') && lampOn) { const fl = .2 + Math.sin(t * 9) * .01; ctx.fillStyle = `rgba(255,231,163,${fl})`; const hx = Z.lamp.x - 14, hy = Z.lamp.y - 44;
       for (let j = 0; j < 44; j++) ctx.fillRect(hx - (j * .5 | 0), hy + 8 + j, 14 + (j * 1.1 | 0), 1); }
     ctx.globalCompositeOperation = lit.tint[1]; ctx.fillStyle = lit.tint[0]; ctx.fillRect(0, 0, L.VW, L.VH);
     ctx.restore();
@@ -329,7 +349,7 @@ const Office = {
     F(P.k, px + 1, baseY - 16, 22, 17); F(P.T, px + 2, baseY - 15, 20, 3); F(P.t, px + 2, baseY - 15, 20, 1); F(P.u, px + 2, baseY - 12, 20, 1);
     F(P.T, px + 3, baseY - 11, 18, 11); F(P.t, px + 3, baseY - 11, 2, 11); F(P.u, px + 18, baseY - 11, 3, 11); F(P.k, px + 1, baseY - 11, 2, 12); F(P.k, px + 21, baseY - 11, 2, 12);
   },
-  lamp(x, px, deskY, t) {
+  lamp(x, px, deskY, t, on = true) {
     const P = WD_PAL, F = (c, a, b, w, h) => { x.fillStyle = c; x.fillRect(a, b, w, h); };
     F(P.k, px - 2, deskY - 5, 20, 6); F(P.z, px - 1, deskY - 4, 18, 4); F(P.Y, px - 1, deskY - 4, 18, 1); F(P.Z, px - 1, deskY - 1, 18, 1);
     for (let i = 0; i < 22; i++) { F(P.k, px + 6, deskY - 5 - i, 4, 1); F(P.Z, px + 7, deskY - 5 - i, 2, 1); }                 // haste
@@ -337,7 +357,7 @@ const Office = {
     const hx = px - 14, hy = deskY - 44;
     F(P.k, hx - 1, hy - 1, 18, 11); F(P.Y, hx, hy, 16, 9); F(P.y, hx, hy, 16, 2); F(P.z, hx + 12, hy, 4, 9); F(P.Z, hx, hy + 8, 16, 1);
     F(P.k, hx + 6, hy - 3, 4, 3); F(P.z, hx + 7, hy - 2, 2, 2);
-    F((t * 9 | 0) % 7 ? P.y : P.W, hx + 4, hy + 9, 8, 2);   // lâmpada acesa
+    F(on ? ((t * 9 | 0) % 7 ? P.y : P.W) : P.e, hx + 4, hy + 9, 8, 2);   // lâmpada (acesa ou apagada)
   },
   trophy(x, px, py, t) {
     const P = WD_PAL, F = (c, a, b, w, h) => { x.fillStyle = c; x.fillRect(a, b, w, h); };

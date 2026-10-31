@@ -308,3 +308,62 @@ Object.assign(LANGS.es.ui, {
   allLabel: 'Todo igual', cream: 'Crema', graphite: 'Grafito', wallLabel: 'Fondo de pantalla', hwNote: 'El equipo aparece en el escritorio de la oficina (computadora).',
   walls: { teal: 'Petróleo', grid: 'Cuadriculado', hills: 'Colinas', night: 'Noche' },
 });
+
+// Entrega 2: pausa para descansar, colega (Duda, da TI), minigames, luzes
+LANGS.pt.call = {
+  incoming: 'Chamada de vídeo', who: 'Duda · TI', answer: 'Atender', decline: 'Recusar', hangup: 'Encerrar', resuming: 'Voltando em',
+  greet: ['Psiu! Tá ocupado? Pergunta retórica, eu sei que tá.', 'Oi! Fingi uma reunião pra te ligar. Ninguém percebeu.', 'E aí! Minha planilha travou e eu decidi que isso é um sinal.'],
+  talk: [['Você também sente que o dia tem 40 horas?', 'Sinto 50', 'Tá tranquilo', 'Isso é o espírito da firma.', 'Mentira boa, gostei.'],
+         ['O café da copa acabou de novo. Suspeito do RH.', 'Sabotagem', 'Eu trouxe o meu', 'Concordo. Vou abrir um chamado.', 'Traidor... mas inteligente.'],
+         ['Meu chefe pediu "um ajuste rapidinho". Faz três semanas.', 'Clássico', 'Coragem', 'Rapidinho é unidade de tempo infinita.', 'Valeu. Vou precisar.']],
+  invite: ['Bora jogar uma partidinha? Cinco minutos. Ou quarenta segundos.', 'Achei um joguinho no servidor de testes. Bora?'],
+  yes: 'Bora!', no: 'Agora não',
+  declined: ['Justo. Volta pro batente, herói.', 'Tranquilo, fica pra próxima!'],
+  arcade: ['Ah, PLAYER ONE. Sabia que você ia achar o arcade secreto.', 'Bem-vindo à sala de jogos que oficialmente não existe.'],
+  good: ['Uau! Vou colocar isso no seu currículo.', 'Isso foi lindo. Quase chorei no headset.'],
+  ok: ['Nada mal! Dá pra melhorar, como tudo nessa empresa.', 'Mandou bem. Sem hora extra, mas mandou bem.'],
+  bad: ['Pelo menos você tentou. É o que a gente fala na avaliação.', 'Hmm. Vamos chamar isso de aquecimento.'],
+  bye: ['Fui! O chefe tá passando.', 'Tchau! Se perguntarem, era reunião de alinhamento.', 'Valeu! Volto em três dias. Ou quando a planilha travar.'],
+  again: 'Jogar de novo', menu: 'Voltar ao menu',
+};
+LANGS.en.call = {
+  incoming: 'Video call', who: 'Duda · IT', answer: 'Answer', decline: 'Decline', hangup: 'Hang up', resuming: 'Back in',
+  greet: ['Psst! Busy? Rhetorical question, I know you are.', 'Hi! I faked a meeting to call you. Nobody noticed.', 'Hey! My spreadsheet crashed and I took it as a sign.'],
+  talk: [['Do you also feel the day has 40 hours?', 'Feels like 50', 'All good here', 'That is the company spirit.', 'Nice lie, I like it.'],
+         ['The break room coffee ran out again. I suspect HR.', 'Sabotage', 'I brought mine', 'Agreed. I will open a ticket.', 'Traitor... but smart.'],
+         ['My boss asked for "a quick tweak". Three weeks ago.', 'Classic', 'Hang in there', '"Quick" is an infinite unit of time.', 'Thanks. I will need it.']],
+  invite: ['Wanna play a quick game? Five minutes. Or forty seconds.', 'I found a little game on the test server. Shall we?'],
+  yes: 'Let\'s go!', no: 'Not now',
+  declined: ['Fair. Back to the grind, hero.', 'No worries, next time!'],
+  arcade: ['Ah, PLAYER ONE. I knew you would find the secret arcade.', 'Welcome to the game room that officially does not exist.'],
+  good: ['Wow! I am putting this on your résumé.', 'That was beautiful. I almost cried into my headset.'],
+  ok: ['Not bad! Room for improvement, like everything here.', 'Nice one. No overtime pay, but nice.'],
+  bad: ['At least you tried. That is what we say in reviews.', 'Hmm. Let us call that a warm-up.'],
+  bye: ['Gotta go! The boss is coming.', 'Bye! If anyone asks, it was an alignment meeting.', 'Thanks! See you in three days. Or when the spreadsheet crashes.'],
+  again: 'Play again', menu: 'Back to menu',
+};
+LANGS.es.call = {
+  incoming: 'Videollamada', who: 'Duda · TI', answer: 'Contestar', decline: 'Rechazar', hangup: 'Colgar', resuming: 'Volvemos en',
+  greet: ['¡Pss! ¿Ocupado? Pregunta retórica, ya sé que sí.', '¡Hola! Inventé una reunión para llamarte. Nadie se dio cuenta.', '¡Ey! Mi planilla se colgó y lo tomé como una señal.'],
+  talk: [['¿También sientes que el día tiene 40 horas?', 'Siento 50', 'Todo tranquilo', 'Ese es el espíritu de la empresa.', 'Buena mentira, me gusta.'],
+         ['Se acabó el café de la cocina otra vez. Sospecho de RR. HH.', 'Sabotaje', 'Traje el mío', 'De acuerdo. Abro un ticket.', 'Traidor... pero listo.'],
+         ['Mi jefe pidió "un ajuste rapidito". Hace tres semanas.', 'Clásico', 'Ánimo', 'Rapidito es una unidad de tiempo infinita.', 'Gracias. Lo voy a necesitar.']],
+  invite: ['¿Jugamos una partidita? Cinco minutos. O cuarenta segundos.', 'Encontré un jueguito en el servidor de pruebas. ¿Vamos?'],
+  yes: '¡Vamos!', no: 'Ahora no',
+  declined: ['Justo. Vuelve al trabajo, héroe.', '¡Tranquilo, para la próxima!'],
+  arcade: ['Ah, PLAYER ONE. Sabía que encontrarías el arcade secreto.', 'Bienvenido a la sala de juegos que oficialmente no existe.'],
+  good: ['¡Guau! Voy a poner esto en tu currículum.', 'Eso fue hermoso. Casi lloro en el auricular.'],
+  ok: ['¡Nada mal! Se puede mejorar, como todo en esta empresa.', 'Bien hecho. Sin horas extra, pero bien.'],
+  bad: ['Al menos lo intentaste. Es lo que decimos en la evaluación.', 'Hmm. Llamémoslo calentamiento.'],
+  bye: ['¡Me voy! Viene el jefe.', '¡Chau! Si preguntan, era reunión de alineamiento.', '¡Gracias! Nos vemos en tres días. O cuando se cuelgue la planilla.'],
+  again: 'Jugar otra vez', menu: 'Volver al menú',
+};
+Object.assign(LANGS.pt.ui, { mgRhythm: 'Batida de Ponto', mgShooter: 'Exterminador de Pendências', mgRhythmHelp: 'D F J K ou toque nas colunas quando a nota chegar na linha', mgRhythmHelpT: 'Toque nas colunas quando a nota chegar na linha',
+  mgShooterHelp: 'A/D ou ← → para mover · Espaço atira', mgShooterHelpT: 'Arraste a nave · o disparo é automático', mgPerfect: 'PERFEITO', mgGood: 'BOM', mgMiss: 'ERRO', mgScore: 'Pontos', mgCombo: 'Combo', mgLives: 'Vidas', mgReady: 'Prepare-se!', mgEnd: 'Fim de jogo', mgBest: 'Melhor combo', mgAcc: 'Precisão',
+  lights: 'Luminária', lightOn: 'Ligada', lightOff: 'Desligada', arcadeBtn: 'Arcade' });
+Object.assign(LANGS.en.ui, { mgRhythm: 'Punch-In Beat', mgShooter: 'Backlog Exterminator', mgRhythmHelp: 'D F J K or tap the columns when the note hits the line', mgRhythmHelpT: 'Tap the columns when the note hits the line',
+  mgShooterHelp: 'A/D or ← → to move · Space shoots', mgShooterHelpT: 'Drag the ship · firing is automatic', mgPerfect: 'PERFECT', mgGood: 'GOOD', mgMiss: 'MISS', mgScore: 'Score', mgCombo: 'Combo', mgLives: 'Lives', mgReady: 'Get ready!', mgEnd: 'Game over', mgBest: 'Best combo', mgAcc: 'Accuracy',
+  lights: 'Desk lamp', lightOn: 'On', lightOff: 'Off', arcadeBtn: 'Arcade' });
+Object.assign(LANGS.es.ui, { mgRhythm: 'Ritmo de Fichaje', mgShooter: 'Exterminador de Pendientes', mgRhythmHelp: 'D F J K o toca las columnas cuando la nota llegue a la línea', mgRhythmHelpT: 'Toca las columnas cuando la nota llegue a la línea',
+  mgShooterHelp: 'A/D o ← → para moverte · Espacio dispara', mgShooterHelpT: 'Arrastra la nave · el disparo es automático', mgPerfect: 'PERFECTO', mgGood: 'BIEN', mgMiss: 'FALLO', mgScore: 'Puntos', mgCombo: 'Combo', mgLives: 'Vidas', mgReady: '¡Prepárate!', mgEnd: 'Fin del juego', mgBest: 'Mejor combo', mgAcc: 'Precisión',
+  lights: 'Lámpara', lightOn: 'Encendida', lightOff: 'Apagada', arcadeBtn: 'Arcade' });

@@ -3,15 +3,15 @@
 // Telas de toque ou pequenas mantêm o layout próprio.
 const OFFICE = { on: false, M: null, L: null, baked: null, key: '', last: 0, cv: $('office'), blind: CFG.blinds ? 1 : 0 };
 OFFICE.ctx = OFFICE.cv.getContext('2d');
-OFFICE.fx = $('officeFx'); OFFICE.fxCtx = OFFICE.fx.getContext('2d'); OFFICE.keys = new Map(); OFFICE.mouse = { down: false, up: -1 };
+OFFICE.fx = $('officeFx'); OFFICE.fxCtx = OFFICE.fx.getContext('2d'); OFFICE.keys = new Map(); OFFICE.mouse = { btn: [0, 1, 2].map(() => ({ down: false, up: -1 })) };
 function officeWanted() { return !document.body.classList.contains('touch') && innerWidth >= 900 && innerHeight >= 500; }
 function officeState() {
   const day = S && S.phase === 'day';
   const hour = day ? 9 + Math.min(9, S.dayT / DAY_SECONDS * 9) : S && (S.phase === 'ending' || S.phase === 'report') ? 18 : 9.5;
   const stress = S ? S.stress : 0;
   const clutter = day ? Math.min(3, Math.floor(stress / 30) + (S.level >= 8 ? 1 : 0)) : 0;
-  const ringing = day && S.tasks.some(t => t.type === 'call');
-  return { hour, stress, clutter, decor: P.decor, rank: S ? S.rankIdx : 0, blind: OFFICE.blind, day: S ? S.day : 0, ringing, press: OFFICE.press, click: OFFICE.click, hw: hw(), badge: badgeInfo() };
+  const ringing = (day && S.tasks.some(t => t.type === 'call')) || !!OFFICE.call;
+  return { hour, stress, clutter, decor: P.decor, rank: S ? S.rankIdx : 0, blind: OFFICE.blind, day: S ? S.day : 0, ringing, press: OFFICE.press, click: OFFICE.click, hw: hw(), badge: badgeInfo(), lights: lightState() };
 }
 // Crachá da mesa: cores do avatar ou miniatura 4×5 da foto
 function badgeInfo() {
@@ -48,7 +48,7 @@ function officeFrame(now) {
   requestAnimationFrame(officeFrame);
   if (!OFFICE.on || document.hidden || now - OFFICE.last < 80) return;   // ~12 quadros/s bastam para o ambiente
   OFFICE.last = now;
-  const st = officeState(), key = [OFFICE.L.VW, OFFICE.L.VH, st.hour * 4 | 0, st.clutter, st.decor.join(), st.rank, st.day, JSON.stringify(st.hw), JSON.stringify(st.badge)].join('|');
+  const st = officeState(), key = [OFFICE.L.VW, OFFICE.L.VH, st.hour * 4 | 0, st.clutter, st.decor.join(), st.rank, st.day, JSON.stringify(st.hw), JSON.stringify(st.badge), JSON.stringify(st.lights)].join('|');
   if (key !== OFFICE.key) { OFFICE.key = key; OFFICE.baked = Office.bake(OFFICE.L, st); }
   // Persiana anda em degraus até a posição pedida, com estalinhos do mecanismo
   const want = CFG.blinds ? 1 : 0;
@@ -70,6 +70,16 @@ function onWindow(e) {
   const w = Office.spots(OFFICE.L).win, x = e.clientX / OFFICE.M.k, y = e.clientY / OFFICE.M.k;
   return x >= w.x - 2 && x <= w.x + w.w + 2 && y >= w.y - 2 && y <= w.y + w.h + 4;
 }
+// Fontes de luz independentes: id, objeto que precisa existir na mesa e estado salvo (CFG.lights).
+// Hoje só a luminária; abajures e outras luzes entram aqui com seu próprio retângulo de clique e área de luz.
+const LIGHTS = [{ id: 'lamp', needs: 'lamp', rect: L => Office.lampRect(L) }];
+function lightState() { const s = {}; for (const l of LIGHTS) s[l.id] = !(CFG.lights && CFG.lights[l.id] === false); return s; }
+function toggleLight(id) { CFG.lights = Object.assign({}, CFG.lights, { [id]: !lightState()[id] }); persist(); OFFICE.key = ''; OFFICE.last = 0; sfx('switch'); }
+function onLamp(e) {
+  if (!OFFICE.on || !OFFICE.L || !P.decor.includes('lamp')) return false;
+  const b = Office.lampRect(OFFICE.L), x = e.clientX / OFFICE.M.k, y = e.clientY / OFFICE.M.k;
+  return x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h;
+}
 function onBadge(e) {
   if (!OFFICE.on || !OFFICE.L) return false;
   const b = Office.badgeRect(OFFICE.L), x = e.clientX / OFFICE.M.k, y = e.clientY / OFFICE.M.k;
@@ -82,8 +92,8 @@ function openBadgeFromDesk() {
   sfx('pop');
   showBadge(() => { closeModal(); if (S && S.phase === 'day') { S.paused = was; S.last = performance.now(); } });
 }
-OFFICE.cv.addEventListener('pointerdown', e => { if (onWindow(e)) { CFG.blinds = !CFG.blinds; persist(); } else if (onBadge(e) && $('modal').classList.contains('hidden')) openBadgeFromDesk(); });
-OFFICE.cv.addEventListener('pointermove', e => { OFFICE.cv.style.cursor = onWindow(e) || onBadge(e) ? 'pointer' : ''; });
+OFFICE.cv.addEventListener('pointerdown', e => { if (onWindow(e)) { CFG.blinds = !CFG.blinds; persist(); } else if (onLamp(e)) toggleLight('lamp'); else if (onBadge(e) && $('modal').classList.contains('hidden')) openBadgeFromDesk(); });
+OFFICE.cv.addEventListener('pointermove', e => { OFFICE.cv.style.cursor = onWindow(e) || onBadge(e) || onLamp(e) ? 'pointer' : ''; });
 async function toggleFullscreen() {
   try { if (document.fullscreenElement) await document.exitFullscreen(); else await document.documentElement.requestFullscreen(); } catch (e) {}
 }
@@ -106,11 +116,11 @@ function fxFrame() {
   if (active) requestAnimationFrame(fxFrame); else OFFICE.fxRun = false;
 }
 const fxWake = () => { if (!OFFICE.fxRun) { OFFICE.fxRun = true; requestAnimationFrame(fxFrame); } };
-const keyName = e => e.key.length === 1 ? e.key.toUpperCase() : e.key;
-const fxKey = e => e.key.length === 1 || e.key.startsWith('Arrow') || e.key === 'Enter';
-addEventListener('keydown', e => { if (!fxKey(e) || e.repeat) return; OFFICE.keys.set(keyName(e), { up: null }); fxWake(); }, true);
-addEventListener('keyup', e => { if (!fxKey(e)) return; const s = OFFICE.keys.get(keyName(e)); if (s) s.up = performance.now(); fxWake(); }, true);
-addEventListener('pointerdown', () => { OFFICE.mouse.down = true; fxWake(); }, true);
-addEventListener('pointerup', () => { OFFICE.mouse.down = false; OFFICE.mouse.up = performance.now(); fxWake(); }, true);
-addEventListener('blur', () => { OFFICE.keys.clear(); OFFICE.mouse.down = false; fxWake(); });
+// Cada tecla real acende a tecla do mesmo lugar no teclado da mesa (KeyboardEvent.code); várias ao mesmo tempo
+addEventListener('keydown', e => { if (e.repeat || !e.code) return; OFFICE.keys.set(e.code, { up: null }); fxWake(); }, true);
+addEventListener('keyup', e => { const s = OFFICE.keys.get(e.code); if (s) s.up = performance.now(); fxWake(); }, true);
+// Botão real do mouse: 0 esquerdo, 1 meio, 2 direito
+addEventListener('pointerdown', e => { if (e.pointerType !== 'mouse') return; const b = OFFICE.mouse.btn[e.button]; if (b) { b.down = true; fxWake(); } }, true);
+addEventListener('pointerup', e => { if (e.pointerType !== 'mouse') return; const b = OFFICE.mouse.btn[e.button]; if (b) { b.down = false; b.up = performance.now(); fxWake(); } }, true);
+addEventListener('blur', () => { OFFICE.keys.clear(); OFFICE.mouse.btn.forEach(b => b.down = false); fxWake(); });
 officeLayout(); requestAnimationFrame(officeFrame);

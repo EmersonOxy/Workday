@@ -31,4 +31,4 @@ if (window.visualViewport) {
   };
   vv.addEventListener('resize', fitVV); vv.addEventListener('scroll', fitVV); fitVV();
 }
-applyTheme(); applyLang(); showMenu();
+

@@ -23,13 +23,15 @@ const WALLS = {
 };
 function wallCanvas(name, w = 160, h = 90) { const c = document.createElement('canvas'); c.width = w; c.height = h; if (WALLS[name]) WALLS[name](c.getContext('2d'), w, h); return c; }
 function applyWallpaper() {
-  const d = $('osdesk'), name = hw().wall;
+  const d = $('osdesk'), name = hw().wall, root = document.documentElement;
   if (!d) return;
-  if (!WALLS[name]) { d.style.backgroundImage = ''; return; }
-  const r = d.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
-  const n = Math.max(1, Math.ceil(Math.max(r.width / 160, r.height / 90) * dpr)), k = n / dpr;   // cobre a tela em escala inteira
-  d.style.backgroundImage = `url(${wallCanvas(name).toDataURL()})`;
-  d.style.backgroundSize = `${160 * k}px ${90 * k}px`; d.style.backgroundPosition = 'center'; d.style.imageRendering = 'pixelated';
+  if (!WALLS[name]) { d.style.backgroundImage = ''; root.style.removeProperty('--wall'); return; }
+  const a = $('app').getBoundingClientRect(), r = d.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+  const W = Math.max(r.width, a.width), H = Math.max(r.height, a.height);
+  const n = Math.max(1, Math.ceil(Math.max(W / 160, H / 90) * dpr)), k = n / dpr;   // cobre a tela em escala inteira
+  const url = `url(${wallCanvas(name).toDataURL()})`, size = `${160 * k}px ${90 * k}px`;
+  d.style.backgroundImage = url; d.style.backgroundSize = size; d.style.backgroundPosition = 'center'; d.style.imageRendering = 'pixelated';
+  root.style.setProperty('--wall', url); root.style.setProperty('--wallsz', size);
 }
 addEventListener('resize', applyWallpaper);
 

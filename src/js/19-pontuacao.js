@@ -14,17 +14,25 @@ function addStress(n) {
   if (n > 0 && S.stress >= 100) S.burnout = true;
   if (n >= 1 && S.phase === 'day') stressBar();
 }
-// Barra aprovada (contínua, com marcas de segmento): muda no mesmo quadro do erro.
-// Sinais de perigo do guia: a partir de 2/3 cada aumento faz a barra vibrar mais forte; acima de 5/6 ela pisca.
+// Barra de estresse em duas camadas: a clara (#stressHit) mostra o valor novo no mesmo quadro;
+// a colorida (#stress) segue com um pequeno atraso e desliza até lá, deixando visível quanto foi recebido.
+// Ao aliviar, as duas descem juntas. O valor lógico (S.stress) nunca espera a animação.
+const SB = { main: 0, hitAt: 0, last: 0 };
 function stressBar() {
-  hudSet('stress', 'width', S.stress.toFixed(1) + '%');
-  hudSet('stress', 'background', S.stress < 50 ? 'var(--fin)' : S.stress < 75 ? 'var(--warn)' : 'var(--danger)');
+  const now = performance.now(), dt = Math.min(.1, (now - (SB.last || now)) / 1000); SB.last = now;
+  const v = S.stress;
+  if (v > SB.main + .05 && SB.prev !== undefined && v > SB.prev) SB.hitAt = now;
+  SB.prev = v;
+  if (v < SB.main) SB.main = v;
+  else if (now - SB.hitAt > 180) SB.main += (v - SB.main) * Math.min(1, dt * 7);
+  if (Motion.reduced.matches) SB.main = v;
+  hudSet('stressHit', 'width', v.toFixed(1) + '%');
+  hudSet('stress', 'width', SB.main.toFixed(1) + '%');
+  hudSet('stress', 'background', v < 50 ? 'var(--fin)' : v < 75 ? 'var(--warn)' : 'var(--danger)');
   const w = $('stressWrap'); if (!w) return;
-  if (!w._segs) { w._segs = []; for (let n = 0; n < 12; n++) { const i = document.createElement('i'); i.className = 'sseg'; i.style.setProperty('--c', n < 6 ? 'var(--fin)' : n < 9 ? 'var(--warn)' : 'var(--danger)'); w.append(i); w._segs.push(i); } }
-  const v = Math.ceil(S.stress / 100 * 12 - 1e-6);
-  if (v !== w._lit) w._segs.forEach((s, n) => s.classList.toggle('on', n < v));
-  if (v > (w._lit || 0) && v >= 8) Motion.shake(w, v - 6);
-  w._lit = v; w.classList.toggle('hot', v >= 10);
+  const lvl = Math.ceil(v / 100 * 12 - 1e-6);
+  if (lvl > (w._lit || 0) && lvl >= 8) Motion.shake(w, Math.min(6, lvl - 6));
+  w._lit = lvl; w.classList.toggle('crit', v >= 85);
 }
 function blame(cause, n) { S.causes[cause] = (S.causes[cause] || 0) + n; S.careerCauses[cause] = (S.careerCauses[cause] || 0) + n; addStress(n); }
 function success(base, x, y) {

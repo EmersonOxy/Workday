@@ -34,6 +34,7 @@ function update(dt) {
   if (S.nextTask <= 0) { spawnTask(); S.nextTask = Math.max(1.4, 6.5 - S.level * 0.55) * rand(0.7, 1.3); }
   S.nextEvent -= sdt;
   if (S.nextEvent <= 0) { startEvent(); S.nextEvent = Math.max(7, 20 - S.level) * rand(0.7, 1.3); }
+  restTick();
 
   if (S.level >= 2) {
     S.nextCoffee -= dt;
@@ -59,8 +60,7 @@ function update(dt) {
       if (t.held >= t.need) { completeTask(t, 30); stat('calls'); continue; }
     } else t.life += sdt;
     const left = Math.max(0, 1 - t.life / t.ttl);
-    const on = Math.ceil(left * 10);
-    if (t.cells !== on) { t.cells = on; t.el.querySelectorAll('.timer i').forEach((c, n) => c.classList.toggle('off', n >= on)); }
+    t.el.querySelector('.timer').style.width = left * 100 + '%';   // prazo diminui suave e proporcional ao tempo
     t.el.classList.toggle('soon', left <= .5 && left > .25);
     if (left <= .25 && !t.urg) { t.el.classList.add('late'); t.urg = Motion.urgent(t.el); }
     if (t.chip) { t.chip.style.setProperty('--p', left.toFixed(3)); t.chip.classList.toggle('soon', left <= .5 && left > .25); t.chip.classList.toggle('late', left <= .25); }

@@ -14,6 +14,7 @@ document.addEventListener('keydown', e => {
   const typingTask = S && S.phase === 'day' && !S.paused ? S.tasks.find(k => k.type === 'type' && !k.dead) : null;
   if ((e.key === 'm' || e.key === 'M') && !typingTask) { setSound(!soundOn); return; }
   if (!S || S.phase !== 'day') return;
+  if (S.resting) return;                     // durante a pausa para descansar, só a chamada e o minigame recebem teclas
   if (e.key === 'Escape') {
     e.preventDefault();
     if (S.bossAlert && !S.paused) dodgeBoss(); else if (S.bossAuto <= 0 && !$('modal').classList.contains('hidden') && S.paused) { const back = $('modal').querySelector('#rsCancel, #bgBack, #hwOk'); if (back && !back.disabled) back.click(); else if (!back) closeModal(); } else if (S.bossAuto <= 0) setPaused(!S.paused);

@@ -67,7 +67,7 @@ async function desktop(browser, url, label) {
   ok(await p.evaluate(s0 => S.score > s0 && S.combo >= 1, hit), 'arquivo no setor certo pontua e soma combo');
   await p.keyboard.press('ArrowLeft'); await p.keyboard.press('ArrowRight');
   // todas as tarefas e eventos ao mesmo tempo
-  await p.evaluate(() => { S.dayT = 100; S.level = 12; });
+  await p.evaluate(() => { S.dayT = 100; S.level = 12; S.restDone = true; });
   await p.waitForTimeout(100);
   await p.evaluate(() => { for (let i = 0; i < 6; i++) spawnTask(); bossComing(); freezePc(); startVirus(); startVideo(); S.shuffleT = 0.3; });
   await p.waitForTimeout(1200);
@@ -182,7 +182,9 @@ async function entrega1(browser, url) {
   await p.goto(url); await p.waitForTimeout(400);
   await p.evaluate(() => { newCareer(); closeScene(); startDay(); S.level = 3; });
   // 3. estresse: largura muda no mesmo instante do erro
-  ok(await p.evaluate(() => { fail(10, 'x', 'wrong'); return Math.abs(parseFloat($('stress').style.width) - S.stress) < .2 && getComputedStyle($('stress')).transitionDuration.split(',').every(d => parseFloat(d) === 0); }), 'estresse: barra reage no mesmo quadro do erro, sem transição');
+  ok(await p.evaluate(() => { fail(10, 'x', 'wrong'); return Math.abs(parseFloat($('stressHit').style.width) - S.stress) < .2 && parseFloat($('stress').style.width) < S.stress; }), 'estresse: camada clara mostra o valor novo no mesmo quadro; a principal vem atrás');
+  await p.waitForTimeout(900);
+  ok(await p.evaluate(() => Math.abs(parseFloat($('stress').style.width) - S.stress) < 1.5), 'estresse: preenchimento principal alcança o valor em menos de 1 s');
   // 6. som dos menus: um som por clique, sem duplicar
   await p.evaluate(() => { window._snd = []; const o = sfx; window.sfx = n => { _snd.push(n); return o(n); }; setPaused(true); });
   await p.waitForTimeout(300);
@@ -259,6 +261,99 @@ async function entrega1(browser, url) {
   ok(merr.length === 0, 'celular: sem erros de JavaScript' + (merr.length ? ': ' + merr.join(' | ') : ''));
 }
 
+// Entrega 2: pausa para descansar, minigames, arcade secreto, teclado/mouse da mesa, luminária, prazo suave
+async function entrega2(browser, url) {
+  console.log('\n[entrega 2] computador');
+  const ctx = await browser.newContext({ viewport: { width: 1366, height: 768 }, locale: 'pt-BR' });
+  const p = await ctx.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message));
+  await p.goto(url); await p.waitForTimeout(400);
+  const waitOpts = () => p.waitForFunction(() => document.querySelector('.vc-opts button:not(:disabled)'), null, { timeout: 20000 });
+  // pausa durante o expediente: congela tudo, recusar não pune
+  await p.evaluate(() => { P.decor = ['lamp']; newCareer(); closeScene(); startDay(); S.day = 3; S.level = 6; for (let i = 0; i < 3; i++) spawnTask(); S.restAt = 0; });
+  await p.waitForTimeout(500);
+  const snap = () => p.evaluate(() => JSON.stringify({ t: S.dayT, y: S.file.y, l: S.tasks.map(k => k.life), st: S.stress, sc: S.score }));
+  ok(await p.evaluate(() => S.resting && S.paused && !!document.querySelector('.vcall')), 'pausa: o colega liga e o expediente congela');
+  const s0 = await snap(); await p.waitForTimeout(1500); const s1 = await snap();
+  ok(s0 === s1, 'pausa: relógio, documento, prazos, estresse e pontos não avançam durante a chamada');
+  await waitOpts(); await p.click('.vc-opts button:not(.main)');
+  await p.waitForTimeout(5000);
+  ok(await p.evaluate(() => !S.resting && !S.paused && !document.querySelector('.vcall') && !document.querySelector('.countdown')), 'pausa: recusar encerra a chamada e o expediente volta após 3, 2, 1');
+  ok(await p.evaluate(s => JSON.parse(s).sc === S.score, s1), 'pausa: recusar não penaliza');
+  // aceitar e jogar até o fim; o estado volta igual
+  await p.evaluate(() => { S.restDone = false; S.restAt = 0; window._pick = window.pick; window.pick = a => a.includes('rhythm') ? 'rhythm' : a[0]; });
+  await p.waitForTimeout(300); const before = await snap();
+  await waitOpts(); await p.click('.vc-opts button.main');                 // atender
+  await waitOpts(); await p.click('.vc-opts button >> nth=0');              // resposta à conversa
+  await waitOpts(); await p.click('.vc-opts button.main');                 // aceitar o convite
+  await p.waitForSelector('.mg-host', { timeout: 10000 }); await p.evaluate(() => { window.pick = window._pick; });
+  // Batida de Ponto: acerta todas as notas no tempo do relógio do jogo
+  const res = await p.evaluate(async () => {
+    const R = document.querySelector('.mg-host')._rhythm, KEYS = ['KeyD', 'KeyF', 'KeyJ', 'KeyK'];
+    for (const n of R.notes) {
+      while (R.songT() < n.t - .01) await new Promise(r => setTimeout(r, 5));
+      dispatchEvent(new KeyboardEvent('keydown', { code: KEYS[n.lane], key: 'x' }));
+      if (!n.end) dispatchEvent(new KeyboardEvent('keyup', { code: KEYS[n.lane], key: 'x' }));
+      else setTimeout(() => dispatchEvent(new KeyboardEvent('keyup', { code: KEYS[n.lane], key: 'x' })), (n.end - n.t) * 1000 + 30);
+    }
+    return R.notes.filter(n => n.hit).length / R.notes.length;
+  });
+  ok(res > .95, 'Batida de Ponto: notas no tempo certo são acertadas (' + Math.round(res * 100) + '%)');
+  await p.waitForSelector('.countdown', { timeout: 30000 });
+  const during = await snap();
+  await p.waitForFunction(() => !document.querySelector('.countdown'), null, { timeout: 6000 });
+  const after = await snap(), A = JSON.parse(after), B = JSON.parse(before), D = JSON.parse(during);
+  ok(D.t === B.t && JSON.stringify(D.l) === JSON.stringify(B.l) && D.y === B.y && Math.abs(A.t - B.t) < .1 && await p.evaluate(() => !S.resting && !S.paused), 'pausa: depois do minigame o expediente volta exatamente de onde parou');
+  ok(JSON.parse(after).sc === JSON.parse(before).sc, 'minigame não altera a pontuação da carreira');
+  // Exterminador: tiros destroem pendências, colisão tira vida
+  await p.evaluate(() => { const h = document.createElement('div'); h.className = 'mg-host'; h.id = 'shtest'; document.body.append(h); runMinigame('shooter', h, r => { window._shr = r; }); });
+  await p.waitForTimeout(2200);
+  ok(await p.evaluate(async () => { const G = $('shtest')._shooter; G.foes.push({ k: 'doc', x: G.ship.x, y: 60, hp: 1, vy: 0, ph: 0, w: 9, h: 8, hit: 0 }); dispatchEvent(new KeyboardEvent('keydown', { code: 'Space', key: ' ' })); await new Promise(r => setTimeout(r, 900)); dispatchEvent(new KeyboardEvent('keyup', { code: 'Space', key: ' ' })); return !G.foes.some(f => f.y === 60); }), 'Exterminador: o tiro destrói a pendência');
+  ok(await p.evaluate(async () => { const G = $('shtest')._shooter, l0 = G.lives; G.foes.push({ k: 'mail', x: G.ship.x, y: G.ship.y - 2, hp: 1, vy: 0, ph: 0, w: 9, h: 7, hit: 0 }); await new Promise(r => setTimeout(r, 200)); return G.lives === l0 - 1; }), 'Exterminador: colisão tira uma vida');
+  await p.evaluate(() => $('shtest').remove());
+  // teclado e mouse da mesa: a tecla real acende no lugar certo
+  await p.evaluate(() => { S.resting = false; S.paused = false; });
+  await p.keyboard.down('KeyA'); await p.keyboard.down('Space'); await p.waitForTimeout(60);
+  ok(await p.evaluate(() => { const R = Office.keyRects(OFFICE.L), a = R.get('KeyA'), d = R.get('KeyD'), sp = R.get('Space'), px = k => [...OFFICE.fxCtx.getImageData(k.x + 1, k.y + 1, 1, 1).data].join();
+    return px(a) === px(sp) && px(a) !== '0,0,0,0' && px(d) === '0,0,0,0' && d.x > a.x && sp.w > a.w * 4; }), 'teclado da mesa: A e Espaço acesos juntos, D apagado (layout QWERTY)');
+  await p.keyboard.up('KeyA'); await p.keyboard.up('Space');
+  await p.mouse.click(700, 300, { button: 'right' }); await p.waitForTimeout(20);
+  ok(await p.evaluate(() => OFFICE.mouse.btn[2].up > 0 && OFFICE.mouse.btn[0].up < OFFICE.mouse.btn[2].up), 'mouse da mesa: botão direito responde ao clique direito');
+  // luminária: clique liga/desliga e o estado fica salvo
+  const lp = await p.evaluate(() => { const r = Office.lampRect(OFFICE.L), k = OFFICE.M.k; return [(r.x + r.w / 2) * k, (r.y + 8) * k]; });
+  const on0 = await p.evaluate(() => lightState().lamp);
+  await p.mouse.click(lp[0], lp[1]); await p.waitForTimeout(150);
+  ok(await p.evaluate(on => lightState().lamp === !on && JSON.parse(localStorage.getItem('expediente-config')).lights.lamp === !on, on0), 'luminária: clique alterna a luz e o estado é salvo');
+  // prazo suave
+  ok(await p.evaluate(() => { const t = S.tasks[0]; if (!t) return true; const w = parseFloat(t.el.querySelector('.timer').style.width); return Math.abs(w - Math.max(0, 1 - t.life / t.ttl) * 100) < 2 && !t.el.querySelector('.timer i'); }), 'prazo: barra contínua, proporcional ao tempo restante');
+  // arcade secreto: aparece só com o nome certo, não mexe na carreira
+  await p.evaluate(() => { PROFILE.name = 'Ana'; saveProfile(); showMenu(); });
+  ok(await p.evaluate(() => !document.querySelector('#arc')), 'arcade: botão escondido para outros nomes');
+  await p.evaluate(() => { PROFILE.name = '  player One '; saveProfile(); showMenu(); });
+  ok(await p.evaluate(() => !!document.querySelector('#arc')), 'arcade: "PLAYER ONE" (sem diferenciar maiúsculas e espaços) mostra o controle');
+  const w0 = await p.evaluate(() => JSON.stringify([P.wallet, P.best, localStorage.getItem('expediente-carreira')]));
+  await p.click('#arc'); await waitOpts(); await p.click('.vc-opts button.main');
+  await p.waitForSelector('.mg-host', { timeout: 10000 });
+  await p.evaluate(() => { const h = document.querySelector('.mg-host'); if (h._shooter) h._shooter.lives = 0; else h._rhythm.notes.forEach(n => { n.t = -9; n.end = null; }); });
+  await p.waitForFunction(() => !document.querySelector('.vcall') && !!document.querySelector('#play'), null, { timeout: 30000 });
+  ok(await p.evaluate(w => JSON.stringify([P.wallet, P.best, localStorage.getItem('expediente-carreira')]) === w && !S, w0), 'arcade: joga e volta ao menu sem mexer em carreira, dinheiro ou recorde');
+  await p.evaluate(() => { PROFILE.name = 'Ana'; saveProfile(); showMenu(); });
+  ok(await p.evaluate(() => !document.querySelector('#arc')), 'arcade: trocar o nome esconde o controle de novo');
+  ok(errs.length === 0, 'sem erros de JavaScript' + (errs.length ? ': ' + errs.join(' | ') : ''));
+  await ctx.close();
+  console.log('\n[entrega 2] celular');
+  const m = await (await browser.newContext({ ...devices['iPhone 13'], locale: 'pt-BR' })).newPage(); const me = []; m.on('pageerror', e => me.push(e.message));
+  await m.goto(url); await m.waitForTimeout(300);
+  await m.evaluate(() => { newCareer(); closeScene(); startDay(); S.day = 3; S.restAt = 0; });
+  await m.waitForSelector('.vcall', { timeout: 5000 });
+  ok(await m.evaluate(() => { const r = document.querySelector('.vc-win').getBoundingClientRect(); return r.left >= 0 && r.right <= innerWidth && S.paused; }), 'celular: chamada cabe na tela e congela o expediente');
+  await m.evaluate(() => { document.querySelectorAll('.vcall').forEach(e => e.remove()); callClear(); const h = document.createElement('div'); h.className = 'mg-host'; h.id = 'mt'; h.style.cssText = 'position:fixed;inset:0;z-index:99;background:#fff8ec'; document.body.append(h); runMinigame('rhythm', h, () => {}); });
+  await m.waitForTimeout(300);
+  const box = await (await m.$('#mt canvas')).boundingBox();
+  await m.tap('#mt canvas', { position: { x: box.width * .9, y: box.height * .8 } });
+  ok(await m.evaluate(() => { const R = $('mt')._rhythm; return !!R; }), 'celular: Batida de Ponto aceita toque nas colunas');
+  ok(me.length === 0, 'celular: sem erros de JavaScript' + (me.length ? ': ' + me.join(' | ') : ''));
+}
+
 (async () => {
   paletteLint();
   const browser = await chromium.launch({ args: ['--autoplay-policy=no-user-gesture-required'] });
@@ -267,7 +362,7 @@ async function entrega1(browser, url) {
   else {
     const srv = await serve(path.join(ROOT, 'dist', 'web'));
     const web = `http://localhost:${srv.address().port}/index.html`;
-    await desktop(browser, web, 'versão web (servidor)'); await mobile(browser, web); await entrega1(browser, web); await audio(browser, web, 'versão web');
+    await desktop(browser, web, 'versão web (servidor)'); await mobile(browser, web); await entrega1(browser, web); await entrega2(browser, web); await audio(browser, web, 'versão web');
     await audio(browser, 'file://' + path.join(ROOT, 'dist', 'workday.html'), 'arquivo único offline (file://)');
     await offline(browser, 'file://' + path.join(ROOT, 'dist', 'workday.html'));
     srv.close();

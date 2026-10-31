@@ -209,3 +209,5 @@ document.addEventListener('click', e => {
   setTimeout(() => { if (sfxAt < t0) sfx(b.matches('.main, #pok, #pok2') ? 'pop' : 'click'); }, 0);
 });
 document.addEventListener('change', e => { if (e.target.matches('select, input[type=checkbox]')) { const t0 = performance.now(); setTimeout(() => { if (sfxAt < t0) sfx('click'); }, 0); } });
+// Interruptor: clique seco de duas peças
+SFX.switch = () => { noise({ f: 3200, d: 0.018, v: 0.22, q: 3 }); tone({ type: 'square', f: 900, d: 0.015, v: 0.06, at: 0.03 }); noise({ f: 1800, d: 0.02, v: 0.14, at: 0.035 }); };

@@ -27,6 +27,7 @@ function showMenu() {
       <button class="pxbtn" id="how">${u.how}</button>
       <button class="pxbtn" id="cfg">${u.settings}</button>
       <button class="pxbtn" id="prof">${u.profile}</button>
+      ${arcadeUnlocked() ? `<button class="pxbtn arcade" id="arc" aria-label="${u.arcadeBtn}" title="${u.arcadeBtn}"></button>` : ''}
       <button class="pxbtn menusound" id="msnd">${soundOn ? '♪ ' + u.soundLabel + ': ' + u.soundOn : '♪ ' + u.soundLabel + ': ' + u.soundOff}</button>
     </div>`);
   card.querySelector('#msnd').onclick = () => { setSound(!soundOn); showMenu(); };
@@ -37,6 +38,8 @@ function showMenu() {
   card.querySelector('#how').onclick = () => { const c = modal(`<h2>${u.how}</h2>${u.howText}<div class="actions"><button class="pxbtn main" id="b">${u.back}</button></div>`); c.querySelector('#b').onclick = showMenu; };
   card.querySelector('#cfg').onclick = () => showSettings(showMenu);
   card.querySelector('#prof').onclick = showProfile;
+  const arc = card.querySelector('#arc');
+  if (arc) { arc.append(Pixel.el(SPR2.pad, 3)); Motion.dropIn(arc); arc.onclick = () => { closeModal(); startCall('arcade', showMenu); }; }
 }
 
 function showProfile() {
@@ -64,6 +67,7 @@ function showSettings(onBack) {
     <div class="setting"><span>${u.musicLabel}</span><input type="range" class="pxrange" id="volMusic" min="0" max="100" value="${Math.round(VOL.music * 100)}" aria-label="${u.musicLabel}"></div>
     <div class="setting"><span>${u.sfxLabel}</span><input type="range" class="pxrange" id="volSfx" min="0" max="100" value="${Math.round(VOL.sfx * 100)}" aria-label="${u.sfxLabel}"></div>
     <div class="setting"><span>${u.badgeTitle}</span><div class="seg"><button class="pxbtn" id="editBadge">${u.editBadge}</button><button class="pxbtn" id="custom">${u.customize}</button></div></div>
+    <div class="setting"><span>${u.lights}</span>${seg('light', [['1', u.lightOn], ['0', u.lightOff]], lightState().lamp ? '1' : '0')}</div>
     <div class="setting"><span>${u.tutorial}</span><div class="seg"><button class="pxbtn" id="tut">${u.tutorialReset}</button></div></div>
     <div class="setting"><span>${u.progress}</span><div class="seg" id="eraseBox"><button class="pxbtn" id="erase">${u.erase}</button></div></div>
     <div class="actions"><button class="pxbtn main" id="b">${u.back}</button></div>`);
@@ -72,6 +76,7 @@ function showSettings(onBack) {
     if (set === 'lang') { CFG.lang = v; applyLang(); }
     if (set === 'theme') { CFG.theme = v; applyTheme(); }
     if (set === 'sound') setSound(v === '1');
+    if (set === 'light') { CFG.lights = Object.assign({}, CFG.lights, { lamp: v === '1' }); OFFICE.key = ''; sfx('switch'); }
     if (set === 'display') { CFG.display = v; if ((v === 'full') !== !!document.fullscreenElement) toggleFullscreen(); }
     persist();
     showSettings(onBack);

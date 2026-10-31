@@ -32,6 +32,8 @@ const SPR2 = {
   box: ['..k.k.................', '.kGkGk.......kkkk.....', 'kGgGgGk......kWWk.....', 'kGgGhGk......kWwk.kkkk', '.kGhHk...kkk.kWwk.kTTk', '..khk...kRRRkkWwk.kTTk',
         'kkkkkkkkkkkkkkkkkkkkkk', 'k11111111111111111112k', 'k22222222222222222233k', 'kkkkkkkkkkkkkkkkkkkkkk', 'k22222222222222222233k', 'k22222WWWWWWWW2222233k',
         'k22222WppppppW2222233k', 'k22222WWWWWWWW2222233k', 'k22222222222222222233k', 'k33333333333333333333k', 'kkkkkkkkkkkkkkkkkkkkkk'],
+  // Controle de videogame (botão secreto do arcade)
+  pad: ['..kkkkkkkkkkkkk..', '.kCCCCCCCCCCCCCk.', 'kCCkkCCCCCCCRRCCk', 'kCkJJkCCCCCCRRCCk', 'kCCkkCCkkCCLLCYYk', 'kCCCCCCCCCCLLCYYk', 'kCCCCCCCCCCCCCCCk', 'keCCCCkkkkkCCCCek', '.keeeek...keeeek.', '..kkkk.....kkkk..'],
   steam: [['..w.....', '.w..w...', '..w..w..', '.w..w...', '..w.....', '...w....'], ['...w....', '..w..w..', '.w..w...', '..w..w..', '...w....', '..w.....'],
           ['..w..w..', '...w..w.', '..w..w..', '.w......', '..w.....', '.w......']],
 };
