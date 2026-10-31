@@ -14,32 +14,15 @@ function addStress(n) {
   if (n > 0 && S.stress >= 100) S.burnout = true;
   if (n >= 1 && S.phase === 'day') stressBar();
 }
-// Barra segmentada do guia: 12 segmentos acendem em degrau (verde, âmbar, vermelho pela posição).
-// A partir de 8/12 cada aumento faz a barra vibrar com força crescente; de 10/12 em diante ela pisca.
-// O valor numérico continua contínuo (largura de #stress); só a leitura visual é em degraus.
-const STRESS_SEGS = 12;
-function stressSegs() {
-  const w = $('stressWrap'); if (!w) return [];
-  if (!w._segs) {
-    w._segs = [];
-    for (let n = 0; n < STRESS_SEGS; n++) { const i = document.createElement('i'); i.className = 'sseg'; i.style.setProperty('--c', n < 6 ? 'var(--fin)' : n < 9 ? 'var(--warn)' : 'var(--danger)'); w.append(i); w._segs.push(i); }
-    w._lit = 0;
-  }
-  return w._segs;
-}
+// Barra aprovada (contínua, com marcas de segmento): muda no mesmo quadro do erro.
+// Sinais de perigo do guia: a partir de 2/3 cada aumento faz a barra vibrar mais forte; acima de 5/6 ela pisca.
 function stressBar() {
   hudSet('stress', 'width', S.stress.toFixed(1) + '%');
-  const segs = stressSegs(), w = $('stressWrap'); if (!segs.length) return;
-  const v = Math.min(STRESS_SEGS, Math.ceil(S.stress / 100 * STRESS_SEGS - 1e-6));
-  if (v === w._lit) return;
-  const up = v > w._lit;
-  segs.forEach((s, n) => {
-    const on = n < v; s.classList.toggle('on', on);
-    if (on && n >= w._lit && up) { s.classList.remove('hit'); void s.offsetWidth; s.classList.add('hit'); }   // segmento recém-aceso pisca
-  });
-  w.classList.toggle('hot', v >= 10);
-  if (up && v >= 8) Motion.shake(w, v - 6);
-  w._lit = v;
+  hudSet('stress', 'background', S.stress < 50 ? 'var(--fin)' : S.stress < 75 ? 'var(--warn)' : 'var(--danger)');
+  const w = $('stressWrap'); if (!w) return;
+  const v = Math.ceil(S.stress / 100 * 12 - 1e-6);
+  if (v > (w._lit || 0) && v >= 8) Motion.shake(w, v - 6);
+  w._lit = v; w.classList.toggle('hot', v >= 10);
 }
 function blame(cause, n) { S.causes[cause] = (S.causes[cause] || 0) + n; S.careerCauses[cause] = (S.careerCauses[cause] || 0) + n; addStress(n); }
 function success(base, x, y) {

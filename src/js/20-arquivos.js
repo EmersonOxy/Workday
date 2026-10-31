@@ -26,7 +26,7 @@ function spawnFile() {
 function fallVis(y, H) { if (H <= 0 || y <= 0) return y; const u = Math.min(1, y / H); return H * (.72 * u + .28 * u * u); }
 function placeFile() {
   const f = S.file, w = laneWidth(), H = board.clientHeight - S.trays[0].offsetHeight - f.el.offsetHeight;
-  f.el.style.left = (f.lane * w + 8) + 'px'; f.el.style.width = (w - 16) + 'px'; f.el.style.top = (Motion.reduced.matches ? f.y : fallVis(f.y, H)) + 'px';
+  f.el.style.left = (f.lane * w + 8) + 'px'; f.el.style.width = (w - 16) + 'px'; f.el.style.top = f.y + 'px';
 }
 // O documento que saiu de jogo continua na tela só para terminar a animação
 function retireFile(el, how) {

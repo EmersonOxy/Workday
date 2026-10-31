@@ -59,7 +59,7 @@ function update(dt) {
       if (t.held >= t.need) { completeTask(t, 30); stat('calls'); continue; }
     } else t.life += sdt;
     const left = Math.max(0, 1 - t.life / t.ttl);
-    t.el.querySelector('.timer').style.width = Math.ceil(left * 10) * 10 + '%';   // prazo em 10 degraus, como um mostrador
+    t.el.querySelector('.timer').style.width = left * 100 + '%';
     t.el.classList.toggle('soon', left <= .5 && left > .25);
     if (left <= .25 && !t.urg) { t.el.classList.add('late'); t.urg = Motion.urgent(t.el); }
     if (t.chip) { t.chip.style.setProperty('--p', left.toFixed(3)); t.chip.classList.toggle('soon', left <= .5 && left > .25); t.chip.classList.toggle('late', left <= .25); }

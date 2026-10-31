@@ -1,32 +1,11 @@
   /* ===== Fidelidade ao guia: animações ===== */
-  /* Camada de resposta imediata do teclado e mouse da mesa (por cima do escritório, sem capturar cliques) */
   #officeFx { display: none; }
   body.office #officeFx { position: fixed; left: 0; top: 0; z-index: 0; image-rendering: pixelated; pointer-events: none; }
-
-  /* Estresse: 12 segmentos que acendem em degrau; a largura contínua fica só como valor (invisível) */
-  #stressWrap { display: grid !important; grid-template-columns: repeat(12, 1fr); gap: 2px; padding: 2px; background: var(--ink) !important; overflow: visible; }
-  #stressWrap::after { display: none !important; }
-  #stress { position: absolute; opacity: 0; pointer-events: none; }
   #stressHit { display: none; }
-  .sseg { display: block; background: var(--line); box-shadow: inset 0 -2px 0 rgba(42,31,45,.25); }
-  .sseg.on { background: var(--c); box-shadow: inset 0 2px 0 rgba(255,255,255,.35), inset 0 -2px 0 rgba(42,31,45,.3); }
-  .sseg.hit { animation: seghit .32s steps(4); }
-  @keyframes seghit { 0%, 49% { background: var(--card); } }
-  #stressWrap.hot .sseg.on { animation: seghot .5s steps(1) infinite; }
-  #stressWrap.hot .sseg.on.hit { animation: seghit .32s steps(4), seghot .5s steps(1) .32s infinite; }
-  @keyframes seghot { 50% { background: var(--card); } }
-
-  /* Combo: âmbar com brilho a partir de ×4; vermelho ao quebrar */
-  #combo b { transition: none; }
-  #combo.hot b { color: #ffb938 !important; text-shadow: 0 0 8px rgba(255,185,56,.8); }
+  #stressWrap.hot #stress { animation: seghot .5s steps(1) infinite; }
+  @keyframes seghot { 50% { filter: brightness(1.6); } }
+  /* Combo: âmbar a partir de ×4 com sombra em pixel (sem desfoque); vermelho ao quebrar */
+  #combo.hot b { color: #ffb938 !important; text-shadow: 1px 1px 0 #c47a14; }
   #combo.broke b { color: #ff9d86 !important; text-shadow: none; }
-  body.office #combo.hot b, body.mobile #combo.hot b { background: #2a1f2d; }
-
-  /* Prazo das tarefas: mostrador de 10 células (a largura anda em degraus de 10%) */
-  .task .timer { -webkit-mask: repeating-linear-gradient(90deg, var(--ink) 0 calc(10% - 2px), transparent calc(10% - 2px) 10%); mask: repeating-linear-gradient(90deg, var(--ink) 0 calc(10% - 2px), transparent calc(10% - 2px) 10%); }
-  .task .timer { -webkit-mask-size: var(--tw, 100%) 100%; }
-
-  /* Notificação: o envelope gira em torno da base */
   #toast .env-ico { transform-origin: 50% 80%; flex: none; }
-
-  @media (prefers-reduced-motion: reduce) { #stressWrap.hot .sseg.on, .sseg.hit { animation: none !important; } }
+  @media (prefers-reduced-motion: reduce) { #stressWrap.hot #stress { animation: none; } }
