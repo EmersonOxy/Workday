@@ -84,22 +84,38 @@ function playElement(src, loop, onEnd) {
   A.el = el;
   el.play().catch(() => {});
 }
+// Playlist: cada faixa tem nome próprio e pode ser ligada ou desligada (CFG.playlist). O expediente usa a sua faixa
+// se estiver ligada; senão, toca as outras faixas ligadas em sequência. Nenhuma ligada = silêncio.
+const PLAYLIST = [{ id: 'm1', src: TRACKS.menu[0] }, { id: 'm2', src: TRACKS.menu[1] }, { id: 'm3', src: TRACKS.menu[2] }, { id: 'of', src: TRACKS.office }];
+const trackOn = id => { const p = (typeof CFG !== 'undefined' && CFG.playlist) || {}; return p[id] !== false; };
 function nextMenuTrack() {
-  if (!A.menuQueue.length) A.menuQueue = [...TRACKS.menu].sort(() => Math.random() - 0.5);
-  playElement(A.menuQueue.shift(), false, () => { if (A.mode === 'menu') { A.el = A.elNode = null; nextMenuTrack(); } });
+  const pool = PLAYLIST.filter(t => trackOn(t.id) && (t.id !== 'of' || A.mode !== 'office')).map(t => t.src);
+  if (!pool.length) { A.nowPlaying = null; return; }
+  A.menuQueue = A.menuQueue.filter(s => pool.includes(s));
+  if (!A.menuQueue.length) A.menuQueue = [...pool].sort(() => Math.random() - 0.5);
+  const src = A.menuQueue.shift(), mode = A.mode; A.nowPlaying = src;
+  playElement(src, false, () => { if (A.mode === mode) { A.el = A.elNode = null; nextMenuTrack(); } });
+}
+// Reaplica a playlist na hora (pular faixa ou depois de mudar o que está ligado)
+function playlistApply(skip) {
+  if (!A.ctx) return;
+  const m = A.mode; if (m !== 'menu' && m !== 'office') return;
+  if (m === 'office') stopOffice(); stopElement(.3);
+  if (m === 'office' && trackOn('of') && !skip) { if (A.webaudio && A.office) startOffice(); else playElement(TRACKS.office, true); A.nowPlaying = TRACKS.office; return; }
+  nextMenuTrack();
 }
 // Modos: 'menu' (menu, ponto, fim do dia, mercado), 'office' (expediente), 'over' (demissão), null (silêncio: dormir)
 function music(mode) {
   A.want = mode;
   if (!A.ctx || A.mode === mode) return;
-  if (A.mode === 'office') stopOffice(); else stopElement();
+  stopOffice(); stopElement();
   A.mode = mode;
   muffle(false);
-  if (mode === 'menu') nextMenuTrack();
+  if (mode === 'menu') { A.menuQueue = []; nextMenuTrack(); }
   if (mode === 'over') playElement(TRACKS.over, false, () => { A.el = A.elNode = null; if (A.mode === 'over') { A.mode = null; music('menu'); } });
   if (mode === 'office') {
-    if (A.webaudio && A.office) startOffice();
-    else if (!A.webaudio) playElement(TRACKS.office, true);
+    if (!trackOn('of')) nextMenuTrack();
+    else { A.nowPlaying = TRACKS.office; if (A.webaudio && A.office) startOffice(); else if (!A.webaudio) playElement(TRACKS.office, true); }
   }
 }
 // Abafa a música (pausa, planilha do chefe, configurações durante o dia)

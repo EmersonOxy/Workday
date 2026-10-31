@@ -526,3 +526,9 @@ LANGS.es.call.vsRecord = (w, l, d) => `(General: tú ${w} × ${l} yo${d ? ' · '
 LANGS.pt.ui.hwNames = { cream: 'Creme', graphite: 'Grafite', white: 'Branco', black: 'Preto', silver: 'Prata', blue: 'Azul', mint: 'Menta', peach: 'Pêssego', grape: 'Uva', lemon: 'Limão' };
 LANGS.en.ui.hwNames = { cream: 'Cream', graphite: 'Graphite', white: 'White', black: 'Black', silver: 'Silver', blue: 'Blue', mint: 'Mint', peach: 'Peach', grape: 'Grape', lemon: 'Lemon' };
 LANGS.es.ui.hwNames = { cream: 'Crema', graphite: 'Grafito', white: 'Blanco', black: 'Negro', silver: 'Plata', blue: 'Azul', mint: 'Menta', peach: 'Durazno', grape: 'Uva', lemon: 'Limón' };
+Object.assign(LANGS.pt.ui.osApps, { music: 'Rádio', musicOpen: 'Escolher músicas', skip: 'Próxima faixa', nothing: 'Nada tocando (nenhuma faixa ligada).', soundOff: 'O som está desligado.',
+  tracks: { m1: ['Café das Nove', 'piano manso para bater o ponto'], m2: ['Elevador Panorâmico', 'jazz de sala de espera'], m3: ['Relatório ao Pôr do Sol', 'para fechar o dia'], of: ['Planilha em Loop', 'a trilha do expediente'] } });
+Object.assign(LANGS.en.ui.osApps, { music: 'Radio', musicOpen: 'Choose music', skip: 'Next track', nothing: 'Nothing playing (no tracks on).', soundOff: 'Sound is off.',
+  tracks: { m1: ['Nine O\'Clock Coffee', 'gentle piano for clocking in'], m2: ['Panoramic Elevator', 'waiting-room jazz'], m3: ['Sunset Report', 'for wrapping up the day'], of: ['Spreadsheet Loop', 'the workday theme'] } });
+Object.assign(LANGS.es.ui.osApps, { music: 'Radio', musicOpen: 'Elegir música', skip: 'Siguiente pista', nothing: 'Nada sonando (ninguna pista activa).', soundOff: 'El sonido está apagado.',
+  tracks: { m1: ['Café de las Nueve', 'piano suave para fichar'], m2: ['Ascensor Panorámico', 'jazz de sala de espera'], m3: ['Informe al Atardecer', 'para cerrar el día'], of: ['Planilla en Bucle', 'la música de la jornada'] } });

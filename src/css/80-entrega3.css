@@ -292,3 +292,10 @@
   .hw-seg { flex-wrap: wrap; }
   .hw-seg .pxbtn { display: inline-flex; align-items: center; gap: .35em; font-size: .95em !important; }
   .hw-sw { display: inline-block; width: 14px; height: 14px; box-shadow: 0 0 0 1px #2a1f2d; flex: none; }
+  .pl { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; min-width: 18em; }
+  .pl-t { width: 100%; display: grid !important; grid-template-columns: auto 1fr; gap: 0 .6em; text-align: left; align-items: center; }
+  .pl-t b { font-weight: normal; } .pl-t small { grid-column: 2; color: var(--muted); font-size: .8em; }
+  #modal .pl-t.on { background: var(--card) !important; color: var(--ink) !important; }
+  .pl-ck { grid-row: span 2; width: 16px; height: 16px; background: var(--card); box-shadow: 0 0 0 2px #2a1f2d, inset 2px 2px 0 #c7b595; }
+  .pl-t.on .pl-ck { background: #2f8a45; box-shadow: 0 0 0 2px #2a1f2d, inset 2px 2px 0 #6fbf73; }
+  .pl-now { margin: 0 0 .5em; color: #2f8a45; }

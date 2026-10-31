@@ -213,6 +213,19 @@ const Office = {
       for (let n = 0; n < L.VW / 7; n++) { const y = top + 4 + R() * (L.VH - top - 6) | 0, x0 = R() * L.VW | 0, len = 4 + R() * 10 | 0; for (let k = 0; k < len; k++) { const xx = Math.round(at(x0 + (x0 - vpx) * k * .02, y + k)); if (y + k < L.VH) F(P[3], xx, y + k, 1, 1); } }   // veios seguindo a perspectiva
       F(P.k, 0, top, L.VW, 1); for (let j = 1; j < 4; j++) Pixel.dither(x, 0, top + j, L.VW, 1, P[4], j);   // sombra de contato com a parede
       for (let j = L.VH - 6; j < L.VH; j++) Pixel.dither(x, 0, j, L.VW, 1, P[1], j + 1);                      // borda da frente iluminada
+      // Laterais: a mesa termina antes das bordas da tela. As quinas abrem um pouco em direção a quem está sentado;
+      // fora do tampo aparece o chão (carpete escuro), e a espessura do tampo fica visível como uma faixa mais escura.
+      const eb = Math.max(6, L.VW * .07 | 0), ef = Math.max(2, L.VW * .015 | 0), H0 = L.VH - top;
+      for (let y = top; y < L.VH; y++) {
+        const k = (y - top) / H0, xl = Math.round(eb + (ef - eb) * k), xr = L.VW - xl;
+        x.fillStyle = P.B; x.fillRect(0, y, xl - 3, 1); x.fillRect(xr + 3, y, L.VW - xr - 3, 1);
+        if ((y + (y >> 1)) % 3 === 0) { x.fillStyle = P.b; x.fillRect((y * 7) % Math.max(1, xl - 3), y, 1, 1); x.fillRect(xr + 3 + (y * 5) % Math.max(1, L.VW - xr - 3), y, 1, 1); }
+        x.fillStyle = P[4]; x.fillRect(xl - 3, y, 3, 1); x.fillRect(xr, y, 3, 1);        // espessura do tampo
+        x.fillStyle = P.k; x.fillRect(xl - 4, y, 1, 1); x.fillRect(xr + 3, y, 1, 1); x.fillRect(xl - 1, y, 1, 1); x.fillRect(xr, y, 1, 1);
+        x.fillStyle = P[1]; x.fillRect(xl, y, 1, 1); x.fillRect(xr - 1, y, 1, 1);            // quina iluminada
+      }
+      // sombra da parede no chão, junto ao fundo
+      x.fillStyle = P.k; x.fillRect(0, top, eb - 3, 1); x.fillRect(L.VW - eb + 3, top, eb - 3, 1);
     }
     // Monitor: moldura fina com volume, tela, queixo com marca e pé
     const cx = M.x + (M.w >> 1);

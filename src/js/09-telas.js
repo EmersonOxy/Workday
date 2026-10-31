@@ -185,6 +185,7 @@ function osRestore(win) {
 const APP_ICO = {
   cal:   ['.k.k..k.k...', 'kkkkkkkkkkk.', 'kRRRRRRRRRk.', 'kqqqqqqqqqk.', 'kWWWWWWWWWk.', 'kWpWpWpWpWk.', 'kWWWWWWWWWk.', 'kWpWRWpWpWk.', 'kWWWWWWWWWk.', 'kWpWpWpWWWk.', 'kkkkkkkkkkk.', '............'],
   calc:  ['.kkkkkkkkk..', '.kCCCCCCCk..', '.kkkkkkkkCk.', '.kvvvvvvkCk.', '.kXvVvVvkCk.', '.kkkkkkkkCk.', '.kekekeRkCk.', '.kCkCkCkkCk.', '.kekekeekCk.', '.kCkCkCkkCk.', '.kkkkkkkkk..', '............'],
+  music: ['.....kk.....', '....kMk..k..', '.kkkMMk.k.k.', '.kmmMMk..k.k', '.kmmMMk..k.k', '.kkkMMk.k.k.', '....kMk..k..', '.....kk.....', '..kkkkkkkk..', '..kRRRRRRk..', '..kkkkkkkk..', '............'],
   notes: ['..k.k.k.k...', '.kkkkkkkkk..', '.kyyyyyyyk..', '.kYYYYYYYk..', '.kYZZZZZYk..', '.kYYYYYYYk..', '.kYZZZZYYk..', '.kYYYYYYYk..', '.kYZZZYYYk..', '.kYYYYYYzk..', '.kkkkkkkk...', '............'],
   paint: ['...kkkkk....', '..kWWWWWk...', '.kWRWWWFWk..', 'kWWWWWWWWk..', 'kWLWWkkWWWk.', 'kWWWk..kWWk.', 'kWYWWkkWWWk.', '.kWWWWWW7k..', '..kkWWWWk...', '....kkkk....', '............', '............'],
 };
@@ -233,7 +234,23 @@ function osNotes() {
   ta.addEventListener('keydown', e => e.stopPropagation());
   ta.focus();
 }
+// Playlist: liga/desliga cada faixa, mostra o que está tocando e permite pular
+function osMusic() {
+  const u = U(), t = u.osApps, w = osWindow(t.music, `<p class="pl-now"></p><ul class="pl">${PLAYLIST.map(p => `<li><button class="pxbtn pl-t" data-t="${p.id}"><i class="pl-ck"></i><b>${t.tracks[p.id][0]}</b><small>${t.tracks[p.id][1]}</small></button></li>`).join('')}</ul>
+    <div class="actions"><button class="pxbtn" id="plSkip">${t.skip}</button></div>`, { icon: APP_ICO.music, cls: 'pl-win' });
+  const paint = () => {
+    w.querySelectorAll('.pl-t').forEach(b => b.classList.toggle('on', trackOn(b.dataset.t)));
+    const cur = PLAYLIST.find(p => p.src === A.nowPlaying);
+    w.querySelector('.pl-now').textContent = !soundOn ? t.soundOff : cur ? `♪ ${t.tracks[cur.id][0]}` : t.nothing;
+  };
+  w.querySelectorAll('.pl-t').forEach(b => b.onclick = () => { CFG.playlist = Object.assign({}, CFG.playlist, { [b.dataset.t]: !trackOn(b.dataset.t) }); persist(); sfx('click');
+    const cur = PLAYLIST.find(p => p.src === A.nowPlaying); if (!cur || cur.id === b.dataset.t) playlistApply(); paint(); });
+  w.querySelector('#plSkip').onclick = () => { sfx('click'); playlistApply(true); setTimeout(paint, 50); };
+  const iv = setInterval(() => { if (!w.isConnected) clearInterval(iv); else paint(); }, 1000);
+  paint();
+}
 function osApp(id) {
+  if (id === 'music') return osMusic();
   if (id === 'workday') { const c = $('modal').querySelector('.menu-card'); if (!c) showMenu(); else if (c.style.display === 'none') osRestore(c); else { osFocus(c); Motion.shake(c, 3); } return; }
   if (id === 'cal') return osCalendar();
   if (id === 'calc') return osCalc();
@@ -252,7 +269,7 @@ function osIcons() {
   const m = $('modal'), t = U().osApps; m.querySelectorAll('.os-icons').forEach(e => e.remove());
   if (!document.body.classList.contains('office')) return;
   const g = document.createElement('div'); g.className = 'os-icons';
-  for (const [id, rows, label, pal] of [...(S && S.onBreak ? [] : [['workday', SPR2.doc, 'PORTAL_RH.EXE', WD_SECTOR_RAMP.ti]]), ['cal', APP_ICO.cal, t.calendar], ['calc', APP_ICO.calc, t.calc], ['notes', APP_ICO.notes, t.notes], ['paint', APP_ICO.paint, t.paint], ['prof', MENU_ICO.prof, U().profile]]) {
+  for (const [id, rows, label, pal] of [...(S && S.onBreak ? [] : [['workday', SPR2.doc, 'PORTAL_RH.EXE', WD_SECTOR_RAMP.ti]]), ['cal', APP_ICO.cal, t.calendar], ['calc', APP_ICO.calc, t.calc], ['notes', APP_ICO.notes, t.notes], ['music', APP_ICO.music, t.music], ['paint', APP_ICO.paint, t.paint], ['prof', MENU_ICO.prof, U().profile]]) {
     const d = document.createElement('button'); d.className = 'osicon'; d.append(Pixel.el(rows, 3, pal)); d.insertAdjacentHTML('beforeend', `<span>${label}</span>`);
     const open = () => { g.querySelectorAll('.osicon').forEach(x => x.classList.remove('sel')); sfx('pop'); osApp(id); };
     d.onclick = () => { const n = performance.now(); if (n - (osIcons.last || 0) < 700) return; osIcons.last = n; open(); };   // um clique abre; cliques repetidos não duplicam
@@ -419,6 +436,7 @@ function showSettings(onBack) {
     <div class="setting"><span>${u.soundLabel}</span>${seg('sound', [['1', u.soundOn], ['0', u.soundOff]], soundOn ? '1' : '0')}</div>
     <div class="setting"><span>${u.musicLabel}</span><input type="range" class="pxrange" id="volMusic" min="0" max="100" value="${Math.round(VOL.music * 100)}" aria-label="${u.musicLabel}"></div>
     <div class="setting"><span>${u.sfxLabel}</span><input type="range" class="pxrange" id="volSfx" min="0" max="100" value="${Math.round(VOL.sfx * 100)}" aria-label="${u.sfxLabel}"></div>
+    <div class="setting"><span>${u.osApps.music}</span><div class="seg"><button class="pxbtn" id="plOpen">${u.osApps.musicOpen}</button></div></div>
     <div class="setting"><span>${u.badgeTitle}</span><div class="seg"><button class="pxbtn" id="editBadge">${u.editBadge}</button><button class="pxbtn" id="custom">${u.customize}</button></div></div>
     <div class="setting"><span>${u.lights}</span>${seg('light', [['1', u.lightOn], ['0', u.lightOff]], lightState().lamp ? '1' : '0')}</div>
     <div class="setting"><span>${u.backup}</span><div class="seg" id="bkBox"><button class="pxbtn" id="bkOut">${u.exportSave}</button><button class="pxbtn" id="bkIn">${u.importSave}</button><input type="file" id="bkFile" accept=".json,application/json" hidden></div></div>
@@ -438,6 +456,7 @@ function showSettings(onBack) {
     persist();
     showSettings(onBack);
   });
+  card.querySelector('#plOpen').onclick = () => osMusic();
   card.querySelector('#resSel').onchange = e => { CFG.res = e.target.value; persist(); officeLayout(); };
   card.querySelector('#volMusic').oninput = e => { VOL.music = e.target.value / 100; applyVolumes(); };
   card.querySelector('#volSfx').oninput = e => { VOL.sfx = e.target.value / 100; applyVolumes(); };
