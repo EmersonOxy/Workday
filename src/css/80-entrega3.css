@@ -445,31 +445,19 @@
   .card.locked .mw-b { visibility: hidden; }
 
   /* ===== Calendário da empresa e Arquivo de conquistas ===== */
-  .cal-win { width: min(34em, 96vw) !important; }
-  .cal-tabs { display: flex; gap: 6px; margin-bottom: .5em; }
-  .cal-tabs .pxbtn { margin: 0 !important; padding: 2px 12px 6px !important; }
-  .cal-w5 { grid-template-columns: repeat(5, 1fr) !important; }
-  .cal-d { position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px; min-height: 2.6em; padding: 3px 2px; border: 0; font: inherit; color: var(--ink); background: var(--panel); box-shadow: 0 0 0 1px var(--line); cursor: pointer; }
-  .cal-d b { font-size: .9em; }
-  .cal-d.past { opacity: .55; }
-  .cal-d.has { background: var(--card); }
-  .cal-d.today { box-shadow: 0 0 0 2px var(--ink), inset 0 -3px 0 var(--os-ac, #44609f); }
-  .cal-d.sel { background: var(--os-btn, #e9dcc2); box-shadow: 0 0 0 2px var(--ink); }
-  .cal-ic { display: flex; gap: 1px; min-height: 10px; line-height: 0; }
-  .cal-ic em { font-style: normal; font-size: .8em; line-height: 1; color: var(--muted); }
-  .cal-ev { margin-top: .6em; display: flex; flex-direction: column; gap: .5em; }
-  .cal-dayh { margin: 0; font-weight: bold; }
-  .cal-evc { padding: .5em .6em; background: var(--card); box-shadow: 0 0 0 2px var(--ink); }
-  .cal-evc p { margin: .3em 0; }
-  .cal-evh { display: flex; gap: .6em; align-items: center; }
-  .cal-evh div { display: flex; flex-direction: column; }
-  .cal-pin { line-height: 0; }
-  .cal-steps { margin: .3em 0; padding: 0; list-style: none; }
-  .cal-steps li { display: flex; gap: .4em; align-items: center; }
-  .cal-steps li i { width: 10px; height: 10px; flex: none; box-shadow: inset 0 0 0 2px var(--ink); }
-  .cal-steps li.ok i { background: var(--fin); }
-  .cal-steps li small { color: var(--muted); }
-  .cal-evc .actions { margin: .3em 0 0; justify-content: flex-start; }
+  .cal { position: relative; }
+  .cal-g span.has { position: relative; padding-bottom: 20px; }
+  .cal-ev { position: absolute; left: 50%; bottom: 1px; translate: -50% 0; padding: 0; border: 0; background: none; line-height: 0; cursor: pointer; }
+  .cal-ev.done { opacity: .55; }
+  .cal-ev.now { animation: calHop 1.2s steps(2) infinite; }
+  @keyframes calHop { 50% { translate: -50% -2px; } }
+  @media (prefers-reduced-motion: reduce) { .cal-ev.now { animation: none; } }
+  .cal-bub { position: absolute; z-index: 5; width: min(17em, 100%); padding: .5em .6em; background: #fff8ec; color: #2a1f2d; font-size: .85em; text-align: left;
+    box-shadow: 0 0 0 2px #2a1f2d, 4px 4px 0 rgba(42,31,45,.35); }
+  .cal-bub::before { content: ''; position: absolute; top: -8px; left: calc(var(--tip, 50%) - 6px); width: 12px; height: 8px; background: #2a1f2d; clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+  .cal-bub::after { content: ''; position: absolute; top: -5px; left: calc(var(--tip, 50%) - 4px); width: 8px; height: 6px; background: #fff8ec; clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+  .cal-bub p { margin: .25em 0; } .cal-bub small { color: #626875; }
+  .cal-bub .actions { margin: .3em 0 0; justify-content: flex-start; flex-wrap: wrap; gap: 6px; }
   .arq-win { width: min(40em, 96vw) !important; }
   .arq { display: grid; grid-template-columns: 9em 1fr; grid-template-rows: 1fr auto; gap: 0; min-height: 18em; background: #d7d9de; color: #2a1f2d; box-shadow: inset 2px 2px 0 #fff8ec, inset -2px -2px 0 #626875; padding: 6px; }
   .arq-nav { display: flex; flex-direction: column; gap: 3px; padding-right: 6px; }
@@ -494,13 +482,15 @@
   .ctl-win { width: min(36em, 96vw) !important; }
   .ctl-promo { margin: .3em 0 .5em; font-size: .9em; display: flex; flex-wrap: wrap; gap: .3em; align-items: center; }
   .ctl-tag { padding: 1px 6px; background: var(--card); box-shadow: 0 0 0 1px var(--line); }
-  .ctl-tag.now { background: var(--warn, #ffb938); color: #2a1f2d; box-shadow: 0 0 0 2px #2a1f2d; }
+  .ctl-tag.now { color: var(--ink); box-shadow: 0 0 0 1px var(--ink); }
   .ctl-list { display: flex; flex-direction: column; gap: 4px; max-height: 24em; overflow: auto; padding: 2px; }
   .ctl-row { display: grid; grid-template-columns: 52px 1fr auto; gap: .6em; align-items: center; padding: 4px 6px; background: var(--card); box-shadow: 0 0 0 1px var(--line); }
   .ctl-row div { display: flex; flex-direction: column; } .ctl-row small { color: var(--muted); font-size: .8em; }
   .ctl-row .ctl-k { color: var(--ink); opacity: .75; }
-  .ctl-row.own { opacity: .7; } .ctl-row.sale { box-shadow: 0 0 0 2px var(--ink); }
+  .ctl-row.own .ctl-spr { opacity: .6; }
   .ctl-row em { font-style: normal; white-space: nowrap; text-align: right; }
   .ctl-spr { display: flex; justify-content: center; line-height: 0; }
   s + .promo, .ptag s, .ctl-row s { opacity: .6; }
   .promo { color: var(--danger, #a8262a); }
+  /* a área de trabalho do WorkOS à vista (ícones na tela) nunca deixa o HUD do expediente aparecer por trás */
+  body.office:has(#modal .os-icons) #app > header, body.office:has(#modal .os-icons) #inv, body.office:has(#modal .os-icons) #board, body.office:has(#modal .os-icons) #tasks { visibility: hidden; }

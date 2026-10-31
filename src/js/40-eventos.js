@@ -5,6 +5,7 @@
 // (broche, medalha ou personalização) é entregue uma única vez, gravada antes do aviso (recarregar não duplica).
 
 LANGS.pt.ui.ev = {
+  calNote: 'Os ícones marcam eventos da empresa nos dias de expediente. Clique para saber mais.', todo: 'O que fazer:',
   app: 'Calendário', tabCareer: 'Expediente', tabReal: 'Aparelho', archive: 'Arquivo',
   realNote: 'Data real do aparelho. Os eventos da empresa seguem o calendário do expediente.',
   cycle: n => `Ciclo ${n}`, dayN: n => `Dia ${n}`, today: 'Hoje', noCareer: 'Sem carreira em andamento: o calendário mostra o primeiro ciclo.',
@@ -33,6 +34,7 @@ LANGS.pt.ui.ev = {
     dec5: ['Mesa com personalidade', 'Tenha 5 enfeites.'], q3: ['Espírito de equipe', 'Conclua 3 missões.'], all: ['Colecionador', 'Junte todos os broches e medalhas.'] },
 };
 LANGS.en.ui.ev = {
+  calNote: 'Icons mark company events on workdays. Click one to learn more.', todo: 'What to do:',
   app: 'Calendar', tabCareer: 'Workdays', tabReal: 'Device', archive: 'Archive',
   realNote: 'Real date of this device. Company events follow the workday calendar.',
   cycle: n => `Cycle ${n}`, dayN: n => `Day ${n}`, today: 'Today', noCareer: 'No career in progress: showing the first cycle.',
@@ -61,6 +63,7 @@ LANGS.en.ui.ev = {
     dec5: ['Desk with character', 'Own 5 decorations.'], q3: ['Team spirit', 'Complete 3 missions.'], all: ['Collector', 'Gather every pin and medal.'] },
 };
 LANGS.es.ui.ev = {
+  calNote: 'Los iconos marcan eventos de la empresa en días de trabajo. Haz clic para saber más.', todo: 'Qué hacer:',
   app: 'Calendario', tabCareer: 'Jornadas', tabReal: 'Dispositivo', archive: 'Archivo',
   realNote: 'Fecha real del dispositivo. Los eventos de la empresa siguen el calendario de jornadas.',
   cycle: n => `Ciclo ${n}`, dayN: n => `Día ${n}`, today: 'Hoy', noCareer: 'Sin carrera en curso: se muestra el primer ciclo.',
@@ -189,65 +192,84 @@ function pinEl(id, scale = 3, owned = true) {
   return Pixel.el(PIN_SPR[id].map(r => r.replace(/[^.]/g, 'K')), scale);
 }
 
-// ===== Calendário do WorkOS: expediente (eventos) e data real do aparelho =====
-function osCalendar() {
-  const u = U(), t = u.osApps, e = u.ev;
-  const w = osWindow(t.calendar, `<div class="cal cal2"><div class="cal-tabs"><button class="pxbtn on" data-tab="c">${e.tabCareer}</button><button class="pxbtn" data-tab="r">${e.tabReal}</button></div>
-    <div class="cal-pane" data-p="c"><div class="cal-h"><button class="pxbtn" data-c="-1">◀</button><b></b><button class="pxbtn" data-c="1">▶</button></div><div class="cal-g cal-w5"></div><div class="cal-ev"></div></div>
-    <div class="cal-pane" data-p="r" hidden><div class="cal-h"><button class="pxbtn" data-m="-1">◀</button><b></b><button class="pxbtn" data-m="1">▶</button></div><div class="cal-g"></div><p class="cal-note">${e.realNote}</p></div></div>`, { icon: APP_ICO.cal, cls: 'cal-win' });
-  Quests.check(); sfx('page');
-  const today = Quests.today(), hasCareer = !!load('carreira', null) || !!(S && S.running);
-  let cyc = Math.floor((today - 1) / CYCLE), sel = null;
-  // eventos de um ciclo: dia → lista de eventos (descobertos até 3 dias antes; antes disso só um "?")
-  const evOf = d => SPECIAL.filter(ev => { const w2 = Quests.win(ev, d); return d >= w2.a && d <= w2.b; });
-  const known = (ev, d) => { const w2 = Quests.win(ev, d); return today >= w2.a - 3 || QST.done[ev.id]; };
-  const paintC = () => {
-    const pc = w.querySelector('[data-p=c]'); pc.querySelector('.cal-h b').textContent = e.cycle(cyc + 1);
-    pc.querySelector('[data-c="-1"]').disabled = cyc <= 0;
-    const g = pc.querySelector('.cal-g'); g.innerHTML = e.wk.map(x => `<i>${x}</i>`).join('');
-    for (let i = 1; i <= CYCLE; i++) { const d = cyc * CYCLE + i, evs = evOf(d), b = document.createElement('button');
-      b.className = 'cal-d' + (d === today ? ' today' : '') + (d < today ? ' past' : '') + (sel === d ? ' sel' : '');
-      b.innerHTML = `<b>${d}</b>`; const ic = document.createElement('span'); ic.className = 'cal-ic';
-      evs.forEach(ev => ic.append(known(ev, d) ? pinEl(ev.pin, 2, true) : Object.assign(document.createElement('em'), { textContent: '?' })));
-      if (evs.length) b.classList.add('has');
-      b.append(ic); b.onclick = () => { sel = d; sfx('click'); paintC(); detail(d); }; g.append(b); }
-    if (!hasCareer) { const n = document.createElement('p'); n.className = 'cal-note'; n.textContent = e.noCareer; g.after(n); pc.querySelectorAll('.cal-note').forEach((x, i, a) => i < a.length - 1 && x.remove()); }
-  };
-  const detail = d => {
-    const box = w.querySelector('.cal-ev'), evs = evOf(d); box.innerHTML = '';
-    const head = document.createElement('p'); head.className = 'cal-dayh'; head.textContent = `${e.dayN(d)} · ${e.wk[(d - 1) % 5]}${d === today ? ' · ' + e.today : ''}`; box.append(head);
-    if (!evs.length) { box.insertAdjacentHTML('beforeend', `<p class="hint">${e.empty}</p>`); return; }
-    for (const ev of evs) {
-      const card = document.createElement('div'); card.className = 'cal-evc';
-      if (!known(ev, d)) { card.innerHTML = `<p class="hint">${e.hidden}</p>`; box.append(card); continue; }
-      QST.seen[ev.id] = true; qSave();
-      const w2 = Quests.win(ev, d), on = today >= w2.a && today <= w2.b, a = Quests.act(ev.id), done = !!QST.done[ev.id], cnt = Quests.count(ev);
-      card.innerHTML = `<div class="cal-evh"><span class="cal-pin"></span><div><b>${e.names[ev.id]}</b><small>${e.window(w2.a, w2.b)}</small></div></div>
-        <p>${e.desc[ev.id]}</p><ul class="cal-steps">${ev.steps.map(([k, n], i) => `<li class="${cnt[i] >= n ? 'ok' : ''}"><i></i>${e.steps[k](n)}${k === 'sign' || k === 'calm' ? '' : ` <small>${e.progress(cnt[i], n)}</small>`}</li>`).join('')}</ul>
-        <p class="cal-rw"><small>${e.reward}:</small> ${e.pins[ev.pin]}${ev.unlock ? ' + ' + e.unlocks[ev.unlock] : ''}</p>
-        <div class="actions"></div><p class="hint">${done ? e.done : today > w2.b ? e.expired : !on ? e.soon(w2.a) : a ? e.joined : e.optional}</p>`;
-      card.querySelector('.cal-pin').append(pinEl(ev.pin, 3, done));
-      const act = card.querySelector('.actions');
-      if (on && !done && !a) { const b = document.createElement('button'); b.className = 'pxbtn main'; b.textContent = e.join; b.onclick = () => { if (Quests.join(ev.id)) { sfx('ok'); detail(d); paintC(); } }; act.append(b); }
-      if (on && a && !done && ev.steps.some(s => s[0] === 'sign') && !(a.p.sign >= 1)) {
-        const b = document.createElement('button'); b.className = 'pxbtn'; b.textContent = e.sign;
-        b.onclick = () => { act.replaceChildren(sigPad(u.signature, () => { a.p.sign = 1; qSave(); Quests.check(); sfx('ok'); detail(d); })); };
-        act.append(b);
-      }
-      box.append(card);
-    }
-  };
-  w.querySelectorAll('[data-c]').forEach(b => b.onclick = () => { cyc = Math.max(0, cyc + +b.dataset.c); sel = null; sfx('click'); paintC(); w.querySelector('.cal-ev').innerHTML = ''; });
-  // data real do aparelho (como antes)
-  const now = new Date(); let y = now.getFullYear(), mo = now.getMonth();
-  const paintR = () => { const pr = w.querySelector('[data-p=r]'), first = new Date(y, mo, 1).getDay(), days = new Date(y, mo + 1, 0).getDate();
-    pr.querySelector('.cal-h b').textContent = new Date(y, mo, 1).toLocaleDateString(CFG.lang === 'en' ? 'en-US' : CFG.lang === 'es' ? 'es-ES' : 'pt-BR', { month: 'long', year: 'numeric' });
-    pr.querySelector('.cal-g').innerHTML = t.week.map(d => `<i>${d}</i>`).join('') + '<span></span>'.repeat(first) +
-      Array.from({ length: days }, (_, i) => `<span class="${y === now.getFullYear() && mo === now.getMonth() && i + 1 === now.getDate() ? 'today' : ''}">${i + 1}</span>`).join(''); };
-  w.querySelectorAll('[data-m]').forEach(b => b.onclick = () => { mo += +b.dataset.m; if (mo < 0) { mo = 11; y--; } if (mo > 11) { mo = 0; y++; } sfx('click'); paintR(); });
-  w.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => { sfx('click'); w.querySelectorAll('[data-tab]').forEach(x => x.classList.toggle('on', x === b)); w.querySelectorAll('.cal-pane').forEach(p => p.hidden = p.dataset.p !== b.dataset.tab); });
-  paintC(); paintR(); sel = today; paintC(); detail(today);
+// ===== Calendário do WorkOS: o mês real do aparelho, com ícones nos dias que têm evento da empresa =====
+// O dia de trabalho "de agora" cai na data de hoje; os dias seguintes de expediente são os próximos dias úteis
+// (sábado e domingo não têm expediente). Clicar num ícone abre um balão que vai escrevendo o que é e o que fazer.
+function careerDayOf(date, today = Quests.today(), base = new Date()) {
+  const wd = d => d.getDay() % 6 !== 0; if (!wd(date)) return 0;
+  const a = new Date(base.getFullYear(), base.getMonth(), base.getDate()), b = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  let n = 0, step = b > a ? 1 : -1; const c = new Date(a);
+  while (c.getTime() !== b.getTime()) { c.setDate(c.getDate() + step); if (wd(c)) n += step; }
+  if (!wd(a) && step > 0) n -= 1;   // hoje é fim de semana: o próximo dia útil é o dia de trabalho "de agora"
+  return today + n;
 }
+function typeText(el, html, done) {
+  // escreve o texto aos poucos (o HTML de cada trecho entra inteiro); com movimento reduzido aparece de uma vez
+  const parts = html.split(/(<[^>]+>)/).filter(Boolean); el.innerHTML = '';
+  if (Motion.reduced && Motion.reduced.matches) { el.innerHTML = html; done && done(); return () => {}; }
+  let pi = 0, ci = 0, out = '', stop = false;
+  const tick = () => { if (stop || !el.isConnected) return;
+    for (let k = 0; k < 2 && pi < parts.length; k++) { const p = parts[pi]; if (p[0] === '<') { out += p; pi++; k--; continue; } out += p[ci++]; if (ci >= p.length) { pi++; ci = 0; } }
+    el.innerHTML = out; if (pi < parts.length) { if (out.length % 9 === 0) sfx('key'); setTimeout(tick, 22); } else done && done(); };
+  tick(); return () => { stop = true; el.innerHTML = html; done && done(); };
+}
+function osCalendar() {
+  const u = U(), t = u.osApps, e = u.ev, now = new Date(), first = new Date(now); while (first.getDay() % 6 === 0) first.setDate(first.getDate() + 1);
+  let y = first.getFullYear(), mo = first.getMonth();   // abre no mês do próximo dia de expediente (fim de semana pula para segunda)
+  const w = osWindow(t.calendar, `<div class="cal"><div class="cal-h"><button class="pxbtn" data-m="-1">◀</button><b></b><button class="pxbtn" data-m="1">▶</button></div><div class="cal-g"></div><p class="cal-note"></p></div>`, { icon: APP_ICO.cal, cls: 'cal-win' });
+  Quests.check(); sfx('page');
+  const today = Quests.today(), known = (ev, d) => { const w2 = Quests.win(ev, d); return today >= w2.a - 3 || QST.done[ev.id]; };
+  const evOf = d => d < 1 ? [] : SPECIAL.filter(ev => Quests.on(ev, d));
+  w.querySelector('.cal-note').textContent = e.calNote;
+  let bubble = null, skip = null;
+  const closeBubble = () => { if (bubble) { bubble.remove(); bubble = null; } };
+  const open = (cell, d) => {
+    closeBubble(); sfx('pop');
+    const evs = evOf(d), b = document.createElement('div'); b.className = 'cal-bub'; bubble = b;
+    b.innerHTML = `<div class="cal-bub-t"></div><div class="actions"></div>`;
+    const box = w.querySelector('.cal'); box.append(b);
+    const r = cell.getBoundingClientRect(), rb = box.getBoundingClientRect();
+    b.style.left = Math.max(0, Math.min(rb.width - b.offsetWidth, r.left - rb.left + r.width / 2 - b.offsetWidth / 2)) + 'px';
+    b.style.top = (r.bottom - rb.top + 8) + 'px';
+    b.style.setProperty('--tip', (r.left - rb.left + r.width / 2 - parseFloat(b.style.left)) + 'px');
+    const parts = evs.map(ev => {
+      if (!known(ev, d)) return `<p>${e.hidden}</p>`;
+      QST.seen[ev.id] = true;
+      const w2 = Quests.win(ev, d), cnt = Quests.count(ev), done = !!QST.done[ev.id], a = Quests.act(ev.id), on = today >= w2.a && today <= w2.b;
+      return `<p><b>${e.names[ev.id]}</b> · <small>${e.window(w2.a, w2.b)}</small></p><p>${e.desc[ev.id]}</p>
+        <p><b>${e.todo}</b> ${ev.steps.map(([k, n], i) => e.steps[k](n) + (k === 'sign' || k === 'calm' || !a ? '' : ` (${e.progress(cnt[i], n)})`)).join('; ')}.</p>
+        <p><small>${e.reward}: ${e.pins[ev.pin]}${ev.unlock ? ' + ' + e.unlocks[ev.unlock] : ''}</small></p>
+        <p><small>${done ? e.done : today > w2.b ? e.expired : !on ? e.soon(w2.a) : a ? e.joined : e.optional}</small></p>`;
+    });
+    qSave();
+    const acts = () => { const act = b.querySelector('.actions');
+      for (const ev of evs) { if (!known(ev, d)) continue; const w2 = Quests.win(ev, d), on = today >= w2.a && today <= w2.b, a = Quests.act(ev.id);
+        if (on && !QST.done[ev.id] && !a) { const bt = document.createElement('button'); bt.className = 'pxbtn main'; bt.textContent = e.join; bt.onclick = ev2 => { ev2.stopPropagation(); if (Quests.join(ev.id)) { sfx('confirm'); paint(); open(cell, d); } }; act.append(bt); }
+        if (on && a && !QST.done[ev.id] && ev.steps.some(s2 => s2[0] === 'sign') && !(a.p.sign >= 1)) { const bt = document.createElement('button'); bt.className = 'pxbtn'; bt.textContent = e.sign;
+          bt.onclick = ev2 => { ev2.stopPropagation(); act.replaceChildren(sigPad(u.signature, () => { a.p.sign = 1; qSave(); Quests.check(); sfx('ok'); paint(); open(cell, d); })); }; act.append(bt); } } };
+    skip = typeText(b.querySelector('.cal-bub-t'), parts.join(''), acts);
+    b.addEventListener('pointerdown', ev2 => { ev2.stopPropagation(); if (skip && !ev2.target.closest('button, .sig')) { skip(); skip = null; } });
+  };
+  w.addEventListener('pointerdown', ev2 => { if (bubble && !ev2.target.closest('.cal-bub, .cal-ev')) closeBubble(); });
+  const paint = () => {
+    closeBubble();
+    const first = new Date(y, mo, 1).getDay(), days = new Date(y, mo + 1, 0).getDate();
+    w.querySelector('.cal-h b').textContent = new Date(y, mo, 1).toLocaleDateString(CFG.lang === 'en' ? 'en-US' : CFG.lang === 'es' ? 'es-ES' : 'pt-BR', { month: 'long', year: 'numeric' });
+    const g = w.querySelector('.cal-g');
+    g.innerHTML = t.week.map(d => `<i>${d}</i>`).join('') + '<span></span>'.repeat(first) +
+      Array.from({ length: days }, (_, i) => `<span class="${y === now.getFullYear() && mo === now.getMonth() && i + 1 === now.getDate() ? 'today' : ''}">${i + 1}</span>`).join('');
+    [...g.querySelectorAll('span')].slice(first).forEach((sp, i) => {
+      const d = careerDayOf(new Date(y, mo, i + 1), today, now), evs = evOf(d).filter(ev => Quests.win(ev, d).a === d || (d === today && known(ev, d))); if (!evs.length || d < today - 25) return;   // ícone no 1º dia do evento (e hoje, se ele estiver acontecendo)
+      const ic = document.createElement('button'); ic.className = 'cal-ev' + (evs.some(ev => QST.done[ev.id]) ? ' done' : ''); ic.setAttribute('aria-label', e.hidden);
+      const ev = evs[0]; ic.append(known(ev, d) ? pinEl(ev.pin, 2, true) : Pixel.el(CAL_Q, 2));
+      if (known(ev, d) && today >= Quests.win(ev, d).a && today <= Quests.win(ev, d).b && !QST.done[ev.id]) ic.classList.add('now');
+      sp.classList.add('has'); sp.append(ic); ic.onclick = ev2 => { ev2.stopPropagation(); open(sp, d); };
+    });
+  };
+  w.querySelectorAll('[data-m]').forEach(b => b.onclick = () => { mo += +b.dataset.m; if (mo < 0) { mo = 11; y--; } if (mo > 11) { mo = 0; y++; } sfx('click'); paint(); });
+  paint();
+}
+const CAL_Q = ['.kkkk.', 'kWWWWk', 'kkkWWk', '.kWWk.', '.kkkk.', '.kWk..', '.kkk..'];
 
 // ===== Arquivo de conquistas: programa antigo com gavetas (missões, coleção, personalizações, conquistas) =====
 function osArchive() {
