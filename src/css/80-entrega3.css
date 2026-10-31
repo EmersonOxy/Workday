@@ -262,3 +262,10 @@
   .os-task.on { box-shadow: 0 0 0 2px #2a1f2d, inset 2px 2px 0 #8f7d63, inset -2px -2px 0 #fff8ec; background: #fff8ec; }
   .app-win { width: min(40em, 94vw); max-height: 88%; }
   .app-win .mw-in { overflow: auto; background: var(--card); }
+
+  /* ===== Intervalo livre ===== */
+  .os-back { position: absolute; right: 13em; bottom: .25em; z-index: 6; height: 1.6em; padding: 0 .8em; border: 0; cursor: pointer; font: 1em var(--pixel); color: #fff8ec; background: #2f8a45;
+    box-shadow: 0 0 0 2px #2a1f2d, inset 2px 2px 0 #6fbf73, inset -2px -3px 0 #2f5a33; }
+  body.on-break .os-back { animation: none; }
+  body.mobile .os-back { right: .5em; bottom: .5em; height: 44px; }
+  body.on-break #osdesk { display: block !important; }

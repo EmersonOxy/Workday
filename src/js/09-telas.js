@@ -112,10 +112,12 @@ function osStart(u) {
   const paintMe = () => sm.querySelector('.os-me').replaceChildren(osPicEl(40));
   paintMe(); sm.querySelector('b').textContent = profileName();
   sm.querySelector('.os-me').onclick = e => { e.stopPropagation(); const old = sm.querySelector('.os-pics'); if (old) old.remove(); else osPicPicker(sm.querySelector('.os-sh'), paintMe); };
-  const items = { prof: () => showBadge(showMenu), pc: () => showCustomize(showMenu), cfg: () => showSettings(showMenu) };
+  const brk = S && S.onBreak, home = brk ? breakHome : showMenu;
+  if (brk) sm.querySelector('[data-a=off]').textContent = u.breakEnd;
+  const items = { prof: () => showBadge(home), pc: () => showCustomize(home), cfg: () => showSettings(home) };
   b.onclick = e => { e.stopPropagation(); sm.classList.toggle('hidden'); b.classList.toggle('on'); sfx('click'); };
   sm.onclick = e => { const a = e.target.closest('button'); if (!a) return; sm.classList.add('hidden'); b.classList.remove('on');
-    if (a.dataset.a === 'off') return osShutdown(); sfx('click'); items[a.dataset.a](); };
+    if (a.dataset.a === 'off') return brk ? endBreak() : osShutdown(); sfx('click'); items[a.dataset.a](); };
   m.addEventListener('pointerdown', e => { if (!e.target.closest('.os-smenu, .os-start')) { sm.classList.add('hidden'); b.classList.remove('on'); } });
 }
 function osShutdown() {
@@ -250,7 +252,7 @@ function osIcons() {
   const m = $('modal'), t = U().osApps; m.querySelectorAll('.os-icons').forEach(e => e.remove());
   if (!document.body.classList.contains('office')) return;
   const g = document.createElement('div'); g.className = 'os-icons';
-  for (const [id, rows, label, pal] of [['workday', SPR2.doc, 'PORTAL_RH.EXE', WD_SECTOR_RAMP.ti], ['cal', APP_ICO.cal, t.calendar], ['calc', APP_ICO.calc, t.calc], ['notes', APP_ICO.notes, t.notes], ['paint', APP_ICO.paint, t.paint], ['prof', MENU_ICO.prof, U().profile]]) {
+  for (const [id, rows, label, pal] of [...(S && S.onBreak ? [] : [['workday', SPR2.doc, 'PORTAL_RH.EXE', WD_SECTOR_RAMP.ti]]), ['cal', APP_ICO.cal, t.calendar], ['calc', APP_ICO.calc, t.calc], ['notes', APP_ICO.notes, t.notes], ['paint', APP_ICO.paint, t.paint], ['prof', MENU_ICO.prof, U().profile]]) {
     const d = document.createElement('button'); d.className = 'osicon'; d.append(Pixel.el(rows, 3, pal)); d.insertAdjacentHTML('beforeend', `<span>${label}</span>`);
     const open = () => { g.querySelectorAll('.osicon').forEach(x => x.classList.remove('sel')); sfx('pop'); osApp(id); };
     d.onclick = () => { const n = performance.now(); if (n - (osIcons.last || 0) < 700) return; osIcons.last = n; open(); };   // um clique abre; cliques repetidos não duplicam

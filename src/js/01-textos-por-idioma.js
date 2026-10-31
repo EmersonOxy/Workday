@@ -511,3 +511,6 @@ Object.assign(LANGS.en.ui.osApps, { calendar: 'Calendar', calc: 'Calculator', no
   careerDay: n => `Saved career: workday ${n} (in-game day).`, noCareer: 'No career in progress.' });
 Object.assign(LANGS.es.ui.osApps, { calendar: 'Calendario', calc: 'Calculadora', notes: 'Bloc de notas', paint: 'Personalizar', saved: 'Guardado en el dispositivo', week: ['D', 'L', 'M', 'X', 'J', 'V', 'S'],
   careerDay: n => `Carrera guardada: día ${n} de la jornada (día ficticio del juego).`, noCareer: 'Ninguna carrera en curso.' });
+Object.assign(LANGS.pt.ui, { breakStart: 'Intervalo livre', breakEnd: 'Voltar ao expediente' });
+Object.assign(LANGS.en.ui, { breakStart: 'Free break', breakEnd: 'Back to work' });
+Object.assign(LANGS.es.ui, { breakStart: 'Descanso libre', breakEnd: 'Volver al trabajo' });

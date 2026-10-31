@@ -80,10 +80,11 @@ function officeFrame(now) {
       if (sm) return close();
       const u = U(); sfx('click'); st.classList.add('on');
       sm = document.createElement('div'); sm.className = 'os-smenu work';
-      sm.innerHTML = `<div class="os-sh"><span class="os-me"></span><b></b></div><button data-a="cfg">${u.settings}</button><i></i><button data-a="off">${u.shutdown}</button>`;
+      sm.innerHTML = `<div class="os-sh"><span class="os-me"></span><b></b></div>${breakUnlocked() ? `<button data-a="brk"${breakAvailable() ? '' : ' disabled'}>${u.breakStart}${S.breakDay === S.day ? ' ✓' : ''}</button>` : ''}<button data-a="cfg">${u.settings}</button><i></i><button data-a="off">${u.shutdown}</button>`;
       sm.querySelector('.os-me').append(osPicEl(40)); sm.querySelector('b').textContent = profileName();
       sm.onpointerenter = () => clearTimeout(tmr); sm.onpointerleave = arm;
-      sm.onclick = e => { const b = e.target.closest('button'); if (!b) return; close(); if (!S || S.phase !== 'day') return;
+      sm.onclick = e => { const b = e.target.closest('button'); if (!b || b.disabled) return; close(); if (!S || S.phase !== 'day') return;
+        if (b.dataset.a === 'brk') { startBreak(); return; }
         if (!S.paused) setPaused(true);
         if (b.dataset.a === 'cfg') showSettings(closeModal);
         else { saveCareerMidday(); persist(); hideSheet(); S.paused = false; muffle(false); osShutdown(); } };
