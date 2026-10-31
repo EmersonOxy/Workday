@@ -114,7 +114,7 @@ function osStart(u) {
 function osShutdown() {
   sfx('err');
   const o = document.createElement('div'); o.className = 'os-off'; o.innerHTML = `<b>${U().shuttingDown}</b>`; uiRoot().append(o);
-  setTimeout(() => { o.classList.add('done'); setTimeout(() => { o.remove(); showMenu(); }, 700); }, 900);
+  setTimeout(() => { o.classList.add('done'); setTimeout(() => { showMenu(); showTitle(); o.remove(); }, 700); }, 900);   // desliga e volta à tela de título (orbe no centro)
 }
 
 // A dificuldade só muda entre dias: durante o expediente (mesmo pausado) fica travada
