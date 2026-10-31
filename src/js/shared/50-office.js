@@ -162,6 +162,7 @@ const Office = {
     const bd = st.badge || { hair: P[4], shirt: P.L };
     F(P.L, kx - 41, L.desk + 3, 1, 8); F(P.L, kx - 34, L.desk + 3, 1, 8); F(P.k, kx - 43, L.desk + 10, 12, 16); F(P.W, kx - 42, L.desk + 11, 10, 14); F(bd.shirt, kx - 42, L.desk + 11, 10, 3);
     if (bd.mini) bd.mini.forEach((row, j) => [...row].forEach((ch, i) => F(WD_PAL[ch] || P.k, kx - 40 + i, L.desk + 14 + j, 1, 1)));
+    else if (bd.px) bd.px.forEach((row, j) => row.forEach((c, i) => F(c, kx - 40 + i, L.desk + 14 + j, 1, 1)));
     else { F(P.s, kx - 40, L.desk + 15, 4, 4); F(bd.hair, kx - 40, L.desk + 14, 4, 1); } F(P.p, kx - 40, L.desk + 20, 6, 1); F(P.p, kx - 40, L.desk + 22, 4, 1);
     // Bagunça: bolinhas de papel
     const RC = this.rng(31);

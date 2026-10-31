@@ -15,9 +15,13 @@ function officeState() {
 }
 // Crachá da mesa: cores do avatar ou miniatura 4×5 da foto
 function badgeInfo() {
-  if (PROFILE.photo) { const r = PROFILE.photo; return { shirt: WD_PAL.L, mini: [0, 1, 2, 3, 4].map(j => [0, 1, 2, 3].map(i => r[2 + Math.round(j * 3.4)][2 + Math.round(i * 3.7)]).join('')) }; }
-  const a = AVATARS[PROFILE.avatar] || AVATARS[0];
-  return { hair: a.hair, shirt: a.shirt };
+  // miniatura 4×5 do crachá da mesa: amostra do retrato atual (foto ou personagem)
+  const src = PROFILE.photo === 'local' && PHOTO.mini ? PHOTO.mini : Array.isArray(PROFILE.photo) ? Pixel.master(PROFILE.photo, WD_PAL) : avRender(avConfig());
+  const c = document.createElement('canvas'); c.width = 4; c.height = 5; const x = c.getContext('2d'); x.imageSmoothingEnabled = true;
+  x.drawImage(src, src.width * .18, src.height * .12, src.width * .64, src.height * .6, 0, 0, 4, 5);
+  const d = x.getImageData(0, 0, 4, 5).data, hex = i => '#' + [d[i], d[i + 1], d[i + 2]].map(v => v.toString(16).padStart(2, '0')).join('');
+  const av = avConfig();
+  return { shirt: (AV_RAMPS.cloth[av.outfitColor] || AV_RAMPS.cloth.azul)[1], px: [0, 1, 2, 3, 4].map(j => [0, 1, 2, 3].map(i => hex((j * 4 + i) * 4))) };
 }
 function officeLayout() {
   const want = officeWanted();

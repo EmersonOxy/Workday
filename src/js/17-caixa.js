@@ -194,7 +194,7 @@ function gameOver(reason = 'burnout') {
     <div class="actions"><button class="pxbtn main" id="go">${u.newJob}</button><button class="pxbtn" id="menu">${u.mainMenu}</button></div>`);
   card.classList.add('over-card');
   card.querySelector('.over-box').append(Pixel.el(SPR2.box, 4));
-  card.querySelector('.over-face').append(portrait(2));
+  card.querySelector('.over-face').append(portrait(56));
   setTimeout(() => { const st = card.querySelector('.over-stamp'); if (st) { st.classList.add('on'); Motion.stamp(st); sfx('err'); } }, 650);
   card.querySelector('#go').onclick = () => newCareer();
   card.querySelector('#menu').onclick = showMenu;

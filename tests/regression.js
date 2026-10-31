@@ -217,10 +217,13 @@ async function entrega1(browser, url) {
   ok(await p.evaluate(() => S.endReason === 'burnout' && document.querySelector('.over-card h2').textContent === U().burnoutTitle), 'estresse em 100 gera afastamento, não pedido de demissão');
   // 9. crachá: nome e avatar salvos, aparecem no certificado
   await p.evaluate(() => { newCareer(); closeScene(); startDay(); showBadge(); });
-  await p.fill('#bgName', 'Ana Teste'); await p.click('.bg-av >> nth=2'); await p.click('#bgSave');
-  ok(await p.evaluate(() => JSON.parse(localStorage.getItem('expediente-perfil')).name === 'Ana Teste' && PROFILE.avatar === 2), 'crachá salva nome e avatar');
-  ok(await p.evaluate(() => { const r = photoToRows((() => { const c = document.createElement('canvas'); c.width = 40; c.height = 40; const x = c.getContext('2d'); x.fillStyle = '#c33'; x.fillRect(0, 0, 40, 40); x.fillStyle = '#3c3'; x.fillRect(10, 10, 20, 20); return c; })());
-    return r.length === 18 && r.every(row => row.length === 16 && [...row].every(ch => ch in WD_PAL)); }), 'foto vira grade 16×18 só com cores da paleta');
+  await p.fill('#bgName', 'Ana Teste'); await p.click('#bgSave');
+  ok(await p.evaluate(() => JSON.parse(localStorage.getItem('expediente-perfil')).name === 'Ana Teste' && !!PROFILE.av), 'crachá salva nome e personagem');
+  ok(await p.evaluate(() => { const c = document.createElement('canvas'); c.width = 300; c.height = 400; const x = c.getContext('2d'); x.fillStyle = '#c33'; x.fillRect(0, 0, 300, 400); x.fillStyle = '#3c3'; x.fillRect(80, 80, 140, 160);
+    const o = photoConvert(c, { x: 0, y: 0, w: 300, h: 350 }, { bright: 0, contrast: 1.1, sat: 1, sharp: .7, dither: true }, 'classic'), d = o.big.getContext('2d').getImageData(0, 0, 60, 70).data;
+    const pal = new Set(Object.values(WD_PAL)), hex = i => '#' + [d[i], d[i + 1], d[i + 2]].map(v => v.toString(16).padStart(2, '0')).join('');
+    let okp = true; for (let i = 0; i < d.length; i += 4) if (!pal.has(hex(i))) okp = false;
+    return o.big.width === 60 && o.big.height === 70 && o.mini.width === 30 && okp; }), 'foto vira 60×70 (e 30×35 à parte); modo clássico usa só a paleta');
   // 1. promoção: assinatura confirmada, carta grande e centralizada
   await p.evaluate(() => { closeModal(); S.score = 400; S.phase = 'day'; promote(); }); await p.waitForTimeout(500);
   ok(await p.evaluate(() => document.querySelector('.cert-body').textContent.includes('Ana Teste')), 'certificado mostra o nome do crachá');

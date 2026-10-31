@@ -50,7 +50,7 @@ function showProfile() {
   const card = modal(`<h2>${u.profile}</h2><div class="statgrid">${rows.map(([k, v]) => `<span>${k} <b>${v}</b></span>`).join('')}</div>
     <div class="actions"><button class="pxbtn" id="eb">${u.editBadge}</button><button class="pxbtn main" id="b">${u.back}</button></div>`);
   card.querySelector('.statgrid').before(Object.assign(document.createElement('div'), { className: 'over-who' }));
-  card.querySelector('.over-who').append(portrait(3), Object.assign(document.createElement('b'), { textContent: profileName() + ' · Nº ' + EMP_ID }));
+  card.querySelector('.over-who').append(portrait(112), Object.assign(document.createElement('b'), { textContent: profileName() + ' · Nº ' + EMP_ID }));
   card.querySelector('#eb').onclick = () => showBadge(showProfile);
   card.querySelector('#b').onclick = showMenu;
 }

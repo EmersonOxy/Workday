@@ -64,3 +64,26 @@
   /* Opção escolhida continua legível sob o cursor; no toque, o realce de hover não "gruda" */
   .pxbtn.on:hover:not(:disabled) { background: var(--ink) !important; color: var(--card) !important; }
   @media (hover: none) { .pxbtn:hover:not(.on):not(.main):not(:disabled) { background: var(--card); } .pxbtn.main:hover:not(:disabled) { background: var(--ink); } }
+  /* ===== Editor de personagem ===== */
+  .av-card, .ph-card { max-width: 44em !important; }
+  .av-ed { display: flex; gap: 1em; align-items: flex-start; }
+  .av-prev { flex: none; padding: 6px; background: #fff8ec; box-shadow: 0 0 0 3px #2a1f2d, inset 0 -4px 0 #dcc6a0; line-height: 0; }
+  .av-side { flex: 1; min-width: 0; }
+  .av-tabs { display: flex; flex-wrap: wrap; gap: .3em; margin-bottom: .5em; }
+  .av-panel { max-height: 22em; overflow: auto; display: flex; flex-direction: column; gap: .5em; font-family: var(--pixel); }
+  .av-row small { display: block; color: var(--muted); margin-bottom: .2em; }
+  .av-styles, .av-colors { display: flex; flex-wrap: wrap; gap: .35em; }
+  .av-opt { border: 0; padding: 2px; background: var(--card); box-shadow: 0 0 0 2px var(--ink); cursor: pointer; line-height: 0; }
+  .av-opt.on { box-shadow: 0 0 0 2px var(--ink), 0 0 0 5px #f4c15d; }
+  .av-opt.sw { width: 26px; height: 26px; }
+  .portrait { image-rendering: pixelated; }
+  @media (max-width: 640px) { .av-ed { flex-direction: column; align-items: center; } .av-panel { max-height: 40vh; } }
+  /* ===== Enquadramento de foto ===== */
+  .ph-ed { display: flex; gap: 1em; flex-wrap: wrap; justify-content: center; }
+  .ph-crop { position: relative; cursor: grab; touch-action: none; box-shadow: 0 0 0 2px var(--ink); line-height: 0; }
+  .ph-frame { position: absolute; inset: 0; box-shadow: inset 0 0 0 2px #f4c15d; pointer-events: none; }
+  .ph-out { display: flex; flex-direction: column; gap: .3em; font-family: var(--pixel); }
+  .ph-out small { color: var(--muted); }
+  .ph-small { display: flex; gap: .5em; align-items: flex-end; }
+  .ph-ctl { display: grid; grid-template-columns: repeat(auto-fit, minmax(12em, 1fr)); gap: .4em .8em; margin-top: .6em; font-family: var(--pixel); }
+  .ph-ctl label { display: flex; flex-direction: column; gap: .1em; }

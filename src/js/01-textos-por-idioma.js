@@ -376,3 +376,27 @@ LANGS.es.call.inviteG = ['¿Jugamos {g}? Cinco minutos. O cuarenta segundos.', '
 LANGS.pt.call.byeArcade = ['Volta quando quiser. O arcade nunca fecha.', 'Até a próxima, PLAYER ONE!'];
 LANGS.en.call.byeArcade = ['Come back anytime. The arcade never closes.', 'See you next time, PLAYER ONE!'];
 LANGS.es.call.byeArcade = ['Vuelve cuando quieras. El arcade nunca cierra.', '¡Hasta la próxima, PLAYER ONE!'];
+LANGS.pt.ui.av = { title: 'Personagem', random: 'Aleatório', reset: 'Padrão', editChar: 'Editar personagem', importPhoto: 'Importar foto', useChar: 'Usar personagem',
+  tabs: { hair: 'Cabelo', skin: 'Pele', eyes: 'Olhos', outfit: 'Roupa', bg: 'Fundo' },
+  labels: { hair: 'Estilo', hairColor: 'Cor', skin: 'Tom de pele', eyes: 'Formato', eyeColor: 'Cor dos olhos', brows: 'Sobrancelhas', outfit: 'Modelo', outfitColor: 'Cor', detail: 'Detalhe', detailColor: 'Cor do detalhe', bg: 'Fundo do crachá' },
+  names: { curto: 'Curto', repartido: 'Repartido', medio: 'Médio', longo: 'Longo', raspado: 'Raspado', cacheado: 'Cacheado', crespo: 'Crespo', franja: 'Franja', coque: 'Coque', rabo: 'Rabo de cavalo', careca: 'Careca',
+    redondo: 'Redondo', amendoa: 'Amêndoa', sonolento: 'Sonolento', feliz: 'Feliz', arregalado: 'Arregalado', felino: 'Felino', normal: 'Normal', grossa: 'Grossa', arqueada: 'Arqueada', reta: 'Reta', nenhuma: 'Nenhuma',
+    camiseta: 'Camiseta', camisa: 'Camisa', social: 'Social', moletom: 'Moletom', polo: 'Polo', sueter: 'Suéter', nenhum: 'Nenhum', gravata: 'Gravata', listras: 'Listras', cracha: 'Cordão',
+    azul: 'Azul', menta: 'Menta', creme: 'Creme', quadriculado: 'Quadriculado', noite: 'Noite', escritorio: 'Escritório', 'por-do-sol': 'Pôr do sol' } };
+LANGS.en.ui.av = { title: 'Character', random: 'Random', reset: 'Default', editChar: 'Edit character', importPhoto: 'Import photo', useChar: 'Use character',
+  tabs: { hair: 'Hair', skin: 'Skin', eyes: 'Eyes', outfit: 'Outfit', bg: 'Background' },
+  labels: { hair: 'Style', hairColor: 'Color', skin: 'Skin tone', eyes: 'Shape', eyeColor: 'Eye color', brows: 'Eyebrows', outfit: 'Style', outfitColor: 'Color', detail: 'Detail', detailColor: 'Detail color', bg: 'Badge background' },
+  names: { curto: 'Short', repartido: 'Side part', medio: 'Medium', longo: 'Long', raspado: 'Buzz cut', cacheado: 'Curly', crespo: 'Afro', franja: 'Bangs', coque: 'Bun', rabo: 'Ponytail', careca: 'Bald',
+    redondo: 'Round', amendoa: 'Almond', sonolento: 'Sleepy', feliz: 'Happy', arregalado: 'Wide', felino: 'Feline', normal: 'Normal', grossa: 'Thick', arqueada: 'Arched', reta: 'Straight', nenhuma: 'None',
+    camiseta: 'T-shirt', camisa: 'Shirt', social: 'Suit', moletom: 'Hoodie', polo: 'Polo', sueter: 'Sweater', nenhum: 'None', gravata: 'Tie', listras: 'Stripes', cracha: 'Lanyard',
+    azul: 'Blue', menta: 'Mint', creme: 'Cream', quadriculado: 'Checkered', noite: 'Night', escritorio: 'Office', 'por-do-sol': 'Sunset' } };
+LANGS.es.ui.av = { title: 'Personaje', random: 'Aleatorio', reset: 'Por defecto', editChar: 'Editar personaje', importPhoto: 'Importar foto', useChar: 'Usar personaje',
+  tabs: { hair: 'Pelo', skin: 'Piel', eyes: 'Ojos', outfit: 'Ropa', bg: 'Fondo' },
+  labels: { hair: 'Estilo', hairColor: 'Color', skin: 'Tono de piel', eyes: 'Forma', eyeColor: 'Color de ojos', brows: 'Cejas', outfit: 'Modelo', outfitColor: 'Color', detail: 'Detalle', detailColor: 'Color del detalle', bg: 'Fondo de la credencial' },
+  names: { curto: 'Corto', repartido: 'Raya al lado', medio: 'Medio', longo: 'Largo', raspado: 'Rapado', cacheado: 'Rizado', crespo: 'Afro', franja: 'Flequillo', coque: 'Moño', rabo: 'Coleta', careca: 'Calvo',
+    redondo: 'Redondo', amendoa: 'Almendra', sonolento: 'Somnoliento', feliz: 'Feliz', arregalado: 'Abierto', felino: 'Felino', normal: 'Normal', grossa: 'Gruesa', arqueada: 'Arqueada', reta: 'Recta', nenhuma: 'Ninguna',
+    camiseta: 'Camiseta', camisa: 'Camisa', social: 'Traje', moletom: 'Sudadera', polo: 'Polo', sueter: 'Suéter', nenhum: 'Ninguno', gravata: 'Corbata', listras: 'Rayas', cracha: 'Cordón',
+    azul: 'Azul', menta: 'Menta', creme: 'Crema', quadriculado: 'Cuadriculado', noite: 'Noche', escritorio: 'Oficina', 'por-do-sol': 'Atardecer' } };
+LANGS.pt.ui.ph = { title: 'Enquadrar foto', result: 'Crachá', small: 'Documentos e mesa', face: 'Rosto', bust: 'Cabeça e busto', detail: 'Detalhado', classic: 'Clássico', zoom: 'Aproximar', bright: 'Brilho', contrast: 'Contraste', sat: 'Saturação', dither: 'Pontilhado', confirm: 'Usar esta foto', removePhoto: 'Excluir foto' };
+LANGS.en.ui.ph = { title: 'Frame photo', result: 'Badge', small: 'Documents and desk', face: 'Face', bust: 'Head and shoulders', detail: 'Detailed', classic: 'Classic', zoom: 'Zoom', bright: 'Brightness', contrast: 'Contrast', sat: 'Saturation', dither: 'Dithering', confirm: 'Use this photo', removePhoto: 'Delete photo' };
+LANGS.es.ui.ph = { title: 'Encuadrar foto', result: 'Credencial', small: 'Documentos y escritorio', face: 'Rostro', bust: 'Cabeza y busto', detail: 'Detallado', classic: 'Clásico', zoom: 'Acercar', bright: 'Brillo', contrast: 'Contraste', sat: 'Saturación', dither: 'Tramado', confirm: 'Usar esta foto', removePhoto: 'Eliminar foto' };

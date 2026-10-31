@@ -81,7 +81,7 @@ function promote() {
     <div class="envs"></div><div class="actions" hidden><button class="pxbtn main" id="pok">${u.resume}</button></div>`);
   card.classList.add('promo-card');
   card.querySelector('.seal').append(Pixel.el(ENV.seal, 3));
-  card.querySelector('.cert-portrait').append(portrait(2));
+  card.querySelector('.cert-portrait').append(portrait(56));
   // Assinatura com quantos traços quiser; só vale ao confirmar
   card.querySelector('.slot-sig').replaceWith(sigPad(u.signature, () => sign()));
   const sign = () => {

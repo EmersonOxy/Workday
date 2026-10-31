@@ -36,12 +36,13 @@ function showResign() {
       <div class="cert-head">${u.resignTitle}</div>
       <p class="cert-body">${u.resignBody(profileName(), EMP_ID)}</p>
       <ol class="clauses">${u.resignClauses.map(c => `<li>${c}</li>`).join('')}</ol>
-      <div class="cert-foot"><span class="slot-sig"></span><span class="seal"></span></div>
+      <div class="cert-foot"><span class="cert-portrait"></span><span class="slot-sig"></span><span class="seal"></span></div>
     </div></div>
     <p class="cert-hint">${u.resignHint}</p>
     <div class="actions"><button class="pxbtn" id="rsCancel">${u.backToWork}</button></div>`);
   card.classList.add('promo-card', 'resign-card');
   card.querySelector('.seal').append(Pixel.el(ENV.seal, 3));
+  card.querySelector('.cert-portrait').append(portrait(56));
   sceneIn(card, '.cert, .cert-hint, .actions', 70, 60);
   card.querySelector('.slot-sig').replaceWith(sigPad(u.signature, () => {
     const st = document.createElement('span'); st.className = 'cert-stamp resign-stamp'; st.textContent = u.resignStamp;
