@@ -12,15 +12,15 @@ const quadroRows = (() => { const W = 22, H = 16, out = [];
   return out; })();
 const DECOR_EXTRA = {
   globo:   { price: 140, zone: 'desk', rows: padRows(['....kkkkk.....', '..kkLLlLLkk...', '.kLLGGlLLLLk..', '.kLGGGGLLGLk..', 'kLLGGGLLGGGLk.', 'kLLLGLLLGGLLk.', 'kLlLLLLLLGLLk.', 'kLLLLGGLLLLLk.', '.kLLGGGGLLLk..', '.kLLLGGLLLLk..', '..kkLLLLLkk...', '....kkkkk.....', '.....kZk......', '....kzZzk.....', '..kkkkkkkkk...', '..kzzzzzzzk...', '...kkkkkkk....']),
-             at: (L) => [L.VW - Math.max(L.VW * .07 | 0, 4) - 48, L.desk - 4] },
+             at: (L) => { const q = Office.deskSlots(L, Office._decor || [])['globo']; return q ? [q.x, q.y - 17] : null; } },
   livros:  { price: 90, zone: 'desk', rows: padRows(['..kkkkkkkkkkkkkk..', '..kRRRRRRRRRRRWk..', '..kqqqqqqqqqqqWk..', 'kkkkkkkkkkkkkkkk..', 'kLLLLLLLLLLLLLWk..', 'k777777777777Wk...', '.kkkkkkkkkkkkkkkk.', '.kFFFFFFFFFFFFFWk.', '.k9999999999999Wk.', '.kkkkkkkkkkkkkkkk.']),
-             at: (L) => [L.VW - Math.max(L.VW * .07 | 0, 4) - 24, L.desk + 6] },
+             at: (L) => { const q = Office.deskSlots(L, Office._decor || [])['livros']; return q ? [q.x, q.y - 10] : null; } },
   pato:    { price: 40, zone: 'desk', rows: padRows(['......kkkk........', '.....kyYYYk.......', '....kyYYYYYk......', '....kYYkYYYk......', '....kYYYYYYkkk....', '....kYYYYYkOOOk...', '.....kYYYYkkkk....', '..kk..kYYYk.......', '.kyYkkYYYYYkk.....', 'kyyYYYYYYYYYYkk...', 'kyYYYYYYYYYYYYYk..', 'kYYYYYYYYYYYYYzk..', '.kzYYYYYYYYYYzzk..', '..kzzzzzzzzzzzk...', '...kkkkkkkkkkk....']),
-             at: (L) => L.kx + L.kw + 120 < L.VW - 40 ? [L.kx + L.kw + 118, L.desk + 6] : [L.kx + L.kw + 8, L.desk - 8] },
+             at: (L) => { const q = Office.deskSlots(L, Office._decor || [])['pato']; return q ? [q.x, q.y - 15] : null; } },
   webcam:  { price: 110, zone: 'pc', rows: padRows(['..kkkkkkkk..', '.kJJJJJJJJk.', '.kJkmmkJRJk.', '.kJkmxkJJJk.', '.kJJJJJJJJk.', '..kkkJJkkk..', '....kJJk....']),
              at: (L) => [L.mon.x + (L.mon.w >> 1) - 6, L.mon.y - 6] },
   caixas:  { price: 160, zone: 'pc', rows: padRows(['kkkkkkk', 'kJjjjJk', 'kJkkkJk', 'kJkmkJk', 'kJkkkJk', 'kJJJJJk', 'kJkkkJk', 'kJkmkJk', 'kJkkkJk', 'kJJJJJk', 'kkkkkkk']), pair: true,
-             at: (L) => [L.mon.x + (L.mon.w >> 1) - 46, L.desk - 10] },
+             at: (L) => { const q = Office.deskSlots(L, Office._decor || [])['caixaL']; return q ? [q.x + 1, q.y - 11] : null; } },
   adesivos:{ price: 30, zone: 'pc', rows: padRows(['kkkk.kkkk', 'kRRk.kYYk', 'kRRk.kYYk', 'kkkk.kkkk', '..kkkk...', '..kFFk...', '..kFFk...', '..kkkk...']),
              at: (L) => [L.mon.x + 3, L.mon.y + L.mon.h - 11] },
   diploma: { price: 220, zone: 'wall', rows: padRows(['kkkkkkkkkkkkkkkkkk', 'kzZZZZZZZZZZZZZZzk', 'kZWWWWWWWWWWWWWWZk', 'kZWkkkkkkkkkkkkWZk', 'kZWWWWWWWWWWWWWWZk', 'kZWpppppppppppWWZk', 'kZWWWWWWWWWWWWWWZk', 'kZWppppppppWWRRWZk', 'kZWWWWWWWWWWWRRWZk', 'kzZZZZZZZZZZZZZZzk', 'kkkkkkkkkkkkkkkkkk']),
@@ -33,11 +33,11 @@ const DECOR_EXTRA = {
 // Desenha os itens comprados no cache da cena (sombras incluídas)
 function drawDecorExtra(x, L, decor) {
   for (const [id, d] of Object.entries(DECOR_EXTRA)) {
-    if (!decor.includes(id)) continue;
+    if (!decor.includes(id) || ['webcam', 'globo', 'livros', 'caixas', 'pato', 'diploma', 'quadro', 'neon'].includes(id)) continue;   // estes têm arte animada (57-decor-art)
     const p = d.at(L); if (!p) continue;
     const m = Pixel.master(d.rows, WD_PAL), [px, py] = p, by = py + m.height;
     if (d.zone !== 'wall') Office.shadow(x, px - 1, by, m.width + 2, 2);
     x.drawImage(m, px, py);
-    if (d.pair) { const qx = L.mon.x + (L.mon.w >> 1) + 39; Office.shadow(x, qx - 1, by, m.width + 2, 2); x.drawImage(m, qx, py); }
+    if (d.pair) { const q = Office.deskSlots(L, decor)['caixaR']; if (q) { Office.shadow(x, q.x, q.y, m.width + 2, 2); x.drawImage(m, q.x + 1, q.y - 11); } }
   }
 }

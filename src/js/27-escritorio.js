@@ -56,6 +56,8 @@ function officeFrame(now) {
   requestAnimationFrame(officeFrame);
   if (!OFFICE.on || document.hidden || now - OFFICE.last < 80) return;   // ~12 quadros/s bastam para o ambiente
   OFFICE.last = now;
+  // instalação: item novo na mesa cai no lugar (animação curta) com um som discreto
+  if (!OFFICE.seen) OFFICE.seen = new Set(P.decor); else for (const id of P.decor) if (!OFFICE.seen.has(id)) { OFFICE.seen.add(id); OFFICE_APPEAR[id] = performance.now(); OFFICE.key = ''; sfx('pop'); }
   if (typeof deskPhoneTick === 'function') deskPhoneTick();
   const st = officeState(), key = [OFFICE.L.VW, OFFICE.L.VH, st.hour * 4 | 0, st.clutter, st.decor.join(), st.rank, st.day, JSON.stringify(st.hw), JSON.stringify(st.badge), JSON.stringify(st.lights)].join('|');
   if (key !== OFFICE.key) { OFFICE.key = key; OFFICE.baked = Office.bake(OFFICE.L, st); }
@@ -141,6 +143,9 @@ function phoneHold(on) {
   OFFICE.last = 0; return true;
 }
 OFFICE.cv.addEventListener('pointerdown', e => { if (onPhone(e) && phoneHold(true)) { OFFICE.cv.setPointerCapture(e.pointerId); const up = () => { phoneHold(false); OFFICE.cv.removeEventListener('pointerup', up); OFFICE.cv.removeEventListener('pointercancel', up); }; OFFICE.cv.addEventListener('pointerup', up); OFFICE.cv.addEventListener('pointercancel', up); } });
+// objetos vivos: carinho no gato, girar o globo, balançar o pato
+OFFICE.cv.addEventListener('pointerdown', e => { const id = officeArtHit(OFFICE.L, e.clientX / OFFICE.M.k, e.clientY / OFFICE.M.k); if (!id) return;
+  const t = performance.now() / 1000; if (id === 'gato') { CatAI.poke(OFFICE_CAT, t); sfx('ok'); } if (id === 'globo') { OFFICE_GLOBE.kick(); sfx('key'); } if (id === 'pato') { OFFICE_DUCK.at = performance.now(); sfx('pop'); } OFFICE.last = 0; });
 OFFICE.cv.addEventListener('pointerdown', e => { if (onWindow(e)) { CFG.blinds = !CFG.blinds; persist(); } else if (onLamp(e)) toggleLight('lamp'); else if (onBadge(e) && $('modal').classList.contains('hidden')) openBadgeFromDesk(); });
 OFFICE.cv.addEventListener('pointermove', e => { OFFICE.cv.style.cursor = onBadge(e) || onLamp(e) || onWindow(e) ? 'pointer' : ''; });
 async function toggleFullscreen() {
