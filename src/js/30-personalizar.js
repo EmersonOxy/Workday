@@ -10,7 +10,7 @@ function applyOsTheme() {
   const h = hw(), r = document.documentElement.style, a = OS_ACCENTS[h.accent] || OS_ACCENTS.azul, b = OS_BARS[h.bar] || OS_BARS.bege, bc = BADGE_COLORS[h.badge] || BADGE_COLORS.azul;
   r.setProperty('--os-ac', a[0]); r.setProperty('--os-ac-hi', a[1]);
   r.setProperty('--os-bar', b[0]); r.setProperty('--os-bar-hi', b[1]); r.setProperty('--os-bar-sh', b[2]); r.setProperty('--os-btn', b[3]); r.setProperty('--os-bar-ink', h.bar === 'noite' ? '#fff8ec' : '#2a1f2d');
-  r.setProperty('--badge', bc[0]); r.setProperty('--badge-sh', bc[1]);
+  r.setProperty('--badge', bc[0]); r.setProperty('--badge-sh', bc[1]); r.setProperty('--lanyard', (BADGE_COLORS[h.lanyard] || BADGE_COLORS.azul)[0]);
 }
 function hw() { return Object.assign({}, HW_DEFAULT, CFG.hw || {}); }
 function setHw(patch) { CFG.hw = Object.assign(hw(), patch); persist(); OFFICE.key = ''; applyWallpaper(); applyOsTheme(); }
@@ -150,6 +150,26 @@ function showCustomize(back) {
     <div class="setting"><span>${u.wallLabel}</span><div class="walls">${Object.keys(WALLS).map(w => `<button class="pxbtn wall${cur.wall === w ? ' on' : ''}" data-w="${w}"><canvas width="64" height="36"></canvas><small>${u.walls[w]}</small></button>`).join('')}</div></div>
     <div class="actions"><button class="pxbtn main" id="hwOk">${u.resume}</button></div>`);
   card.classList.add('hw-card');
+  // Layout de aplicativo: abas por categoria à esquerda e prévia grande à direita (computador, janela do WorkOS,
+  // crachá e gato), tudo atualizado em tempo real. As linhas existentes são só redistribuídas (nenhuma opção some).
+  { const rows = [...card.querySelectorAll(':scope .setting')], CAT = ['pc', 'pc', 'pc', 'pc', 'os', 'os', 'badge', 'badge', 'pc', 'ptr', 'ptr', 'os', 'desk', 'os'];
+    const lay = document.createElement('div'); lay.className = 'hw-layout';
+    lay.innerHTML = `<div class="hw-main"><div class="hw-tabs">${['pc', 'os', 'badge', 'desk', 'ptr'].map(k => `<button class="pxbtn hw-tab" data-t="${k}">${u.hwTabs[k]}</button>`).join('')}</div><div class="hw-opts"></div></div>
+      <aside class="hw-side"><div class="hw-pv hw-pv-pc"></div><div class="hw-pv hw-pv-os"><div class="pv-win"><i class="pv-bar"><b></b><b></b><b class="x"></b></i><div class="pv-body"></div></div><i class="pv-task"><i class="pv-orb"></i></i></div>
+        <div class="hw-pv hw-pv-badge"><div class="pv-badge"><i class="pv-lan"></i><div class="pv-card"><i class="pv-head"></i><span class="pv-face"></span><b></b></div></div></div>
+        <div class="hw-pv hw-pv-desk"><canvas class="pv-cat" width="40" height="34"></canvas></div><p class="hint hw-note"></p></aside>`;
+    const opts = lay.querySelector('.hw-opts'); rows.forEach((r, i) => { r.dataset.cat = CAT[i] || 'os'; opts.append(r); });
+    card.querySelector('.hw-prev').remove(); const pcBox = lay.querySelector('.hw-pv-pc'); pcBox.innerHTML = '<canvas class="hw-scene" width="120" height="44"></canvas>';
+    card.querySelector('.hint').remove(); card.querySelector('h2').after(lay);
+    lay.querySelector('.pv-face').append(portrait(40)); lay.querySelector('.pv-card b').textContent = profileName();
+    const tab = k => { lay.querySelectorAll('.hw-tab').forEach(b => b.classList.toggle('on', b.dataset.t === k)); rows.forEach(r => r.hidden = r.dataset.cat !== k);
+      lay.querySelectorAll('.hw-pv').forEach(p => p.hidden = !p.classList.contains('hw-pv-' + k) && !(k === 'ptr' && p.classList.contains('hw-pv-os')));
+      lay.querySelector('.hw-note').textContent = u.hwTabNotes[k]; try { sessionStorage.setItem('hwTab', k); } catch (e) {} };
+    lay.querySelectorAll('.hw-tab').forEach(b => b.onclick = () => { sfx('click'); tab(b.dataset.t); });
+    let t0 = 'pc'; try { t0 = sessionStorage.getItem('hwTab') || 'pc'; } catch (e) {} tab(t0);
+    // gato da prévia animado com a mesma lógica da mesa
+    const pc = lay.querySelector('.pv-cat'), ai = CatAI.make(); const anim = () => { if (!pc.isConnected) return; const t = performance.now() / 1000; CatAI.step(ai, t); const x = pc.getContext('2d'); x.clearRect(0, 0, 40, 34); catDrawBound(x, 5, 32, hw().cat, ai, t); requestAnimationFrame(anim); };
+    pc.onclick = () => CatAI.poke(ai, performance.now() / 1000); requestAnimationFrame(anim); }
   const prev = card.querySelector('.hw-scene');
   const draw = () => {
     const h = hw();
@@ -158,7 +178,8 @@ function showCustomize(back) {
     card.querySelectorAll('.wall:not(.cat)').forEach(b => b.classList.toggle('on', b.dataset.w === h.wall));
     Office.hwPreview(prev, h);
   };
-  pxFit(prev, () => [Math.min(360, innerWidth * .7), 140]);
+  pxFit(prev, () => { const sd = card.querySelector('.hw-side'); const w = Math.max(120, (sd ? sd.clientWidth : 300) - 24); return [w, innerWidth < 700 ? 130 : Math.min(260, Math.round(w * .66))]; });
+  requestAnimationFrame(() => { if (prev.isConnected) pxRefit(prev); });   // a coluna lateral só tem largura real depois do layout
   card.querySelectorAll('.wall:not(.cat)').forEach(b => { const c = b.querySelector('canvas'); if (WALLS[b.dataset.w]) WALLS[b.dataset.w](c.getContext('2d'), 64, 36); else { const x = c.getContext('2d'); x.fillStyle = WD_PAL.X; x.fillRect(0, 0, 64, 36); }   // miniatura desenhada já pequena
     pxFit(c, () => [80, 45]); b.onclick = () => { setHw({ wall: b.dataset.w }); draw(); }; });
   card.querySelectorAll('.cat').forEach(b => { const c2 = catCoat(SPR2.cat, b.dataset.c), cv = document.createElement('canvas'); cv.width = c2.width; cv.height = c2.height; cv.getContext('2d').drawImage(c2, 0, 0); b.querySelector('.cimg').append(pxSize(cv, 3));

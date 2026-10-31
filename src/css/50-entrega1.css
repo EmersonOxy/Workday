@@ -54,7 +54,7 @@
   .bg-av.on { background: var(--hl) !important; box-shadow: 0 0 0 2px var(--ink), 0 0 0 5px #f4c15d !important; }
 
   /* ===== Personalização do computador ===== */
-  .hw-card { max-width: 38em !important; }
+  #modal > .card.hw-card { max-width: min(62em, 96vw) !important; }   /* só a janela; o conteúdo ocupa a largura dela */
   .hw-prev { display: grid; place-items: center; margin: .4em 0 .8em; }
   .hw-scene { image-rendering: pixelated; box-shadow: 0 0 0 2px var(--ink); }
   .walls { display: flex; flex-wrap: wrap; gap: .5em; }

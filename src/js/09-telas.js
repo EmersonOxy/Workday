@@ -32,11 +32,11 @@ function winChrome(card) {
   card.style.removeProperty('--dx'); card.style.removeProperty('--dy'); delete card.dataset.dx; delete card.dataset.dy; osDrag(card, bar);
   bar.querySelector('.mw-app').append(Pixel.el(MENU_ICO.app, 2));
   bar.querySelectorAll('.mw-b b').forEach(b => b.append(Pixel.el(MENU_ICO[b.dataset.g], 2)));
-  bar.querySelector('.min').onclick = () => osMinimize(card);
+  bar.querySelector('.min').onclick = () => { if (!card.classList.contains('locked')) osMinimize(card); };
   // botão na barra só quando a área de trabalho do WorkOS está à vista (menu, intervalo, aplicativos); na pausa não
   if (document.body.classList.contains('menu-mode') || $('modal').classList.contains('apps')) osTaskBtn(card, title); else card.querySelector('.mw-b .min').style.display = 'none';
   bar.querySelector('.max').onclick = () => { sfx('click'); card.classList.toggle('maxi'); };
-  bar.querySelector('.x').onclick = () => {
+  bar.querySelector('.x').onclick = () => { if (card.classList.contains('locked')) return;
     const u = U(), names = [u.back, u.cancel, u.backToWork, u.close].filter(Boolean);
     const b = [...body.querySelectorAll('button')].find(x => /^(back|b|bgBack|dBack|rsCancel|avCancel|phCancel|close)$/.test(x.id) || names.includes(x.textContent.trim()));
     if (b) b.click(); else { sfx('click'); closeModal(); if (document.body.classList.contains('menu-mode')) showMenu(); }

@@ -203,7 +203,7 @@ function gameOver(reason = 'burnout') {
     <p class="money">${u.severance}: + ${money(rescisao)}</p>
     ${win ? '' : `<h4>${quit ? u.reasonsQuit : u.reasonsBurnout}</h4>${causeBars(S.careerCauses)}`}
     <div class="actions"><button class="pxbtn main" id="go">${u.newJob}</button><button class="pxbtn" id="menu">${u.mainMenu}</button></div>`);
-  card.classList.add('over-card');
+  card.classList.add('over-card', 'locked');   // decisão obrigatória: só os botões do próprio relatório encerram
   card.querySelector('.over-box').append(Pixel.el(SPR2.box, 4));
   card.querySelector('.over-face').append(portrait(56));
   setTimeout(() => { const st = card.querySelector('.over-stamp'); if (st) { st.classList.add('on'); Motion.stamp(st); sfx('err'); } }, 650);

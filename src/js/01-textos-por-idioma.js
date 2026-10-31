@@ -576,3 +576,9 @@ LANGS.en.ui.curColors = { padrao: 'Original', branco: 'White', azul: 'Blue', ver
 LANGS.es.ui.curColors = { padrao: 'Original', branco: 'Blanco', azul: 'Azul', verde: 'Verde', rosa: 'Rosa', amarelo: 'Amarillo', uva: 'Uva', menta: 'Menta', laranja: 'Naranja' };
 LANGS.pt.ui.curColorLabel = 'Cor do ponteiro'; LANGS.en.ui.curColorLabel = 'Pointer color'; LANGS.es.ui.curColorLabel = 'Color del puntero';
 LANGS.pt.ui.phoneLabel = 'Telefone'; LANGS.en.ui.phoneLabel = 'Desk phone'; LANGS.es.ui.phoneLabel = 'Teléfono';
+LANGS.pt.ui.hwTabs = { pc: '🖥️ Computador', os: '🪟 WorkOS', badge: '📛 Crachá', desk: '🐈 Mesa', ptr: '🖱️ Ponteiro' };
+LANGS.en.ui.hwTabs = { pc: '🖥️ Computer', os: '🪟 WorkOS', badge: '📛 Badge', desk: '🐈 Desk', ptr: '🖱️ Pointer' };
+LANGS.es.ui.hwTabs = { pc: '🖥️ Computadora', os: '🪟 WorkOS', badge: '📛 Credencial', desk: '🐈 Escritorio', ptr: '🖱️ Puntero' };
+LANGS.pt.ui.hwTabNotes = { pc: 'Cores físicas do monitor, teclado, mouse e telefone. Aparecem na mesa do escritório.', os: 'Janelas, barra de tarefas, tema e papel de parede do WorkOS.', badge: 'Cores do crachá e do cordão.', desk: 'O gato da mesa. Clique na prévia para fazer carinho.', ptr: 'Formato e cor do ponteiro do mouse.' };
+LANGS.en.ui.hwTabNotes = { pc: 'Physical colors of the monitor, keyboard, mouse and phone. They show on the office desk.', os: 'WorkOS windows, taskbar, theme and wallpaper.', badge: 'Badge and lanyard colors.', desk: 'The desk cat. Click the preview to pet it.', ptr: 'Mouse pointer shape and color.' };
+LANGS.es.ui.hwTabNotes = { pc: 'Colores físicos del monitor, teclado, ratón y teléfono. Aparecen en el escritorio.', os: 'Ventanas, barra de tareas, tema y fondo de WorkOS.', badge: 'Colores de la credencial y el cordón.', desk: 'El gato del escritorio. Haz clic en la vista previa para acariciarlo.', ptr: 'Forma y color del puntero.' };

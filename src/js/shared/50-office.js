@@ -4,7 +4,7 @@
 // a área da tela é devolvida para posicionar o jogo em HTML exatamente por cima.
 const Office = {
   BASE_W: 640, BASE_H: 360,
-  BEZEL: 5, CHIN: 9, TOP: 3, DESK: 62, SIDE: 78,
+  BEZEL: 5, CHIN: 9, TOP: 3, DESK: 52, SIDE: 68,
   rng(seed) { return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; },
 
   // Escala inteira em pixels físicos e tamanho do canvas em pixels de arte
@@ -21,8 +21,8 @@ const Office = {
     const desk = VH - this.DESK, chinBottom = desk - 4;
     // Tela o maior possível com proporção entre 4:3 e 16:9 (o jogo em HTML se adapta).
     // FW×FH limita o tamanho quando o jogador escolhe uma resolução menor que a janela.
-    // tela até 68% da altura: sobra parede acima (webcam, decoração) e laterais mais largas para o ambiente
-    let sh = Math.min(Math.min(FH, VH) - this.DESK - 4 - this.CHIN - this.TOP - this.BEZEL, Math.round(Math.min(FH, VH) * .68));
+    // tela até 76% da altura: sobra parede acima (webcam, decoração) e laterais mais largas para o ambiente
+    let sh = Math.min(Math.min(FH, VH) - this.DESK - 4 - this.CHIN - this.TOP - this.BEZEL, Math.round(Math.min(FH, VH) * .76));
     const maxW = Math.min(FW, VW) - 2 * (this.BEZEL + this.SIDE);
     let sw = Math.min(maxW, Math.round(sh * 16 / 9));
     if (sw / sh < 4 / 3) sh = Math.round(sw * 3 / 4);
@@ -148,11 +148,12 @@ const Office = {
     const bD = L.desk + 3, eb = Math.max(6, L.VW * .07 | 0);
     const sideL = this.DESK_ITEMS.sideL.filter(([id]) => id === 'planta' ? has(id) : has(id)), sideR = this.DESK_ITEMS.sideR.filter(([id]) => has(id));
     let xl = L.mon.x - 3, xr = L.mon.x + L.mon.w + 3;
-    const putL = (id, w) => { if (xl - w < 4) return false; xl -= w; out[id] = { x: xl, y: bD, w }; xl -= 4; return true; };
+    const phR = Math.max(L.VW * .07 | 0, 6) + 50;   // o telefone ocupa o canto esquerdo
+    const putL = (id, w, lim = 4) => { if (xl - w < lim) return false; xl -= w; out[id] = { x: xl, y: bD, w }; xl -= 4; return true; };
     const putR = (id, w) => { if (xr + w > L.VW - 4) return false; out[id] = { x: xr, y: bD, w }; xr += w + 4; return true; };
     sideL.forEach(([id, w]) => putL(id, w)); sideR.forEach(([id, w]) => putR(id, w));
     // excedente: primeiro o que sobra da fileira da direita, depois as laterais
-    over.forEach(([id, w]) => { if (x + w <= maxR) { out[id] = { x, y: yb, w }; x += w + 6; return; } if (!putL(id, w)) putR(id, w); });
+    over.forEach(([id, w]) => { if (x + w <= maxR) { out[id] = { x, y: yb, w }; x += w + 6; return; } if (!putL(id, w, phR)) putR(id, w); });
     this._slotKey = key; this._slots = out; return out;
   },
   // Posições dos objetos: um só lugar define onde cada coisa fica (usado no cache e na animação)
@@ -513,14 +514,14 @@ const Office = {
     const shelfItems = [['radio', 34], ['cacto', 18], ['aquario', 38], ['livros', 31]].filter(([k]) => D.has(k) && (k !== 'livros' || !(this._slots || {}).livros));
     if (shelfItems.length) {
       const sx = Math.max(3, W.x + 2), maxW = M.x - 6 - sx, rowsS = [[]]; let used = 0;
-      for (const it of shelfItems) { if (used + it[1] + 4 > maxW && rowsS[rowsS.length - 1].length) { rowsS.push([]); used = 0; } rowsS[rowsS.length - 1].push(it); used += it[1] + 4; }
-      rowsS.forEach((row, ri) => { const sy = W.y + W.h + 38 + ri * 36, sw = Math.min(maxW, row.reduce((a, [, w]) => a + w + 4, 0) + 6);
+      for (const it of shelfItems) { if (used + it[1] > maxW && rowsS[rowsS.length - 1].length) { rowsS.push([]); used = 0; } rowsS[rowsS.length - 1].push(it); used += it[1] + 3; }
+      rowsS.forEach((row, ri) => { const sy = W.y + W.h + 38 + ri * 34; if (ri && sy > L.desk - 6) return; const sw = Math.min(maxW, row.reduce((a, [, w]) => a + w + 4, 0) + 6);
         ctx.fillStyle = P.k; ctx.fillRect(sx - 1, sy, sw + 2, 5); ctx.fillStyle = P[1]; ctx.fillRect(sx, sy + 1, sw, 1); ctx.fillStyle = P[2]; ctx.fillRect(sx, sy + 2, sw, 2);
         ctx.fillStyle = P[4]; ctx.fillRect(sx + 3, sy + 5, 2, 4); ctx.fillRect(sx + sw - 5, sy + 5, 2, 4); ctx.fillStyle = 'rgba(42,31,45,.25)'; ctx.fillRect(sx, sy + 5, sw, 2);
         let x0 = sx + 3;
         for (const [k, w] of row) { const dy = drop(k);
           if (k === 'radio') { ART.radio(ctx, x0, sy + dy, t, st); if (st.sound) glows.push([x0 + 26, sy - 10, 10, 6, '255,214,140', .3]); } if (k === 'cacto') ART.cactus(ctx, x0, sy + dy, t); if (k === 'livros') ART.books(ctx, x0, sy + dy); if (k === 'aquario') { ART.aquarium(ctx, x0, sy + dy, t, st); glows.push([x0 + 19, sy - 14, 26, 18, '120,200,220', .4]); }
-          x0 += w + 4; } });
+          x0 += w + 3; } });
     }
     // Telefone de mesa (toca quando há uma ligação esperando)
     if (Z.phone && !st.bigPhone) this.phone(ctx, Z.phone.x, Z.phone.y, st.ringing, t, st.phoneHeld);
