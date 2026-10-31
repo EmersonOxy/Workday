@@ -490,3 +490,5 @@ LANGS.pt.ui.diffDesc = { facil: 'Documentos mais lentos, prazos longos, menos es
 LANGS.en.ui.diffDesc = { facil: 'Slower files, longer deadlines, less stress.', normal: 'The workday as designed.', dificil: 'More tasks, tighter deadlines, more interruptions.', burnout: 'Everything at once. Good luck.' };
 LANGS.es.ui.diffDesc = { facil: 'Documentos más lentos, plazos largos, menos estrés.', normal: 'La jornada tal como fue pensada.', dificil: 'Más tareas, plazos cortos, más interrupciones.', burnout: 'Todo a la vez. Suerte.' };
 LANGS.pt.ui.diffStart = 'Começar'; LANGS.en.ui.diffStart = 'Start'; LANGS.es.ui.diffStart = 'Empezar';
+LANGS.pt.ui.loading = 'Carregando expediente…'; LANGS.en.ui.loading = 'Loading workday…'; LANGS.es.ui.loading = 'Cargando jornada…';
+LANGS.pt.ui.pressStart = 'Clique no botão ou aperte Enter'; LANGS.en.ui.pressStart = 'Click the button or press Enter'; LANGS.es.ui.pressStart = 'Haz clic en el botón o pulsa Enter';

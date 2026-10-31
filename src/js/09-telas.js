@@ -20,7 +20,8 @@ const MENU_ICO = {
   arc:  ['............', '............', '.kkkkkkkkkk.', 'kCCCCCCCCCCk', 'kCCkCCCCRCCk', 'kCkkkCCRCLCk', 'kCCkCCCCLCCk', 'kCCCCkkCCCCk', 'kEECk..kCEEk', '.kkk....kkk.', '............', '............'],
   snd:  ['............', '.....kk.....', '....kMk..k..', '.kkkMMk.k.k.', '.kmmMMk..k.k', '.kmmMMk..k.k', '.kkkMMk.k.k.', '....kMk..k..', '.....kk.....', '............', '............', '............'],
   mute: ['............', '.....kk.....', '....kMk.....', '.kkkMMk.R..R', '.kmmMMk..RR.', '.kmmMMk..RR.', '.kkkMMk.R..R', '....kMk.....', '.....kk.....', '............', '............', '............'],
-  app:  ['kkkkkkkk', 'kFFFFFFk', 'kWWWWWWk', 'kWppppWk', 'kWWWWWWk', 'kWpppWWk', 'kWWWWWWk', 'kkkkkkkk'],
+  app:  ['...kkkkkk...', '.kkl77777kk.', '.k7RRR7FFFk.', 'k77RRR7FFF7k', 'k7RRRR7FFF7k', 'k7777777777k', 'k7LLL7YYYY7k', 'k7LLL7YYY77k', '.k7LLL7YYYk.', '.kk777777kk.', '...kkkkkk...', '............'],   // orbe do WorkOS (janela em 4 cores)
+  doc:  ['kkkkkkkk', 'kFFFFFFk', 'kWWWWWWk', 'kWppppWk', 'kWWWWWWk', 'kWpppWWk', 'kWWWWWWk', 'kkkkkkkk'],
   min:  ['.......', '.......', '.......', '.......', '.......', 'kkkkk..', 'kkkkk..'],
   max:  ['kkkkkkk', 'kkkkkkk', 'k.....k', 'k.....k', 'k.....k', 'k.....k', 'kkkkkkk'],
   x:    ['kk...kk', '.kk.kk.', '..kkk..', '..kkk..', '.kk.kk.', 'kk...kk', '.......'],
@@ -96,25 +97,69 @@ function diffLocked() { return !!(S && S.phase === 'day'); }
 
 // Nova carreira: escolhe a dificuldade antes (depois dá para trocar nas Configurações, entre dias)
 function setDifficulty(v) { save('recorde2', P.best); CFG.diff = DIFF_REC = v; P.best = load('recorde2', 0); persist(); }
+// Janela flutuante do WorkOS (abre com animação de janela, fecha no X). Base para outras janelas do sistema.
+function osWindow(title, html, { icon = MENU_ICO.app, cls = '', onClose } = {}) {
+  const w = document.createElement('div'); w.className = 'os-win ' + cls;
+  w.innerHTML = `<div class="mw-bar"><span class="mw-ttl"><i class="mw-app"></i>${title}</span><i class="mw-stripes"></i><span class="mw-b"><b data-g="x"></b></span></div><div class="mw-in">${html}</div>`;
+  w.querySelector('.mw-app').append(Pixel.el(icon, 2)); w.querySelector('.mw-b b').append(Pixel.el(MENU_ICO.x, 2));
+  const close = () => { sfx('click'); const a = Motion.play(w, [{ transform: 'none', opacity: 1 }, { transform: 'scale(.6)', opacity: 0 }], { duration: 140, easing: 'steps(4)' }); const end = () => { w.remove(); if (onClose) onClose(); }; if (a) a.onfinish = end; else end(); };
+  w.querySelector('.mw-b b').onclick = close; w.close = close;
+  $('modal').append(w); sfx('pop');
+  Motion.play(w, [{ transform: 'scale(.3)', opacity: 0 }, { transform: 'scale(1.04)', opacity: 1, offset: .7 }, { transform: 'none', opacity: 1 }], { duration: 220, easing: 'steps(6)' });
+  return w;
+}
 function pickDifficulty(back) {
   const u = U(); let sel = CFG.diff || 'normal';
-  const card = modal(`<div class="mw"><div class="mw-bar"><span class="mw-ttl"><i class="mw-app"></i>${u.diffLabel.toUpperCase()}.EXE</span><i class="mw-stripes"></i><span class="mw-b" aria-hidden="true"><b data-g="x"></b></span></div>
-    <div class="mw-in"><div class="diff-list">${Object.keys(DIFFS).map(k => `<button class="pxbtn diff-opt" data-d="${k}"><span class="dmeter">${'<i></i>'.repeat(4)}</span><b>${u.diffNames[k]}</b><small>${u.diffDesc[k]}</small></button>`).join('')}</div>
-    <div class="actions"><button class="pxbtn main" id="dOk"></button><button class="pxbtn" id="dBack">${u.back}</button></div></div></div>`);
-  card.classList.add('menu-card', 'diff-card');
-  card.querySelector('.mw-app').append(Pixel.el(MENU_ICO.app, 2));
-  card.querySelector('.mw-b b').append(Pixel.el(MENU_ICO.x, 2));
-  card.querySelector('.mw-b b').onclick = back;
-  const keys = Object.keys(DIFFS);
-  card.querySelectorAll('.dmeter').forEach((m, n) => m.querySelectorAll('i').forEach((i, k) => i.classList.toggle('on', k <= n)));
-  const go = () => { setDifficulty(sel); sfx('ok'); newCareer(); };
-  const paint = () => { card.querySelectorAll('[data-d]').forEach(b => b.classList.toggle('on', b.dataset.d === sel)); card.querySelector('#dOk').textContent = `${u.diffStart}: ${u.diffNames[sel]}`; };
+  $('modal').querySelectorAll('.os-win').forEach(e => e.remove());
+  const inMenu = $('modal').querySelector('.menu-card');
+  if (!inMenu) { showMenu(); return pickDifficulty(back); }
+  const w = osWindow(`${u.diffLabel.toUpperCase()}.EXE`, `<div class="diff-list">${Object.keys(DIFFS).map(k => `<button class="pxbtn diff-opt" data-d="${k}"><span class="dmeter">${'<i></i>'.repeat(4)}</span><b>${u.diffNames[k]}</b><small>${u.diffDesc[k]}</small></button>`).join('')}</div>
+    <div class="actions"><button class="pxbtn main" id="dOk"></button></div>`, { cls: 'diff-win' });
+  w.querySelectorAll('.dmeter').forEach((m, n) => m.querySelectorAll('i').forEach((i, k) => i.classList.toggle('on', k <= n)));
+  const paint = () => { w.querySelectorAll('[data-d]').forEach(b => b.classList.toggle('on', b.dataset.d === sel)); w.querySelector('#dOk').textContent = `${u.diffStart}: ${u.diffNames[sel]}`; };
+  const go = () => { setDifficulty(sel); sfx('ok'); w.remove(); launchWorkday(); };
   // 1º clique escolhe; clicar de novo na mesma (ou no botão de confirmar) começa a carreira
-  card.querySelectorAll('[data-d]').forEach(b => b.onclick = () => { if (b.dataset.d === sel && b.dataset.armed) return go(); card.querySelectorAll('[data-d]').forEach(x => delete x.dataset.armed); sel = b.dataset.d; b.dataset.armed = 1; sfx('click'); paint(); });
-  card.querySelector('#dOk').onclick = go;
-  card.querySelector('#dBack').onclick = back;
-  sceneIn(card, '.diff-opt', 45, 120);
+  w.querySelectorAll('[data-d]').forEach(b => b.onclick = () => { if (b.dataset.d === sel && b.dataset.armed) return go(); w.querySelectorAll('[data-d]').forEach(x => delete x.dataset.armed); sel = b.dataset.d; b.dataset.armed = 1; sfx('click'); paint(); });
+  w.querySelector('#dOk').onclick = go;
   paint();
+}
+// WORKDAY.EXE: janela de carregamento com barra em blocos; ao encher, começa o expediente
+function launchWorkday() {
+  const u = U(), w = osWindow('WORKDAY.EXE', `<div class="ld"><span class="ld-logo"></span><div class="ld-bar">${'<i></i>'.repeat(16)}</div><small>${u.loading}</small></div>`, { icon: MENU_ICO.doc, cls: 'load-win' });
+  w.querySelector('.mw-b').style.visibility = 'hidden';
+  w.querySelector('.ld-logo').append(pxSize(logoCanvas(), 3));
+  const cells = [...w.querySelectorAll('.ld-bar i')]; let n = 0;
+  const tick = () => { if (!w.isConnected) return; if (n < cells.length) { cells[n++].classList.add('on'); if (n % 4 === 0) sfx('key'); setTimeout(tick, 60 + Math.random() * 90); } else setTimeout(() => wipe(() => { w.remove(); newCareer(); }), 250); };
+  setTimeout(tick, 300);
+}
+// Tela de título: nome do jogo e o botão Iniciar (orbe do WorkOS) no centro
+function showTitle() {
+  const t = document.createElement('div'); t.id = 'titlescr';
+  t.innerHTML = `<div class="tt-logo"></div><button class="tt-orb" aria-label="${U().diffStart}"></button><small>${U().pressStart}</small><p class="tt-legal">${U().footer}</p>`;
+  t.querySelector('.tt-logo').append(pxSize(logoCanvas(), 8));
+  t.querySelector('.tt-orb').append(Pixel.el(MENU_ICO.app, 8));
+  document.body.append(t);
+  const go = () => { removeEventListener('keydown', key); sfx('ok'); wipe(() => { t.remove(); showMenu(); }); };
+  const key = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } };
+  t.querySelector('.tt-orb').onclick = go; addEventListener('keydown', key);
+}
+
+function logoCanvas() {
+    // fonte própria do logotipo: traços de 2 px, miolos escuros, contorno de tinta e sombra em latão
+    const G = { W: ['1100011', '1100011', '1101011', '1101011', '1111111', '1110111', '1100011'], O: ['011110', '110011', '110011', '110011', '110011', '110011', '011110'],
+      R: ['111110', '110011', '110011', '111110', '111100', '110110', '110011'], K: ['110011', '110110', '111100', '111000', '111100', '110110', '110011'],
+      D: ['111100', '110110', '110011', '110011', '110011', '110110', '111100'], A: ['011110', '110011', '110011', '111111', '110011', '110011', '110011'],
+      Y: ['110011', '110011', '011110', '001100', '001100', '001100', '001100'] };
+    const word = 'WORKDAY', W0 = [...word].reduce((n, ch) => n + G[ch][0].length + 1, 0) + 3, H0 = 11, grid = new Uint8Array(W0 * H0);
+    let cx0 = 2; for (const ch of word) { G[ch].forEach((r, j) => { for (let i = 0; i < r.length; i++) if (r[i] === '1') grid[(2 + j) * W0 + cx0 + i] = 1; }); cx0 += G[ch][0].length + 1; }
+    const lc = document.createElement('canvas'); lc.width = W0; lc.height = H0; const x = lc.getContext('2d'), at = (i, j) => i >= 0 && j >= 0 && i < W0 && j < H0 && grid[j * W0 + i];
+    for (let j = 0; j < H0; j++) for (let i = 0; i < W0; i++) {
+      const c = at(i, j) ? (j < 5 ? WD_PAL.W : j < 8 ? WD_PAL.w : WD_PAL.p)
+        : at(i - 1, j) || at(i + 1, j) || at(i, j - 1) || at(i, j + 1) || at(i - 1, j - 1) || at(i + 1, j - 1) ? WD_PAL.k
+        : at(i - 1, j - 2) || at(i, j - 2) && !at(i, j - 1) ? WD_PAL.z : null;
+      if (c) { x.fillStyle = c; x.fillRect(i, j, 1, 1); }
+    }
+    return lc;
 }
 
 function showMenu() {
@@ -126,7 +171,7 @@ function showMenu() {
   hud(); renderDesk(); closeScene();
   const u = U(), saved = load('carreira', null);
   const ico = n => `<i class="mico" data-i="${n}"></i>`;
-  const card = modal(`<div class="mw"><div class="mw-bar"><span class="mw-ttl"><i class="mw-app"></i>WORKDAY.EXE</span><i class="mw-stripes"></i><span class="mw-b" aria-hidden="true"><b data-g="min"></b><b data-g="max"></b><b data-g="x"></b></span></div>
+  const card = modal(`<div class="mw"><div class="mw-bar"><span class="mw-ttl"><i class="mw-app"></i>PORTAL_RH.EXE</span><i class="mw-stripes"></i><span class="mw-b" aria-hidden="true"><b data-g="min"></b><b data-g="max"></b><b data-g="x"></b></span></div>
     <div class="mw-in">
       <div class="mw-hero"><span class="mw-face"></span><div><h2 class="mw-logo" aria-label="WORKDAY"></h2><p class="mw-tag">${u.tagline}</p></div></div>
       <div class="mw-stats"><span><small>${u.record}</small><b>${fmt(P.best)}</b></span><span><small>${u.wallet}</small><b>${money(P.wallet)}</b></span><span><small>${u.daysWorked}</small><b>${fmt(P.stats.days)}</b></span></div>
@@ -145,22 +190,7 @@ function showMenu() {
   card.querySelectorAll('.mw-b b').forEach(b => b.append(Pixel.el(MENU_ICO[b.dataset.g], 2)));
   card.querySelector('.mw-app').append(Pixel.el(MENU_ICO.app, 2));
   card.querySelector('.mw-face').append(portrait(112));
-  { // logotipo em pixel art: fonte 3×5 com cada pixel valendo 2×2, contorno de 1 px em tinta e sombra em degrau
-    // fonte própria do logotipo: traços de 2 px, miolos escuros, contorno de tinta e sombra em latão
-    const G = { W: ['1100011', '1100011', '1101011', '1101011', '1111111', '1110111', '1100011'], O: ['011110', '110011', '110011', '110011', '110011', '110011', '011110'],
-      R: ['111110', '110011', '110011', '111110', '111100', '110110', '110011'], K: ['110011', '110110', '111100', '111000', '111100', '110110', '110011'],
-      D: ['111100', '110110', '110011', '110011', '110011', '110110', '111100'], A: ['011110', '110011', '110011', '111111', '110011', '110011', '110011'],
-      Y: ['110011', '110011', '011110', '001100', '001100', '001100', '001100'] };
-    const word = 'WORKDAY', W0 = [...word].reduce((n, ch) => n + G[ch][0].length + 1, 0) + 3, H0 = 11, grid = new Uint8Array(W0 * H0);
-    let cx0 = 2; for (const ch of word) { G[ch].forEach((r, j) => { for (let i = 0; i < r.length; i++) if (r[i] === '1') grid[(2 + j) * W0 + cx0 + i] = 1; }); cx0 += G[ch][0].length + 1; }
-    const lc = document.createElement('canvas'); lc.width = W0; lc.height = H0; const x = lc.getContext('2d'), at = (i, j) => i >= 0 && j >= 0 && i < W0 && j < H0 && grid[j * W0 + i];
-    for (let j = 0; j < H0; j++) for (let i = 0; i < W0; i++) {
-      const c = at(i, j) ? (j < 5 ? WD_PAL.W : j < 8 ? WD_PAL.w : WD_PAL.p)
-        : at(i - 1, j) || at(i + 1, j) || at(i, j - 1) || at(i, j + 1) || at(i - 1, j - 1) || at(i + 1, j - 1) ? WD_PAL.k
-        : at(i - 1, j - 2) || at(i, j - 2) && !at(i, j - 1) ? WD_PAL.z : null;
-      if (c) { x.fillStyle = c; x.fillRect(i, j, 1, 1); }
-    }
-    const logo = card.querySelector('.mw-logo'); logo.append(pxSize(lc, 5)); Motion.dropIn(logo); }
+  {     const logo = card.querySelector('.mw-logo'); logo.append(pxSize(logoCanvas(), 5)); Motion.dropIn(logo); }
   sceneIn(card, '.mw-stats span, .menu .pxbtn', 45, 300);
   card.querySelector('#msnd').onclick = () => { setSound(!soundOn); showMenu(); };
   $('modal').insertAdjacentHTML('beforeend', `<div class="legalbar"><p>${u.footer}</p></div>`);
