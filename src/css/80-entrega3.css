@@ -154,3 +154,17 @@
   .os-pic { display: grid; place-items: center; height: 44px; padding: 0; border: 0; cursor: pointer; background: #fff8ec; box-shadow: 0 0 0 2px #2a1f2d, inset 0 -3px 0 #dcc6a0; line-height: 0; }
   .os-pic.on { transform: translateY(2px); box-shadow: 0 0 0 2px #2a1f2d, inset 0 3px 0 #dcc6a0; }
   body.office.menu-mode .menu-card { position: relative; top: -2.2em; }
+
+  /* ===== Tela de dificuldade ===== */
+  .diff-card { max-width: 32em !important; }
+  .diff-list { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .diff-opt { display: grid !important; grid-template-columns: auto 1fr; grid-template-rows: auto auto; gap: 0 .6em; align-items: center; text-align: left; padding: .4em .7em .6em !important; font-size: 1em !important; }
+  .diff-opt b { font-weight: normal; font-size: 1.4em; } .diff-opt small { grid-column: 1 / -1; color: var(--muted); font-size: .85em; line-height: 1.2; margin-top: .2em; }
+  #modal .diff-opt.on small { color: inherit; opacity: .8; }
+  .dmeter { display: flex; gap: 2px; align-items: flex-end; height: 16px; }
+  .dmeter i { width: 5px; background: currentColor; opacity: .2; } .dmeter i:nth-child(1) { height: 5px; } .dmeter i:nth-child(2) { height: 8px; } .dmeter i:nth-child(3) { height: 12px; } .dmeter i:nth-child(4) { height: 16px; }
+  .dmeter i.on { opacity: 1; }
+  .diff-opt[data-d=burnout] .dmeter i.on { background: #ef4b3f; }
+  .diff-card .actions { margin-top: .4em; justify-content: center; }
+  .mw-b b { cursor: pointer; }
+  @media (max-width: 600px) { .diff-list { grid-template-columns: 1fr; } }

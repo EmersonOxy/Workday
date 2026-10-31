@@ -489,3 +489,4 @@ Object.assign(LANGS.es.ui, { winTitle: 'Carrera completada', winStamp: 'CEO', wi
 LANGS.pt.ui.diffDesc = { facil: 'Documentos mais lentos, prazos longos, menos estresse.', normal: 'O expediente como foi pensado.', dificil: 'Mais tarefas, prazos curtos, o chefe aparece mais.', burnout: 'Tudo ao mesmo tempo. Boa sorte.' };
 LANGS.en.ui.diffDesc = { facil: 'Slower files, longer deadlines, less stress.', normal: 'The workday as designed.', dificil: 'More tasks, tighter deadlines, more interruptions.', burnout: 'Everything at once. Good luck.' };
 LANGS.es.ui.diffDesc = { facil: 'Documentos más lentos, plazos largos, menos estrés.', normal: 'La jornada tal como fue pensada.', dificil: 'Más tareas, plazos cortos, más interrupciones.', burnout: 'Todo a la vez. Suerte.' };
+LANGS.pt.ui.diffStart = 'Começar'; LANGS.en.ui.diffStart = 'Start'; LANGS.es.ui.diffStart = 'Empezar';

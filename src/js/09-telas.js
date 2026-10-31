@@ -97,11 +97,24 @@ function diffLocked() { return !!(S && S.phase === 'day'); }
 // Nova carreira: escolhe a dificuldade antes (depois dá para trocar nas Configurações, entre dias)
 function setDifficulty(v) { save('recorde2', P.best); CFG.diff = DIFF_REC = v; P.best = load('recorde2', 0); persist(); }
 function pickDifficulty(back) {
-  const u = U(), cur = CFG.diff || 'normal';
-  const card = modal(`<h2>${u.diffLabel}</h2><div class="bal-list">${Object.keys(DIFFS).map(k => `<button class="pxbtn${k === cur ? ' main' : ''}" data-d="${k}"><b>${u.diffNames[k]}</b><small>${u.diffDesc[k]}</small></button>`).join('')}</div>
-    <div class="actions"><button class="pxbtn" id="dBack">${u.back}</button></div>`);
-  card.querySelectorAll('[data-d]').forEach(b => b.onclick = () => { setDifficulty(b.dataset.d); sfx('click'); newCareer(); });
+  const u = U(); let sel = CFG.diff || 'normal';
+  const card = modal(`<div class="mw"><div class="mw-bar"><span class="mw-ttl"><i class="mw-app"></i>${u.diffLabel.toUpperCase()}.EXE</span><i class="mw-stripes"></i><span class="mw-b" aria-hidden="true"><b data-g="x"></b></span></div>
+    <div class="mw-in"><div class="diff-list">${Object.keys(DIFFS).map(k => `<button class="pxbtn diff-opt" data-d="${k}"><span class="dmeter">${'<i></i>'.repeat(4)}</span><b>${u.diffNames[k]}</b><small>${u.diffDesc[k]}</small></button>`).join('')}</div>
+    <div class="actions"><button class="pxbtn main" id="dOk"></button><button class="pxbtn" id="dBack">${u.back}</button></div></div></div>`);
+  card.classList.add('menu-card', 'diff-card');
+  card.querySelector('.mw-app').append(Pixel.el(MENU_ICO.app, 2));
+  card.querySelector('.mw-b b').append(Pixel.el(MENU_ICO.x, 2));
+  card.querySelector('.mw-b b').onclick = back;
+  const keys = Object.keys(DIFFS);
+  card.querySelectorAll('.dmeter').forEach((m, n) => m.querySelectorAll('i').forEach((i, k) => i.classList.toggle('on', k <= n)));
+  const go = () => { setDifficulty(sel); sfx('ok'); newCareer(); };
+  const paint = () => { card.querySelectorAll('[data-d]').forEach(b => b.classList.toggle('on', b.dataset.d === sel)); card.querySelector('#dOk').textContent = `${u.diffStart}: ${u.diffNames[sel]}`; };
+  // 1º clique escolhe; clicar de novo na mesma (ou no botão de confirmar) começa a carreira
+  card.querySelectorAll('[data-d]').forEach(b => b.onclick = () => { if (b.dataset.d === sel && b.dataset.armed) return go(); card.querySelectorAll('[data-d]').forEach(x => delete x.dataset.armed); sel = b.dataset.d; b.dataset.armed = 1; sfx('click'); paint(); });
+  card.querySelector('#dOk').onclick = go;
   card.querySelector('#dBack').onclick = back;
+  sceneIn(card, '.diff-opt', 45, 120);
+  paint();
 }
 
 function showMenu() {
