@@ -357,3 +357,10 @@
   .mg-end > span { display: flex; justify-content: space-between; gap: 2em; padding: .15em 1em; }
   .mg-end > span:nth-of-type(odd) { background: #f3e6cc; }
   .mg-end > span i { font-style: normal; color: #2a1f2d !important; }
+  .keys-grid { display: grid; grid-template-columns: 1fr auto 1fr auto; gap: 6px .8em; align-items: center; margin: 0 0 .6em; }
+  .keys-grid .keybtn { min-width: 3.4em; font-size: 1em !important; }
+  @media (max-width: 700px) { .keys-grid { grid-template-columns: 1fr auto; } }
+  body.focus.office #app { z-index: 5; }
+  .cur-btn { width: 40px !important; height: 40px !important; display: grid; place-items: center; font: 1.2em var(--pixel); color: var(--ink); }
+  .cur-btn img { image-rendering: pixelated; max-width: 30px; max-height: 30px; }
+  .cur-btn.on { background: var(--card) !important; box-shadow: 0 0 0 3px var(--ink), inset 0 3px 0 var(--line) !important; }

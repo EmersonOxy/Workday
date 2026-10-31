@@ -43,8 +43,11 @@ function officeLayout() {
   const L = OFFICE.L = Office.layout(M.VW, M.VH, Math.ceil(tw / M.k), Math.ceil(th / M.k)), cv = OFFICE.cv;
   for (const c of [cv, OFFICE.fx]) { c.style.display = 'block'; c.width = M.VW; c.height = M.VH; c.style.width = M.VW * M.k + 'px'; c.style.height = M.VH * M.k + 'px'; }
   const s = L.screen, k = M.k;
-  Object.assign(app.style, { left: s.x * k + 'px', top: s.y * k + 'px', width: s.w * k + 'px', height: s.h * k + 'px' });
-  app.style.setProperty('--fs', Math.max(13, Math.min(26, s.h * k * .027)).toFixed(1) + 'px');
+  // modo foco: só a tela do computador, ocupando a janela inteira (o escritório some)
+  const focus = !!CFG.focus; document.body.classList.toggle('focus', focus);
+  if (focus) { for (const c of [cv, OFFICE.fx]) c.style.display = 'none'; Object.assign(app.style, { left: '0px', top: '0px', width: innerWidth + 'px', height: innerHeight + 'px' }); app.style.setProperty('--fs', Math.max(13, Math.min(26, innerHeight * .027)).toFixed(1) + 'px'); }
+  else Object.assign(app.style, { left: s.x * k + 'px', top: s.y * k + 'px', width: s.w * k + 'px', height: s.h * k + 'px' });
+  if (!focus) app.style.setProperty('--fs', Math.max(13, Math.min(26, s.h * k * .027)).toFixed(1) + 'px');
   OFFICE.key = '';
   if (S && S.file && S.phase === 'day') placeFile();
 }

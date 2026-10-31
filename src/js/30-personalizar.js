@@ -117,6 +117,7 @@ function showCustomize(back) {
     <div class="setting"><span>${u.osc.bar}<small></small></span>${cseg('bar', OS_BARS, 0)}</div>
     <div class="setting"><span>${u.osc.badge}<small></small></span>${cseg('badge', BADGE_COLORS, 0)}</div>
     <div class="setting"><span>${u.osc.lanyard}<small></small></span>${cseg('lanyard', BADGE_COLORS, 0)}</div>
+    <div class="setting"><span>${u.curLabel}<small></small></span><div class="swatches cursors" data-hw="cursor" data-names='${JSON.stringify(u.curNames)}'>${Object.keys(CURSORS).map(k => `<button class="sw-btn cur-btn${(cur.cursor || 'padrao') === k ? ' on' : ''}" data-v="${k}" title="${u.curNames[k]}" aria-label="${u.curNames[k]}"></button>`).join('')}</div></div>
     <div class="setting"><span>${u.catLabel}</span><div class="walls cats">${CAT_COATS.map(c2 => `<button class="pxbtn wall cat${cur.cat === c2 ? ' on' : ''}" data-c="${c2}"><span class="cimg"></span><small>${u.coats[c2]}</small></button>`).join('')}</div></div>
     <div class="setting"><span>${u.wallLabel}</span><div class="walls">${Object.keys(WALLS).map(w => `<button class="pxbtn wall${cur.wall === w ? ' on' : ''}" data-w="${w}"><canvas width="64" height="36"></canvas><small>${u.walls[w]}</small></button>`).join('')}</div></div>
     <div class="actions"><button class="pxbtn main" id="hwOk">${u.resume}</button></div>`);
@@ -134,9 +135,10 @@ function showCustomize(back) {
     pxFit(c, () => [80, 45]); b.onclick = () => { setHw({ wall: b.dataset.w }); draw(); }; });
   card.querySelectorAll('.cat').forEach(b => { const c2 = catCoat(SPR2.cat, b.dataset.c), cv = document.createElement('canvas'); cv.width = c2.width; cv.height = c2.height; cv.getContext('2d').drawImage(c2, 0, 0); b.querySelector('.cimg').append(pxSize(cv, 3));
     b.onclick = () => { setHw({ cat: b.dataset.c }); card.querySelectorAll('.cat').forEach(x => x.classList.toggle('on', x === b)); sfx('pop'); }; });
+  card.querySelectorAll('.cur-btn').forEach(b => { const c = CURSORS[b.dataset.v]; if (c) { const im = new Image(); im.src = cursorURL(c, 2); b.append(im); } else b.textContent = '↖'; });
   card.querySelectorAll('[data-hw] button').forEach(b => b.onclick = () => { sfx('click');
     const k = b.parentElement.dataset.hw, v = b.dataset.v;
-    setHw(k === 'all' ? { mon: v, kb: v, mouse: v } : { [k]: v }); draw();
+    setHw(k === 'all' ? { mon: v, kb: v, mouse: v } : { [k]: v }); if (k === 'cursor') applyCursor(); draw();
   });
   card.querySelector('#hwOk').onclick = () => { card.classList.remove('hw-card'); if (back) back(); else closeModal(); };
   draw();

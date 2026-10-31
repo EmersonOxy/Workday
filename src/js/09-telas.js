@@ -439,6 +439,11 @@ function showSettings(onBack) {
     <h3 class="set-h">${u.setSec.game}</h3><div class="setting"><span>${u.diffLabel}</span>${seg('diff', Object.keys(DIFFS).map(k => [k, u.diffNames[k]]), CFG.diff || 'normal')}${diffLocked() ? `<small class="hint">${u.diffLocked}</small>` : ''}</div>
     <h3 class="set-h">${u.setSec.screen}</h3><div class="setting"><span>${u.display}</span>${seg('display', [['window', u.windowed], ['full', u.fullscreen]], document.fullscreenElement ? 'full' : 'window')}</div>
     <div class="setting"><span>${u.resolution}</span><select id="resSel" class="pxsel">${RESOLUTIONS.map(r => `<option value="${r}"${(CFG.res || 'auto') === r ? ' selected' : ''}>${r === 'auto' ? u.autoRes : r.replace('x', '×')}</option>`).join('')}</select></div>
+    <div class="setting"><span>${u.focusLabel}</span>${seg('focus', [['1', u.lightOn], ['0', u.lightOff]], CFG.focus ? '1' : '0')}</div>
+    <h3 class="set-h">${u.setSec.keys}</h3>
+    <p class="hint">${u.keysHint}</p>
+    <div class="keys-grid">${KEY_ACTIONS.map(a => `<span>${u.keyNames[a]}</span><button class="pxbtn keybtn" data-k="${a}">${keyName(keyMap()[a])}</button>`).join('')}</div>
+    <div class="setting"><span></span><div class="seg"><button class="pxbtn" id="keysReset">${u.keysReset}</button></div></div>
     <h3 class="set-h">${u.setSec.sound}</h3><div class="setting"><span>${u.soundLabel}</span>${seg('sound', [['1', u.soundOn], ['0', u.soundOff]], soundOn ? '1' : '0')}</div>
     <div class="setting"><span>${u.musicLabel}</span><input type="range" class="pxrange" id="volMusic" min="0" max="100" value="${Math.round(VOL.music * 100)}" aria-label="${u.musicLabel}"></div>
     <div class="setting"><span>${u.sfxLabel}</span><input type="range" class="pxrange" id="volSfx" min="0" max="100" value="${Math.round(VOL.sfx * 100)}" aria-label="${u.sfxLabel}"></div>
@@ -455,6 +460,7 @@ function showSettings(onBack) {
     const set = b.parentElement.dataset.set, v = b.dataset.v;
     if (set === 'lang') { CFG.lang = v; applyLang(); }
     if (set === 'theme') { CFG.theme = v; applyTheme(); }
+    if (set === 'focus') { CFG.focus = v === '1'; officeLayout(); }
     if (set === 'diff') { if (diffLocked()) return; setDifficulty(v); sfx('click'); }
     if (set === 'sound') setSound(v === '1');
     if (set === 'light') { CFG.lights = Object.assign({}, CFG.lights, { lamp: v === '1' }); OFFICE.key = ''; sfx('switch'); }
@@ -462,6 +468,13 @@ function showSettings(onBack) {
     persist();
     showSettings(onBack);
   });
+  card.querySelectorAll('.keybtn').forEach(b => b.onclick = () => {   // troca de tecla: o próximo aperto vira a nova tecla da ação
+    b.textContent = u.keysPress; b.classList.add('on');
+    const cap = e => { e.preventDefault(); e.stopPropagation(); removeEventListener('keydown', cap, true);
+      if (e.code !== 'Escape') { const m = keyMap(); KEY_ACTIONS.forEach(a => { if (m[a] === e.code) m[a] = ''; }); m[b.dataset.k] = e.code; CFG.keys = m; persist(); sfx('ok'); }
+      card.querySelectorAll('.keybtn').forEach(x => { x.textContent = keyName(keyMap()[x.dataset.k]); x.classList.remove('on'); }); };
+    addEventListener('keydown', cap, true); });
+  card.querySelector('#keysReset').onclick = () => { CFG.keys = {}; persist(); sfx('click'); card.querySelectorAll('.keybtn').forEach(x => x.textContent = keyName(keyMap()[x.dataset.k])); };
   card.querySelector('#plOpen').onclick = () => osMusic();
   card.querySelector('#resSel').onchange = e => { CFG.res = e.target.value; persist(); officeLayout(); };
   card.querySelector('#volMusic').oninput = e => { VOL.music = e.target.value / 100; applyVolumes(); };

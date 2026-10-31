@@ -556,3 +556,14 @@ LANGS.es.ui.setSec = { lang: '🌐 Idioma y apariencia', game: '🎯 Juego', scr
 Object.assign(LANGS.pt.ui.walls, { praia: 'Praia', floresta: 'Floresta', espaco: 'Espaço', neve: 'Montanhas', campo: 'Campo florido' });
 Object.assign(LANGS.en.ui.walls, { praia: 'Beach', floresta: 'Forest', espaco: 'Space', neve: 'Mountains', campo: 'Flower field' });
 Object.assign(LANGS.es.ui.walls, { praia: 'Playa', floresta: 'Bosque', espaco: 'Espacio', neve: 'Montañas', campo: 'Campo de flores' });
+Object.assign(LANGS.pt.ui, { focusLabel: 'Modo foco (só a tela)', keysHint: 'As setas, Espaço, Delete, 1 e 2 sempre funcionam. Clique numa ação e aperte a nova tecla.', keysReset: 'Restaurar teclas', keysPress: 'Aperte…',
+  keyNames: { left: '← Esquerda', right: '→ Direita', drop: '↓ Descer rápido', del: '🗑 Descartar', pause: '⏸ Pausar', coffee: '☕ Café', tea: '🍵 Chá' } });
+Object.assign(LANGS.en.ui, { focusLabel: 'Focus mode (screen only)', keysHint: 'Arrows, Space, Delete, 1 and 2 always work. Click an action and press the new key.', keysReset: 'Reset keys', keysPress: 'Press…',
+  keyNames: { left: '← Left', right: '→ Right', drop: '↓ Drop faster', del: '🗑 Discard', pause: '⏸ Pause', coffee: '☕ Coffee', tea: '🍵 Tea' } });
+Object.assign(LANGS.es.ui, { focusLabel: 'Modo foco (solo la pantalla)', keysHint: 'Flechas, Espacio, Supr, 1 y 2 siempre funcionan. Haz clic en una acción y pulsa la nueva tecla.', keysReset: 'Restaurar teclas', keysPress: 'Pulsa…',
+  keyNames: { left: '← Izquierda', right: '→ Derecha', drop: '↓ Bajar rápido', del: '🗑 Descartar', pause: '⏸ Pausar', coffee: '☕ Café', tea: '🍵 Té' } });
+LANGS.pt.ui.setSec.keys = '🎮 Controles'; LANGS.en.ui.setSec.keys = '🎮 Controls'; LANGS.es.ui.setSec.keys = '🎮 Controles';
+LANGS.pt.ui.curLabel = 'Ponteiro do mouse'; LANGS.en.ui.curLabel = 'Mouse pointer'; LANGS.es.ui.curLabel = 'Puntero del ratón';
+LANGS.pt.ui.curNames = { padrao: 'Padrão do sistema', triangulo: 'Triângulo', pequeno: 'Pequeno', grande: 'Grande', patinha: 'Patinha', cenoura: 'Cenoura', mao: 'Mão', mira: 'Mira', lapis: 'Lápis', estrela: 'Estrela' };
+LANGS.en.ui.curNames = { padrao: 'System default', triangulo: 'Triangle', pequeno: 'Small', grande: 'Large', patinha: 'Paw', cenoura: 'Carrot', mao: 'Hand', mira: 'Crosshair', lapis: 'Pencil', estrela: 'Star' };
+LANGS.es.ui.curNames = { padrao: 'Del sistema', triangulo: 'Triángulo', pequeno: 'Pequeño', grande: 'Grande', patinha: 'Patita', cenoura: 'Zanahoria', mao: 'Mano', mira: 'Mira', lapis: 'Lápiz', estrela: 'Estrella' };
