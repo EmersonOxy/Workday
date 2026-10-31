@@ -207,8 +207,9 @@ function catDraw(x, x0, by, coat, c, t) {
   ell(15, bodyY, bodyRX, bodyRY, 'body');
   ell(headX + 3, B - 6, 3, 4, 'chest');
   const pawsY = B - 2; for (const px of [headX + 1, headX + 5]) { put(px, pawsY, 'paw'); put(px + 1, pawsY, 'paw'); put(px, pawsY + 1, 'paw'); put(px + 1, pawsY + 1, 'paw'); }
-  if (paw) { const py = paw === 1 ? headY + 4 : headY + 2; for (let j = 0; j < 4; j++) { put(headX - 4, py + j, 'paw'); put(headX - 3, py + j, 'paw'); } }
   ell(headX + 3, headY + 4, 6, 5, 'head');
+  // limpeza: a pata sobe na frente do rosto (dois quadros: alta lambendo, mais baixa esfregando)
+  if (paw) { const py = paw === 1 ? headY + 4 : headY + 6; for (let j = 0; j < 5; j++) { put(headX - 1, py + j, 'paw'); put(headX, py + j, 'paw'); put(headX + 1, py + j, 'paw'); } }
   const ear = (ex, flip, down) => { for (let j = 0; j < 4; j++) for (let i = 0; i <= 3 - j; i++) put(ex + (flip ? -i : i), headY - 1 - j + down, j < 3 && i > 0 && i < 3 - j ? 'earIn' : 'ear'); };
   ear(headX - 2, false, 0); ear(headX + 8, true, earFlick);
   // olhos, nariz, boca
@@ -231,7 +232,7 @@ function catDraw(x, x0, by, coat, c, t) {
       if (pal.pat === 'stripe' && (m === 'body' || m === 'tail' || (m === 'head' && j < headY + 2)) && ((i + (m === 'tail' ? 0 : j >> 1)) % 4 === 0)) ramp = pal.a;
       if (pal.pat === 'patch' && ((i < 12 && j < B - 8 && m !== 'chest') || (m === 'tail' && i > 22))) ramp = pal.a;
       if (pal.pat === 'patch' && m === 'head' && i > headX + 4 && j < headY + 4) ramp = pal.b;
-      if (pal.pat === 'points' && (m === 'ear' || m === 'paw' || m === 'tail' || (m === 'head' && j >= headY + 4 && Math.abs(i - headX - 3) < 3))) ramp = pal.a;
+      if (pal.pat === 'points' && (m === 'ear' || m === 'paw' || m === 'tail' || (m === 'head' && ((i + .5 - headX - 3) / 3.6) ** 2 + ((j + .5 - headY - 6) / 3.2) ** 2 <= 1))) ramp = pal.a;   // máscara oval
       if ((pal.pat === 'tux' || pal.chest) && (m === 'chest' || m === 'paw' || (m === 'head' && j >= headY + 5 && Math.abs(i - headX - 3) < 3))) ramp = pal.chest || pal.base;
       col = P[ramp[tone]];
     } else col = { earIn: P.r, eye: coat === 'siames' ? P.l : P.d, pupil: P.k, lid: P.k, nose: P.r, mouth: P.q }[m];

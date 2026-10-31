@@ -151,7 +151,8 @@ const Office = {
     const putL = (id, w) => { if (xl - w < 4) return false; xl -= w; out[id] = { x: xl, y: bD, w }; xl -= 4; return true; };
     const putR = (id, w) => { if (xr + w > L.VW - 4) return false; out[id] = { x: xr, y: bD, w }; xr += w + 4; return true; };
     sideL.forEach(([id, w]) => putL(id, w)); sideR.forEach(([id, w]) => putR(id, w));
-    over.forEach(([id, w]) => { if (!putL(id, w)) putR(id, w); });
+    // excedente: primeiro o que sobra da fileira da direita, depois as laterais
+    over.forEach(([id, w]) => { if (x + w <= maxR) { out[id] = { x, y: yb, w }; x += w + 6; return; } if (!putL(id, w)) putR(id, w); });
     this._slotKey = key; this._slots = out; return out;
   },
   // Posições dos objetos: um só lugar define onde cada coisa fica (usado no cache e na animação)
@@ -325,12 +326,21 @@ const Office = {
     // Teclado (em primeiro plano, cortado pela borda de baixo)
     const kx = L.kx, kw = L.kw, ky = L.ky;
     this.shadow(x, kx - 2, ky - 3, kw + 4, 2);
-    F(P.k, kx - 1, ky - 1, kw + 2, 20); F(HK.base, kx, ky, kw, 19); F(HK.hi, kx, ky, kw, 1); F(HK.sh, kx, ky + 12, kw, 7);
-    for (const k of this.keyRects(L).values()) { F(HK.key, k.x, k.y, k.w, 2); F(HK.keySh, k.x, k.y + 2, k.w, 1); if (HK === this.HW.graphite) F(HK.hi, k.x, k.y, k.w, 1); }
+    // teclado com volume: tampo com aba iluminada atrás, laterais, frente grossa na sombra e sombra de contato embaixo
+    F('rgba(110,59,38,.5)', kx + 1, ky + 20, kw, 2);
+    F(P.k, kx - 1, ky - 1, kw + 2, 21); F(HK.base, kx, ky, kw, 16); F(HK.hi, kx, ky, kw, 1); F(HK.hi, kx, ky, 1, 16); F(HK.sh, kx + kw - 1, ky + 1, 1, 15);
+    F(HK.sh, kx, ky + 16, kw, 3); F(HK.dk, kx, ky + 19, kw, 1); F(HK.base, kx + 1, ky + 16, kw - 2, 1);           // frente (espessura)
+    // teclas: tampa clara com brilho à esquerda e degrau escuro embaixo
+    for (const k of this.keyRects(L).values()) { F(HK.keySh, k.x, k.y + 2, k.w, 1); F(HK.key, k.x, k.y, k.w, 2); F(HK.hi, k.x, k.y, 1, 2); }
+    F(P.k, kx + kw - 9, ky + 1, 6, 1); F(P.d, kx + kw - 8, ky + 1, 1, 1); F(P.d, kx + kw - 5, ky + 1, 1, 1);         // LEDs
     // Mouse com fio
     const mx = kx + kw + 18, my = L.ky;
     this.shadow(x, mx - 1, my + 12, 12, 2);
-    F(P.k, mx - 1, my - 1, 11, 16); F(HO.base, mx, my, 9, 15); F(HO.hi, mx, my, 9, 1); F(HO.hi, mx, my, 1, 8); F(HO.sh, mx + 4, my, 1, 6); F(HO.sh, mx, my + 6, 9, 1); F(HO.dk, mx + 4, my + 2, 1, 2); F(HO.sh, mx + 7, my + 2, 2, 13);
+    // mouse arredondado: dois botões com vão, rodinha, corpo com brilho à esquerda e lado da sombra à direita
+    F('rgba(110,59,38,.5)', mx + 1, my + 15, 10, 2);
+    F(P.k, mx, my - 1, 9, 1); F(P.k, mx - 1, my, 11, 15); F(P.k, mx, my + 15, 9, 1);
+    F(HO.base, mx, my, 9, 15); F(HO.hi, mx + 1, my, 3, 1); F(HO.hi, mx, my + 1, 1, 8); F(HO.sh, mx + 7, my + 2, 2, 12); F(HO.dk, mx + 1, my + 14, 7, 1);
+    F(HO.sh, mx + 4, my, 1, 6); F(HO.sh, mx, my + 6, 9, 1); F(P.k, mx + 4, my + 2, 1, 3); F(HO.dk, mx + 4, my + 3, 1, 1);
     for (let i = 0; i < 16; i++) F(P.j, mx + 4 + Math.round(Math.sin(i / 3) * 3), my - 2 - i, 1, 1);
     // Papéis (crescem com o caos) e crachá
     this.paperStack(x, Z.papersL.x, Z.papersL.y, 2 + (st.clutter > 1 ? 3 : 0));
@@ -499,7 +509,8 @@ const Office = {
     ctx.fillStyle = P.k; ctx.fillRect(cdx - 2 + sway, cy + 13, 5, 4); ctx.fillStyle = P.z; ctx.fillRect(cdx - 1 + sway, cy + 14, 3, 2); ctx.fillStyle = P.y; ctx.fillRect(cdx - 1 + sway, cy + 14, 1, 1);
     ctx.restore();
     // Prateleira sob a janela com rádio, cacto e aquário em tamanho real (arte própria, animados)
-    const shelfItems = [['radio', 34], ['cacto', 18], ['aquario', 38]].filter(([k]) => D.has(k));
+    // livros sem lugar na mesa (telas estreitas) vão para a prateleira
+    const shelfItems = [['radio', 34], ['cacto', 18], ['aquario', 38], ['livros', 31]].filter(([k]) => D.has(k) && (k !== 'livros' || !(this._slots || {}).livros));
     if (shelfItems.length) {
       const sx = Math.max(3, W.x + 2), maxW = M.x - 6 - sx, rowsS = [[]]; let used = 0;
       for (const it of shelfItems) { if (used + it[1] + 4 > maxW && rowsS[rowsS.length - 1].length) { rowsS.push([]); used = 0; } rowsS[rowsS.length - 1].push(it); used += it[1] + 4; }
@@ -508,7 +519,7 @@ const Office = {
         ctx.fillStyle = P[4]; ctx.fillRect(sx + 3, sy + 5, 2, 4); ctx.fillRect(sx + sw - 5, sy + 5, 2, 4); ctx.fillStyle = 'rgba(42,31,45,.25)'; ctx.fillRect(sx, sy + 5, sw, 2);
         let x0 = sx + 3;
         for (const [k, w] of row) { const dy = drop(k);
-          if (k === 'radio') { ART.radio(ctx, x0, sy + dy, t, st); if (st.sound) glows.push([x0 + 26, sy - 10, 10, 6, '255,214,140', .3]); } if (k === 'cacto') ART.cactus(ctx, x0, sy + dy, t); if (k === 'aquario') { ART.aquarium(ctx, x0, sy + dy, t, st); glows.push([x0 + 19, sy - 14, 26, 18, '120,200,220', .4]); }
+          if (k === 'radio') { ART.radio(ctx, x0, sy + dy, t, st); if (st.sound) glows.push([x0 + 26, sy - 10, 10, 6, '255,214,140', .3]); } if (k === 'cacto') ART.cactus(ctx, x0, sy + dy, t); if (k === 'livros') ART.books(ctx, x0, sy + dy); if (k === 'aquario') { ART.aquarium(ctx, x0, sy + dy, t, st); glows.push([x0 + 19, sy - 14, 26, 18, '120,200,220', .4]); }
           x0 += w + 4; } });
     }
     // Telefone de mesa (toca quando há uma ligação esperando)
