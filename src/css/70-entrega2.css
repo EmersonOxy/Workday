@@ -94,7 +94,7 @@
   .hw-card .wall { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: .25em; padding: .35em .2em .3em !important; min-width: 0; height: 100%; }
   .hw-card .wall small { width: 100%; font-size: .85em; line-height: 1.1; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .hw-card .wall canvas { box-shadow: none !important; }
-  .hw-card .cat .cimg { display: grid; place-items: center; height: 3.4em; line-height: 0; }
+  .hw-card .cat .cimg { display: grid; place-items: center; height: 62px; line-height: 0; }   /* cabe o gato em 2× sem cobrir o nome */
   .hw-card .wall:not(.cat) canvas { box-shadow: 0 0 0 1px var(--ink) !important; }
   /* escolhido: anel amarelo, texto continua legível */
   .hw-card .wall.on { background: var(--card) !important; color: var(--ink) !important; box-shadow: 0 0 0 2px var(--ink), 0 0 0 5px #f4c15d !important; }

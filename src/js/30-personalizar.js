@@ -196,7 +196,7 @@ function showCustomize(back) {
     lay.innerHTML = `<div class="hw-main"><div class="hw-tabs">${['pc', 'os', 'badge', 'desk', 'ptr'].map(k => `<button class="pxbtn hw-tab" data-t="${k}">${u.hwTabs[k]}</button>`).join('')}</div><div class="hw-opts"></div></div>
       <aside class="hw-side"><div class="hw-pv hw-pv-pc"></div><div class="hw-pv hw-pv-os"><div class="pv-win"><i class="pv-bar"><b></b><b></b><b class="x"></b></i><div class="pv-body"></div></div><i class="pv-task"><i class="pv-orb"></i></i></div>
         <div class="hw-pv hw-pv-badge"><div class="pv-badge"><i class="pv-lan"></i><div class="pv-card"><i class="pv-head"></i><span class="pv-face"></span><b></b></div></div></div>
-        <div class="hw-pv hw-pv-desk"><canvas class="pv-cat" width="52" height="44"></canvas></div><p class="hint hw-note"></p></aside>`;
+        <div class="hw-pv hw-pv-desk"><canvas class="pv-cat" width="52" height="48"></canvas></div><p class="hint hw-note"></p></aside>`;
     const opts = lay.querySelector('.hw-opts'); rows.forEach((r, i) => { r.dataset.cat = CAT[i] || 'os'; opts.append(r); });
     card.querySelector('.hw-prev').remove(); const pcBox = lay.querySelector('.hw-pv-pc'); pcBox.innerHTML = '<canvas class="hw-scene" width="120" height="44"></canvas>';
     card.querySelector('.hint').remove(); card.querySelector('h2').after(lay);
@@ -207,7 +207,7 @@ function showCustomize(back) {
     lay.querySelectorAll('.hw-tab').forEach(b => b.onclick = () => { sfx('click'); tab(b.dataset.t); });
     let t0 = 'pc'; try { t0 = sessionStorage.getItem('hwTab') || 'pc'; } catch (e) {} tab(t0);
     // gato da prévia animado com a mesma lógica da mesa
-    const pc = lay.querySelector('.pv-cat'), ai = CatAI.make(); const anim = () => { if (!pc.isConnected) return; const t = performance.now() / 1000; CatAI.step(ai, t); const x = pc.getContext('2d'); x.clearRect(0, 0, 52, 44); catDrawBound(x, 5, 42, hw().cat, ai, t); requestAnimationFrame(anim); };
+    const pc = lay.querySelector('.pv-cat'), ai = CatAI.make(); const anim = () => { if (!pc.isConnected) return; const t = performance.now() / 1000; CatAI.step(ai, t); const x = pc.getContext('2d'); x.clearRect(0, 0, 52, 48); catDraw(x, 0, 47, hw().cat, ai, t, 1.3); requestAnimationFrame(anim); };
     pc.onclick = () => CatAI.poke(ai, performance.now() / 1000); requestAnimationFrame(anim); }
   const prev = card.querySelector('.hw-scene');
   const draw = () => {
@@ -221,7 +221,7 @@ function showCustomize(back) {
   requestAnimationFrame(() => { if (prev.isConnected) pxRefit(prev); });   // a coluna lateral só tem largura real depois do layout
   card.querySelectorAll('.wall:not(.cat)').forEach(b => { const c = b.querySelector('canvas'); if (WALLS[b.dataset.w]) WALLS[b.dataset.w](c.getContext('2d'), 64, 36); else { const x = c.getContext('2d'); x.fillStyle = WD_PAL.X; x.fillRect(0, 0, 64, 36); }   // miniatura desenhada já pequena
     pxFit(c, () => [80, 45]); b.onclick = () => { setHw({ wall: b.dataset.w }); draw(); }; });
-  card.querySelectorAll('.cat').forEach(b => { const cv = document.createElement('canvas'); cv.width = 34; cv.height = 28; catDrawBound(cv.getContext('2d'), 2, 27, b.dataset.c, Object.assign(CatAI.make(), { t0: -99 }), 2, 1); b.querySelector('.cimg').append(pxSize(cv, 2));   // mesmo modelo do gato da mesa
+  card.querySelectorAll('.cat').forEach(b => { const st0 = catStill(b.dataset.c, .85), cv = document.createElement('canvas'); cv.width = st0.width; cv.height = st0.height; cv.getContext('2d').drawImage(st0, 0, 0); b.querySelector('.cimg').append(pxSize(cv, 2));   // mesmo gato da mesa   // mesmo modelo do gato da mesa
     b.onclick = () => { setHw({ cat: b.dataset.c }); card.querySelectorAll('.cat').forEach(x => x.classList.toggle('on', x === b)); sfx('pop'); }; });
   // ponteiros: prévia na cor escolhida; passar o mouse sobre um ponteiro que aceita cor mostra as cores dele
   const curPaint = () => card.querySelectorAll('.cur-btn').forEach(b => { const c = CURSORS[b.dataset.v]; b.replaceChildren(); if (c) { const im = new Image(); im.src = cursorURL(c, 2, curRows(b.dataset.v)); b.append(im); } else b.textContent = '↖'; });

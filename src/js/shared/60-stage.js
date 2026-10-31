@@ -411,7 +411,7 @@ const Stage = {
       for (let j = top; j < B.y + 4; j++) for (let i = qx; i < qx + w2; i += 6) { const cell = ((i - qx) / 6 + ((j - top) / 5 | 0)) % 3; G(cell === 0 ? cloth[1] : cell === 1 ? cloth[0] : P.W, i, j, Math.min(6, qx + w2 - i), 1); }
       G(cloth[2], qx, B.y + 2, w2, 2); G(P.W, qx, top, w2, 1); for (let i = qx + 6; i < qx + w2; i += 6) G(cloth[3], i, top + 1, 1, B.y + 2 - top);
       // gato dormindo no pé da cama (se o jogador comprou)
-      if (o.cat) { const cxp = qx + w2 - 22, cyp = top - 8; x.drawImage(catCoat(SPR2.cat, o.coat || 'laranja'), cxp, cyp); G(P[2], cxp + 3, cyp + 4, 2, 1); G(P[2], cxp + 9, cyp + 4, 2, 1); }
+      if (o.cat) { const cxp = qx + w2 - 22, cyp = top - 8; const cs = catStill(o.coat || 'laranja', .6); x.drawImage(cs, cxp - 4, cyp + 15 - cs.height); }   // o mesmo gato do jogo, em tamanho de cena
     },
   },
 };
