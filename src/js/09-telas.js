@@ -10,6 +10,58 @@ function modal(html) {
 }
 function closeModal() { $('modal').classList.add('hidden'); }
 
+// Ícones do menu: todos 12×12, contorno de tinta, mesma luz (de cima à esquerda); botões da barra de título 7×7
+const MENU_ICO = {
+  cont: ['..w..w......', '...w..w.....', '..w..w......', '.kkkkkkkk...', '.kTTTTTTkkk.', '.kTWTTTTk.k.', '.kTWTTTTk.k.', '.kTTTTTTkkk.', '.kTTTTTTk...', '.kuuuuuuk...', '..kkkkkk....', '............'],
+  play: ['.kkkkkkk....', '.kFFFFFkWk..', '.kfffffkkkk.', '.kWWWWWWWWk.', '.kWppppppWk.', '.kWWWWWWWWk.', '.kWpppppWWk.', '.kWWWWWWWWk.', '.kWWWkWWWWk.', '.kWWWkkWWWk.', '.kWWWkWWWWk.', '.kkkkkkkkkk.'],
+  how:  ['..kkkkkkkk..', '.kWWWWWWWWk.', 'kWWW7777WWWk', 'kWW7WWWW7WWk', 'kWWWWWW7WWWk', 'kWWWWW7WWWWk', 'kWWWWWWWWWWk', 'kWWWWW7WWWWk', '.kwwwwwwwwk.', '..kkkwkkkk..', '...kwk......', '...kk.......'],
+  cfg:  ['....kkkk....', '.kk.kmmk.kk.', '.kmkkmmkkmk.', '..kmmmmmmk..', 'kkmmMkkMmmkk', 'kmmmk..kmmmk', 'kmmmk..kmmmk', 'kkMmMkkMMMkk', '..kMMMMMMk..', '.kMkkMMkkMk.', '.kk.kMMk.kk.', '....kkkk....'],
+  prof: ['....kkkk....', '....kMMk....', '.kkkkkkkkkk.', '.kWWWWWWWWk.', '.kWkkkkWWWk.', '.kWkssk7ppk.', '.kWkssk7WWk.', '.kWkLLkWppk.', '.kWkkkkWWWk.', '.kWWWWWWWWk.', '.kLLLLLLLLk.', '.kkkkkkkkkk.'],
+  arc:  ['............', '............', '.kkkkkkkkkk.', 'kCCCCCCCCCCk', 'kCCkCCCCRCCk', 'kCkkkCCRCLCk', 'kCCkCCCCLCCk', 'kCCCCkkCCCCk', 'kEECk..kCEEk', '.kkk....kkk.', '............', '............'],
+  snd:  ['............', '.....kk.....', '....kMk..k..', '.kkkMMk.k.k.', '.kmmMMk..k.k', '.kmmMMk..k.k', '.kkkMMk.k.k.', '....kMk..k..', '.....kk.....', '............', '............', '............'],
+  mute: ['............', '.....kk.....', '....kMk.....', '.kkkMMk.R..R', '.kmmMMk..RR.', '.kmmMMk..RR.', '.kkkMMk.R..R', '....kMk.....', '.....kk.....', '............', '............', '............'],
+  app:  ['kkkkkkkk', 'kFFFFFFk', 'kWWWWWWk', 'kWppppWk', 'kWWWWWWk', 'kWpppWWk', 'kWWWWWWk', 'kkkkkkkk'],
+  min:  ['.......', '.......', '.......', '.......', '.......', 'kkkkk..', 'kkkkk..'],
+  max:  ['kkkkkkk', 'kkkkkkk', 'k.....k', 'k.....k', 'k.....k', 'k.....k', 'kkkkkkk'],
+  x:    ['kk...kk', '.kk.kk.', '..kkk..', '..kkk..', '.kk.kk.', 'kk...kk', '.......'],
+};
+// O aviso de direitos autorais fica numa linha só no computador: a fonte encolhe até um mínimo legível;
+// se ainda assim não couber, a linha rola devagar como letreiro (com "reduzir movimento", volta a quebrar a linha)
+function fitLegal() {
+  const p = $('modal').querySelector('.legalbar p'); if (!p || document.body.classList.contains('mobile')) return;
+  if (!p.dataset.txt) p.dataset.txt = p.innerHTML;
+  p.classList.remove('ticker'); p.innerHTML = p.dataset.txt; p.style.fontSize = '';
+  requestAnimationFrame(() => {
+    let fs = parseFloat(getComputedStyle(p).fontSize);
+    while (p.scrollWidth > p.clientWidth + 1 && fs > 11) { fs -= .5; p.style.fontSize = fs + 'px'; }
+    if (p.scrollWidth <= p.clientWidth + 1 || Motion.reduced.matches) return;
+    p.classList.add('ticker'); p.innerHTML = `<span>${p.dataset.txt}</span><span aria-hidden="true">${p.dataset.txt}</span>`;
+    p.style.setProperty('--tk', Math.round(p.scrollWidth / 2 / 40) + 's');   // ~40 px por segundo
+  });
+}
+addEventListener('resize', () => fitLegal());
+
+// Botão Iniciar do WorkOS (no menu principal): atalhos e "Desligar", que fecha o WorkOS com animação e volta ao menu
+function osStart(u) {
+  if (!document.body.classList.contains('office')) return;
+  const m = $('modal'); m.querySelectorAll('.os-start, .os-smenu').forEach(e => e.remove());
+  m.insertAdjacentHTML('beforeend', `<button class="os-start" aria-haspopup="true"></button><div class="os-smenu hidden"><div class="os-sh"><span class="os-me"></span><b></b></div>
+    <button data-a="prof">${u.profile}</button><button data-a="pc">${u.customizePc || 'WorkOS'}</button><button data-a="cfg">${u.settings}</button><i></i><button data-a="off">${u.shutdown}</button></div>`);
+  const b = m.querySelector('.os-start'), sm = m.querySelector('.os-smenu');
+  b.append(Pixel.el(MENU_ICO.app, 2)); b.insertAdjacentHTML('beforeend', '<span>WorkOS</span>');
+  sm.querySelector('.os-me').append(portrait(40)); sm.querySelector('b').textContent = profileName();
+  const items = { prof: () => showBadge(showMenu), pc: () => showCustomize(showMenu), cfg: () => showSettings(showMenu) };
+  b.onclick = e => { e.stopPropagation(); sm.classList.toggle('hidden'); b.classList.toggle('on'); sfx('click'); };
+  sm.onclick = e => { const a = e.target.closest('button'); if (!a) return; sm.classList.add('hidden'); b.classList.remove('on');
+    if (a.dataset.a === 'off') return osShutdown(); sfx('click'); items[a.dataset.a](); };
+  m.addEventListener('pointerdown', e => { if (!e.target.closest('.os-smenu, .os-start')) { sm.classList.add('hidden'); b.classList.remove('on'); } });
+}
+function osShutdown() {
+  sfx('err');
+  const o = document.createElement('div'); o.className = 'os-off'; o.innerHTML = `<b>${U().shuttingDown}</b>`; uiRoot().append(o);
+  setTimeout(() => { o.classList.add('done'); setTimeout(() => { o.remove(); showMenu(); }, 700); }, 900);
+}
+
 function showMenu() {
   document.body.classList.add('menu-mode');
   if (typeof applyWallpaper === 'function') setTimeout(applyWallpaper, 0);
@@ -19,7 +71,7 @@ function showMenu() {
   hud(); renderDesk(); closeScene();
   const u = U(), saved = load('carreira', null);
   const ico = n => `<i class="mico" data-i="${n}"></i>`;
-  const card = modal(`<div class="mw"><div class="mw-bar"><span>WORKDAY.EXE</span><span class="mw-b"><b>_</b><b>□</b><b>✕</b></span></div>
+  const card = modal(`<div class="mw"><div class="mw-bar"><span class="mw-ttl"><i class="mw-app"></i>WORKDAY.EXE</span><i class="mw-stripes"></i><span class="mw-b" aria-hidden="true"><b data-g="min"></b><b data-g="max"></b><b data-g="x"></b></span></div>
     <div class="mw-in">
       <div class="mw-hero"><span class="mw-face"></span><div><h2 class="mw-logo" aria-label="WORKDAY"></h2><p class="mw-tag">${u.tagline}</p></div></div>
       <div class="mw-stats"><span><small>${u.record}</small><b>${fmt(P.best)}</b></span><span><small>${u.wallet}</small><b>${money(P.wallet)}</b></span><span><small>${u.daysWorked}</small><b>${fmt(P.stats.days)}</b></span></div>
@@ -34,22 +86,31 @@ function showMenu() {
       </div>
     </div></div>`);
   card.classList.add('menu-card');
-  const ICO = { cont: () => Pixel.el(SPR2.mug, 2), play: () => Pixel.el(SPR2.doc, 2, WD_SECTOR_RAMP.fin), how: () => Pixel.el(SPR2.postit, 2), cfg: () => Pixel.el(SPR2.gear, 2), prof: () => portrait(28), arc: () => Pixel.el(SPR2.pad, 2), snd: () => Pixel.el(SPR2.note, 2) };
-  card.querySelectorAll('.mico').forEach(i => i.append(ICO[i.dataset.i]()));
+  card.querySelectorAll('.mico').forEach(i => { const n = i.dataset.i === 'snd' && !soundOn ? 'mute' : i.dataset.i; i.append(Pixel.el(MENU_ICO[n], 2)); });
+  card.querySelectorAll('.mw-b b').forEach(b => b.append(Pixel.el(MENU_ICO[b.dataset.g], 2)));
+  card.querySelector('.mw-app').append(Pixel.el(MENU_ICO.app, 2));
   card.querySelector('.mw-face').append(portrait(112));
   { // logotipo em pixel art: fonte 3×5 com cada pixel valendo 2×2, contorno de 1 px em tinta e sombra em degrau
-    const word = 'WORKDAY', C = 2, gap = 1, W0 = word.length * (3 * C + gap) + 4, H0 = 5 * C + 5, grid = new Uint8Array(W0 * H0);
-    [...word].forEach((ch, i) => { const g = Pixel.FONT[ch] || Pixel.FONT[' ']; for (let k = 0; k < 15; k++) if (g[k] === '1') for (let dy = 0; dy < C; dy++) for (let dx = 0; dx < C; dx++) grid[(2 + Math.floor(k / 3) * C + dy) * W0 + 2 + i * (3 * C + gap) + (k % 3) * C + dx] = 1; });
+    // fonte própria do logotipo: traços de 2 px, miolos escuros, contorno de tinta e sombra em latão
+    const G = { W: ['1100011', '1100011', '1101011', '1101011', '1111111', '1110111', '1100011'], O: ['011110', '110011', '110011', '110011', '110011', '110011', '011110'],
+      R: ['111110', '110011', '110011', '111110', '111100', '110110', '110011'], K: ['110011', '110110', '111100', '111000', '111100', '110110', '110011'],
+      D: ['111100', '110110', '110011', '110011', '110011', '110110', '111100'], A: ['011110', '110011', '110011', '111111', '110011', '110011', '110011'],
+      Y: ['110011', '110011', '011110', '001100', '001100', '001100', '001100'] };
+    const word = 'WORKDAY', W0 = [...word].reduce((n, ch) => n + G[ch][0].length + 1, 0) + 3, H0 = 11, grid = new Uint8Array(W0 * H0);
+    let cx0 = 2; for (const ch of word) { G[ch].forEach((r, j) => { for (let i = 0; i < r.length; i++) if (r[i] === '1') grid[(2 + j) * W0 + cx0 + i] = 1; }); cx0 += G[ch][0].length + 1; }
     const lc = document.createElement('canvas'); lc.width = W0; lc.height = H0; const x = lc.getContext('2d'), at = (i, j) => i >= 0 && j >= 0 && i < W0 && j < H0 && grid[j * W0 + i];
     for (let j = 0; j < H0; j++) for (let i = 0; i < W0; i++) {
-      if (at(i, j)) { x.fillStyle = j < 2 + C * 2 ? WD_PAL.W : WD_PAL.w; x.fillRect(i, j, 1, 1); }
-      else if (at(i - 1, j) || at(i + 1, j) || at(i, j - 1) || at(i, j + 1)) { x.fillStyle = WD_PAL.k; x.fillRect(i, j, 1, 1); }
-      else if (at(i - 1, j - 2) || at(i, j - 2)) { x.fillStyle = WD_PAL.z; x.fillRect(i, j, 1, 1); }
+      const c = at(i, j) ? (j < 5 ? WD_PAL.W : j < 8 ? WD_PAL.w : WD_PAL.p)
+        : at(i - 1, j) || at(i + 1, j) || at(i, j - 1) || at(i, j + 1) || at(i - 1, j - 1) || at(i + 1, j - 1) ? WD_PAL.k
+        : at(i - 1, j - 2) || at(i, j - 2) && !at(i, j - 1) ? WD_PAL.z : null;
+      if (c) { x.fillStyle = c; x.fillRect(i, j, 1, 1); }
     }
-    const logo = card.querySelector('.mw-logo'); logo.append(pxSize(lc, 4)); Motion.dropIn(logo); }
+    const logo = card.querySelector('.mw-logo'); logo.append(pxSize(lc, 5)); Motion.dropIn(logo); }
   sceneIn(card, '.mw-stats span, .menu .pxbtn', 45, 300);
   card.querySelector('#msnd').onclick = () => { setSound(!soundOn); showMenu(); };
   $('modal').insertAdjacentHTML('beforeend', `<div class="legalbar"><p>${u.footer}</p></div>`);
+  fitLegal();
+  osStart(u);
   card.querySelector('#play').onclick = () => newCareer();
   if (saved) card.querySelector('#cont').onclick = resumeCareer;
   card.querySelector('#how').onclick = () => { const c = modal(`<h2>${u.how}</h2>${u.howText}<div class="actions"><button class="pxbtn main" id="b">${u.back}</button></div>`); c.querySelector('#b').onclick = showMenu; };

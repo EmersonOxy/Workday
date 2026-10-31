@@ -311,7 +311,7 @@ Object.assign(LANGS.es.ui, {
 
 // Entrega 2: pausa para descansar, colega (Duda, da TI), minigames, luzes
 LANGS.pt.call = {
-  incoming: 'Chamada de vídeo', who: 'Duda · TI', answer: 'Atender', decline: 'Recusar', hangup: 'Encerrar', resuming: 'Voltando em',
+  incoming: 'Chamada de vídeo', ringIn: 'está ligando…', calling: 'Chamando…', you: 'Você', mic: 'Microfone', cam: 'Câmera', who: 'Duda · TI', answer: 'Atender', decline: 'Recusar', hangup: 'Encerrar', resuming: 'Voltando em',
   greet: ['Psiu! Tá ocupado? Pergunta retórica, eu sei que tá.', 'Oi! Fingi uma reunião pra te ligar. Ninguém percebeu.', 'E aí! Minha planilha travou e eu decidi que isso é um sinal.'],
   talk: [['Você também sente que o dia tem 40 horas?', 'Sinto 50', 'Tá tranquilo', 'Isso é o espírito da firma.', 'Mentira boa, gostei.'],
          ['O café da copa acabou de novo. Suspeito do RH.', 'Sabotagem', 'Eu trouxe o meu', 'Concordo. Vou abrir um chamado.', 'Traidor... mas inteligente.'],
@@ -327,7 +327,7 @@ LANGS.pt.call = {
   again: 'Jogar de novo', menu: 'Voltar ao menu',
 };
 LANGS.en.call = {
-  incoming: 'Video call', who: 'Duda · IT', answer: 'Answer', decline: 'Decline', hangup: 'Hang up', resuming: 'Back in',
+  incoming: 'Video call', ringIn: 'is calling…', calling: 'Calling…', you: 'You', mic: 'Microphone', cam: 'Camera', who: 'Duda · IT', answer: 'Answer', decline: 'Decline', hangup: 'Hang up', resuming: 'Back in',
   greet: ['Psst! Busy? Rhetorical question, I know you are.', 'Hi! I faked a meeting to call you. Nobody noticed.', 'Hey! My spreadsheet crashed and I took it as a sign.'],
   talk: [['Do you also feel the day has 40 hours?', 'Feels like 50', 'All good here', 'That is the company spirit.', 'Nice lie, I like it.'],
          ['The break room coffee ran out again. I suspect HR.', 'Sabotage', 'I brought mine', 'Agreed. I will open a ticket.', 'Traitor... but smart.'],
@@ -343,7 +343,7 @@ LANGS.en.call = {
   again: 'Play again', menu: 'Back to menu',
 };
 LANGS.es.call = {
-  incoming: 'Videollamada', who: 'Duda · TI', answer: 'Contestar', decline: 'Rechazar', hangup: 'Colgar', resuming: 'Volvemos en',
+  incoming: 'Videollamada', ringIn: 'está llamando…', calling: 'Llamando…', you: 'Tú', mic: 'Micrófono', cam: 'Cámara', who: 'Duda · TI', answer: 'Contestar', decline: 'Rechazar', hangup: 'Colgar', resuming: 'Volvemos en',
   greet: ['¡Pss! ¿Ocupado? Pregunta retórica, ya sé que sí.', '¡Hola! Inventé una reunión para llamarte. Nadie se dio cuenta.', '¡Ey! Mi planilla se colgó y lo tomé como una señal.'],
   talk: [['¿También sientes que el día tiene 40 horas?', 'Siento 50', 'Todo tranquilo', 'Ese es el espíritu de la empresa.', 'Buena mentira, me gusta.'],
          ['Se acabó el café de la cocina otra vez. Sospecho de RR. HH.', 'Sabotaje', 'Traje el mío', 'De acuerdo. Abro un ticket.', 'Traidor... pero listo.'],
@@ -472,3 +472,6 @@ LANGS.pt.ui.tagline = 'Um expediente aconchegante que vai perdendo o controle.';
 LANGS.en.ui.tagline = 'A cozy workday that slowly loses control.';
 LANGS.es.ui.tagline = 'Una jornada acogedora que se va descontrolando.';
 LANGS.pt.ui.saveMenu = 'Salvar e ir ao menu'; LANGS.en.ui.saveMenu = 'Save and quit to menu'; LANGS.es.ui.saveMenu = 'Guardar e ir al menú';
+LANGS.pt.ui.shutdown = 'Desligar'; LANGS.en.ui.shutdown = 'Shut down'; LANGS.es.ui.shutdown = 'Apagar';
+LANGS.pt.ui.shuttingDown = 'Desligando o WorkOS…'; LANGS.en.ui.shuttingDown = 'Shutting down WorkOS…'; LANGS.es.ui.shuttingDown = 'Apagando WorkOS…';
+LANGS.pt.ui.customizePc = 'Personalizar'; LANGS.en.ui.customizePc = 'Customize'; LANGS.es.ui.customizePc = 'Personalizar';

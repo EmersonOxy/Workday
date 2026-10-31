@@ -279,14 +279,14 @@ async function entrega2(browser, url) {
   ok(await p.evaluate(() => S.resting && S.paused && !!document.querySelector('.vcall')), 'pausa: o colega liga e o expediente congela');
   const s0 = await snap(); await p.waitForTimeout(1500); const s1 = await snap();
   ok(s0 === s1, 'pausa: relógio, documento, prazos, estresse e pontos não avançam durante a chamada');
-  await waitOpts(); await p.click('.vc-opts button:not(.main)');
+  await p.waitForSelector('.vc-ring .decline'); await p.click('.vc-ring .decline');
   await p.waitForTimeout(5000);
   ok(await p.evaluate(() => !S.resting && !S.paused && !document.querySelector('.vcall') && !document.querySelector('.countdown')), 'pausa: recusar encerra a chamada e o expediente volta após 3, 2, 1');
   ok(await p.evaluate(s => JSON.parse(s).sc === S.score, s1), 'pausa: recusar não penaliza');
   // aceitar e jogar até o fim; o estado volta igual
   await p.evaluate(() => { S.restDone = false; S.restAt = 0; save('ultimo-minigame', 'shooter'); });
   await p.waitForTimeout(300); const before = await snap();
-  await waitOpts(); await p.click('.vc-opts button.main');                 // atender
+  await p.waitForSelector('.vc-ring .accept'); await p.click('.vc-ring .accept');   // atender
   await waitOpts(); await p.click('.vc-opts button >> nth=0');              // resposta à conversa
   await waitOpts(); await p.click('.vc-opts button.main');                 // aceitar o convite
   await p.waitForSelector('.mg-host', { timeout: 10000 });
