@@ -382,38 +382,11 @@
   .mk-tab { font-size: 18px !important; padding: 2px 12px 6px !important; }
   #scene.staged .mk-tab.on { background: var(--ink); color: var(--card); }
 
-  /* ===== Telefone grande (em pé, canto esquerdo da mesa) ===== */
-  .dphone { --u: 3px; display: none; position: fixed; bottom: calc(var(--u) * -6); z-index: 1; width: calc(var(--u) * 46); height: calc(var(--u) * 60); cursor: pointer; font-family: var(--pixel); touch-action: none; }
+  /* ===== Telefone da mesa (canvas em pixel art, deitado no canto) ===== */
+  .dphone { display: none; position: fixed; z-index: 1; image-rendering: pixelated; cursor: pointer; touch-action: none; }
   body.office:not(.menu-mode):not(.focus):not(.mobile) .dphone { display: block; }
-  .dp-body { position: absolute; right: 0; bottom: 0; width: calc(var(--u) * 34); height: calc(var(--u) * 54); background: #e9dcc2;
-    box-shadow: 0 0 0 calc(var(--u) * 1) #2a1f2d, inset calc(var(--u) * 2) calc(var(--u) * 2) 0 #fbf3e2, inset calc(var(--u) * -2) calc(var(--u) * -3) 0 #c7b595, calc(var(--u) * 3) calc(var(--u) * 2) 0 rgba(42,31,45,.35); }
-  .dp-top { display: flex; justify-content: space-between; align-items: center; padding: calc(var(--u) * 2.5) calc(var(--u) * 3) 0; }
-  .dp-brand { font-size: calc(var(--u) * 3.2); color: #8f7d63; letter-spacing: 1px; }
-  .dp-led { width: calc(var(--u) * 3); height: calc(var(--u) * 3); background: #a8262a; box-shadow: 0 0 0 calc(var(--u) * .7) #2a1f2d; }
-  .dphone.ring .dp-led { background: #ef4b3f; box-shadow: 0 0 0 calc(var(--u) * .7) #2a1f2d, 0 0 calc(var(--u) * 4) #ef4b3f; animation: blink .4s steps(1) infinite; }
-  .dphone.held .dp-led { background: #6fbf73; }
-  .dp-lcd { margin: calc(var(--u) * 2) calc(var(--u) * 3) 0; height: calc(var(--u) * 13); padding: calc(var(--u) * 1) calc(var(--u) * 1.5); display: flex; flex-direction: column; justify-content: space-between;
-    background: #5fa79a; color: #1f4a52; box-shadow: 0 0 0 calc(var(--u) * 1) #2a1f2d, inset calc(var(--u) * 1) calc(var(--u) * 1) 0 #2f6f78; line-height: 1; }
-  .dphone.ring .dp-lcd { background: #a9dccf; }
-  .dp-l1 { font-size: calc(var(--u) * 3); } .dp-l2 { font-weight: normal; font-size: calc(var(--u) * 4.4); }
-  .dp-bar { height: calc(var(--u) * 1.5); background: #2f6f78; } .dp-bar i { display: block; height: 100%; width: 0; background: #1f4a52; }
-  .dp-keys { display: grid; grid-template-columns: repeat(3, 1fr); gap: calc(var(--u) * 1.5); margin: calc(var(--u) * 3) calc(var(--u) * 4) 0; }
-  .dp-keys i { font-style: normal; text-align: center; font-size: calc(var(--u) * 3); line-height: calc(var(--u) * 4.4); color: #2a1f2d; background: #fbf3e2;
-    box-shadow: 0 0 0 calc(var(--u) * .7) #2a1f2d, inset 0 calc(var(--u) * -1) 0 #c7b595; }
-  .dp-spk { display: flex; gap: calc(var(--u) * 1.5); justify-content: center; margin-top: calc(var(--u) * 2.5); }
-  .dp-spk i { width: calc(var(--u) * 3); height: calc(var(--u) * 1); background: #8f7d63; }
-  /* fone em pé à esquerda da base */
-  .dp-hand { position: absolute; left: 0; bottom: calc(var(--u) * 4); width: calc(var(--u) * 11); height: calc(var(--u) * 50); transform-origin: 50% 90%; transition: transform .18s steps(4); }
-  .dp-hand i { position: absolute; left: 0; right: 0; background: #3b3f48; box-shadow: 0 0 0 calc(var(--u) * 1) #2a1f2d, inset calc(var(--u) * 1.5) 0 0 #626875; }
-  .dp-ear { top: 0; height: calc(var(--u) * 11); } .dp-mouth { bottom: 0; height: calc(var(--u) * 11); }
-  .dp-grip { top: calc(var(--u) * 9); bottom: calc(var(--u) * 9); left: calc(var(--u) * 2.5) !important; right: calc(var(--u) * 2.5) !important; }
-  .dp-cord { position: absolute; left: calc(var(--u) * 4); bottom: 0; width: calc(var(--u) * 10); height: calc(var(--u) * 6);
-    background: repeating-linear-gradient(90deg, #2a1f2d 0 calc(var(--u) * 1), transparent calc(var(--u) * 1) calc(var(--u) * 2)); opacity: .8; }
-  .dphone.ring { animation: dpring .5s steps(2) infinite; }
-  .dphone.ring .dp-hand { animation: dpjump .25s steps(2) infinite; }
-  .dphone.held .dp-hand { transform: translate(calc(var(--u) * -6), calc(var(--u) * -14)) rotate(-14deg); }
-  @keyframes dpring { 0% { translate: calc(var(--u) * -1) 0; } 50% { translate: calc(var(--u) * 1) 0; } }
-  @keyframes dpjump { 50% { transform: translateY(calc(var(--u) * -3)); } }
+  .dphone.ring { animation: dpring .12s steps(2) infinite; }
+  @keyframes dpring { 50% { translate: 2px 0; } }
   .swatches.cursors { position: relative; }
   .cur-pal { position: absolute; top: calc(100% + 4px); z-index: 20; display: flex; gap: 4px; padding: 5px; background: #e9dcc2; box-shadow: 0 0 0 2px #2a1f2d, inset 2px 2px 0 #fff8ec, inset -2px -2px 0 #8f7d63, 4px 4px 0 rgba(42,31,45,.35); }
   .cur-dot { width: 20px; height: 20px; padding: 0; border: 0; cursor: pointer; font: 14px var(--pixel); color: #2a1f2d; box-shadow: 0 0 0 2px #2a1f2d, inset 0 -3px 0 rgba(42,31,45,.25); }

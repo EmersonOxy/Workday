@@ -1,7 +1,7 @@
 /* ================= Personalização do computador ================= */
 // Aparência física do equipamento na mesa (independente do tema claro/escuro da interface) e papel de parede do WorkOS.
 // Salvo em CFG.hw (localStorage "expediente-config"); saves antigos sem essa chave usam o padrão.
-const HW_DEFAULT = { mon: 'cream', kb: 'cream', mouse: 'cream', wall: 'teal', cat: 'tricolor', accent: 'azul', bar: 'bege', badge: 'azul', lanyard: 'azul' };
+const HW_DEFAULT = { phone: 'graphite', mon: 'cream', kb: 'cream', mouse: 'cream', wall: 'teal', cat: 'tricolor', accent: 'azul', bar: 'bege', badge: 'azul', lanyard: 'azul' };
 // Cores do WorkOS (barra de título das janelas e barra de tarefas) e do crachá (cordão e faixa do cartão)
 const OS_ACCENTS = { azul: ['#44609f', '#6f93d9'], verde: ['#2f8a45', '#6fbf73'], uva: ['#7656a8', '#a983d6'], tijolo: ['#a24a33', '#d9714a'], petroleo: ['#2f6f78', '#5fa79a'], grafite: ['#3b3f48', '#626875'] };
 const OS_BARS = { bege: ['#c7b595', '#fff8ec', '#8f7d63', '#e9dcc2'], cinza: ['#9aa0ab', '#d7d9de', '#626875', '#d7d9de'], noite: ['#2b2340', '#4a3a4e', '#2a1f2d', '#463462'], menta: ['#5fa79a', '#a9dccf', '#2f6f78', '#a9dccf'] };
@@ -117,6 +117,7 @@ function showCustomize(back) {
     <div class="setting"><span>${u.osc.bar}<small></small></span>${cseg('bar', OS_BARS, 0)}</div>
     <div class="setting"><span>${u.osc.badge}<small></small></span>${cseg('badge', BADGE_COLORS, 0)}</div>
     <div class="setting"><span>${u.osc.lanyard}<small></small></span>${cseg('lanyard', BADGE_COLORS, 0)}</div>
+    <div class="setting"><span>${u.phoneLabel}<small></small></span>${seg('phone', HWK)}</div>
     <div class="setting"><span>${u.curLabel}<small></small></span><div class="swatches cursors" data-hw="cursor" data-names='${JSON.stringify(u.curNames)}'>${Object.keys(CURSORS).map(k => `<button class="sw-btn cur-btn${(cur.cursor || 'padrao') === k ? ' on' : ''}" data-v="${k}" title="${u.curNames[k]}" aria-label="${u.curNames[k]}"></button>`).join('')}</div></div>
     <div class="setting"><span>${u.curColorLabel}</span><div class="swatches cur-colors"></div></div>
     <div class="setting"><span>${u.theme}<small></small></span><div class="seg" id="hwTheme">${[['system', u.themeSystem], ['light', u.themeLight], ['dark', u.themeDark]].map(([v, l]) => `<button class="pxbtn${(CFG.theme || 'system') === v ? ' on' : ''}" data-t="${v}">${l}</button>`).join('')}</div></div>
