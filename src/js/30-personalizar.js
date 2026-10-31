@@ -40,6 +40,45 @@ const WALLS = {
   aquario(x, w, h) { const P = WD_PAL, R = Office.rng(44); x.fillStyle = P.x; x.fillRect(0, 0, w, h); x.fillStyle = P.X; for (let j = 0; j < h; j += 4) x.fillRect(0, j, w, 1);
     for (let n = 0; n < 7; n++) { const fx = R() * (w - 12) | 0, fy = 8 + R() * (h - 24) | 0, c = [P.O, P.Y, P.R, P.l][n % 4]; x.fillStyle = P.k; x.fillRect(fx - 1, fy - 1, 10, 6); x.fillStyle = c; x.fillRect(fx, fy, 8, 4); x.fillRect(fx + 8, fy - 1, 3, 6); x.fillStyle = P.k; x.fillRect(fx + 1, fy + 1, 1, 1); }
     x.fillStyle = P.v; for (let n = 0; n < 20; n++) x.fillRect(R() * w | 0, R() * h | 0, 1, 1); x.fillStyle = P.h; for (let i = 0; i < w; i += 9) { const hh = 8 + (i * 7) % 12; x.fillRect(i, h - hh, 2, hh); } x.fillStyle = P.y; x.fillRect(0, h - 3, w, 3); },
+  // pontilhado ordenado entre duas cores (degradês suaves sem sair da paleta)
+  praia(x, w, h) { const P = WD_PAL, R = Office.rng(51), D = [0, 2, 3, 1];
+    for (let j = 0; j < h * .55; j++) for (let i = 0; i < w; i++) { const k = j / (h * .55) * 3 + D[(i % 2) + (j % 2) * 2] / 4; x.fillStyle = [P.l, P.v, P.y, P.o][Math.min(3, k | 0)]; x.fillRect(i, j, 1, 1); }
+    x.fillStyle = P.Y; for (let j = -7; j <= 0; j++) { const ww = Math.round(Math.sqrt(49 - j * j)); x.fillRect(w * .62 - ww, h * .55 + j, ww * 2, 1); }
+    for (let j = h * .55 | 0; j < h * .78; j++) { x.fillStyle = (j % 3) ? P.V : P.x; x.fillRect(0, j, w, 1); x.fillStyle = P.y; if (j % 2) x.fillRect(w * .62 - 10 + (j % 5), j, 20 - (j % 5) * 2, 1); }
+    x.fillStyle = P.W; for (let i = 0; i < w; i += 7) x.fillRect(i + (R() * 3 | 0), h * .78 - 1, 3, 1);
+    for (let j = h * .78 | 0; j < h; j++) for (let i = 0; i < w; i++) { x.fillStyle = (i * 3 + j * 5) % 11 ? P[1] : P[2]; x.fillRect(i, j, 1, 1); }
+    const palm = (px, s) => { x.fillStyle = P[4]; for (let j = 0; j < 30 * s; j++) x.fillRect(px + Math.round(Math.sin(j / 9) * 3), h - j, 2, 1);
+      const ty = h - 30 * s; x.fillStyle = P.H; for (let a = 0; a < 5; a++) for (let r = 0; r < 14 * s; r++) { const ang = -2.6 + a * .55; x.fillRect(px + Math.round(Math.cos(ang) * r), ty + Math.round(Math.sin(ang) * r * .5 + r * r * .02), 2, 1); }
+      x.fillStyle = P.h; x.fillRect(px - 1, ty - 1, 3, 2); };
+    palm(w * .14 | 0, 1.1); palm(w * .86 | 0, .9);
+    x.fillStyle = P.k; for (let n = 0; n < 3; n++) { const bx = w * (.3 + n * .08) | 0, by = h * (.18 + n * .05) | 0; x.fillRect(bx, by, 2, 1); x.fillRect(bx + 2, by - 1, 1, 1); x.fillRect(bx - 1, by - 1, 1, 1); } },
+  floresta(x, w, h) { const P = WD_PAL, R = Office.rng(61);
+    for (let j = 0; j < h; j++) for (let i = 0; i < w; i++) { x.fillStyle = (j / h * 2 + [0, 2, 3, 1][(i % 2) + (j % 2) * 2] / 4) < 1 ? P.v : P.a; x.fillRect(i, j, 1, 1); }
+    const row = (base, col, dk, sz, n) => { for (let k = 0; k < n; k++) { const tx = R() * w | 0, th = sz * (0.8 + R() * .5) | 0, by = base + (R() * 4 | 0);
+      for (let j = 0; j < th; j++) { const ww = Math.round(j / th * sz * .45); x.fillStyle = j % 4 === 3 ? dk : col; x.fillRect(tx - ww, by - th + j, ww * 2 + 1, 1); }
+      x.fillStyle = P[4]; x.fillRect(tx, by, 1, 3); } x.fillStyle = col; x.fillRect(0, base + 2, w, h); };
+    row(h * .55 | 0, P.b, P.B, 18, 18); row(h * .72 | 0, P.h, P.H, 22, 14); row(h * .92 | 0, P.G, P.h, 26, 10);
+    x.fillStyle = P.W; for (let n = 0; n < 3; n++) { const cx = R() * w | 0, cy = 6 + R() * 12 | 0; x.fillRect(cx, cy, 12, 2); x.fillRect(cx + 3, cy - 2, 6, 2); }
+    x.fillStyle = P.y; for (let n = 0; n < 10; n++) x.fillRect(R() * w | 0, h * .75 + R() * h * .2 | 0, 1, 1); },
+  espaco(x, w, h) { const P = WD_PAL, R = Office.rng(71); x.fillStyle = P[0]; x.fillRect(0, 0, w, h);
+    for (let n = 0; n < w * h / 45; n++) { x.fillStyle = R() < .7 ? P.W : R() < .5 ? P.l : P.y; x.fillRect(R() * w | 0, R() * h | 0, 1, 1); }
+    for (let j = 0; j < h; j++) for (let i = 0; i < w; i++) { const d = Math.abs((j - h * .5) - (i - w * .5) * .35); if (d < 10 && (i + j * 3) % (d < 4 ? 2 : 5) === 0) { x.fillStyle = d < 4 ? P.i : P.n; x.fillRect(i, j, 1, 1); } }
+    const planet = (px, py, r, c1, c2, ring) => { for (let j = -r; j <= r; j++) for (let i = -r; i <= r; i++) if (i * i + j * j <= r * r) { x.fillStyle = i + j > r * .4 ? c2 : c1; x.fillRect(px + i, py + j, 1, 1); }
+      if (ring) { x.fillStyle = P.y; for (let i = -r - 5; i <= r + 5; i++) { const yy = Math.round(i * .25); if (Math.abs(i) > r - 1 || yy > 0) x.fillRect(px + i, py + yy, 1, 1); } } };
+    planet(w * .78 | 0, h * .3 | 0, 9, P.O, P[8], true); planet(w * .2 | 0, h * .72 | 0, 5, P.L, P[7], false); planet(w * .5 | 0, h * .15 | 0, 2, P.m, P.M, false); },
+  neve(x, w, h) { const P = WD_PAL, R = Office.rng(81);
+    for (let j = 0; j < h; j++) for (let i = 0; i < w; i++) { x.fillStyle = (j / h * 2.4 + [0, 2, 3, 1][(i % 2) + (j % 2) * 2] / 4) < 1 ? P.l : P.m; x.fillRect(i, j, 1, 1); }
+    const mt = (cx, base, hgt, c1, c2) => { for (let j = 0; j < hgt; j++) { const ww = j * 1.3 | 0; x.fillStyle = j < hgt * .3 ? P.W : (j % 5 ? c1 : c2); x.fillRect(cx - ww, base - hgt + j, ww * 2 + 1, 1); if (j < hgt * .3) { x.fillStyle = P.m; x.fillRect(cx + (ww >> 1), base - hgt + j, ww - (ww >> 1), 1); } } };
+    mt(w * .3 | 0, h * .8 | 0, h * .55 | 0, P.M, P.j); mt(w * .7 | 0, h * .85 | 0, h * .65 | 0, P.j, P.J); mt(w * .05 | 0, h * .9 | 0, h * .4 | 0, P.M, P.j);
+    x.fillStyle = P.W; x.fillRect(0, h * .85 | 0, w, h);
+    x.fillStyle = P.H; for (let k = 0; k < 6; k++) { const tx = (k * 31 + 7) % w, ty = h * .88 | 0; for (let j = 0; j < 10; j++) { const ww = j >> 2; x.fillRect(tx - ww, ty - 10 + j, ww * 2 + 1, 1); } }
+    x.fillStyle = P.W; for (let n = 0; n < 50; n++) x.fillRect(R() * w | 0, R() * h * .85 | 0, 1, 1); },
+  campo(x, w, h) { const P = WD_PAL, R = Office.rng(91);
+    for (let j = 0; j < h * .5; j++) for (let i = 0; i < w; i++) { x.fillStyle = (j / (h * .5) * 2 + [0, 2, 3, 1][(i % 2) + (j % 2) * 2] / 4) < 1 ? P.l : P.v; x.fillRect(i, j, 1, 1); }
+    x.fillStyle = P.y; for (let j = -5; j <= 5; j++) { const ww = Math.round(Math.sqrt(25 - j * j)); x.fillRect(w * .15 - ww, h * .18 + j, ww * 2, 1); }
+    for (let j = h * .5 | 0; j < h; j++) { x.fillStyle = j < h * .6 ? P.G : j < h * .75 ? P.h : P.H; x.fillRect(0, j, w, 1); }
+    for (let n = 0; n < 140; n++) { const fx = R() * w | 0, fy = h * .52 + Math.pow(R(), .7) * h * .46 | 0, s = fy > h * .8 ? 2 : 1; x.fillStyle = [P.R, P.Y, P.W, P.I, P.O][R() * 5 | 0]; x.fillRect(fx, fy, s, s); if (s > 1) { x.fillStyle = P.y; x.fillRect(fx, fy, 1, 1); } }
+    x.fillStyle = P.W; for (let n = 0; n < 4; n++) { const cx = R() * w | 0, cy = 4 + R() * h * .25 | 0; x.fillRect(cx, cy, 14, 3); x.fillRect(cx + 3, cy - 2, 8, 2); } },
   night(x, w, h) { const P = WD_PAL, R = Office.rng(9);
     x.fillStyle = P[0]; x.fillRect(0, 0, w, h); x.fillStyle = P.N; x.fillRect(0, h * .55, w, h);
     for (let n = 0; n < w * h / 60; n++) { x.fillStyle = R() < .8 ? P.W : P.y; x.fillRect(R() * w | 0, R() * h * .55 | 0, 1, 1); }
