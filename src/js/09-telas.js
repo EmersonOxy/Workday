@@ -1,14 +1,18 @@
 /* ================= Telas ================= */
 function modal(html) {
   // Telas abertas de dentro de um aplicativo da área de trabalho (Personalizar, Perfil) continuam na janela dele
-  if (modal.into && modal.into.isConnected) { const b = modal.into; b.innerHTML = html; b.classList.add('card-in'); return b; }
+  // redesenhar a mesma tela (ex.: trocar uma opção) mantém a rolagem onde estava
+  const keepScroll = (el, fn) => { const h0 = (el.querySelector('h2') || {}).textContent, top = el.scrollTop; fn(); const h1 = (el.querySelector('h2') || {}).textContent; if (h0 && h0 === h1) el.scrollTop = top; };
+  if (modal.into && modal.into.isConnected) { const b = modal.into; keepScroll(b, () => { b.innerHTML = html; }); b.classList.add('card-in'); return b; }
   modal.into = null;
   // a área de trabalho (ícones, Iniciar, barra e janelas abertas) continua enquanto estiver no menu
   $('modal').querySelectorAll('.legalbar, .os-smenu' + (document.body.classList.contains('menu-mode') ? '' : ', .os-win, .os-start, .os-icons, .os-tasks')).forEach(e => e.remove());
   $('modal').classList.remove('allmin');
   const card = $('modal').querySelector('.card');
+  const oldBody = card.querySelector('.win-body'), oldTitle = card.querySelector('.win-bar .mw-ttl'), st0 = oldBody ? oldBody.scrollTop : 0, t0 = oldTitle ? oldTitle.textContent : null;
   card.className = 'card'; card.style.display = ''; card.innerHTML = html;
   winChrome(card);
+  { const nb = card.querySelector('.win-body'), nt = card.querySelector('.win-bar .mw-ttl'); if (nb && nt && t0 === nt.textContent) nb.scrollTop = st0; }
   osFocus(card);
   const was = $('modal').classList.contains('hidden');
   $('modal').classList.remove('hidden');

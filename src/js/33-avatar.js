@@ -128,11 +128,25 @@ function avRender(cfg) {
   const x = c.getContext('2d'), img = x.createImageData(W, H);
   out.forEach((h, i) => { const n = parseInt(h.slice(1), 16); img.data[i * 4] = n >> 16; img.data[i * 4 + 1] = n >> 8 & 255; img.data[i * 4 + 2] = n & 255; img.data[i * 4 + 3] = 255; });
   x.putImageData(img, 0, 0);
+  // materiais por pixel (o contorno externo vira 'ink'): a versão reduzida decide a forma por eles, não pelas cores
+  c._mat = mat.map((m, i) => m || (out[i] === '#2a1f2d' ? 'ink' : 'bg')); c._out = out;
   return c;
 }
 // Versão pequena (metade) para espaços apertados: cada bloco 2×2 vira a cor mais frequente, preferindo o contorno
+const AV_PRI = { ink: 9, eye: 8, brow: 7, mouth: 7, skin: 5, shirt: 4, cloth: 3, hair: 2, bg: 0 };
 function avHalf(src) {
   const W = src.width >> 1, H = src.height >> 1, c = document.createElement('canvas'); c.width = W; c.height = H;
+  if (src._mat) {   // por material: mesma forma qualquer que seja a paleta escolhida
+    const o = c.getContext('2d').createImageData(W, H), SW = src.width;
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+      const cnt = {}, first = {};
+      for (const [dx, dy] of [[0, 0], [1, 0], [0, 1], [1, 1]]) { const i = (y * 2 + dy) * SW + x * 2 + dx, m = src._mat[i]; cnt[m] = (cnt[m] || 0) + 1; if (!(m in first)) first[m] = src._out[i]; }
+      let best = null, bs = -1;
+      for (const m in cnt) { const pri = AV_PRI[m] !== undefined ? AV_PRI[m] : 6, sc = cnt[m] * 10 + pri + (pri >= 7 ? 15 : 0) - (m === 'ink' && cnt[m] < 2 ? 40 : 0); if (sc > bs) { bs = sc; best = m; } }
+      const n = parseInt(first[best].slice(1), 16), j = (y * W + x) * 4; o.data[j] = n >> 16; o.data[j + 1] = n >> 8 & 255; o.data[j + 2] = n & 255; o.data[j + 3] = 255;
+    }
+    c.getContext('2d').putImageData(o, 0, 0); return c;
+  }
   const d = src.getContext('2d').getImageData(0, 0, src.width, src.height).data, o = c.getContext('2d').createImageData(W, H);
   for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
     const cnt = new Map(); let ink = false;

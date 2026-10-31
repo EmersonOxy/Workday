@@ -550,9 +550,9 @@ Object.assign(LANGS.en.shop, { globo: ['Desk globe', 'For planning the vacation 
 Object.assign(LANGS.es.shop, { globo: ['Globo terráqueo', 'Para planear las vacaciones que no vas a tomar.'], livros: ['Pila de libros', 'Gestión, productividad y una novela escondida en medio.'], pato: ['Patito de goma', 'Escucha tus problemas sin agendar reunión.'],
   webcam: ['Webcam', 'Encima del monitor. Sí, está encendida.'], caixas: ['Altavoces', 'Dos, uno a cada lado del monitor.'], adesivos: ['Pegatinas', 'Personalidad pegada en el marco del monitor.'],
   diploma: ['Diploma enmarcado', 'En la pared, para recordar que valió la pena. Quizás.'], quadro: ['Cuadro de paisaje', 'Una ventana a un lugar sin correos.'], neon: ['Letrero de neón', 'CAFE en luz roja. Motivación garantizada.'] });
-LANGS.pt.ui.setSec = { lang: '🌐 Idioma e aparência', game: '🎯 Jogo', screen: '🖥️ Tela', sound: '🔊 Som e música', desk: '🪪 Crachá e escritório', data: '💾 Progresso e dados' };
-LANGS.en.ui.setSec = { lang: '🌐 Language and look', game: '🎯 Game', screen: '🖥️ Display', sound: '🔊 Sound and music', desk: '🪪 Badge and office', data: '💾 Progress and data' };
-LANGS.es.ui.setSec = { lang: '🌐 Idioma y apariencia', game: '🎯 Juego', screen: '🖥️ Pantalla', sound: '🔊 Sonido y música', desk: '🪪 Credencial y oficina', data: '💾 Progreso y datos' };
+LANGS.pt.ui.setSec = { lang: '🌐 Idioma e aparência', game: '🎯 Jogo', screen: '🖥️ Tela', sound: '🔊 Som e música', desk: '💼 Crachá e escritório', data: '💾 Progresso e dados' };
+LANGS.en.ui.setSec = { lang: '🌐 Language and look', game: '🎯 Game', screen: '🖥️ Display', sound: '🔊 Sound and music', desk: '💼 Badge and office', data: '💾 Progress and data' };
+LANGS.es.ui.setSec = { lang: '🌐 Idioma y apariencia', game: '🎯 Juego', screen: '🖥️ Pantalla', sound: '🔊 Sonido y música', desk: '💼 Credencial y oficina', data: '💾 Progreso y datos' };
 Object.assign(LANGS.pt.ui.walls, { praia: 'Praia', floresta: 'Floresta', espaco: 'Espaço', neve: 'Montanhas', campo: 'Campo florido' });
 Object.assign(LANGS.en.ui.walls, { praia: 'Beach', floresta: 'Forest', espaco: 'Space', neve: 'Mountains', campo: 'Flower field' });
 Object.assign(LANGS.es.ui.walls, { praia: 'Playa', floresta: 'Bosque', espaco: 'Espacio', neve: 'Montañas', campo: 'Campo de flores' });
