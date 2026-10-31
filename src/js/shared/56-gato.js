@@ -16,7 +16,15 @@ const CAT_COATS_NEW = {
   tricolor:          { base: ['+', 'W', 'w', 'p'], a: ['1', '2', '3', '4'], b: ['j', 'J', '0', 'k'], eye: ['d', 'D'], nose: 'r', pat: 'calico' },
   frajola:           { base: ['j', 'J', '0', 'k'], white: ['+', 'W', 'w', 'p'], eye: ['d', 'D'], nose: 'r', pat: 'tux', dark: true },
   siames:            { base: ['c', 'C', 'e', 'E'], a: ['5', '3', '4', 'k'], eye: ['l', 'L'], nose: '5', pat: 'points' },
+  cinza:             { base: ['m', 'M', 'j', 'J'], eye: ['d', 'D'], nose: 'r', pat: 'none' },
+  creme:             { base: ['W', 'w', 'p', 'P'], a: ['p', 'P', 'P', '4'], eye: ['Y', 'z'], nose: 'r', pat: 'tabby' },
+  'tigrado-marrom':  { base: ['p', 'P', '3', '4'], a: ['4', '4', 'k', 'k'], white: ['+', 'W', 'w', 'p'], eye: ['y', 'G'], nose: '5', pat: 'tabby', bib: true },
+  escaminha:         { base: ['j', 'J', '0', 'k'], a: ['2', '3', '4', '4'], eye: ['Y', 'z'], nose: 'K', pat: 'tortie', dark: true },
+  bicolor:           { base: ['+', 'W', 'w', 'p'], a: ['m', 'M', 'j', 'J'], eye: ['Y', 'z'], nose: 'r', pat: 'bicolor' },
+  vaquinha:          { base: ['+', 'W', 'w', 'p'], b: ['j', 'J', '0', 'k'], eye: ['d', 'D'], nose: 'r', pat: 'cow' },
 };
+// Cor dos olhos (Personalizar): "auto" usa a cor típica da pelagem; heterocromia = um azul e um âmbar
+const CAT_EYES = { auto: null, verde: ['d', 'D'], ambar: ['Y', 'z'], azul: ['l', 'L'], cobre: ['O', '8'], avela: ['Q', 'h'], amarelo: ['y', 'Y'], hetero: [['l', 'L'], ['Y', 'z']] };
 const CAT_K = 1.3;
 
 // Máquina de estados (duração mínima, máxima, peso). O clique dá carinho; movimento reduzido: só pisca.
@@ -56,8 +64,9 @@ function catPose(c, t) {
 // ---------- Desenho ----------
 // Devolve a altura usada. x0, by: canto esquerdo e base (onde as patas tocam)
 function catDraw(x, x0, by, coat, c, t, k = CAT_K) {
-  const C = CAT_COATS_NEW[coat] || CAT_COATS_NEW.laranja, P = WD_PAL, p = catPose(c, t), oy = 2;
-  const W = Math.ceil(39 * k), H = Math.ceil(35 * k), N = W * H;
+  const [coatId, eyeId] = String(coat).split('|'), C = CAT_COATS_NEW[coatId] || CAT_COATS_NEW.laranja, P = WD_PAL, p = catPose(c, t), oy = 2;
+  const EY = CAT_EYES[eyeId] || null, eyeCols = side => !EY ? C.eye : Array.isArray(EY[0]) ? EY[side] : EY;
+  const W = Math.ceil(42 * k), H = Math.ceil(35 * k), N = W * H;
   const id = new Int8Array(N).fill(-1), L = new Float32Array(N);
   const S = v => v * k, put = (i, j, part, l) => { if (i < 0 || j < 0 || i >= W || j >= H) return; const n = j * W + i; id[n] = part; L[n] = l; };
   const lerp = (a, b, f) => a + (b - a) * f;
@@ -78,19 +87,19 @@ function catDraw(x, x0, by, coat, c, t, k = CAT_K) {
   const lo = p.loaf, bw = p.bow;
   const hx = 12 + p.hx - lo * 1.5 - bw * 3, hy = 10.5 + p.hy + lo * 7.5 + bw * 7;
   // cauda: do quadril para a frente (enrolada) ou para cima (ponto de interrogação); a ponta balança
-  const wrap = [[27, 27.5], [31, 28.6], [31.8, 31], [26, 31.7], [19, 31.5], [13.5, 30.8]], up = [[27, 27.5], [31, 24.5], [33, 19.5], [33.2, 14.5], [31.6, 11.2], [29.6, 10.8]];
+  const wrap = [[27, 27.5], [31, 29], [34.5, 30.4], [37, 30], [38.3, 28.2], [38, 25.8]], up = [[27, 27.5], [31, 24.5], [33, 19.5], [33.2, 14.5], [31.6, 11.2], [29.6, 10.8]];
   const tp = Math.min(1, Math.max(0, p.tail)), tpts = wrap.map((w, i) => [lerp(w[0], up[i][0], tp) + p.sway * i * .5 * (tp > .4 ? 1 : .4), lerp(w[1], up[i][1], tp) + (lo ? lo * (i > 2 ? -.5 : 0) : 0)]);
-  const tailFront = tp < .45;
+  const tailFront = false;   // a cauda sai por trás da anca
   const drawTail = () => { for (let s = 0; s < tpts.length - 1; s++) for (let u = 0; u < 1; u += .08) { const a = tpts[s], b = tpts[s + 1], q = s + u;
     const px = lerp(a[0], b[0], u), py = lerp(a[1], b[1], u), r = lerp(1.9, 1.25, q / (tpts.length - 1)); ell(0, px, py, r, r); } };
   if (!tailFront) drawTail();
   ell(1, 21.5 + lo * 1.5 - bw * .5, 24.2 + lo * 1.3 - bw * 2.2, 8.8 + lo * 1, 7.2 - lo * .6);                    // anca
   ell(2, 17 - lo * 1 + bw * 1, 20.6 + lo * 3.4 + bw * 2.2 - p.breath * .25, 9.2 + lo * 2, 9 - lo * 2.6 - bw * 2.5 + p.breath * .25);   // corpo (lombo)
   if (tailFront) drawTail();
-  ell(6, 24.6 + lo, 30.8, 3.1, 1.3);                                                                            // pata de trás
+  ell(6, 20.6 + lo, 31, 3, 1.2);                                                                               // pé de trás, saindo da anca
   if (lo < .6) cap(3, lerp(14.6, 13.5, bw), lerp(23, 28.6, bw), lerp(14.8, 4.2, bw), lerp(29.6, 30.4, bw), 1.55, .25);   // perna de trás (mais escura)
-  ell(4, 12.2 - bw * 1 + lo * .5, 22.2 + bw * 4.6 + lo * 3.5, 5.6, 7.4 - lo * 2.6 - bw * 3.2);                       // peito
-  if (lo < .6) { if (p.paw) cap(10, 11, 21, p.paw === 1 ? hx - 2.2 : hx - 4, p.paw === 1 ? hy + 4.8 : hy + 2.5, 1.65); else cap(5, lerp(10.6, 12, bw), lerp(22, 27.8, bw), lerp(10.4, 1.6, bw), lerp(29.5, 30.1, bw), 1.65); }
+  if (lo < .6 && !p.paw) cap(5, lerp(10.6, 12, bw), lerp(22, 27.8, bw), lerp(10.4, 1.6, bw), lerp(29.5, 30.1, bw), 1.65);   // perna da frente (sai de baixo do peito)
+  ell(4, 12.2 - bw * 1 + lo * .5, 20.9 + bw * 5 + lo * 4, 5.9, 6.3 - lo * 1.8 - bw * 2.4);                                  // peito por cima do alto das pernas
   if (!p.paw && lo < .6) ell(6, lerp(10.4, 1.4, bw), lerp(30.3, 30.6, bw), 2.2, 1.3);
   if (lo >= .6) { ell(6, 8.6, 31, 2.4, 1.2); ell(6, 12.6, 31.1, 2.3, 1.1); }                                     // patinhas recolhidas
   if (!p.paw && lo < .6 && bw < .5) ell(6, 14.8, 30.5, 2, 1.1);
@@ -120,6 +129,13 @@ function catDraw(x, x0, by, coat, c, t, k = CAT_K) {
       if (part === 3 || part === 5) return Math.sin(v * 1.5) > .7 ? R.a : R.base;
       if (part === 7) { const fore = v < hy - 1.6 && v > hy - 5.2 && [-1.8, 0, 1.8].some(o => Math.abs(u - hx - o) < .5); const cheek = v > hy + 1.2 && v < hy + 1.9 && Math.abs(u - hx) > 4.6; return fore || cheek ? R.a : R.base; }
       return R.base; }
+    if (R.pat === 'tortie') { if (part === 7 || part === 9) return u < hx - .3 ? R.a : R.base;   // rosto dividido
+      if (part === 6) return R.base; const n = Math.sin(u * .62 + v * .33 + 1) * Math.sin(u * .31 - v * .58 + .4) + Math.sin(u * 1.7 + v * .95) * .22 + Math.sin(u * 3.1 - v * 2.2) * .08; return n > .12 ? R.a : R.base; }   // manchas grandes e irregulares, borda quebrada
+    if (R.pat === 'bicolor') { const top = part === 8 || part === 11 || part === 0 || (part === 7 && v < hy + .4 && !(Math.abs(u - hx + .2) < 1.1 && v > hy - 2.5)) || (part === 2 && v < 23.5) || (part === 1 && v < 24.5);
+      return top ? R.a : R.base; }
+    if (R.pat === 'cow') { const blob = (cx, cy, r) => (u - cx) ** 2 + (v - cy) ** 2 < r * r;
+      if ((part === 7 || part === 8 || part === 11) && blob(hx + 3.6, hy - 3.4, 3.6)) return R.b;
+      if ((part === 2 || part === 1) && (blob(22.5, 18.5, 4.4) || blob(26, 27, 2.8))) return R.b; if (part === 0 && u > 35) return R.b; return R.base; }
     if (R.pat === 'calico') {
       const blob = (cx, cy, r) => (u - cx) ** 2 + (v - cy) ** 2 < r * r;
       if (part === 7 || part === 8 || part === 11) { if (blob(hx - 4.5, hy - 4, 3.6)) return R.b; if (blob(hx + 4.6, hy - 2.4, 3.4)) return R.a; return R.base; }
@@ -148,25 +164,26 @@ function catDraw(x, x0, by, coat, c, t, k = CAT_K) {
       if (part === 6 && k >= 1.6 && at(i, j + 1) < 0 && [1, 2].includes(((i - Math.round(S(2))) % 3 + 3) % 3) && at(i, j - 1) === 6) tone = Math.max(tone, 2);
       if (part === 6 && at(i, j - 1) !== 6 && at(i, j - 1) >= 0 && k >= 1.6) tone = Math.max(tone, 2);
       if (part === 0 && [1, 2, 4].includes(at(i, j - 1))) tone = 3;
+      if (part === 4 && [5, 3].includes(at(i, j + 1))) tone = Math.max(tone, 2);
     }
     out[n] = P[ramp(i, j, part)[tone]];
   }
   // ---------- rosto ----------
   const set = (i, j, col) => { i = Math.round(i); j = Math.round(j); if (i >= 0 && j >= 0 && i < W && j < H && id[j * W + i] >= 0) out[j * W + i] = col; };
   const lidCol = P[ramp(Math.round(S(hx)), Math.round(S(hy + oy)), 7)[2]];
-  const eye = (cxu) => { const ew = Math.max(2, Math.round(2.3 * k)), eh = Math.max(2, Math.round(1.9 * k)), x0 = Math.round(S(cxu - (ew / k) / 2)), y0 = Math.round(S(hy + oy - .2 - (eh / k) / 2)) + 0;
+  const eye = (cxu, side) => { const EC = eyeCols(side); const ew = Math.max(2, Math.round(2.3 * k)), eh = Math.max(2, Math.round(1.9 * k)), x0 = Math.round(S(cxu - (ew / k) / 2)), y0 = Math.round(S(hy + oy - .2 - (eh / k) / 2)) + 0;
     const look = Math.round(p.look * Math.max(1, k * .5));
     if (p.eyes === 'closed') { for (let i = 0; i < ew; i++) set(x0 + i, y0 + eh - 1 - (i === 0 || i === ew - 1 ? 1 : 0), P.k); return; }
     if (p.eyes === 'happy') { for (let i = 0; i < ew; i++) set(x0 + i, y0 + (i === 0 || i === ew - 1 ? 1 : 0), P.k); return; }
     for (let j = 0; j < eh; j++) for (let i = 0; i < ew; i++) { const corner = ew > 3 && (j === 0 || j === eh - 1) && (i === 0 || i === ew - 1); if (corner) continue;
-      let col = P[j < eh / 2 ? C.eye[0] : C.eye[1]]; const pc = Math.floor(ew / 2) + look - (ew > 3 ? 0 : 0);
+      let col = P[j < eh / 2 ? EC[0] : EC[1]]; const pc = Math.floor(ew / 2) + look - (ew > 3 ? 0 : 0);
       if (i === pc || (p.pupil > 1 && i === pc - 1) || (ew <= 2 && i === ew - 1)) col = P.k;
       if (p.eyes === 'half' && j < Math.ceil(eh / 2)) col = lidCol;
       set(x0 + i, y0 + j, col); }
     if (p.eyes !== 'half') set(x0 + (ew > 3 ? 1 : 0), y0 + (ew > 3 ? 1 : 0) - (ew > 3 ? 0 : 0), P['+']);
     if (k >= 1.6) { for (let i = (ew > 3 ? 1 : 0); i < ew - (ew > 3 ? 1 : 0); i++) set(x0 + i, y0 - 1, P.k); set(x0 - 1, y0 + 1, P.k); }                    // pálpebra de cima
   };
-  eye(hx - 3.3); eye(hx + 2.7);
+  eye(hx - 3.3, 0); eye(hx + 2.7, 1);
   const nx = S(hx - .2), ny = S(hy + oy + 2.2);
   if (k >= 1.6) { set(nx - 1, ny, P[C.nose]); set(nx, ny, P[C.nose]); set(nx + 1, ny, P[C.nose]); set(nx, ny + 1, P[C.nose]); set(nx - 1, ny - 0, P[C.nose]); }
   else set(nx, ny, P[C.nose]);
@@ -198,7 +215,7 @@ function catDraw(x, x0, by, coat, c, t, k = CAT_K) {
 }
 function catDrawBound(...a) { return catDraw(...a); }
 // Tamanho (px) do desenho para um k
-const catSize = k => [Math.ceil(39 * k), Math.ceil(35 * k)];
+const catSize = k => [Math.ceil(42 * k), Math.ceil(35 * k)];
 // Quadro parado (sem animação) em canvas, com cache; usado no mercado, catálogo, cenas e miniaturas
 const CAT_STILL = new Map();
 function catStill(coat, k) {

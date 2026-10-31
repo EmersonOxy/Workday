@@ -185,18 +185,20 @@ function showCustomize(back) {
     <div class="setting"><span>${u.curColorLabel}</span><div class="swatches cur-colors"></div></div>
     <div class="setting"><span>${u.theme}<small></small></span><div class="seg" id="hwTheme">${[['system', u.themeSystem], ['light', u.themeLight], ['dark', u.themeDark]].map(([v, l]) => `<button class="pxbtn${(CFG.theme || 'system') === v ? ' on' : ''}" data-t="${v}">${l}</button>`).join('')}</div></div>
     <div class="setting"><span>${u.catLabel}</span><div class="walls cats">${CAT_COATS.map(c2 => `<button class="pxbtn wall cat${cur.cat === c2 ? ' on' : ''}" data-c="${c2}"><span class="cimg"></span><small>${u.coats[c2]}</small></button>`).join('')}</div></div>
+    <div class="setting"><span>${u.catEyeLabel}<small></small></span><div class="swatches" data-hw="catEye" data-names='${JSON.stringify(u.catEyes)}'>${Object.entries(CAT_EYES).map(([k2, e2]) => { const cc = !e2 ? null : Array.isArray(e2[0]) ? [WD_PAL[e2[0][0]], WD_PAL[e2[1][0]]] : [WD_PAL[e2[0]], WD_PAL[e2[1]]];
+      return `<button class="sw-btn${(cur.catEye || 'auto') === k2 ? ' on' : ''}" data-v="${k2}" title="${u.catEyes[k2]}" aria-label="${u.catEyes[k2]}"><i style="background:${cc ? `linear-gradient(90deg, ${cc[0]} 0 50%, ${cc[1]} 50% 100%)` : 'repeating-conic-gradient(#dcc6a0 0 25%, #fff8ec 0 50%) 0 0 / 8px 8px'}"></i></button>`; }).join('')}</div></div>
     <div class="setting"><span>${u.wallLabel}</span><div class="walls">${Object.keys(WALLS).map(w => `<button class="pxbtn wall${cur.wall === w ? ' on' : ''}" data-w="${w}"><canvas width="64" height="36"></canvas><small>${u.walls[w]}</small></button>`).join('')}</div></div>
     <div class="setting"><span>${u.arr.title}</span><div class="seg"><button class="pxbtn" id="hwArr">${u.arr.title}…</button><button class="pxbtn" id="hwArrReset">${u.arr.reset}</button></div></div>
     <div class="actions"><button class="pxbtn main" id="hwOk">${u.resume}</button></div>`);
   card.classList.add('hw-card');
   // Layout de aplicativo: abas por categoria à esquerda e prévia grande à direita (computador, janela do WorkOS,
   // crachá e gato), tudo atualizado em tempo real. As linhas existentes são só redistribuídas (nenhuma opção some).
-  { const rows = [...card.querySelectorAll(':scope .setting')], CAT = ['pc', 'pc', 'pc', 'pc', 'os', 'os', 'badge', 'badge', 'pc', 'ptr', 'ptr', 'os', 'desk', 'os', 'desk'];
+  { const rows = [...card.querySelectorAll(':scope .setting')], CAT = ['pc', 'pc', 'pc', 'pc', 'os', 'os', 'badge', 'badge', 'pc', 'ptr', 'ptr', 'os', 'desk', 'desk', 'os', 'desk'];
     const lay = document.createElement('div'); lay.className = 'hw-layout';
     lay.innerHTML = `<div class="hw-main"><div class="hw-tabs">${['pc', 'os', 'badge', 'desk', 'ptr'].map(k => `<button class="pxbtn hw-tab" data-t="${k}">${u.hwTabs[k]}</button>`).join('')}</div><div class="hw-opts"></div></div>
       <aside class="hw-side"><div class="hw-pv hw-pv-pc"></div><div class="hw-pv hw-pv-os"><div class="pv-win"><i class="pv-bar"><b></b><b></b><b class="x"></b></i><div class="pv-body"></div></div><i class="pv-task"><i class="pv-orb"></i></i></div>
         <div class="hw-pv hw-pv-badge"><div class="pv-badge"><i class="pv-lan"></i><div class="pv-card"><i class="pv-head"></i><span class="pv-face"></span><b></b></div></div></div>
-        <div class="hw-pv hw-pv-desk"><canvas class="pv-cat" width="52" height="48"></canvas></div><p class="hint hw-note"></p></aside>`;
+        <div class="hw-pv hw-pv-desk"><canvas class="pv-cat" width="56" height="48"></canvas></div><p class="hint hw-note"></p></aside>`;
     const opts = lay.querySelector('.hw-opts'); rows.forEach((r, i) => { r.dataset.cat = CAT[i] || 'os'; opts.append(r); });
     card.querySelector('.hw-prev').remove(); const pcBox = lay.querySelector('.hw-pv-pc'); pcBox.innerHTML = '<canvas class="hw-scene" width="120" height="44"></canvas>';
     card.querySelector('.hint').remove(); card.querySelector('h2').after(lay);
@@ -207,7 +209,7 @@ function showCustomize(back) {
     lay.querySelectorAll('.hw-tab').forEach(b => b.onclick = () => { sfx('click'); tab(b.dataset.t); });
     let t0 = 'pc'; try { t0 = sessionStorage.getItem('hwTab') || 'pc'; } catch (e) {} tab(t0);
     // gato da prévia animado com a mesma lógica da mesa
-    const pc = lay.querySelector('.pv-cat'), ai = CatAI.make(); const anim = () => { if (!pc.isConnected) return; const t = performance.now() / 1000; CatAI.step(ai, t); const x = pc.getContext('2d'); x.clearRect(0, 0, 52, 48); catDraw(x, 0, 47, hw().cat, ai, t, 1.3); requestAnimationFrame(anim); };
+    const pc = lay.querySelector('.pv-cat'), ai = CatAI.make(); const anim = () => { if (!pc.isConnected) return; const t = performance.now() / 1000; CatAI.step(ai, t); const x = pc.getContext('2d'); x.clearRect(0, 0, 56, 48); catDraw(x, 0, 47, hw().cat + '|' + (hw().catEye || 'auto'), ai, t, 1.3); requestAnimationFrame(anim); };
     pc.onclick = () => CatAI.poke(ai, performance.now() / 1000); requestAnimationFrame(anim); }
   const prev = card.querySelector('.hw-scene');
   const draw = () => {

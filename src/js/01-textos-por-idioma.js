@@ -585,3 +585,11 @@ LANGS.es.ui.hwTabs = { pc: '🖥️ Computadora', os: '🪟 WorkOS', badge: '�
 LANGS.pt.ui.hwTabNotes = { pc: 'Cores físicas do monitor, teclado, mouse e telefone. Aparecem na mesa do escritório.', os: 'Janelas, barra de tarefas, tema e papel de parede do WorkOS.', badge: 'Cores do crachá e do cordão.', desk: 'O gato da mesa. Clique na prévia para fazer carinho.', ptr: 'Formato e cor do ponteiro do mouse.' };
 LANGS.en.ui.hwTabNotes = { pc: 'Physical colors of the monitor, keyboard, mouse and phone. They show on the office desk.', os: 'WorkOS windows, taskbar, theme and wallpaper.', badge: 'Badge and lanyard colors.', desk: 'The desk cat. Click the preview to pet it.', ptr: 'Mouse pointer shape and color.' };
 LANGS.es.ui.hwTabNotes = { pc: 'Colores físicos del monitor, teclado, ratón y teléfono. Aparecen en el escritorio.', os: 'Ventanas, barra de tareas, tema y fondo de WorkOS.', badge: 'Colores de la credencial y el cordón.', desk: 'El gato del escritorio. Haz clic en la vista previa para acariciarlo.', ptr: 'Forma y color del puntero.' };
+
+Object.assign(LANGS.pt.ui.coats, { cinza: 'Cinza', creme: 'Creme', 'tigrado-marrom': 'Tigrado marrom', escaminha: 'Escaminha', bicolor: 'Cinza e branco', vaquinha: 'Malhado' });
+Object.assign(LANGS.en.ui.coats, { cinza: 'Gray', creme: 'Cream', 'tigrado-marrom': 'Brown tabby', escaminha: 'Tortoiseshell', bicolor: 'Gray and white', vaquinha: 'Spotted' });
+Object.assign(LANGS.es.ui.coats, { cinza: 'Gris', creme: 'Crema', 'tigrado-marrom': 'Atigrado marrón', escaminha: 'Carey', bicolor: 'Gris y blanco', vaquinha: 'Manchado' });
+LANGS.pt.ui.catEyeLabel = 'Olhos do gato'; LANGS.en.ui.catEyeLabel = 'Cat eyes'; LANGS.es.ui.catEyeLabel = 'Ojos del gato';
+LANGS.pt.ui.catEyes = { auto: 'Da pelagem', verde: 'Verde', ambar: 'Âmbar', azul: 'Azul', cobre: 'Cobre', avela: 'Avelã', amarelo: 'Amarelo', hetero: 'Um de cada cor' };
+LANGS.en.ui.catEyes = { auto: 'Coat default', verde: 'Green', ambar: 'Amber', azul: 'Blue', cobre: 'Copper', avela: 'Hazel', amarelo: 'Yellow', hetero: 'Odd-eyed' };
+LANGS.es.ui.catEyes = { auto: 'Del pelaje', verde: 'Verde', ambar: 'Ámbar', azul: 'Azul', cobre: 'Cobre', avela: 'Avellana', amarelo: 'Amarillo', hetero: 'Uno de cada color' };

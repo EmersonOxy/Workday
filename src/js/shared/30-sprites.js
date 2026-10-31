@@ -43,7 +43,7 @@ SPR2.cacto = ['....kkk....', '...kgGhk...', '.k.kgWhk.k.', 'kgkkGGhkkhk', 'kGGkG
 SPR2.radio = ['.............k..', '............k...', '...........k....', 'kkkkkkkkkkkkkkkk', 'k11111111111112k', 'k1kkkkkk1kkkk13k', 'k1kpkpkk1kYYk13k', 'k1kkpkpk1kRYk13k', 'k1kkkkkk1kkkk13k', 'k33333333333333k', 'kkkkkkkkkkkkkkkk', '.kk..........kk.'];
 SPR2.aquario = ['...kkkkkkkk...', '..kmmmmmmmmk..', '.kWllllllllLk.', 'kWlllllllllLLk', 'kllllOOOOllLLk', 'klllOOOOkOlLLk', 'kllllOOOOllLLk', 'kllllllllllLLk', 'klvlllllllvLLk', '.kGGgGllGGgLk.', '.kGhGGhhGGh7k.', '..k77777777k..', '...kkkkkkkk...'];
 // Pelagens do gato: o desenho é o mesmo; a cor de cada pixel vem do padrão (listras, manchas, máscara)
-const CAT_COATS = ['tricolor', 'cinza-tigrado', 'laranja-tigrado', 'laranja', 'preto', 'branco', 'frajola', 'siames'];
+const CAT_COATS = ['tricolor', 'cinza-tigrado', 'laranja-tigrado', 'laranja', 'preto', 'branco', 'frajola', 'siames', 'cinza', 'creme', 'tigrado-marrom', 'escaminha', 'bicolor', 'vaquinha'];
 function catCoat(rows, coat, tail) {
   const key = 'cat:' + coat + ':' + rows.join('|');
   if (Pixel.cache.has(key)) return Pixel.cache.get(key);

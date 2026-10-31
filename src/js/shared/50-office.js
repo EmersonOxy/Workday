@@ -304,7 +304,7 @@ const Office = {
       for (let j = L.VH - 6; j < L.VH; j++) Pixel.dither(x, 0, j, L.VW, 1, P[1], j + 1);                      // borda da frente iluminada
       // Laterais: a mesa termina antes das bordas da tela. As quinas abrem um pouco em direção a quem está sentado;
       // fora do tampo aparece o chão (carpete escuro), e a espessura do tampo fica visível como uma faixa mais escura.
-      const eb = Math.max(6, L.VW * .07 | 0), ef = Math.max(2, L.VW * .015 | 0), H0 = L.VH - top;
+      const eb = Math.max(6, L.VW * .03 | 0), ef = Math.max(2, L.VW * .015 | 0), H0 = L.VH - top;
       for (let y = top; y < L.VH; y++) {
         const k = (y - top) / H0, xl = Math.round(eb + (ef - eb) * k), xr = L.VW - xl;
         x.fillStyle = P.B; x.fillRect(0, y, xl - 3, 1); x.fillRect(xr + 3, y, L.VW - xr - 3, 1);

@@ -7,7 +7,7 @@
 
 // id → [porte, largura que ocupa na mesa, altura visual]
 const DESK_OBJ = {
-  gato: ['G', 82, 70], lamp: ['G', 78, 92], aquario: ['G', 62, 42],
+  gato: ['G', 86, 70], lamp: ['G', 78, 92], aquario: ['G', 62, 42],
   mug: ['M', 34, 34], globo: ['M', 30, 38], trofeu: ['M', 30, 38], foto: ['M', 24, 28], planta: ['M', 28, 32], radio: ['M', 34, 24],
   badge: ['P', 16, 26], pens: ['P', 17, 21], papersL: ['P', 33, 12], papersR: ['P', 33, 12], pato: ['P', 18, 16], livros: ['P', 31, 22],
   caixaL: ['P', 13, 22], caixaR: ['P', 13, 22], cacto: ['P', 18, 26],
@@ -21,7 +21,7 @@ const DESK_AUTO = [['gato', 'esqFundo'], ['lamp', 'dirFundo'], ['aquario', 'dirF
   ['radio', 'prateleira'], ['cacto', 'prateleira'], ['livros', 'prateleira']];
 const DESK_ZONES = ['esqFundo', 'centroEsq', 'centroDir', 'dirFrente', 'dirFundo', 'prateleira'];
 // quanto o objeto pode entrar atrás da moldura do monitor (px) e para onde vai se a zona escolhida estiver cheia
-const DESK_TUCK = { gato: 20, lamp: 16, aquario: 8 };
+const DESK_TUCK = { lamp: 16, aquario: 8 };
 const DESK_FALLBACK = { caixaL: ['centroEsq', 'centroDir'], caixaR: ['centroDir', 'centroEsq'], papersL: [], papersR: ['centroEsq'], planta: ['centroEsq', 'centroDir', 'prateleira'] };
 // qual compra libera cada objeto (caixas de som são um par)
 const deskOwned = (id, decor) => DESK_BASE.includes(id) || (decor || []).includes(id === 'caixaL' || id === 'caixaR' ? 'caixas' : id);
@@ -53,10 +53,12 @@ Object.assign(Office, {
     const place = (id, zid) => {
       const z = Z[zid], o = DESK_OBJ[id]; if (!this.deskFits(id, z)) return false;
       if (z.shelf) { const u = used[zid] || 0, rows = shelfRows(); if (u + o[1] + 3 > z.cap / 2 * rows) return false; used[zid] = u + o[1] + 3; shelf.push(id); out[id] = { zone: zid, shelf: true, w: o[1], h: o[2] }; return true; }
-      const u = used[zid] || 0, tuck = z.back && !u ? (DESK_TUCK[id] || 0) : 0, w = o[1], free = z.x1 - z.x0 - u + tuck; if (w > free) return false;
+      const spill = id === 'gato' && zid === 'esqFundo' ? 24 : 0;   // a cauda do gato pode sair pela borda esquerda da cena
+      const u = used[zid] || 0, tuck = z.back && !u ? (DESK_TUCK[id] || 0) : 0, w = o[1], free = z.x1 - z.x0 - u + tuck + spill; if (w > free) return false;
       // nas laterais do monitor o primeiro objeto pode entrar um pouco atrás da moldura (o gato encostado no monitor)
       const x = z.dir < 0 ? z.x1 - u - w + tuck : z.x0 + u - tuck;
       out[id] = { x, y: z.y, w, h: o[2], zone: zid, back: !!z.back, corner: !!z.corner };
+      if (id === 'gato' && zid === 'esqFundo') out[id].flip = true;   // no canto esquerdo olha para a tela; a cauda fica para fora
       used[zid] = u + w - tuck + (o[0] === 'P' ? 3 : 5); return true;
     };
     // objetos arrumados à mão: { fx, fy, flip } (centro em fração da largura e profundidade entre o fundo e a borda da frente)
@@ -194,9 +196,7 @@ Object.assign(Office, {
   deskObj0(x, id, q, st, t, dy = 0) {
     const P = WD_PAL, y = q.y + dy;
     if (id === 'gato') { const k = 2, cw = catSize(k)[0] - 8, cxx = q.x + ((q.w - cw) >> 1);
-      this.shadow(x, cxx - 1, y + 1, cw + 2, 2); const F = (c, a, b, w, h) => { x.fillStyle = c; x.fillRect(a, b, w, h); };
-      F(P.k, cxx - 2, y - 6, cw + 4, 7); F(P.L, cxx - 1, y - 5, cw + 2, 5); F(P.l, cxx - 1, y - 5, cw + 2, 1); F(P[7], cxx - 1, y - 1, cw + 2, 1); F(P.Y, cxx - 2, y - 5, 1, 1); F(P.Y, cxx + cw + 1, y - 5, 1, 1);   // almofada
-      CatAI.step(OFFICE_CAT, t); catDraw(x, cxx - 4, y - 4, st.cat || 'laranja', OFFICE_CAT, t, k); return; }
+      CatAI.step(OFFICE_CAT, t); catDraw(x, cxx - 4, y + 1, st.cat || 'laranja', OFFICE_CAT, t, k); return; }
     if (id === 'lamp') { const flip = (q.zone === 'esqFundo') !== !!q.flip, on = (st.lampLv !== undefined ? st.lampLv : 1) > .5, bx = flip ? q.x + 26 : q.x + q.w - 26; const h = this.lampBig(x, bx, y, t, on, flip); this._lampCone = { cx: h.x, y0: h.y, y1: y + 1 }; return; }
     if (id === 'aquario') { this._aqua = [q.x, y - q.h - 2]; ART.aquarium(x, q.x, y, t, Object.assign({}, st, { W: q.w - 2, H: q.h - 4 })); return [q.x + (q.w >> 1), y - q.h / 2, q.w * .7, q.h * .6, '120,200,220', .45]; }
     if (id === 'mug') { this.mugBig(x, q.x + 1, y, t, st.rank >= 1, st.hour < 16 || st.clutter < 2); return; }
