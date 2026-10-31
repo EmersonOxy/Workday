@@ -533,8 +533,15 @@ const Office = {
       if (D.has('aquario')) pool(Z.win.x + 20, Z.win.y + Z.win.h + 30, 18, 12, '120,200,220', .3);
       if (D.has('neon')) pool(L.VW - 12, 74, 18, 14, '239,75,63', .35);
       ctx.restore(); }
-    if (D.has('lamp') && lampLv > 0) { const fl = (.2 + Math.sin(t * 9) * .01) * lampLv; ctx.fillStyle = `rgba(255,231,163,${fl})`; const hx = Z.lamp.x - 14, hy = Z.lamp.y - 44;
-      for (let j = 0; j < 44; j++) ctx.fillRect(hx - (j * .5 | 0), hy + 8 + j, 14 + (j * 1.1 | 0), 1); }
+    // Luminária acesa: cone em duas faixas de borda definida (externa mais fraca, miolo mais forte), da boca da cúpula até
+    // o tampo, e uma poça de luz em três degraus na mesa. Nada de degradê suave; o brilho oscila 1 degrau, bem de leve.
+    if (D.has('lamp') && lampLv > 0) {
+      const fl = (1 + ((t * 9 | 0) % 11 === 0 ? -.15 : 0)) * lampLv, cx = Z.lamp.x - 6, y0 = Z.lamp.y - 36, y1 = Z.lamp.y + 1, Hh = y1 - y0;
+      for (const [k, a] of [[1, .09], [.6, .1]]) { ctx.fillStyle = `rgba(255,231,163,${(a * fl).toFixed(3)})`;
+        for (let j = 0; j <= Hh; j++) { const w = Math.round((7 + j * .75) * k); ctx.fillRect(cx - w, y0 + j, w * 2, 1); } }
+      for (const [rx, ry, a] of [[30, 6, .08], [21, 4, .1], [12, 2, .12]]) { ctx.fillStyle = `rgba(255,214,140,${(a * fl).toFixed(3)})`;
+        for (let j = -ry; j <= ry; j++) { const w = Math.round(rx * Math.sqrt(1 - (j / (ry + .5)) ** 2)); ctx.fillRect(cx - w, y1 + j, w * 2, 1); } }
+    }
     ctx.globalCompositeOperation = lit.tint[1]; ctx.fillStyle = lit.tint[0]; ctx.fillRect(0, 0, L.VW, L.VH);
     ctx.restore();
   },
