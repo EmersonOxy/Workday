@@ -244,3 +244,8 @@
   .notes { width: min(24em, 80vw); height: 14em; resize: none; padding: .5em; border: 0; font: 1em var(--pixel); background: #fff8ec; color: #2a1f2d; box-shadow: 0 0 0 2px #2a1f2d, inset 2px 2px 0 #dcc6a0; }
   .notes-st { color: var(--muted); }
   .os-win.maxi { width: 96% !important; height: 92%; }
+  #modal .card.oswin, #modal .card.menu-card { translate: var(--dx, 0px) var(--dy, 0px); }
+  .os-win { translate: calc(-50% + var(--dx, 0px)) calc(-50% + var(--dy, 0px)) !important; }
+  .oswin.maxi, .menu-card.maxi, .os-win.maxi { translate: none !important; }
+  body.office.menu-mode .menu-card { top: -2.2em; }
+  #modal .hw-card .wall { font-size: calc(var(--fs, 18px) * .8) !important; margin: 0 !important; padding: .3em .2em .4em !important; height: auto; }

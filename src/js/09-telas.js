@@ -1,9 +1,11 @@
 /* ================= Telas ================= */
 function modal(html) {
-  $('modal').querySelectorAll('.legalbar, .os-start, .os-smenu, .os-icons, .os-win').forEach(e => e.remove());
+  // a área de trabalho (ícones, Iniciar, barra) continua enquanto estiver no menu; janelas e o aviso legal são refeitos
+  $('modal').querySelectorAll('.legalbar, .os-smenu, .os-win' + (document.body.classList.contains('menu-mode') ? '' : ', .os-start, .os-icons, .os-tasks')).forEach(e => e.remove());
   $('modal').classList.remove('allmin');
   const card = $('modal').querySelector('.card');
-  card.className = 'card'; card.innerHTML = html;
+  card.className = 'card'; card.style.display = ''; card.innerHTML = html;
+  $('modal').querySelectorAll('.os-task').forEach(b => { if (b._win === card) b.remove(); });   // a janela minimizada deu lugar a outra
   winChrome(card);
   const was = $('modal').classList.contains('hidden');
   $('modal').classList.remove('hidden');
@@ -20,6 +22,7 @@ function winChrome(card) {
   bar.querySelector('.mw-ttl').append(document.createTextNode(title));
   const body = document.createElement('div'); body.className = 'win-body'; body.append(...card.childNodes);
   card.append(bar, body); card.classList.add('oswin');
+  card.style.removeProperty('--dx'); card.style.removeProperty('--dy'); delete card.dataset.dx; delete card.dataset.dy; osDrag(card, bar);
   bar.querySelector('.mw-app').append(Pixel.el(MENU_ICO.app, 2));
   bar.querySelectorAll('.mw-b b').forEach(b => b.append(Pixel.el(MENU_ICO[b.dataset.g], 2)));
   bar.querySelector('.min').onclick = () => osMinimize(card, title);
@@ -119,18 +122,40 @@ function diffLocked() { return !!(S && S.phase === 'day'); }
 
 // Nova carreira: escolhe a dificuldade antes (depois dá para trocar nas Configurações, entre dias)
 function setDifficulty(v) { save('recorde2', P.best); CFG.diff = DIFF_REC = v; P.best = load('recorde2', 0); persist(); }
+// Arrastar pela barra de título (computador). Usa a propriedade translate (--dx/--dy), sem brigar com as animações.
+function osDrag(win, bar) {
+  if (document.body.classList.contains('touch')) return;
+  bar.style.cursor = 'move';
+  bar.addEventListener('pointerdown', e => {
+    if (e.target.closest('.mw-b') || win.classList.contains('maxi')) return;
+    e.preventDefault(); bar.setPointerCapture(e.pointerId);
+    const sx = e.clientX - (+win.dataset.dx || 0), sy = e.clientY - (+win.dataset.dy || 0), r0 = win.getBoundingClientRect(), ox = +win.dataset.dx || 0, oy = +win.dataset.dy || 0;
+    const mv = ev => {
+      let dx = ev.clientX - sx, dy = ev.clientY - sy;
+      dx = Math.max(ox - r0.left - r0.width + 80, Math.min(ox + innerWidth - r0.left - 80, dx));     // sempre sobra um pedaço visível
+      dy = Math.max(oy - r0.top, Math.min(oy + innerHeight - r0.top - 40, dy));
+      win.dataset.dx = dx; win.dataset.dy = dy; win.style.setProperty('--dx', dx + 'px'); win.style.setProperty('--dy', dy + 'px');
+    };
+    const up = () => { bar.removeEventListener('pointermove', mv); bar.removeEventListener('pointerup', up); };
+    bar.addEventListener('pointermove', mv); bar.addEventListener('pointerup', up);
+  });
+}
 // Minimizar: a janela some e vira um botão na barra de tarefas; clicar nele restaura
 function osTasks() { let t = $('modal').querySelector('.os-tasks'); if (!t) { t = document.createElement('div'); t.className = 'os-tasks'; $('modal').append(t); } return t; }
 function osSyncMin() { const m = $('modal'), open = [...m.querySelectorAll('.card, .os-win')].some(w => w.style.display !== 'none' && !(w.classList.contains('card') && m.classList.contains('hidden'))); m.classList.toggle('allmin', !open); }
 function osMinimize(win, title) {
   sfx('click');
-  const btn = document.createElement('button'); btn.className = 'os-task';
+  const btn = document.createElement('button'); btn.className = 'os-task'; btn._win = win;
   btn.append(Pixel.el(MENU_ICO.app, 1)); btn.append(document.createTextNode(' ' + title));
-  Motion.play(win, [{ transform: 'none', opacity: 1 }, { transform: 'translateY(40%) scale(.2)', opacity: 0 }], { duration: 160, easing: 'steps(4)', fill: 'none' });
-  setTimeout(() => { win.style.display = 'none'; osSyncMin(); }, 150);
-  btn.onclick = () => { sfx('pop'); win.style.display = ''; btn.remove(); osSyncMin();
-    Motion.play(win, [{ transform: 'translateY(40%) scale(.2)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 180, easing: 'steps(5)' }); };
   osTasks().append(btn);
+  // a janela encolhe e voa até o próprio botão na barra; ao restaurar, faz o caminho de volta
+  const toBtn = () => { const a = win.getBoundingClientRect(), c = btn.getBoundingClientRect();
+    return `translate(${Math.round(c.left + c.width / 2 - a.left - a.width / 2)}px, ${Math.round(c.top + c.height / 2 - a.top - a.height / 2)}px) scale(.08)`; };
+  const fly = toBtn();
+  Motion.play(win, [{ transform: 'none', opacity: 1 }, { transform: fly, opacity: .2 }], { duration: 200, easing: 'steps(6)', fill: 'none' });
+  setTimeout(() => { win.style.display = 'none'; osSyncMin(); }, 190);
+  btn.onclick = () => { sfx('pop'); win.style.display = ''; const back = toBtn(); btn.remove(); osSyncMin();
+    Motion.play(win, [{ transform: back, opacity: .2 }, { transform: 'none', opacity: 1 }], { duration: 200, easing: 'steps(6)' }); };
 }
 // Ícones dos aplicativos do WorkOS (12×12, mesma luz e contorno dos outros)
 const APP_ICO = {
@@ -199,8 +224,7 @@ function osIcons() {
   for (const [id, rows, label, pal] of [['workday', SPR2.doc, 'PORTAL_RH.EXE', WD_SECTOR_RAMP.ti], ['cal', APP_ICO.cal, t.calendar], ['calc', APP_ICO.calc, t.calc], ['notes', APP_ICO.notes, t.notes], ['paint', APP_ICO.paint, t.paint], ['prof', MENU_ICO.prof, U().profile]]) {
     const d = document.createElement('button'); d.className = 'osicon'; d.append(Pixel.el(rows, 3, pal)); d.insertAdjacentHTML('beforeend', `<span>${label}</span>`);
     const open = () => { g.querySelectorAll('.osicon').forEach(x => x.classList.remove('sel')); sfx('pop'); osApp(id); };
-    d.onclick = () => { if (document.body.classList.contains('touch') || d.classList.contains('sel')) return open(); g.querySelectorAll('.osicon').forEach(x => x.classList.toggle('sel', x === d)); sfx('click'); };
-    d.ondblclick = open;
+    d.onclick = () => { const n = performance.now(); if (n - (osIcons.last || 0) < 700) return; osIcons.last = n; open(); };   // um clique abre; cliques repetidos não duplicam
     g.append(d);
   }
   m.append(g);
@@ -217,7 +241,7 @@ function osWindow(title, html, { icon = MENU_ICO.app, cls = '', onClose } = {}) 
   w.querySelector('.mw-b .min').onclick = () => osMinimize(w, title);
   w.querySelector('.mw-b .max').onclick = () => { sfx('click'); w.classList.toggle('maxi'); };
   w.querySelector('.mw-b [data-g=x]').onclick = close; w.close = close;
-  $('modal').append(w); sfx('pop');
+  $('modal').append(w); sfx('pop'); osDrag(w, w.querySelector('.mw-bar'));
   Motion.play(w, [{ transform: 'scale(.3)', opacity: 0 }, { transform: 'scale(1.04)', opacity: 1, offset: .7 }, { transform: 'none', opacity: 1 }], { duration: 220, easing: 'steps(6)' });
   return w;
 }
@@ -319,6 +343,7 @@ function showMenu() {
   // o portal não fecha: minimizar (ou fechar) manda para a barra de tarefas; maximizar alterna o tamanho
   card.querySelector('.mw-b [data-g=min]').onclick = card.querySelector('.mw-b [data-g=x]').onclick = () => osMinimize(card, 'PORTAL_RH.EXE');
   card.querySelector('.mw-b [data-g=max]').onclick = () => { sfx('click'); card.classList.toggle('maxi'); };
+  card.style.removeProperty('--dx'); card.style.removeProperty('--dy'); delete card.dataset.dx; delete card.dataset.dy; osDrag(card, card.querySelector('.mw-bar'));
   card.querySelector('.mw-app').append(Pixel.el(MENU_ICO.app, 2));
   card.querySelector('.mw-face').append(portrait(112));
   {     const logo = card.querySelector('.mw-logo'); logo.append(pxSize(logoCanvas(), 5)); Motion.dropIn(logo); }
