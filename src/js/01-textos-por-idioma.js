@@ -532,3 +532,12 @@ Object.assign(LANGS.en.ui.osApps, { music: 'Radio', musicOpen: 'Choose music', s
   tracks: { m1: ['Nine O\'Clock Coffee', 'gentle piano for clocking in'], m2: ['Panoramic Elevator', 'waiting-room jazz'], m3: ['Sunset Report', 'for wrapping up the day'], of: ['Spreadsheet Loop', 'the workday theme'] } });
 Object.assign(LANGS.es.ui.osApps, { music: 'Radio', musicOpen: 'Elegir música', skip: 'Siguiente pista', nothing: 'Nada sonando (ninguna pista activa).', soundOff: 'El sonido está apagado.',
   tracks: { m1: ['Café de las Nueve', 'piano suave para fichar'], m2: ['Ascensor Panorámico', 'jazz de sala de espera'], m3: ['Informe al Atardecer', 'para cerrar el día'], of: ['Planilla en Bucle', 'la música de la jornada'] } });
+Object.assign(LANGS.pt.ui.walls, { listras: 'Listras', entardecer: 'Entardecer', xadrez: 'Xadrez', aquario: 'Aquário' });
+Object.assign(LANGS.en.ui.walls, { listras: 'Stripes', entardecer: 'Sunset', xadrez: 'Checkers', aquario: 'Aquarium' });
+Object.assign(LANGS.es.ui.walls, { listras: 'Rayas', entardecer: 'Atardecer', xadrez: 'Ajedrez', aquario: 'Acuario' });
+LANGS.pt.ui.osc = { accent: 'Cor das janelas', bar: 'Barra de tarefas', badge: 'Cor do crachá', lanyard: 'Cordão do crachá',
+  names: { azul: 'Azul', verde: 'Verde', uva: 'Uva', tijolo: 'Tijolo', petroleo: 'Petróleo', grafite: 'Grafite', bege: 'Bege', cinza: 'Cinza', noite: 'Noite', menta: 'Menta', vermelho: 'Vermelho', amarelo: 'Amarelo', roxo: 'Roxo', preto: 'Preto' } };
+LANGS.en.ui.osc = { accent: 'Window color', bar: 'Taskbar', badge: 'Badge color', lanyard: 'Lanyard',
+  names: { azul: 'Blue', verde: 'Green', uva: 'Grape', tijolo: 'Brick', petroleo: 'Teal', grafite: 'Graphite', bege: 'Beige', cinza: 'Gray', noite: 'Night', menta: 'Mint', vermelho: 'Red', amarelo: 'Yellow', roxo: 'Purple', preto: 'Black' } };
+LANGS.es.ui.osc = { accent: 'Color de ventanas', bar: 'Barra de tareas', badge: 'Color de credencial', lanyard: 'Cordón',
+  names: { azul: 'Azul', verde: 'Verde', uva: 'Uva', tijolo: 'Ladrillo', petroleo: 'Petróleo', grafite: 'Grafito', bege: 'Beige', cinza: 'Gris', noite: 'Noche', menta: 'Menta', vermelho: 'Rojo', amarelo: 'Amarillo', roxo: 'Morado', preto: 'Negro' } };

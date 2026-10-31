@@ -255,9 +255,9 @@ const Office = {
     this.shadow(x, kx - 44, L.desk + 24, 14, 2);
     const bd = st.badge || { shirt: P.L }, bx0 = kx - 46, by0 = L.desk + 7;
     this.shadow(x, bx0 - 1, by0 + 20, 16, 2);
-    F(P.L, bx0 + 3, L.desk + 1, 1, 6); F(P.L, bx0 + 10, L.desk + 1, 1, 6); F(P.k, bx0 + 5, by0 - 2, 4, 3); F(P.m, bx0 + 6, by0 - 1, 2, 1);   // cordão e presilha
+    const ly = (st.hw && st.hw.lanyardColor) || P.L; F(ly, bx0 + 3, L.desk + 1, 1, 6); F(ly, bx0 + 10, L.desk + 1, 1, 6); F(P.k, bx0 + 5, by0 - 2, 4, 3); F(P.m, bx0 + 6, by0 - 1, 2, 1);   // cordão e presilha
     F(P.k, bx0, by0, 14, 20); F(P.W, bx0 + 1, by0 + 1, 12, 18); F(P.w, bx0 + 12, by0 + 1, 1, 18); F(P.w, bx0 + 1, by0 + 18, 12, 1);
-    F(bd.shirt, bx0 + 1, by0 + 1, 12, 3); F(P.W, bx0 + 2, by0 + 2, 3, 1);
+    F((st.hw && st.hw.badgeColor) || bd.shirt, bx0 + 1, by0 + 1, 12, 3); F(P.W, bx0 + 2, by0 + 2, 3, 1);
     F(P.k, bx0 + 3, by0 + 5, 8, 9);
     if (bd.px) bd.px.forEach((row, j) => row.forEach((c, i) => F(c, bx0 + 4 + i, by0 + 6 + j, 1, 1)));
     F(P.k, bx0 + 4, by0 + 15, 6, 1); F(P.p, bx0 + 3, by0 + 17, 8, 1);                                  // nome e cargo

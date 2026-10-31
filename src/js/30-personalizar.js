@@ -1,9 +1,19 @@
 /* ================= Personalização do computador ================= */
 // Aparência física do equipamento na mesa (independente do tema claro/escuro da interface) e papel de parede do WorkOS.
 // Salvo em CFG.hw (localStorage "expediente-config"); saves antigos sem essa chave usam o padrão.
-const HW_DEFAULT = { mon: 'cream', kb: 'cream', mouse: 'cream', wall: 'teal', cat: 'tricolor' };
+const HW_DEFAULT = { mon: 'cream', kb: 'cream', mouse: 'cream', wall: 'teal', cat: 'tricolor', accent: 'azul', bar: 'bege', badge: 'azul', lanyard: 'azul' };
+// Cores do WorkOS (barra de título das janelas e barra de tarefas) e do crachá (cordão e faixa do cartão)
+const OS_ACCENTS = { azul: ['#44609f', '#6f93d9'], verde: ['#2f8a45', '#6fbf73'], uva: ['#7656a8', '#a983d6'], tijolo: ['#a24a33', '#d9714a'], petroleo: ['#2f6f78', '#5fa79a'], grafite: ['#3b3f48', '#626875'] };
+const OS_BARS = { bege: ['#c7b595', '#fff8ec', '#8f7d63', '#e9dcc2'], cinza: ['#9aa0ab', '#d7d9de', '#626875', '#d7d9de'], noite: ['#2b2340', '#4a3a4e', '#2a1f2d', '#463462'], menta: ['#5fa79a', '#a9dccf', '#2f6f78', '#a9dccf'] };
+const BADGE_COLORS = { azul: ['#6f93d9', '#44609f'], vermelho: ['#ef4b3f', '#a8262a'], verde: ['#6fbf73', '#3f8f50'], amarelo: ['#f4c15d', '#c98a2e'], roxo: ['#a983d6', '#7656a8'], preto: ['#4a3a4e', '#2a1f2d'] };
+function applyOsTheme() {
+  const h = hw(), r = document.documentElement.style, a = OS_ACCENTS[h.accent] || OS_ACCENTS.azul, b = OS_BARS[h.bar] || OS_BARS.bege, bc = BADGE_COLORS[h.badge] || BADGE_COLORS.azul;
+  r.setProperty('--os-ac', a[0]); r.setProperty('--os-ac-hi', a[1]);
+  r.setProperty('--os-bar', b[0]); r.setProperty('--os-bar-hi', b[1]); r.setProperty('--os-bar-sh', b[2]); r.setProperty('--os-btn', b[3]); r.setProperty('--os-bar-ink', h.bar === 'noite' ? '#fff8ec' : '#2a1f2d');
+  r.setProperty('--badge', bc[0]); r.setProperty('--badge-sh', bc[1]);
+}
 function hw() { return Object.assign({}, HW_DEFAULT, CFG.hw || {}); }
-function setHw(patch) { CFG.hw = Object.assign(hw(), patch); persist(); OFFICE.key = ''; applyWallpaper(); }
+function setHw(patch) { CFG.hw = Object.assign(hw(), patch); persist(); OFFICE.key = ''; applyWallpaper(); applyOsTheme(); }
 
 // Papéis de parede desenhados em baixa resolução com a paleta e ampliados por escala inteira
 const WALLS = {
@@ -21,6 +31,15 @@ const WALLS = {
   logo(x, w, h) { const P = WD_PAL; x.fillStyle = P.n; x.fillRect(0, 0, w, h); for (let j = 4; j < h; j += 12) for (let i = ((j / 12) % 2) * 22; i < w; i += 44) Pixel.text(x, 'WORKDAY', i, j, P.N); x.fillStyle = P.Y; x.fillRect(0, h - 4, w, 4); },
   blocos(x, w, h) { const P = WD_PAL, R = Office.rng(33), C = [P.F, P.O, P.L, P.I, P.Y, P.T]; x.fillStyle = P.W; x.fillRect(0, 0, w, h);
     for (let n = 0; n < 40; n++) { const s = 4 + (R() * 3 | 0) * 4, bx = R() * w | 0, by = R() * h | 0; x.fillStyle = P.k; x.fillRect(bx - 1, by - 1, s + 2, s + 2); x.fillStyle = C[R() * C.length | 0]; x.fillRect(bx, by, s, s); } },
+  listras(x, w, h) { const P = WD_PAL, C = [P.T, P.Y, P.F, P.L, P.I]; for (let i = -h; i < w; i++) { x.fillStyle = C[((i + h) / 10 | 0) % C.length]; for (let j = 0; j < h; j++) x.fillRect(i + j, j, 1, 1); } },
+  entardecer(x, w, h) { const P = WD_PAL, C = [P.n, P.I, P.T, P.O, P.Y, P.y];
+    for (let j = 0; j < h; j++) for (let i = 0; i < w; i++) { const k = j / h * (C.length - 1) + ([0, 2, 3, 1][(i % 2) + (j % 2) * 2] / 4 - .4); x.fillStyle = C[Math.max(0, Math.min(C.length - 1, Math.round(k)))]; x.fillRect(i, j, 1, 1); }
+    x.fillStyle = P.y; for (let j = -9; j <= 0; j++) { const ww = Math.round(Math.sqrt(81 - j * j)); x.fillRect(w / 2 - ww, h * .72 + j, ww * 2, 1); }
+    x.fillStyle = P.N; x.fillRect(0, h * .72, w, h); x.fillStyle = P.n; for (let j = h * .72 + 3; j < h; j += 4) x.fillRect(w / 2 - 12 + (j % 8), j, 24 - (j % 8) * 2, 1); },
+  xadrez(x, w, h) { const P = WD_PAL; for (let j = 0; j < h; j += 6) for (let i = 0; i < w; i += 6) { x.fillStyle = ((i + j) / 6) % 2 ? P.C : P.e; x.fillRect(i, j, 6, 6); } x.fillStyle = P.E; for (let i = 0; i < w; i += 12) x.fillRect(i, 0, 1, h); },
+  aquario(x, w, h) { const P = WD_PAL, R = Office.rng(44); x.fillStyle = P.x; x.fillRect(0, 0, w, h); x.fillStyle = P.X; for (let j = 0; j < h; j += 4) x.fillRect(0, j, w, 1);
+    for (let n = 0; n < 7; n++) { const fx = R() * (w - 12) | 0, fy = 8 + R() * (h - 24) | 0, c = [P.O, P.Y, P.R, P.l][n % 4]; x.fillStyle = P.k; x.fillRect(fx - 1, fy - 1, 10, 6); x.fillStyle = c; x.fillRect(fx, fy, 8, 4); x.fillRect(fx + 8, fy - 1, 3, 6); x.fillStyle = P.k; x.fillRect(fx + 1, fy + 1, 1, 1); }
+    x.fillStyle = P.v; for (let n = 0; n < 20; n++) x.fillRect(R() * w | 0, R() * h | 0, 1, 1); x.fillStyle = P.h; for (let i = 0; i < w; i += 9) { const hh = 8 + (i * 7) % 12; x.fillRect(i, h - hh, 2, hh); } x.fillStyle = P.y; x.fillRect(0, h - 3, w, 3); },
   night(x, w, h) { const P = WD_PAL, R = Office.rng(9);
     x.fillStyle = P[0]; x.fillRect(0, 0, w, h); x.fillStyle = P.N; x.fillRect(0, h * .55, w, h);
     for (let n = 0; n < w * h / 60; n++) { x.fillStyle = R() < .8 ? P.W : P.y; x.fillRect(R() * w | 0, R() * h * .55 | 0, 1, 1); }
@@ -46,6 +65,7 @@ function showCustomize(back) {
   const u = U(), cur = hw();
   const HWK = Object.keys(Office.HW), nm = o => (u.hwNames && u.hwNames[o]) || u[o] || o;
   const sw = o => { const r = Office.HW[o]; return `<i class="hw-sw" style="background:${r.base};box-shadow:inset 2px 2px 0 ${r.hi},inset -2px -2px 0 ${r.sh}"></i>`; };
+  const cseg = (key, map, i) => `<div class="seg hw-seg" data-hw="${key}">${Object.entries(map).map(([k, c]) => `<button class="pxbtn${cur[key] === k ? ' on' : ''}" data-v="${k}" title="${u.osc.names[k] || k}"><i class="hw-sw" style="background:${c[i]}"></i>${u.osc.names[k] || k}</button>`).join('')}</div>`;
   const seg = (key, opts) => `<div class="seg hw-seg" data-hw="${key}">${opts.map(o => `<button class="pxbtn${cur[key] === o ? ' on' : ''}" data-v="${o}" title="${nm(o)}">${sw(o)}${nm(o)}</button>`).join('')}</div>`;
   const card = modal(`<h2>${u.hwTitle}</h2><p class="hint">${u.hwNote}</p>
     <div class="hw-prev"><canvas class="hw-scene" width="120" height="44"></canvas></div>
@@ -53,6 +73,10 @@ function showCustomize(back) {
     <div class="setting"><span>${u.monitorLabel}</span>${seg('mon', HWK)}</div>
     <div class="setting"><span>${u.keyboardLabel}</span>${seg('kb', HWK)}</div>
     <div class="setting"><span>${u.mouseLabel}</span>${seg('mouse', HWK)}</div>
+    <div class="setting"><span>${u.osc.accent}</span>${cseg('accent', OS_ACCENTS, 0)}</div>
+    <div class="setting"><span>${u.osc.bar}</span>${cseg('bar', OS_BARS, 0)}</div>
+    <div class="setting"><span>${u.osc.badge}</span>${cseg('badge', BADGE_COLORS, 0)}</div>
+    <div class="setting"><span>${u.osc.lanyard}</span>${cseg('lanyard', BADGE_COLORS, 0)}</div>
     <div class="setting"><span>${u.catLabel}</span><div class="walls cats">${CAT_COATS.map(c2 => `<button class="pxbtn wall cat${cur.cat === c2 ? ' on' : ''}" data-c="${c2}"><span class="cimg"></span><small>${u.coats[c2]}</small></button>`).join('')}</div></div>
     <div class="setting"><span>${u.wallLabel}</span><div class="walls">${Object.keys(WALLS).map(w => `<button class="pxbtn wall${cur.wall === w ? ' on' : ''}" data-w="${w}"><canvas width="64" height="36"></canvas><small>${u.walls[w]}</small></button>`).join('')}</div></div>
     <div class="actions"><button class="pxbtn main" id="hwOk">${u.resume}</button></div>`);
@@ -76,3 +100,4 @@ function showCustomize(back) {
   card.querySelector('#hwOk').onclick = () => { card.classList.remove('hw-card'); if (back) back(); else closeModal(); };
   draw();
 }
+applyOsTheme();
