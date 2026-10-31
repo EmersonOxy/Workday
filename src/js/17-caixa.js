@@ -48,7 +48,17 @@ function checkout() {
       total -= SHOP.find(i => i.id === id).price;
       const line = lines.querySelector(`[data-id="${id}"]`); if (line) line.remove();
       tot.textContent = `${u.total}: ${money(total)}`;
+      // o item sai da sacola e volta voando para a esteira, onde pode ser passado de novo
+      const r0 = c.getBoundingClientRect(), fl = c.cloneNode(true), lr = laneIn.getBoundingClientRect();
+      fl.style.cssText = `position:fixed;left:${r0.left}px;top:${r0.top}px;width:${r0.width}px;height:${r0.height}px;z-index:30;pointer-events:none;image-rendering:pixelated`;
+      fl.getContext('2d').drawImage(c, 0, 0); document.body.append(fl);
       c.remove(); if (!bag.querySelector('.inbag')) bag.remove();
+      const dx = lr.left + 8 - r0.left, dy = lr.top + lr.height / 2 - r0.height / 2 - r0.top;
+      fl.animate([{ transform: 'none' }, { transform: `translate(${dx / 2}px, ${dy / 2 - 60}px) rotate(-12deg)`, offset: .5 }, { transform: `translate(${dx}px, ${dy}px) rotate(0)` }], { duration: 420, easing: 'steps(10)' }).onfinish = () => {
+        fl.remove(); const el = pxFit(sprite(SPR[SHOP.find(i => i.id === id).spr], 5), () => { const t = Math.min(96, Math.max(TOUCH ? 60 : 48, innerWidth * .06)); return [t, t]; });
+        el.classList.add('belt-item'); el.onpointerdown = e => startDrag(e, el, id); laneIn.prepend(el);
+        el.animate([{ transform: 'translateY(-6px)' }, { transform: 'none' }], { duration: 160, easing: 'steps(3)' }); sfx('key');
+      };
       sfx('click'); checkFunds();
       if (!bought.length && closed) hint.textContent = u.payHint;
     };

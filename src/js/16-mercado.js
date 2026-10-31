@@ -6,10 +6,12 @@ function canAdd(it) {
   return true;
 }
 function basketSprite() {
-  const W = 26, rows = ['k'.repeat(W)];
-  for (let i = 0; i < 6; i++) rows.push('k' + (i % 2 ? 'r'.repeat(W - 2) : [...Array(W - 2)].map((_, j) => j % 3 === 1 ? '.' : 'r').join('')) + 'k');
-  rows.push('.k' + 'r'.repeat(W - 4) + 'k.', '..' + 'k'.repeat(W - 4) + '..');
-  const c = sprite(rows, 10, { ...PAL, r: '#ef4b3f' });
+  // cesta plástica: aro claro, trama vazada em dois tons, faixa com logo e fundo mais escuro
+  const W = 26, rows = ['k'.repeat(W), 'k' + 'r'.repeat(W - 2) + 'k', 'k' + 'R'.repeat(W - 2) + 'k'];
+  for (let i = 0; i < 4; i++) rows.push('k' + [...Array(W - 2)].map((_, j) => (j + (i % 2) * 2) % 4 === 1 ? '.' : (i % 2 ? 'R' : 'q')).join('') + 'k');
+  rows.push('k' + 'RRRRRRRRRRrWWrRRRRRRRRRR'.slice(0, W - 2) + 'k');
+  rows.push('.k' + 'q'.repeat(W - 4) + 'k.', '..' + 'k'.repeat(W - 4) + '..');
+  const c = sprite(rows, 10, { ...PAL, r: '#ff9d86', R: '#ef4b3f', q: '#a8262a', W: '#fff8ec' });
   c.classList.add('bfront');
   return c;
 }
@@ -32,6 +34,8 @@ function bagSprite() {
   return c;
 }
 
+const MK_DESK = ['planta', 'foto', 'lamp', 'gato', 'trofeu', 'cacto', 'globo', 'livros', 'pato'], MK_PC = ['monitor', 'webcam', 'caixas', 'adesivos'];
+const MK_CATS = { use: it => it.kind !== 'decor', desk: it => MK_DESK.includes(it.id), pc: it => MK_PC.includes(it.id), wall: it => it.kind === 'decor' && !MK_DESK.includes(it.id) && !MK_PC.includes(it.id) };
 function market() {
   const u = U();
   S.cart = [];
@@ -39,14 +43,20 @@ function market() {
   sc.innerHTML = `<div class="mk-top"><h2>${u.store}</h2><span class="money">${u.wallet}: <b id="mw"></b></span><span class="money">${u.total}: <b id="mt"></b></span>
       <button class="pxbtn main" id="tocash">${u.toCheckout}</button><button class="pxbtn" id="mkhome">${u.skipHome}</button></div>
     <div class="mk-sign"></div><p class="hint mk-hint">${u.marketHint}</p>
+    <div class="mk-tabs">${Object.keys(MK_CATS).map(k => `<button class="pxbtn mk-tab" data-c="${k}">${u.mkCats[k]}</button>`).join('')}</div>
     <div class="shelves px"><div class="shelf" data-r="0"></div><div class="shelf" data-r="1"></div><div class="shelf" data-r="2"></div></div>
     <div class="basket"><div class="bitems"></div></div>`;
   Stage.mount(sc, 'shop');
   sc.querySelector('.basket').append(basketSprite());
-  [SHOP.slice(0, 5), SHOP.slice(5, 8), SHOP.slice(8)].forEach((items, i) => {
-    const shelf = sc.querySelector(`[data-r="${i}"]`);
-    items.forEach(it => shelf.append(shelfSlot(it, sc)));
-  });
+  // prateleiras por categoria: consumo, mesa, computador e parede (no máximo 4 itens por prateleira)
+  const showCat = cat => {
+    sc.querySelectorAll('.mk-tab').forEach(b => b.classList.toggle('on', b.dataset.c === cat));
+    const items = SHOP.filter(MK_CATS[cat]), per = Math.max(1, Math.ceil(items.length / 3));
+    sc.querySelectorAll('.shelf').forEach((shelf, i) => { shelf.replaceChildren(...items.slice(i * per, (i + 1) * per).map(it => shelfSlot(it, sc))); });
+    sc.querySelectorAll('.slot canvas').forEach(pxRefit); sceneIn(sc, '.slot', 25, 0);
+  };
+  sc.querySelectorAll('.mk-tab').forEach(b => b.onclick = () => { sfx('click'); showCat(b.dataset.c); });
+  showCat('use');
   sc.querySelector('#tocash').onclick = () => { if (S.cart.length) wipe(checkout); };
   sc.querySelector('#mkhome').onclick = () => { S.cart = []; sleep(); };
   updateCart(sc);

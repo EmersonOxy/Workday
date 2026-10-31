@@ -567,3 +567,6 @@ LANGS.pt.ui.curLabel = 'Ponteiro do mouse'; LANGS.en.ui.curLabel = 'Mouse pointe
 LANGS.pt.ui.curNames = { padrao: 'Padrão do sistema', triangulo: 'Triângulo', pequeno: 'Pequeno', grande: 'Grande', patinha: 'Patinha', cenoura: 'Cenoura', mao: 'Mão', mira: 'Mira', lapis: 'Lápis', estrela: 'Estrela' };
 LANGS.en.ui.curNames = { padrao: 'System default', triangulo: 'Triangle', pequeno: 'Small', grande: 'Large', patinha: 'Paw', cenoura: 'Carrot', mao: 'Hand', mira: 'Crosshair', lapis: 'Pencil', estrela: 'Star' };
 LANGS.es.ui.curNames = { padrao: 'Del sistema', triangulo: 'Triángulo', pequeno: 'Pequeño', grande: 'Grande', patinha: 'Patita', cenoura: 'Zanahoria', mao: 'Mano', mira: 'Mira', lapis: 'Lápiz', estrela: 'Estrella' };
+LANGS.pt.ui.mkCats = { use: '☕ Do dia', desk: '🪴 Mesa', pc: '🖥️ Computador', wall: '🖼️ Parede' };
+LANGS.en.ui.mkCats = { use: '☕ For today', desk: '🪴 Desk', pc: '🖥️ Computer', wall: '🖼️ Wall' };
+LANGS.es.ui.mkCats = { use: '☕ Del día', desk: '🪴 Escritorio', pc: '🖥️ Computadora', wall: '🖼️ Pared' };

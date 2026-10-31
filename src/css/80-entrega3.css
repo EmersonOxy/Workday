@@ -376,3 +376,8 @@
   .ticket .tk-row span { white-space: nowrap; color: #4a3a4e; }
   .ticket .tk-row b { min-width: 0; overflow-wrap: anywhere; }
   .ticket .tk-head { font-size: 24px !important; }
+
+  /* ===== Loja: abas por categoria ===== */
+  .mk-tabs { display: flex; justify-content: center; gap: 8px; margin: 0 auto 6px; flex-wrap: wrap; position: relative; z-index: 2; }
+  .mk-tab { font-size: 18px !important; padding: 2px 12px 6px !important; }
+  #scene.staged .mk-tab.on { background: var(--ink); color: var(--card); }
