@@ -82,6 +82,7 @@ function toast(from, text) {
   const old = $('toast'); if (old) old.remove();
   const el = document.createElement('div');
   el.id = 'toast'; el.className = 'px';
+  if (from !== U().ev.from) sfx('notify');   // recado do RH; avisos do calendário tocam o próprio som
   const env = Pixel.el(SPR2.envelope, document.body.classList.contains('mobile') ? 2 : 3); env.classList.add('env-ico'); el.append(env);
   el.insertAdjacentHTML('beforeend', `<div><small>${U().from}: ${from}</small>${text}</div>`);
   uiRoot().append(el);

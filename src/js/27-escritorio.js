@@ -145,7 +145,7 @@ function phoneHold(on) {
 OFFICE.cv.addEventListener('pointerdown', e => { if (onPhone(e) && phoneHold(true)) { OFFICE.cv.setPointerCapture(e.pointerId); const up = () => { phoneHold(false); OFFICE.cv.removeEventListener('pointerup', up); OFFICE.cv.removeEventListener('pointercancel', up); }; OFFICE.cv.addEventListener('pointerup', up); OFFICE.cv.addEventListener('pointercancel', up); } });
 // objetos vivos: carinho no gato, girar o globo, balançar o pato
 OFFICE.cv.addEventListener('pointerdown', e => { const id = officeArtHit(OFFICE.L, e.clientX / OFFICE.M.k, e.clientY / OFFICE.M.k); if (!id) return;
-  const t = performance.now() / 1000; if (id === 'gato') { CatAI.poke(OFFICE_CAT, t); sfx('ok'); } if (id === 'globo') { OFFICE_GLOBE.kick(); sfx('key'); } if (id === 'pato') { OFFICE_DUCK.at = performance.now(); sfx('pop'); } OFFICE.last = 0; });
+  const t = performance.now() / 1000; if (id === 'gato') { CatAI.poke(OFFICE_CAT, t); sfx('cat'); } if (id === 'globo') { OFFICE_GLOBE.kick(); sfx('key'); } if (id === 'pato') { OFFICE_DUCK.at = performance.now(); sfx('pop'); } OFFICE.last = 0; });
 OFFICE.cv.addEventListener('pointerdown', e => { if (onWindow(e)) { CFG.blinds = !CFG.blinds; persist(); } else if (onLamp(e)) toggleLight('lamp'); else if (onBadge(e) && $('modal').classList.contains('hidden')) openBadgeFromDesk(); });
 OFFICE.cv.addEventListener('pointermove', e => { OFFICE.cv.style.cursor = onBadge(e) || onLamp(e) || onWindow(e) ? 'pointer' : ''; });
 async function toggleFullscreen() {

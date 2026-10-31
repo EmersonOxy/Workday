@@ -141,7 +141,7 @@ function checkout() {
     paid = true; payBtn.disabled = true; methods.querySelectorAll('button').forEach(x => { x.disabled = true; });
     tot.textContent = u.processing;
     setTimeout(() => {
-      tot.textContent = `${u.approved} · ${money(total)}`; sc.querySelector('#lcd').classList.add('good'); sfx('coin');
+      tot.textContent = `${u.approved} · ${money(total)}`; sc.querySelector('#lcd').classList.add('good'); sfx('buy');
       P.wallet -= total;
       Quests.ev('buy', bought.length);   // missão do amigo secreto (só conta no período do evento)
       funds.textContent = `${u.wallet}: ${money(P.wallet)}`;

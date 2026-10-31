@@ -171,7 +171,7 @@ const Quests = {
     // missões de carreiras antigas não ficam penduradas
     for (const id of Object.keys(QST.active)) if (QST.active[id].cid !== this.cid()) delete QST.active[id];
     qSave();
-    news.forEach(([a, b], i) => setTimeout(() => { sfx('level'); toast(U().ev.from, `<b>${a}</b><br>${b}`); }, 400 + i * 1600));
+    news.forEach(([a, b], i) => setTimeout(() => { sfx('achieve'); toast(U().ev.from, `<b>${a}</b><br>${b}`); }, 400 + i * 1600));
   },
   rank(r) { if (r > (QST.maxRank || 0)) { QST.maxRank = r; qSave(); } },
 };
@@ -195,7 +195,7 @@ function osCalendar() {
   const w = osWindow(t.calendar, `<div class="cal cal2"><div class="cal-tabs"><button class="pxbtn on" data-tab="c">${e.tabCareer}</button><button class="pxbtn" data-tab="r">${e.tabReal}</button></div>
     <div class="cal-pane" data-p="c"><div class="cal-h"><button class="pxbtn" data-c="-1">◀</button><b></b><button class="pxbtn" data-c="1">▶</button></div><div class="cal-g cal-w5"></div><div class="cal-ev"></div></div>
     <div class="cal-pane" data-p="r" hidden><div class="cal-h"><button class="pxbtn" data-m="-1">◀</button><b></b><button class="pxbtn" data-m="1">▶</button></div><div class="cal-g"></div><p class="cal-note">${e.realNote}</p></div></div>`, { icon: APP_ICO.cal, cls: 'cal-win' });
-  Quests.check();
+  Quests.check(); sfx('page');
   const today = Quests.today(), hasCareer = !!load('carreira', null) || !!(S && S.running);
   let cyc = Math.floor((today - 1) / CYCLE), sel = null;
   // eventos de um ciclo: dia → lista de eventos (descobertos até 3 dias antes; antes disso só um "?")

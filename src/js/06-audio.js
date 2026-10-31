@@ -222,8 +222,28 @@ document.addEventListener('click', e => {
   const b = e.target.closest('button, .xl-tab, select, .pxrange');
   if (!b || b.disabled || b.closest('#pad') || b.classList.contains('tchip')) return;
   const t0 = performance.now();
-  setTimeout(() => { if (sfxAt < t0) sfx(b.matches('.main, #pok, #pok2') ? 'pop' : 'click'); }, 0);
+  const kind = b.matches('.main, #pok, #pok2') ? 'confirm' : b.matches('#back, #b, #bgBack, #dBack, #rsCancel, #avCancel, #phCancel, #balBack, #close') ? 'cancel' : b.matches('.hw-tab, .arq-tab, [data-tab], .av-tabs button, .cal-d, [data-k]') ? 'select' : 'click';
+  setTimeout(() => { if (sfxAt < t0) sfx(kind); }, 0);
 });
 document.addEventListener('change', e => { if (e.target.matches('select, input[type=checkbox]')) { const t0 = performance.now(); setTimeout(() => { if (sfxAt < t0) sfx('click'); }, 0); } });
 // Interruptor: clique seco de duas peças
+// ===== Interface do WorkOS: sons curtos e originais (síntese própria), com pequena variação para não cansar =====
+const vary = (f, p = .04) => f * (1 + (Math.random() * 2 - 1) * p);
+Object.assign(SFX, {
+  click:    () => { tone({ type: 'triangle', f: vary(1300), d: 0.035, v: 0.15 }); noise({ f: vary(4000, .1), d: 0.018, v: 0.09 }); },
+  select:   () => { tone({ type: 'square', f: vary(990, .02), d: 0.03, v: 0.06, lp: 3000 }); tone({ type: 'triangle', f: 1480, d: 0.04, v: 0.1, at: 0.025 }); },
+  confirm:  () => { tone({ type: 'triangle', f: 660, d: 0.06, v: 0.16 }); tone({ type: 'triangle', f: 990, d: 0.1, v: 0.16, at: 0.055 }); noise({ f: 3500, d: 0.02, v: 0.06 }); },
+  cancel:   () => { tone({ type: 'triangle', f: 880, f2: 520, d: 0.09, v: 0.15 }); noise({ f: 1800, d: 0.02, v: 0.06 }); },
+  winOpen:  () => { tone({ type: 'square', f: 330, f2: 660, d: 0.08, v: 0.07, lp: 2400 }); tone({ type: 'triangle', f: 990, d: 0.06, v: 0.11, at: 0.07 }); },
+  winClose: () => { tone({ type: 'square', f: 700, f2: 300, d: 0.09, v: 0.07, lp: 2000 }); noise({ f: 900, d: 0.04, v: 0.08, at: 0.05, type: 'lowpass' }); },
+  winMin:   () => { tone({ type: 'triangle', f: 900, f2: 420, d: 0.12, v: 0.12 }); },
+  winMax:   () => { tone({ type: 'triangle', f: 420, f2: 900, d: 0.12, v: 0.12 }); },
+  start:    () => { noise({ f: 2600, d: 0.02, v: 0.1, q: 3 }); [523, 784].forEach((f, i) => tone({ type: 'triangle', f, d: 0.07, v: 0.12, at: 0.02 + i * 0.045 })); },
+  notify:   () => { tone({ type: 'sine', f: 1175, d: 0.08, v: 0.15 }); tone({ type: 'sine', f: 1760, d: 0.16, v: 0.13, at: 0.08 }); },
+  achieve:  () => { [659, 784, 988, 1319].forEach((f, i) => tone({ type: 'square', f, d: 0.09, v: 0.08, at: i * 0.07, lp: 3200 })); tone({ type: 'triangle', f: 1976, d: 0.35, v: 0.1, at: 0.3 }); noise({ f: 7000, d: 0.25, v: 0.04, at: 0.3 }); },
+  buy:      () => { noise({ f: 2400, d: 0.03, v: 0.14, q: 2 }); tone({ type: 'square', f: 1568, d: 0.06, v: 0.1, at: 0.04, lp: 4000 }); tone({ type: 'square', f: 2093, d: 0.22, v: 0.1, at: 0.1, lp: 4000 }); },
+  page:     () => { noise({ f: 1400, f2: 3600, d: 0.12, v: 0.16, q: 1.2, a: 0.02 }); noise({ f: 900, d: 0.05, v: 0.08, at: 0.1, type: 'lowpass' }); },
+  cat:      () => { for (let i = 0; i < 6; i++) tone({ type: 'sine', f: 52 + (i % 2) * 6, d: 0.06, v: 0.22, at: i * 0.07, lp: 400 }); tone({ type: 'triangle', f: 780, f2: 1150, d: 0.12, v: 0.08, at: 0.44 }); },
+  shutdown: () => { [784, 659, 523, 392].forEach((f, i) => tone({ type: 'triangle', f, d: 0.12, v: 0.13, at: i * 0.1 })); tone({ type: 'sine', f: 196, f2: 60, d: 0.5, v: 0.12, at: 0.4 }); },
+});
 SFX.switch = () => { noise({ f: 3200, d: 0.018, v: 0.22, q: 3 }); tone({ type: 'square', f: 900, d: 0.015, v: 0.06, at: 0.03 }); noise({ f: 1800, d: 0.02, v: 0.14, at: 0.035 }); };

@@ -16,7 +16,7 @@ function modal(html) {
   osFocus(card);
   const was = $('modal').classList.contains('hidden');
   $('modal').classList.remove('hidden');
-  if (was) Motion.play(card, OS_OPEN, { duration: 300, easing: 'steps(10)', fill: 'none' });
+  if (was) { Motion.play(card, OS_OPEN, { duration: 300, easing: 'steps(10)', fill: 'none' }); sfx('winOpen'); }
   return card;
 }
 // Toda tela em #modal vira janela do WorkOS: barra de título (com o h2 como título), minimizar (recolhe),
@@ -35,7 +35,7 @@ function winChrome(card) {
   bar.querySelector('.min').onclick = () => { if (!card.classList.contains('locked')) osMinimize(card); };
   // botão na barra só quando a área de trabalho do WorkOS está à vista (menu, intervalo, aplicativos); na pausa não
   if (document.body.classList.contains('menu-mode') || $('modal').classList.contains('apps')) osTaskBtn(card, title); else card.querySelector('.mw-b .min').style.display = 'none';
-  bar.querySelector('.max').onclick = () => { sfx('click'); card.classList.toggle('maxi'); };
+  bar.querySelector('.max').onclick = () => { sfx(card.classList.contains('maxi') ? 'winMin' : 'winMax'); card.classList.toggle('maxi'); };
   bar.querySelector('.x').onclick = () => { if (card.classList.contains('locked')) return;
     const u = U(), names = [u.back, u.cancel, u.backToWork, u.close].filter(Boolean);
     const b = [...body.querySelectorAll('button')].find(x => /^(back|b|bgBack|dBack|rsCancel|avCancel|phCancel|close)$/.test(x.id) || names.includes(x.textContent.trim()));
@@ -122,13 +122,13 @@ function osStart(u) {
   const brk = S && S.onBreak, home = brk ? breakHome : showMenu;
   if (brk) sm.querySelector('[data-a=off]').textContent = u.breakEnd;
   const items = { prof: () => showBadge(home), pc: () => showCustomize(home), cfg: () => showSettings(home) };
-  b.onclick = e => { e.stopPropagation(); sm.classList.toggle('hidden'); b.classList.toggle('on'); sfx('click'); };
+  b.onclick = e => { e.stopPropagation(); sm.classList.toggle('hidden'); b.classList.toggle('on'); sfx(sm.classList.contains('hidden') ? 'click' : 'start'); };
   sm.onclick = e => { const a = e.target.closest('button'); if (!a) return; sm.classList.add('hidden'); b.classList.remove('on');
     if (a.dataset.a === 'off') return brk ? endBreak() : osShutdown(); sfx('click'); items[a.dataset.a](); };
   m.addEventListener('pointerdown', e => { if (!e.target.closest('.os-smenu, .os-start')) { sm.classList.add('hidden'); b.classList.remove('on'); } });
 }
 function osShutdown() {
-  sfx('err');
+  sfx('shutdown');
   const o = document.createElement('div'); o.className = 'os-off'; o.innerHTML = `<b>${U().shuttingDown}</b>`; uiRoot().append(o);
   setTimeout(() => { o.classList.add('done'); setTimeout(() => { showMenu(); showTitle(); o.remove(); }, 700); }, 900);   // desliga e volta à tela de título (orbe no centro)
 }
@@ -180,7 +180,7 @@ const osFly = (win, btn) => { const a = win.getBoundingClientRect(), c = btn.get
   return `translate(${Math.round(c.left + c.width / 2 - a.left - a.width / 2)}px, ${Math.round(c.top + c.height / 2 - a.top - a.height / 2)}px) scale(.08)`; };
 // minimizar: a janela encolhe e voa até o próprio botão na barra; restaurar faz o caminho de volta
 function osMinimize(win) {
-  const btn = osTaskOf(win); if (!btn) return; sfx('click');
+  const btn = osTaskOf(win); if (!btn) return; sfx('winMin');
   // efeito "gênio": a janela estreita primeiro e depois escorre até o botão
   const fly = osFly(win, btn);
   const mv = fly.replace(' scale(.08)', '');
@@ -189,7 +189,7 @@ function osMinimize(win) {
   setTimeout(() => { win.style.display = 'none'; osSyncMin(); }, 290);
 }
 function osRestore(win) {
-  const btn = osTaskOf(win); sfx('pop'); win.style.display = ''; osSyncMin(); osFocus(win);
+  const btn = osTaskOf(win); sfx('winMax'); win.style.display = ''; osSyncMin(); osFocus(win);
   if (btn) { const mv = osFly(win, btn).replace(' scale(.08)', ''); Motion.play(win, [{ transform: mv, clipPath: 'inset(calc(100% - 3px) 35% 0 35%)' }, { transform: 'none', clipPath: 'inset(calc(100% - 3px) 0 0 0)', offset: .55 }, { transform: 'none', clipPath: 'inset(0 0 0 0)' }], { duration: 300, easing: 'steps(10)' }); }
 }
 // Ícones dos aplicativos do WorkOS (12×12, mesma luz e contorno dos outros)
@@ -286,13 +286,13 @@ function osWindow(title, html, { icon = MENU_ICO.app, cls = '', onClose } = {}) 
   const w = document.createElement('div'); w.className = 'os-win ' + cls;
   w.innerHTML = `<div class="mw-bar"><span class="mw-ttl"><i class="mw-app"></i>${title}</span><i class="mw-stripes"></i><span class="mw-b"><b data-g="x"></b></span></div><div class="mw-in">${html}</div>`;
   w.querySelector('.mw-app').append(Pixel.el(icon, 2)); w.querySelector('.mw-b b').append(Pixel.el(MENU_ICO.x, 2));
-  const close = () => { sfx('click'); const a = Motion.play(w, OS_CLOSE, { duration: 260, easing: 'steps(8)' }); const end = () => { const t = osTaskOf(w); if (t) t.remove(); w.remove(); if (onClose) onClose(); if (typeof workAppsClosed === 'function') workAppsClosed(); }; if (a) a.onfinish = end; else end(); };
+  const close = () => { sfx('winClose'); const a = Motion.play(w, OS_CLOSE, { duration: 260, easing: 'steps(8)' }); const end = () => { const t = osTaskOf(w); if (t) t.remove(); w.remove(); if (onClose) onClose(); if (typeof workAppsClosed === 'function') workAppsClosed(); }; if (a) a.onfinish = end; else end(); };
   w.querySelector('.mw-b').insertAdjacentHTML('afterbegin', '<b data-g="min" class="min"></b><b data-g="max" class="max"></b>');
   w.querySelectorAll('.mw-b .min, .mw-b .max').forEach(b => b.append(Pixel.el(MENU_ICO[b.dataset.g], 2)));
   w.querySelector('.mw-b .min').onclick = () => osMinimize(w);
-  w.querySelector('.mw-b .max').onclick = () => { sfx('click'); w.classList.toggle('maxi'); };
+  w.querySelector('.mw-b .max').onclick = () => { sfx(w.classList.contains('maxi') ? 'winMin' : 'winMax'); w.classList.toggle('maxi'); };
   w.querySelector('.mw-b [data-g=x]').onclick = close; w.close = close;
-  $('modal').append(w); sfx('pop'); osDrag(w, w.querySelector('.mw-bar')); osTaskBtn(w, title); osFocus(w);
+  $('modal').append(w); sfx('winOpen'); osDrag(w, w.querySelector('.mw-bar')); osTaskBtn(w, title); osFocus(w);
   Motion.play(w, OS_OPEN, { duration: 300, easing: 'steps(10)' });
   return w;
 }
