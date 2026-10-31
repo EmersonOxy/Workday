@@ -13,6 +13,7 @@ DAY_SECONDS, LEVEL_SECONDS, MAX_TASKS = 150, 30, 5
 UNLOCK = {'button': 2, 'email': 3, 'type': 4, 'call': 5, 'printer': 6, 'video': 8}
 TASK = {  # prazo base (s), pontos base, tempo de execução relativo
     'button': (7, 15, .6), 'email': (11, 25, 1.0), 'type': (9, 20, 1.3), 'call': (9, 30, 1.2), 'printer': (8.5, 20, 1.1), 'video': (8, 25, 1.4)}
+RANK_DAYS = [1, 1, 2, 3, 5, 7, 10]
 DECOR = [60, 80, 120, 200, 350, 600]
 
 PROFILES = {  # reação por arquivo (s), precisão base, tempo por tarefa (s), sucesso em eventos
@@ -50,7 +51,7 @@ def career(cfg, prof, rng, max_days=40):
         busy = 0.0
         while t < DAY_SECONDS:
             dt = .1; t += dt
-            L = 1 + (d - 1) * 2 + int(t // LEVEL_SECONDS)
+            L = cfg.get('level', lambda d, t: 1 + (d - 1) * 2 + int(t // LEVEL_SECONDS))(d, t)
             mult = min(cfg['mult_cap'], 1 + combo // cfg['combo_step'])
 
             def ok(base):
@@ -101,12 +102,15 @@ def career(cfg, prof, rng, max_days=40):
                 out['end_day'] = d; return out
         score += cfg['day_bonus'](d); dayScore += cfg['day_bonus'](d)
         wallet += cfg['pay'](dayScore, d, rank)
-        while rank + 1 < len(cfg['ranks']) and score >= cfg['ranks'][rank + 1]:
-            rank += 1; out['rank_day'][rank] = d
+        decor = cfg.get('decor', DECOR)
+        # regra do jogo (23-laco.js): pontos DO DIA ≥ diferença entre limiares, dia mínimo do cargo, uma promoção por dia
+        nx = rank + 1
+        if nx < len(cfg['ranks']) and dayScore >= cfg['ranks'][nx] - cfg['ranks'][nx - 1] and d >= cfg.get('rank_days', RANK_DAYS)[nx]:
+            rank = nx; out['rank_day'][rank] = d
         # compra enfeites em ordem de preço quando dá (jogador "colecionador")
-        while spent < len(DECOR) and wallet >= DECOR[spent]:
-            wallet -= DECOR[spent]; spent += 1
-        if spent == len(DECOR) and out['decor_done'] is None: out['decor_done'] = d
+        while spent < len(decor) and wallet >= decor[spent]:
+            wallet -= decor[spent]; spent += 1
+        if spent == len(decor) and out['decor_done'] is None: out['decor_done'] = d
         out['wallet_by_day'].append(wallet); out['score_by_day'].append(score)
         stress = max(0, stress - 30)                  # noite de sono
     out['end_day'] = None
@@ -130,6 +134,18 @@ def summarize(cfg, runs):
         print(line)
 
 
+STANDARD = dict(
+    name='padrão (aplicado)',
+    level=lambda d, t: 1 + int((d - 1) * 1.5) + int(t // 40),    # mecânicas entram aos poucos nos primeiros dias
+    ranks=[0, 900, 2700, 5300, 8900, 13300, 18500],   # diferenças: 900 · 1800 · 2600 · 3600 · 4400 · 5200 pontos num dia
+    rank_days=[1, 1, 3, 5, 8, 11, 14],
+    level_pts=lambda L: 1 + min(L - 1, 18) * .2,
+    mult_cap=4, combo_step=8,
+    day_bonus=lambda d: 80,
+    pay=lambda dayScore, d, rank: [42, 54, 68, 84, 102, 122, 145][rank] + min(35, round(dayScore / 70)),
+    decor=[90, 120, 220, 380, 650, 1200],
+)
+
 if __name__ == '__main__':
     runs = int(sys.argv[sys.argv.index('--runs') + 1]) if '--runs' in sys.argv else 400
-    summarize(CURRENT, runs); summarize(PROPOSED, runs)
+    summarize(CURRENT, runs); summarize(PROPOSED, runs); summarize(STANDARD, runs)

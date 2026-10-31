@@ -18,7 +18,7 @@ function clockText() {
 function update(dt) {
   S.dayT += dt;
   if (S.dayT >= DAY_SECONDS) { endDay(); return; }
-  S.level = 1 + (S.day - 1) * 2 + Math.floor(S.dayT / LEVEL_SECONDS);
+  S.level = BAL.level(S.day, S.dayT);
   if (S.level > S.lastLevel) { S.lastLevel = S.level; toast(...pick(L.memos)); }
   const sdt = dt * slow(), u = U();
   if (S.slowT > 0) S.slowT -= dt;

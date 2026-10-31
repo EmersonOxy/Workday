@@ -1,6 +1,33 @@
-# WORKDAY — Proposta de balanceamento (aguardando aprovação)
+# WORKDAY — Balanceamento
 
-Nada aqui foi aplicado ao jogo. Os números vêm de `tools/simulate.py`, uma simulação Monte Carlo
+## Aplicado (perfil padrão, chave de armazenamento `original`)
+
+Todos os parâmetros ficam em `src/js/02-mecanica.js` (`BALANCE`, `DIFFS`, `EASE_IN`, `PRICES`).
+
+| Parâmetro | Antes | Agora |
+|---|---|---|
+| Nível do expediente | 1 + 2 × (dia − 1) + 1 a cada 30 s | 1 + ⌊1,5 × (dia − 1)⌋ + 1 a cada 40 s (mecânicas chegam em dias diferentes) |
+| Peso do nível nos pontos | × nível | × (1 + 0,2 × (nível − 1)), teto no nível 19 |
+| Combo | até × 5, +1 a cada 5 | até × 4, +1 a cada 8 |
+| Promoção (pontos no dia) | 300 · 700 · 1.500 · 2.500 · 4.000 · 6.000 | 900 · 1.800 · 2.600 · 3.600 · 4.400 · 5.200 |
+| Dia mínimo do cargo | 1 · 1 · 2 · 3 · 5 · 7 · 10 | 1 · 1 · 3 · 5 · 8 · 11 · 14 |
+| Salário | pontos ÷ 10 + 30 × dia | salário do cargo (42 a 145) + desempenho (pontos ÷ 70, até 35) |
+| Bônus de fim de dia (pontos) | 100 × dia | 80 |
+| Rescisão | pontos do dia ÷ 20 | 2 × salário do cargo |
+| Preços | 20 a 600 | consumíveis 20 a 55; enfeites 35 a 1.200 por utilidade e raridade |
+| Dificuldade | Normal = 1,0 | Fácil 0,55 a 0,72 · Normal 0,85 a 0,9 · Difícil 1,1 a 1,2 · Burnout 1,4 a 1,75 |
+| Primeiros dias | — | dias 1, 2 e 3 a 70%, 80% e 90% do ritmo em todas as dificuldades |
+
+Simulação (`python3 tools/simulate.py`, regra de promoção igual à do jogo): regular chega a Gerente no dia 8 e a CEO no 14;
+casual chega a Gerente perto do dia 12. Saves antigos: carteira, enfeites e cargo atual são mantidos; nenhuma promoção é
+dada ou retirada retroativamente. O exploit de sair no meio do dia depois de uma promoção e ganhar outra no mesmo dia foi
+fechado (`promoDay` agora é salvo). Os valores antigos continuam disponíveis como perfil "Clássica" (Experimental).
+
+---
+
+## Proposta original (histórico)
+
+Os números abaixo eram a proposta inicial. Os números vêm de `tools/simulate.py`, uma simulação Monte Carlo
 que reproduz as regras do código (nível, queda dos arquivos, tarefas com prazo, eventos, combo,
 estresse, salário e promoções) com três perfis de jogador, 250 carreiras cada.
 
