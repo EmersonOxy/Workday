@@ -18,25 +18,50 @@ function setHw(patch) { CFG.hw = Object.assign(hw(), patch); persist(); OFFICE.k
 // Papéis de parede desenhados em baixa resolução com a paleta e ampliados por escala inteira
 const WALLS = {
   teal: null,
-  grid(x, w, h) { const P = WD_PAL; x.fillStyle = P.X; x.fillRect(0, 0, w, h); x.fillStyle = P.x; for (let j = 0; j < h; j += 8) for (let i = (j / 8 % 2) * 8; i < w; i += 16) x.fillRect(i, j, 8, 8); },
+  // azulejos com bisel: luz em cima/à esquerda, sombra embaixo/à direita, rejunte escuro
+  grid(x, w, h) { const P = WD_PAL; x.fillStyle = P.X; x.fillRect(0, 0, w, h);
+    for (let j = 0; j < h; j += 10) for (let i = 0; i < w; i += 10) { const alt = ((i + j) / 10) % 2;
+      x.fillStyle = alt ? P.x : P.V; x.fillRect(i + 1, j + 1, 8, 8); x.fillStyle = alt ? P.V : P.v; x.fillRect(i + 1, j + 1, 8, 1); x.fillRect(i + 1, j + 1, 1, 8);
+      x.fillStyle = alt ? P.X : P.x; x.fillRect(i + 1, j + 8, 8, 1); x.fillRect(i + 8, j + 1, 1, 8); } },
+  // colinas: céu em faixas, nuvens com base sombreada e três planos de morros com crista iluminada
   hills(x, w, h) { const P = WD_PAL, R = Office.rng(3);
-    const sky = [P.v, P.a]; for (let j = 0; j < h * .6; j++) for (let i = 0; i < w; i++) { x.fillStyle = (j / (h * .6)) * 4 > [0, 2, 3, 1][(i % 2) + (j % 2) * 2] + .5 ? sky[1] : sky[0]; x.fillRect(i, j, 1, 1); }
-    x.fillStyle = P.W; for (let n = 0; n < 4; n++) { const cx = R() * w | 0, cy = 6 + R() * h * .25 | 0; x.fillRect(cx, cy, 14, 3); x.fillRect(cx + 3, cy - 2, 8, 2); }
-    const hill = (base, amp, col, ph) => { x.fillStyle = col; for (let i = 0; i < w; i++) { const y = base + Math.round(Math.sin(i / 17 + ph) * amp + Math.sin(i / 7 + ph * 2) * amp * .3); x.fillRect(i, y, 1, h - y); } };
-    hill(h * .55, 5, P.G, 1); hill(h * .68, 4, P.h, 3); hill(h * .82, 3, P.H, 5); },
+    [[0, P.l], [h * .22, P.v], [h * .42, P.m]].forEach(([y0, c]) => { x.fillStyle = c; x.fillRect(0, y0 | 0, w, h); });
+    for (let n = 0; n < 4; n++) { const cx = R() * w | 0, cy = 6 + R() * h * .25 | 0; x.fillStyle = P.W; x.fillRect(cx, cy, 16, 3); x.fillRect(cx + 3, cy - 2, 9, 2); x.fillStyle = P.m; x.fillRect(cx + 1, cy + 3, 14, 1); }
+    const hill = (base, amp, col, top, ph) => { for (let i = 0; i < w; i++) { const y = base + Math.round(Math.sin(i / 17 + ph) * amp + Math.sin(i / 7 + ph * 2) * amp * .3); x.fillStyle = col; x.fillRect(i, y, 1, h - y); x.fillStyle = top; x.fillRect(i, y, 1, 1); } };
+    hill(h * .55, 5, P.h, P.G, 1); hill(h * .68, 4, P.G, P.g, 3); hill(h * .82, 3, P.H, P.h, 5);
+    x.fillStyle = P.Y; for (let n = 0; n < 12; n++) x.fillRect(R() * w | 0, h * .85 + R() * h * .13 | 0, 1, 1); },
   ondas(x, w, h) { const P = WD_PAL; x.fillStyle = P.x; x.fillRect(0, 0, w, h);
     for (let j = 0; j < h; j += 6) for (let i = 0; i < w; i++) { const y = j + Math.round(Math.sin((i + j * 3) / 9) * 2); x.fillStyle = (j / 6) % 2 ? P.V : P.X; x.fillRect(i, y, 1, 2); } },
-  cidade(x, w, h) { const P = WD_PAL, R = Office.rng(21); x.fillStyle = P.v; x.fillRect(0, 0, w, h); x.fillStyle = P.y; for (let j = -8; j <= 8; j++) { const ww = Math.round(Math.sqrt(64 - j * j)); x.fillRect(w * .7 - ww, h * .3 + j, ww * 2, 1); }
-    let bx = 0; while (bx < w) { const bw = 8 + R() * 14 | 0, bh = 20 + R() * h * .5 | 0; x.fillStyle = [P.L, P[7], P.x][R() * 3 | 0]; x.fillRect(bx, h - bh, bw, bh); x.fillStyle = P.l; for (let j = h - bh + 3; j < h - 2; j += 4) for (let i = bx + 2; i < bx + bw - 2; i += 3) if (R() < .5) x.fillRect(i, j, 1, 2); bx += bw + 1; } },
+  // cidade de dia: céu em 3 faixas, sol com halo em anel, dois planos de prédios com face iluminada à esquerda
+  cidade(x, w, h) { const P = WD_PAL, R = Office.rng(21);
+    [[0, P.l], [h * .3, P.v], [h * .55, P.y]].forEach(([y0, c]) => { x.fillStyle = c; x.fillRect(0, y0 | 0, w, h); });
+    const sx = w * .74 | 0, sy = h * .32 | 0; for (const [r, c] of [[10, P.y], [7, P.Y]]) { x.fillStyle = c; for (let j = -r; j <= r; j++) { const ww = Math.round(Math.sqrt(r * r - j * j)); x.fillRect(sx - ww, sy + j, ww * 2, 1); } }
+    let bx = -2; while (bx < w) { const bw = 7 + R() * 8 | 0, bh = 14 + R() * h * .3 | 0; x.fillStyle = P.L; x.fillRect(bx, h - bh - 18, bw, bh + 18); x.fillStyle = P.l; x.fillRect(bx, h - bh - 18, 1, bh + 18); bx += bw; }
+    bx = 0; while (bx < w) { const bw = 9 + R() * 12 | 0, bh = 22 + R() * h * .42 | 0, top = h - bh;
+      x.fillStyle = P.k; x.fillRect(bx - 1, top - 1, bw + 2, bh + 1); x.fillStyle = P[7]; x.fillRect(bx, top, bw, bh); x.fillStyle = P.L; x.fillRect(bx, top, 2, bh); x.fillStyle = P.X; x.fillRect(bx + bw - 2, top, 2, bh);
+      x.fillStyle = P.l; for (let j = top + 3; j < h - 3; j += 4) for (let i = bx + 3; i < bx + bw - 3; i += 3) if (R() < .55) x.fillRect(i, j, 1, 2);
+      if (R() < .4) { x.fillStyle = P.k; x.fillRect(bx + (bw >> 1), top - 5, 1, 5); x.fillStyle = P.R; x.fillRect(bx + (bw >> 1), top - 6, 1, 1); }
+      bx += bw + 2; } },
   logo(x, w, h) { const P = WD_PAL; x.fillStyle = P.n; x.fillRect(0, 0, w, h); for (let j = 4; j < h; j += 12) for (let i = ((j / 12) % 2) * 22; i < w; i += 44) Pixel.text(x, 'WORKDAY', i, j, P.N); x.fillStyle = P.Y; x.fillRect(0, h - 4, w, 4); },
-  blocos(x, w, h) { const P = WD_PAL, R = Office.rng(33), C = [P.F, P.O, P.L, P.I, P.Y, P.T]; x.fillStyle = P.W; x.fillRect(0, 0, w, h);
-    for (let n = 0; n < 40; n++) { const s = 4 + (R() * 3 | 0) * 4, bx = R() * w | 0, by = R() * h | 0; x.fillStyle = P.k; x.fillRect(bx - 1, by - 1, s + 2, s + 2); x.fillStyle = C[R() * C.length | 0]; x.fillRect(bx, by, s, s); } },
-  listras(x, w, h) { const P = WD_PAL, C = [P.T, P.Y, P.F, P.L, P.I]; for (let i = -h; i < w; i++) { x.fillStyle = C[((i + h) / 10 | 0) % C.length]; for (let j = 0; j < h; j++) x.fillRect(i + j, j, 1, 1); } },
-  entardecer(x, w, h) { const P = WD_PAL, C = [P.n, P.I, P.T, P.O, P.Y, P.y];
-    for (let j = 0; j < h; j++) for (let i = 0; i < w; i++) { const k = j / h * (C.length - 1) + ([0, 2, 3, 1][(i % 2) + (j % 2) * 2] / 4 - .4); x.fillStyle = C[Math.max(0, Math.min(C.length - 1, Math.round(k)))]; x.fillRect(i, j, 1, 1); }
-    x.fillStyle = P.y; for (let j = -9; j <= 0; j++) { const ww = Math.round(Math.sqrt(81 - j * j)); x.fillRect(w / 2 - ww, h * .72 + j, ww * 2, 1); }
-    x.fillStyle = P.N; x.fillRect(0, h * .72, w, h); x.fillStyle = P.n; for (let j = h * .72 + 3; j < h; j += 4) x.fillRect(w / 2 - 12 + (j % 8), j, 24 - (j % 8) * 2, 1); },
-  xadrez(x, w, h) { const P = WD_PAL; for (let j = 0; j < h; j += 6) for (let i = 0; i < w; i += 6) { x.fillStyle = ((i + j) / 6) % 2 ? P.C : P.e; x.fillRect(i, j, 6, 6); } x.fillStyle = P.E; for (let i = 0; i < w; i += 12) x.fillRect(i, 0, 1, h); },
+  // blocos de brinquedo alinhados numa grade: cada um com topo iluminado, lateral sombreada e pino
+  blocos(x, w, h) { const P = WD_PAL, R = Office.rng(33), C = [[P.f, P.F, P[9]], [P.o, P.O, P[8]], [P.l, P.L, P[7]], [P.i, P.I, P[6]], [P.y, P.Y, P.z], [P.t, P.T, P.u]];
+    x.fillStyle = P.w; x.fillRect(0, 0, w, h); x.fillStyle = P.p; for (let j = 0; j < h; j += 12) for (let i = 0; i < w; i += 12) x.fillRect(i, j, 1, 1);
+    for (let j = 2; j < h - 8; j += 12) for (let i = 2; i < w - 8; i += 12) { if (R() < .35) continue; const c = C[R() * C.length | 0], s = 8;
+      if (i + s > w - 2 || j + s > h - 2) continue; x.fillStyle = P.k; x.fillRect(i - 1, j - 1, s + 2, s + 2); x.fillStyle = c[1]; x.fillRect(i, j, s, s);
+      x.fillStyle = c[0]; x.fillRect(i, j, s, 1); x.fillRect(i, j, 1, s); x.fillStyle = c[2]; x.fillRect(i, j + s - 1, s, 1); x.fillRect(i + s - 1, j, 1, s);
+      x.fillStyle = c[0]; x.fillRect(i + (s >> 1) - 1, j + (s >> 1) - 1, 2, 2); x.fillStyle = c[2]; x.fillRect(i + (s >> 1), j + (s >> 1), 1, 1); } },
+  // listras diagonais em cores vizinhas (análogas quentes), separadas por fio claro: vivas sem agredir
+  listras(x, w, h) { const P = WD_PAL, C = [P.T, P.O, P.Y, P.o, P.t]; for (let i = -h; i < w; i++) { const k = ((i + h) / 9 | 0) % C.length, edge = (i + h) % 9 === 0; x.fillStyle = edge ? P.w : C[k]; for (let j = 0; j < h; j++) x.fillRect(i + j, j, 1, 1); } },
+  // pôr do sol em faixas limpas (sem pontilhado), sol com reflexo quebrado na água
+  entardecer(x, w, h) { const P = WD_PAL, C = [P.N, P.n, P.I, P.T, P.O, P.Y], hz = h * .66 | 0;
+    C.forEach((c, i) => { x.fillStyle = c; x.fillRect(0, Math.round(hz * i / C.length), w, h); });
+    x.fillStyle = P.y; for (let j = -10; j <= 0; j++) { const ww = Math.round(Math.sqrt(100 - j * j)); x.fillRect(w / 2 - ww, hz + j, ww * 2, 1); }
+    x.fillStyle = P.n; x.fillRect(0, hz, w, h); x.fillStyle = P.N; x.fillRect(0, hz + 6, w, h);
+    x.fillStyle = P.Y; for (let j = hz + 1, k = 0; j < h; j += 2, k++) { const ww = Math.max(2, 12 - k * 1.2) | 0; x.fillRect(w / 2 - ww + (k % 2 ? 2 : -2), j, ww * 2 - 4, 1); }
+    x.fillStyle = P.y; for (let n = 0; n < 3; n++) x.fillRect(w * (.18 + n * .26) | 0, hz * .2 + n * 6 | 0, 14 - n * 3, 1); },
+  // xadrez de piso com bisel (casas claras e escuras com luz e sombra)
+  xadrez(x, w, h) { const P = WD_PAL; for (let j = 0; j < h; j += 8) for (let i = 0; i < w; i += 8) { const d = ((i + j) / 8) % 2;
+    x.fillStyle = d ? P.e : P.c; x.fillRect(i, j, 8, 8); x.fillStyle = d ? P.C : P.W; x.fillRect(i, j, 8, 1); x.fillRect(i, j, 1, 8); x.fillStyle = d ? P.E : P.C; x.fillRect(i, j + 7, 8, 1); x.fillRect(i + 7, j, 1, 8); } },
   aquario(x, w, h) { const P = WD_PAL, R = Office.rng(44); x.fillStyle = P.x; x.fillRect(0, 0, w, h); x.fillStyle = P.X; for (let j = 0; j < h; j += 4) x.fillRect(0, j, w, 1);
     for (let n = 0; n < 7; n++) { const fx = R() * (w - 12) | 0, fy = 8 + R() * (h - 24) | 0, c = [P.O, P.Y, P.R, P.l][n % 4]; x.fillStyle = P.k; x.fillRect(fx - 1, fy - 1, 10, 6); x.fillStyle = c; x.fillRect(fx, fy, 8, 4); x.fillRect(fx + 8, fy - 1, 3, 6); x.fillStyle = P.k; x.fillRect(fx + 1, fy + 1, 1, 1); }
     x.fillStyle = P.v; for (let n = 0; n < 20; n++) x.fillRect(R() * w | 0, R() * h | 0, 1, 1); x.fillStyle = P.h; for (let i = 0; i < w; i += 9) { const hh = 8 + (i * 7) % 12; x.fillRect(i, h - hh, 2, hh); } x.fillStyle = P.y; x.fillRect(0, h - 3, w, 3); },
