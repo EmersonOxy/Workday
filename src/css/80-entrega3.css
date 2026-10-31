@@ -367,3 +367,12 @@
   /* janelas nunca invadem a barra de tarefas */
   body.office.menu-mode #modal, #modal.apps { padding-bottom: 2.7em !important; }
   #modal .os-win:not(.maxi) { top: calc(50% - 1.3em) !important; max-height: calc(100% - 3.4em) !important; }
+
+  /* ===== Ticket do ponto ===== */
+  .clockdev .paper { width: 300px !important; }
+  .clockdev .strip { align-items: center; }
+  .clockdev .ticket { -webkit-mask: none !important; mask: none !important; padding: 18px 14px 12px !important; width: 196px; box-sizing: border-box; background: #ffffff;
+    box-shadow: inset 0 -3px 0 #d7d9de; }
+  .ticket .tk-row span { white-space: nowrap; color: #4a3a4e; }
+  .ticket .tk-row b { min-width: 0; overflow-wrap: anywhere; }
+  .ticket .tk-head { font-size: 24px !important; }

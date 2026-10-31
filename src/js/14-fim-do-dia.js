@@ -76,6 +76,9 @@ function printTicket(sc, dev) {
   const paper = dev.querySelector('.paper');
   paper.innerHTML = `<div class="strip"><div class="ticket">${ticketHTML()}</div><div class="perf"></div><div class="stub"></div></div>`;
   const strip = paper.querySelector('.strip'), perf = paper.querySelector('.perf'), tkt = paper.querySelector('.ticket');
+  // borda superior serrilhada em degraus de 2 px (dentes de 8 px), como papel térmico picotado
+  { const pts = []; for (let x = 0; x < 196; x += 8) pts.push(`${x}px 6px`, `${x + 2}px 6px`, `${x + 2}px 4px`, `${x + 3}px 4px`, `${x + 3}px 2px`, `${x + 4}px 2px`, `${x + 4}px 0px`, `${x + 5}px 0px`, `${x + 5}px 2px`, `${x + 6}px 2px`, `${x + 6}px 4px`, `${x + 7}px 4px`, `${x + 7}px 6px`);
+    tkt.style.clipPath = `polygon(${pts.join(',')}, 196px 6px, 196px 100%, 0 100%)`; }
   const noise = setInterval(() => sfx('print'), 120);
   let ready = false, y0 = null, t0 = 0, torn = false, R = null, lastTick = 0;
   strip.animate([{ transform: 'translateY(100%)' }, { transform: 'translateY(0)' }], { duration: 2200, easing: 'steps(14)', fill: 'forwards' })
@@ -109,7 +112,7 @@ function printTicket(sc, dev) {
     const z = R.width / 196, h = R.height / z;
     sc.append(tkt);
     tkt.className = 'ticket free';
-    tkt.style.cssText = `left:${R.left}px;top:${R.top}px;width:196px;transform-origin:0 0`;
+    const clip = tkt.style.clipPath; tkt.style.cssText = `left:${R.left}px;top:${R.top}px;width:196px;transform-origin:0 0`; tkt.style.clipPath = clip;
     perf.style.setProperty('--p', '100%'); perf.classList.add('torn');
     hint.remove();
     const S1 = Math.min(1.35, (innerHeight - 150) / h, (innerWidth - 40) / 196);
