@@ -11,7 +11,7 @@ function officeState() {
   const stress = S ? S.stress : 0;
   const clutter = day ? Math.min(3, Math.floor(stress / 30) + (S.level >= 8 ? 1 : 0)) : 0;
   const ringing = (day && S.tasks.some(t => t.type === 'call')) || !!OFFICE.call;
-  return { hour, stress, clutter, decor: P.decor, rank: S ? S.rankIdx : 0, blind: OFFICE.blind, day: S ? S.day : 0, ringing, press: OFFICE.press, click: OFFICE.click, hw: Object.assign(hw(), { badgeColor: (BADGE_COLORS[hw().badge] || [])[0], lanyardColor: (BADGE_COLORS[hw().lanyard] || [])[0] }), badge: badgeInfo(), lights: lightState(), weather: Office.weather(S ? S.day : 1), cat: hw().cat, sound: soundOn };
+  return { hour, stress, clutter, decor: P.decor, rank: S ? S.rankIdx : 0, blind: OFFICE.blind, day: S ? S.day : 0, ringing, press: OFFICE.press, click: OFFICE.click, phoneHeld: !!(S && S.tasks && S.tasks.some(k => k.type === 'call' && !k.dead && k.holding)), hw: Object.assign(hw(), { badgeColor: (BADGE_COLORS[hw().badge] || [])[0], lanyardColor: (BADGE_COLORS[hw().lanyard] || [])[0] }), badge: badgeInfo(), lights: lightState(), weather: Office.weather(S ? S.day : 1), cat: hw().cat, sound: soundOn };
 }
 // Crachá da mesa: cores do avatar ou miniatura 4×5 da foto
 function badgeInfo() {
@@ -131,6 +131,15 @@ function openBadgeFromDesk() {
   sfx('pop');
   showBadge(() => { closeModal(); if (S && S.phase === 'day') { S.paused = was; S.last = performance.now(); } });
 }
+// Telefone da mesa: clicar e segurar atende a ligação mais antiga (como segurar o botão da tarefa); soltar desliga
+function onPhone(e) { const b = Office.phoneRect(OFFICE.L), x = e.clientX / OFFICE.M.k, y = e.clientY / OFFICE.M.k; return x >= b.x && x < b.x + b.w && y >= b.y && y < b.y + b.h; }
+function phoneHold(on) {
+  if (!S || S.phase !== 'day' || S.paused) return false;
+  const t = S.tasks.find(k => k.type === 'call' && !k.dead); if (!t) return false;
+  if (on && !t.holding) { t.holding = true; sfx('click'); } if (!on && t.holding) { t.holding = false; if (t.held < t.need) t.held = 0; }
+  OFFICE.last = 0; return true;
+}
+OFFICE.cv.addEventListener('pointerdown', e => { if (onPhone(e) && phoneHold(true)) { OFFICE.cv.setPointerCapture(e.pointerId); const up = () => { phoneHold(false); OFFICE.cv.removeEventListener('pointerup', up); OFFICE.cv.removeEventListener('pointercancel', up); }; OFFICE.cv.addEventListener('pointerup', up); OFFICE.cv.addEventListener('pointercancel', up); } });
 OFFICE.cv.addEventListener('pointerdown', e => { if (onWindow(e)) { CFG.blinds = !CFG.blinds; persist(); } else if (onLamp(e)) toggleLight('lamp'); else if (onBadge(e) && $('modal').classList.contains('hidden')) openBadgeFromDesk(); });
 OFFICE.cv.addEventListener('pointermove', e => { OFFICE.cv.style.cursor = onBadge(e) || onLamp(e) || onWindow(e) ? 'pointer' : ''; });
 async function toggleFullscreen() {

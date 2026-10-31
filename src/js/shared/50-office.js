@@ -134,7 +134,7 @@ const Office = {
       trophy: L.kx + L.kw + 106 < L.VW - 34 ? { x: L.kx + L.kw + 92, y: L.desk + 4 } : { x: M.x + M.w - 20, y: L.desk - 12 },
       lamp: { x: Math.min(L.VW - 20, M.x + M.w + 14), y: L.back + 14 },
       // Detalhes do ambiente (não dependem de compras)
-      phone: L.kx - 158 > M.x - 4 ? { x: L.kx - 158, y: L.desk + 11 } : null,
+      phone: { x: Math.max(L.VW * .07 | 0, 6) + 4, y: L.desk + 6 },   // telefone grande no canto esquerdo da mesa
       pens: L.kx - 126 > M.x - 4 ? { x: L.kx - 125, y: L.desk + 9 } : null,
       cal: L.right >= 30 ? { x: M.x + M.w + Math.max(5, Math.min(14, (L.right / 2 | 0) - 12)), y: 52 } : null,
       sideMon: { x: M.x + M.w + 4, y: Math.max(40, (s.y + s.h * .28) | 0) },
@@ -177,6 +177,7 @@ const Office = {
     return (L._keys = m);
   },
   lampRect(L) { const Z = this.spots(L); return { x: Z.lamp.x - 16, y: Z.lamp.y - 46, w: 36, h: 50 }; },
+  phoneRect(L) { const Z = this.spots(L); return { x: Z.phone.x - 6, y: Z.phone.y - 8, w: 54, h: 34 }; },
   badgeRect(L) { return { x: L.kx - 46, y: L.desk + 1, w: 14, h: 27 }; },
   // Parte estática em cache (parede, janela, mesa, monitor, objetos parados)
   bake(L, st) {
@@ -200,8 +201,26 @@ const Office = {
     // Estante (só em telas largas)
     if (L.right > 110) {
       const sx = M.x + M.w + 64, sw = Math.min(110, L.VW - sx - 8);
-      for (let n = 0; n < 4; n++) { const sy = 30 + n * 34; F(P[4], sx, sy + 26, sw, 3); let b = sx + 2;
-        while (b < sx + sw - 4) { const bw = 3 + R() * 4 | 0, bh = 14 + R() * 10 | 0, col = [P.L, P.T, P.F, P.z, P.n, P.C][R() * 6 | 0]; F(P.k, b - 1, sy + 26 - bh - 1, bw + 2, bh + 1); F(col, b, sy + 26 - bh, bw, bh); F(P.k, b, sy + 26 - bh + 3, bw, 1); b += bw + 2; } }
+      // prateleiras com mão-francesa e sombra; livros com lombada (faixas e título), um tombado, aparadores e objetos
+      const RAMP = [[P.l, P.L, P[7]], [P.t, P.T, P.u], [P.f, P.F, P[9]], [P.y, P.z, P.Z], [P.i, P.I, P[6]], [P.c, P.C, P.e], [P.o, P.O, P[8]]];
+      for (let n = 0; n < 4; n++) { const sy = 30 + n * 34, base = sy + 26;
+        F(P.k, sx - 1, base - 1, sw + 2, 5); F(P[2], sx, base, sw, 2); F(P[1], sx, base, sw, 1); F(P[4], sx, base + 2, sw, 1); this.shadow(x, sx, base + 4, sw, 3);
+        for (const bx of [sx + 4, sx + sw - 7]) { F(P.k, bx, base + 3, 3, 6); F(P.j, bx + 1, base + 3, 1, 5); }
+        let b = sx + 3, k = 0;
+        while (b < sx + sw - 5) {
+          const r = R() * 1.6, rm = RAMP[R() * RAMP.length | 0];
+          if (r < .1 && b < sx + sw - 24) {     // livro deitado
+            const lw = 16 + R() * 6 | 0; F(P.k, b - 1, base - 6, lw + 2, 6); F(rm[1], b, base - 5, lw, 4); F(rm[0], b, base - 5, lw, 1); F(rm[2], b, base - 2, lw, 1); F(P.W, b + 3, base - 4, lw - 8, 1); b += lw + 3; continue; }
+          if (r < .16) {                        // objeto: vaso pequeno ou troféu
+            if (R() < .5) { F(P.k, b, base - 9, 7, 9); F(P.T, b + 1, base - 6, 5, 6); F(P.t, b + 1, base - 6, 1, 6); F(P.G, b + 1, base - 9, 5, 3); F(P.h, b + 3, base - 10, 1, 2); }
+            else { F(P.k, b, base - 10, 7, 10); F(P.Y, b + 1, base - 9, 5, 4); F(P.y, b + 1, base - 9, 1, 3); F(P.z, b + 3, base - 5, 1, 3); F(P.Z, b + 1, base - 2, 5, 2); }
+            b += 9; continue; }
+          const bw = 3 + R() * 4 | 0, bh = 14 + R() * 10 | 0, lean = k % 9 === 8 ? 1 : 0;
+          F(P.k, b - 1, base - bh - 1, bw + 2, bh + 1); F(rm[1], b, base - bh, bw, bh); F(rm[0], b, base - bh, 1, bh); F(rm[2], b + bw - 1, base - bh, 1, bh);
+          F(rm[2], b, base - bh + 2, bw, 1); F(rm[2], b, base - 4, bw, 1); if (bh > 18) F(P.W, b + (bw >> 1), base - bh + 5, 1, 4 + (bh - 18 >> 1));
+          b += bw + 1 + lean; k++;
+        }
+      }
     }
     // Relógio de parede com a hora do expediente
     const C = Z.clock;
@@ -218,9 +237,14 @@ const Office = {
       for (let r = 0; r < 11; r++) F(P.K, C.x + Math.round(Math.cos(mang) * r), C.y + Math.round(Math.sin(mang) * r), 1, 1);
       F(P.R, C.x, C.y, 1, 1);
     }
-    // Pôster corporativo (telas largas)
-    if (L.right > 110) { const sx = M.x + M.w + 64, sw = Math.min(110, L.VW - sx - 8), px = sx + Math.max(0, (sw - 38) / 2 | 0), py = 30 + 4 * 34 + 14; F(P.k, px - 1, py - 1, 38, 50); F(P.R, px, py, 36, 48); F(P.W, px + 3, py + 3, 30, 30); Pixel.text(x, 'SINERGIA', px + 2, py + 37, P.W);
-      for (let i = 0; i < 4; i++) F([P.F, P.O, P.L, P.I][i], px + 7 + i * 6, py + 26 - i * 5, 4, 4 + i * 5); }
+    // Pôster corporativo (telas largas): moldura fina, papel com sombra, gráfico subindo e alfinetes
+    if (L.right > 110) { const sx = M.x + M.w + 64, sw = Math.min(110, L.VW - sx - 8), px = sx + Math.max(0, (sw - 38) / 2 | 0), py = 30 + 4 * 34 + 16;
+      this.shadow(x, px, py + 50, 38, 3); F(P.k, px - 2, py - 2, 42, 54); F(P[3], px - 1, py - 1, 40, 52); F(P.k, px, py, 38, 50); F(P.R, px + 1, py + 1, 36, 48); F(P.r, px + 1, py + 1, 36, 1);
+      F(P.W, px + 4, py + 4, 30, 29); F(P.w, px + 4, py + 31, 30, 2); for (let j = py + 8; j < py + 30; j += 5) F(P.p, px + 6, j, 26, 1);
+      for (let i = 0; i < 4; i++) { const hh = 4 + i * 5; F(P.k, px + 7 + i * 6, py + 30 - hh - 1, 6, hh + 1); F([P.F, P.O, P.L, P.I][i], px + 8 + i * 6, py + 30 - hh, 4, hh); }
+      F(P.k, px + 6, py + 12, 1, 1); for (let i = 0; i < 18; i++) F(P.q, px + 8 + i, py + 26 - (i * .9 | 0), 1, 1);
+      Pixel.text(x, 'SINERGIA', px + 3, py + 37, P.W); F(P.q, px + 3, py + 44, 32, 1);
+      F(P.k, px + 3, py - 3, 3, 3); F(P.L, px + 4, py - 2, 1, 1); F(P.k, px + 32, py - 3, 3, 3); F(P.F, px + 33, py - 2, 1, 1); }
     // Tampo da mesa: borda iluminada, veios
     // Tampo em perspectiva: do fundo (encostado na parede, atrás do monitor) até a frente, onde você está sentado.
     // Tábuas e veios convergem para um ponto de fuga no centro; o fundo fica um pouco mais escuro que a frente.
@@ -302,7 +326,7 @@ const Office = {
       this.shadow(x, px - 2, py + 12, 14, 2);
       x.drawImage(Pixel.master(['..kk........', '.krrk....kk.', '.kmmk...kLLk', '.kQQk.k.kLLk', '.kQQkkmkkLLk', '.kQQkkmkkLLk', '.kQQkkmkk7Lk', 'kkkkkkkkkkkk',
         'kJjmjmjmjmJk', 'kjMjMjMjMjjk', 'kJjmjmjmjmJk', 'kjMjMjMjMjjk', 'kJjmjmjmjmJk', 'kjMjMjMjMjjk', 'kJjjjjjjjjJk', '.kkkkkkkkkk.'], P), px - 2, py - 4); }
-    if (Z.phone) this.shadow(x, Z.phone.x - 2, Z.phone.y + 15, 31, 2);
+    if (Z.phone) this.shadow(x, Z.phone.x - 3, Z.phone.y + 22, 48, 3);
     for (let i = 0; i < 12; i++) { const a = i / 12 * Math.PI * 2; F(P[3], Z.mug.x - 8 + Math.round(Math.cos(a) * 5), L.desk + 22 + Math.round(Math.sin(a) * 2), 1, 1); }
     // Objetos parados: porta-retrato, plaquinha do cargo, coroa de CEO, monitor extra (moldura)
     if (typeof drawDecorExtra === 'function') drawDecorExtra(x, L, st.decor);
@@ -330,19 +354,21 @@ const Office = {
     for (let j = 0; j < 2; j++) for (let i = 0; i < 7; i++) F((i + j * 7) === (day - 1) % 14 ? P.R : P.p, px + 2 + i * 3, py + 19 + j * 3, 2, 2);
     F(P.w, px, py + 26, 24, 3); F(P.p, px + 1, py + 28, 23, 1); F(P.w, px + 20, py + 25, 4, 1); F(P.p, px + 22, py + 26, 2, 2); },
   // Telefone de mesa: toca (fone pula, luz pisca) enquanto há uma ligação na fila
-  phone(x, px, py, ring, t) { const P = WD_PAL, F = (c, a, b, w, h) => { x.fillStyle = c; x.fillRect(a, b, w, h); };
-    // telefone de mesa: base inclinada com visor, teclado 3×4, grade do alto-falante e fone com fio enrolado
-    const j = ring && (t * 14 | 0) % 2 ? -1 : 0, sh = ring ? ((t * 22 | 0) % 2 ? 1 : 0) : 0, X = px + sh;
-    F(P.k, X - 1, py + 3, 30, 14); F(P.C, X, py + 4, 28, 12); F(P.c, X, py + 4, 28, 1); F(P.e, X, py + 13, 28, 2); F(P.E, X, py + 15, 28, 1);
-    F(P.k, X + 2, py + 6, 9, 5); F(ring && (t * 4 | 0) % 2 ? P.v : P.V, X + 3, py + 7, 7, 3); F(P.x, X + 4, py + 8, 4, 1);     // visor
-    for (let r = 0; r < 3; r++) for (let i = 0; i < 4; i++) { F(P.k, X + 13 + i * 4, py + 5 + r * 3, 3, 3); F(i === 3 && r === 2 ? P.F : P.c, X + 13 + i * 4, py + 5 + r * 3, 2, 2); }
-    for (let i = 0; i < 4; i++) F(P.e, X + 3 + i * 2, py + 12, 1, 1);                                                          // alto-falante
-    F(P.k, X + 9, py + 13, 2, 2); F(ring && (t * 4 | 0) % 2 ? P.R : P.q, X + 9, py + 13, 1, 1);                               // luz de chamada
-    // fone
-    F(P.k, X - 2, py - 2 + j, 32, 6); F(P.J, X - 1, py - 1 + j, 30, 4); F(P.j, X + 6, py - 1 + j, 16, 1); F(P.M, X + 7, py + j, 14, 1);
-    F(P.k, X - 2, py + 3 + j, 7, 3); F(P.J, X - 1, py + 3 + j, 5, 2); F(P.k, X + 23, py + 3 + j, 7, 3); F(P.J, X + 24, py + 3 + j, 5, 2);
-    for (let i = 0; i < 6; i++) F(i % 2 ? P.J : P.j, X - 3 - (i % 2), py + 5 + i * 2, 1, 2);                                     // fio enrolado
-    if (ring && (t * 3 | 0) % 2) { F(P.W, px + 4, py - 6, 1, 2); F(P.W, px + 13, py - 7, 1, 3); F(P.W, px + 22, py - 6, 1, 2); } },
+  phone(x, px, py, ring, t, held) { const P = WD_PAL, F = (c, a, b, w, h) => { x.fillStyle = c; x.fillRect(a | 0, b | 0, w, h); };
+    // telefone grande: base inclinada com visor, teclado 3×4, alto-falante, luz de chamada e fone com fio enrolado.
+    // Tocando: treme e o fone pula. Atendido (segurando): o fone sai da base e fica erguido.
+    const shake = ring && !held ? ((t * 24 | 0) % 2 ? 1 : -1) : 0, jump = ring && !held && (t * 12 | 0) % 2 ? -2 : 0, X = px + shake;
+    F(P.k, X - 1, py + 5, 46, 18); F(P.C, X, py + 6, 44, 16); F(P.c, X, py + 6, 44, 2); F(P.e, X, py + 18, 44, 3); F(P.E, X, py + 21, 44, 1);
+    F(P.k, X + 3, py + 9, 15, 7); F(ring ? ((t * 4 | 0) % 2 ? P.v : P.V) : P.x, X + 4, py + 10, 13, 5); F(P.X, X + 5, py + 12, 7, 1); if (ring) F(P.W, X + 5, py + 11, 3, 1);   // visor
+    for (let r = 0; r < 3; r++) for (let i = 0; i < 4; i++) { F(P.k, X + 21 + i * 5, py + 8 + r * 4, 4, 4); F(i === 3 && r === 2 ? P.F : P.c, X + 21 + i * 5, py + 8 + r * 4, 3, 3); F(P.e, X + 23 + i * 5, py + 10 + r * 4, 1, 1); }
+    for (let i = 0; i < 6; i++) F(P.e, X + 4 + i * 2, py + 18, 1, 1);
+    F(P.k, X + 14, py + 18, 3, 3); F(ring ? ((t * 4 | 0) % 2 ? P.R : P.q) : P.q, X + 15, py + 19, 1, 1);
+    // fone: no gancho ou erguido
+    const hy = held ? py - 9 : py - 2 + jump, hx = held ? X + 4 : X;
+    F(P.k, hx - 2, hy, 48, 7); F(P.J, hx - 1, hy + 1, 46, 5); F(P.j, hx + 9, hy + 1, 26, 1); F(P.M, hx + 10, hy + 2, 24, 1);
+    F(P.k, hx - 2, hy + 6, 10, 4); F(P.J, hx - 1, hy + 6, 8, 3); F(P.k, hx + 36, hy + 6, 10, 4); F(P.J, hx + 37, hy + 6, 8, 3);
+    for (let i = 0; i < 8; i++) F(i % 2 ? P.J : P.j, X - 4 - (i % 2), py + 8 + i * 2, 1, 2);
+    if (ring && !held && (t * 3 | 0) % 2) { F(P.W, px + 6, py - 9, 1, 3); F(P.W, px + 21, py - 11, 1, 4); F(P.W, px + 36, py - 9, 1, 3); } },
   // Camada de resposta imediata: teclas e botão do mouse, desenhados a cada quadro só enquanto há interação.
   // Apertada: a tecla afunda 1 px e acende; ao soltar, sobe com um brilho de 1 px (sobre-impulso) por ~90 ms.
   keyCell(L, k) {
@@ -446,7 +472,7 @@ const Office = {
       });
     }
     // Telefone de mesa (toca quando há uma ligação esperando)
-    if (Z.phone) this.phone(ctx, Z.phone.x, Z.phone.y, st.ringing, t);
+    if (Z.phone) this.phone(ctx, Z.phone.x, Z.phone.y, st.ringing, t, st.phoneHeld);
     // Planta (folhas balançam de leve)
     if (D.has('planta')) this.plant(ctx, Z.plant.x, Z.plant.y, t);
     // Monitor extra: gráfico subindo e cursor piscando

@@ -43,7 +43,8 @@ document.addEventListener('keydown', e => {
     if (alt === 'del') deleteFile();
     return;
   }
-  if (e.key === ' ') { e.preventDefault(); setPaused(!S.paused); return; }
+  // Espaço: com o telefone tocando, segura o fone (atende); sem ligação, pausa
+  if (e.key === ' ') { e.preventDefault(); if (!S.paused && S.tasks.some(k => k.type === 'call' && !k.dead)) { if (!e.repeat) phoneHold(true); return; } setPaused(!S.paused); return; }
   if (S.paused) return;
   if (e.key === '1') { useItem('cafe'); return; }
   if (e.key === '2') { useItem('cha'); return; }
@@ -81,7 +82,7 @@ document.addEventListener('keydown', e => {
     t.typed += key; renderTyped(t); sfx('key');
   }
 });
-document.addEventListener('keyup', e => { if (S && (e.key === 'ArrowDown' || keyAction(e.code) === 'drop')) S.fast = false; });
+document.addEventListener('keyup', e => { if (S && (e.key === 'ArrowDown' || keyAction(e.code) === 'drop')) S.fast = false; if (S && e.key === ' ' && typeof phoneHold === 'function') phoneHold(false); });
 window.addEventListener('blur', () => { if (S && S.phase === 'day' && !S.paused && !S.boss && S.bossAuto <= 0) { S.fast = false; setPaused(true); } });
 window.addEventListener('resize', () => { layoutDecor(); if (S && S.file && S.phase === 'day') placeFile(); });
 window.addEventListener('beforeunload', () => { if (!window.SKIP_PERSIST) persist(); });   // a importação de backup desliga isto para não sobrescrever os dados novos

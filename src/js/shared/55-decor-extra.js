@@ -12,7 +12,7 @@ const quadroRows = (() => { const W = 22, H = 16, out = [];
   return out; })();
 const DECOR_EXTRA = {
   globo:   { price: 140, zone: 'desk', rows: padRows(['....kkkkk.....', '..kkLLlLLkk...', '.kLLGGlLLLLk..', '.kLGGGGLLGLk..', 'kLLGGGLLGGGLk.', 'kLLLGLLLGGLLk.', 'kLlLLLLLLGLLk.', 'kLLLLGGLLLLLk.', '.kLLGGGGLLLk..', '.kLLLGGLLLLk..', '..kkLLLLLkk...', '....kkkkk.....', '.....kZk......', '....kzZzk.....', '..kkkkkkkkk...', '..kzzzzzzzk...', '...kkkkkkk....']),
-             at: (L) => [Math.max(L.VW * .07 | 0, 4) + 4, L.desk - 2] },
+             at: (L) => [L.VW - Math.max(L.VW * .07 | 0, 4) - 48, L.desk - 4] },
   livros:  { price: 90, zone: 'desk', rows: padRows(['..kkkkkkkkkkkkkk..', '..kRRRRRRRRRRRWk..', '..kqqqqqqqqqqqWk..', 'kkkkkkkkkkkkkkkk..', 'kLLLLLLLLLLLLLWk..', 'k777777777777Wk...', '.kkkkkkkkkkkkkkkk.', '.kFFFFFFFFFFFFFWk.', '.k9999999999999Wk.', '.kkkkkkkkkkkkkkkk.']),
              at: (L) => [L.VW - Math.max(L.VW * .07 | 0, 4) - 24, L.desk + 6] },
   pato:    { price: 40, zone: 'desk', rows: padRows(['...kkk......', '..kYYYk.....', '..kYkYkk....', '..kYYYkOk...', '...kYYkk....', '.kkkYYYkk...', 'kYYYYYYYYk..', 'kYyYYYYYzk..', '.kzzzzzzk...', '..kkkkkk....']),
