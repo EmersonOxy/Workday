@@ -134,6 +134,13 @@ function avRender(cfg) {
 }
 // Versão pequena (metade) para espaços apertados: cada bloco 2×2 vira a cor mais frequente, preferindo o contorno
 const AV_PRI = { ink: 9, eye: 8, brow: 7, mouth: 7, skin: 5, shirt: 4, cloth: 3, hair: 2, bg: 0 };
+// Miniatura do editor: resolução cheia recortada na região da opção (rosto para olhos/sobrancelhas/boca), escala 2
+function avThumb(cfg, key) {
+  const src = avRender(cfg), face = /eyes|brows|mouth|eyeColor|blush|glasses/i.test(key), r = face ? [10, 12, 28, 22] : [0, 0, src.width, src.height];
+  const k = face ? 2 : 1, c = document.createElement('canvas'); c.width = r[2]; c.height = r[3];
+  c.getContext('2d').drawImage(src, r[0], r[1], r[2], r[3], 0, 0, r[2], r[3]);
+  c.style.width = r[2] * k + 'px'; c.style.height = r[3] * k + 'px'; c.style.imageRendering = 'pixelated'; return c;
+}
 function avHalf(src) {
   const W = src.width >> 1, H = src.height >> 1, c = document.createElement('canvas'); c.width = W; c.height = H;
   if (src._mat) {   // por material: mesma forma qualquer que seja a paleta escolhida
@@ -200,14 +207,14 @@ function showAvatarEditor(start, onDone) {
   const paintPrev = () => card.querySelector('.av-prev').replaceChildren(portrait(168, cfg, null));
   const paintTabs = () => card.querySelector('.av-tabs').replaceChildren(...Object.keys(TABS).map(k => { const b = document.createElement('button'); b.className = 'pxbtn' + (k === tab ? ' on' : ''); b.textContent = t.tabs[k]; b.onclick = () => { tab = k; paintTabs(); paintPanel(); }; return b; }));
   const paintPanel = () => {
-    const panel = card.querySelector('.av-panel'); panel.replaceChildren();
+    const panel = card.querySelector('.av-panel'), keep = panel.scrollTop; panel.replaceChildren(); requestAnimationFrame(() => { panel.scrollTop = keep; });
     for (const [key, opts, kind, sw] of TABS[tab]) {
       const row = document.createElement('div'); row.className = 'av-row'; row.innerHTML = `<small>${t.labels[key]}</small>`;
       const list = document.createElement('div'); list.className = kind === 'style' ? 'av-styles' : 'av-colors'; row.append(list);
       for (const o of opts) {
         const b = document.createElement('button'); b.className = 'av-opt' + (cfg[key] === o ? ' on' : ''); b.title = t.names[o] || o;
         if (kind === 'color') { b.classList.add('sw'); b.style.background = sw(o); }
-        else { b.append(portrait(56, Object.assign({}, cfg, { [key]: o }), null)); }
+        else b.append(avThumb(Object.assign({}, cfg, { [key]: o }), key));   // miniatura nítida, recortada na parte que muda
         b.onclick = () => { cfg[key] = o; paintPrev(); paintPanel(); sfx('click'); };
         list.append(b);
       }

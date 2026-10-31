@@ -105,7 +105,7 @@
   .pxbtn:hover:not(:disabled):not(.main):not(.on), #modal .pxbtn:hover:not(:disabled):not(.main):not(.on), .vcall .pxbtn:hover:not(:disabled):not(.main),
   #scene.staged .pxbtn:hover:not(:disabled):not(.main), #pad .pxbtn:active { background: color-mix(in srgb, var(--card) 86%, var(--ink)); }
   .perk:hover, body.office .task button:hover { background: color-mix(in srgb, var(--card) 86%, var(--ink)) !important; }
-  .bg-av.on, .wall.on, .av-opt.on { background: var(--card) !important; }
+  .bg-av.on, .wall.on, .av-opt.on:not(.sw) { background: var(--card) !important; }
 
   /* ===== Botão Iniciar do WorkOS ===== */
   body.office.menu-mode #osdesk .start { visibility: hidden; }
@@ -420,3 +420,6 @@
   .cur-dot.on { translate: 0 2px; box-shadow: 0 0 0 2px #2a1f2d, 0 0 0 4px #fff8ec; }
   .cur-dot:hover { translate: 0 -1px; }
   .cur-btn { transition: none; } .cur-btn:hover img { translate: 0 -1px; }
+  .av-opt.sw.on { box-shadow: 0 0 0 2px var(--ink), 0 0 0 4px var(--card), 0 0 0 6px var(--ink) !important; translate: 0 2px; }
+  .av-opt.on::after { display: none; }
+  .av-opt { display: grid; place-items: center; }

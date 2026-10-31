@@ -41,7 +41,7 @@ function buildSheet(paused) {
   tot.forEach((v, i) => { const h = Math.round(v / mx * 26); x.fillStyle = P.k; x.fillRect(6 + i * 9, 35 - h, 7, h + 1); x.fillStyle = [P.F, P.L, P.O, P.I, P.Y, P.T][i]; x.fillRect(7 + i * 9, 36 - h, 5, h - 1); });
   box.querySelectorAll('[data-a]').forEach(b => b.onclick = () => {
     if (b.dataset.a === 'resume') setPaused(false);
-    if (b.dataset.a === 'cfg') showSettings(closeModal);
+    if (b.dataset.a === 'cfg') { const tabs = b.parentElement.querySelectorAll('.xl-tab'); tabs.forEach(x => x.classList.toggle('on', x === b)); showSettings(() => { closeModal(); tabs.forEach(x => x.classList.toggle('on', x.dataset.a === 'resume')); }); }
     if (b.dataset.a === 'brk') { S.paused = false; if (!startBreak()) { S.paused = true; sfx('err'); } }
     if (b.dataset.a === 'quit') showResign();
     if (b.dataset.a === 'menu') { saveCareerMidday(); persist(); hideSheet(); S.paused = false; muffle(false); showMenu(); }

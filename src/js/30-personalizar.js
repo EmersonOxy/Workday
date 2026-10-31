@@ -118,6 +118,8 @@ function showCustomize(back) {
     <div class="setting"><span>${u.osc.badge}<small></small></span>${cseg('badge', BADGE_COLORS, 0)}</div>
     <div class="setting"><span>${u.osc.lanyard}<small></small></span>${cseg('lanyard', BADGE_COLORS, 0)}</div>
     <div class="setting"><span>${u.curLabel}<small></small></span><div class="swatches cursors" data-hw="cursor" data-names='${JSON.stringify(u.curNames)}'>${Object.keys(CURSORS).map(k => `<button class="sw-btn cur-btn${(cur.cursor || 'padrao') === k ? ' on' : ''}" data-v="${k}" title="${u.curNames[k]}" aria-label="${u.curNames[k]}"></button>`).join('')}</div></div>
+    <div class="setting"><span>${u.curColorLabel}</span><div class="swatches cur-colors"></div></div>
+    <div class="setting"><span>${u.theme}<small></small></span><div class="seg" id="hwTheme">${[['system', u.themeSystem], ['light', u.themeLight], ['dark', u.themeDark]].map(([v, l]) => `<button class="pxbtn${(CFG.theme || 'system') === v ? ' on' : ''}" data-t="${v}">${l}</button>`).join('')}</div></div>
     <div class="setting"><span>${u.catLabel}</span><div class="walls cats">${CAT_COATS.map(c2 => `<button class="pxbtn wall cat${cur.cat === c2 ? ' on' : ''}" data-c="${c2}"><span class="cimg"></span><small>${u.coats[c2]}</small></button>`).join('')}</div></div>
     <div class="setting"><span>${u.wallLabel}</span><div class="walls">${Object.keys(WALLS).map(w => `<button class="pxbtn wall${cur.wall === w ? ' on' : ''}" data-w="${w}"><canvas width="64" height="36"></canvas><small>${u.walls[w]}</small></button>`).join('')}</div></div>
     <div class="actions"><button class="pxbtn main" id="hwOk">${u.resume}</button></div>`);
@@ -138,15 +140,15 @@ function showCustomize(back) {
   // ponteiros: prévia na cor escolhida; passar o mouse sobre um ponteiro que aceita cor mostra as cores dele
   const curPaint = () => card.querySelectorAll('.cur-btn').forEach(b => { const c = CURSORS[b.dataset.v]; b.replaceChildren(); if (c) { const im = new Image(); im.src = cursorURL(c, 2, curRows(b.dataset.v)); b.append(im); } else b.textContent = '↖'; });
   curPaint();
-  card.querySelectorAll('.cur-btn').forEach(b => { if (!CUR_FILL[b.dataset.v]) return;
-    b.addEventListener('pointerenter', () => {
-      card.querySelectorAll('.cur-pal').forEach(p => p.remove());
-      const pal = document.createElement('div'); pal.className = 'cur-pal';
-      pal.innerHTML = Object.entries(CUR_COLORS).map(([k, l]) => `<button class="cur-dot${(((CFG.hw || {}).curColor || {})[b.dataset.v] || 'padrao') === k ? ' on' : ''}" data-c="${k}" title="${u.curColors[k]}" style="background:${l ? WD_PAL[l] : 'transparent'}">${l ? '' : '·'}</button>`).join('');
-      pal.querySelectorAll('.cur-dot').forEach(d => d.onclick = e => { e.stopPropagation(); const cc = Object.assign({}, (CFG.hw || {}).curColor, { [b.dataset.v]: d.dataset.c }); setHw({ curColor: cc, cursor: b.dataset.v }); applyCursor(); curPaint(); draw(); pal.remove(); sfx('click'); });
-      b.after(pal); const r = b.getBoundingClientRect(), pr = b.parentElement.getBoundingClientRect(); pal.style.left = (r.left - pr.left) + 'px';
-      const leave = ev => { if (!pal.contains(ev.relatedTarget) && ev.relatedTarget !== b) { pal.remove(); } }; pal.addEventListener('pointerleave', leave); b.addEventListener('pointerleave', leave, { once: true });
-    }); });
+  // cores do ponteiro escolhido: linha fixa logo abaixo dos ponteiros (some para os que têm cor própria)
+  const curCol = card.querySelector('.cur-colors');
+  const paintCurCol = () => { const id = (CFG.hw || {}).cursor || 'padrao', ok = !!CUR_FILL[id], cur = (((CFG.hw || {}).curColor) || {})[id] || 'padrao';
+    curCol.parentElement.style.display = ok ? '' : 'none';
+    curCol.innerHTML = Object.entries(CUR_COLORS).map(([k, l]) => `<button class="cur-dot${cur === k ? ' on' : ''}" data-c="${k}" title="${u.curColors[k]}" aria-label="${u.curColors[k]}" style="background:${l ? WD_PAL[l] : 'transparent'}">${l ? '' : '×'}</button>`).join('');
+    curCol.querySelectorAll('.cur-dot').forEach(d => d.onclick = () => { const id2 = (CFG.hw || {}).cursor; setHw({ curColor: Object.assign({}, (CFG.hw || {}).curColor, { [id2]: d.dataset.c }) }); applyCursor(); curPaint(); paintCurCol(); sfx('click'); }); };
+  card.querySelectorAll('.cur-btn').forEach(b => b.addEventListener('click', () => setTimeout(paintCurCol, 0)));
+  paintCurCol();
+  card.querySelectorAll('#hwTheme button').forEach(b => b.onclick = () => { CFG.theme = b.dataset.t; persist(); applyTheme(); sfx('click'); card.querySelectorAll('#hwTheme button').forEach(x => x.classList.toggle('on', x === b)); });
   card.querySelectorAll('[data-hw] button').forEach(b => b.onclick = () => { sfx('click');
     const k = b.parentElement.dataset.hw, v = b.dataset.v;
     setHw(k === 'all' ? { mon: v, kb: v, mouse: v } : { [k]: v }); if (k === 'cursor') applyCursor(); draw();

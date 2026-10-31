@@ -574,3 +574,4 @@ Object.assign(LANGS.pt.ui, { phoneRing: 'CHAMANDO', phoneLine: 'EM LINHA' }); Ob
 LANGS.pt.ui.curColors = { padrao: 'Original', branco: 'Branco', azul: 'Azul', verde: 'Verde', rosa: 'Rosa', amarelo: 'Amarelo', uva: 'Uva', menta: 'Menta', laranja: 'Laranja' };
 LANGS.en.ui.curColors = { padrao: 'Original', branco: 'White', azul: 'Blue', verde: 'Green', rosa: 'Pink', amarelo: 'Yellow', uva: 'Grape', menta: 'Mint', laranja: 'Orange' };
 LANGS.es.ui.curColors = { padrao: 'Original', branco: 'Blanco', azul: 'Azul', verde: 'Verde', rosa: 'Rosa', amarelo: 'Amarillo', uva: 'Uva', menta: 'Menta', laranja: 'Naranja' };
+LANGS.pt.ui.curColorLabel = 'Cor do ponteiro'; LANGS.en.ui.curColorLabel = 'Pointer color'; LANGS.es.ui.curColorLabel = 'Color del puntero';
