@@ -397,3 +397,13 @@
   .av-opt.on::after { display: none; }
   .av-opt { display: grid; place-items: center; }
   .clockdev .ticket { padding-bottom: 18px !important; }
+
+  /* ===== Iniciar: orbe grande que transborda a barra (Windows 7) ===== */
+  .os-start, #osdesk .start { width: auto; height: auto; padding: 0 !important; display: grid !important; place-items: center; line-height: 0; background: none !important; box-shadow: none !important; cursor: pointer; }
+  .os-start canvas, #osdesk .start canvas { filter: drop-shadow(2px 2px 0 rgba(42,31,45,.45)); }
+  .os-start { left: .2em !important; bottom: -.25em !important; }
+  #osdesk .start { position: relative; top: -.35em; margin-left: .1em; }
+  .os-start:hover, #osdesk .start:hover { filter: brightness(1.15); }
+  .os-start.on, #osdesk .start.on { translate: 0 1px; filter: brightness(.9); }
+  .os-tasks { left: 4.4em !important; }
+  .os-smenu { bottom: 2.6em !important; }
