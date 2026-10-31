@@ -61,7 +61,7 @@ function ticketHTML() {
   const u = U(), tk = S.ticket;
   const row = (k, v) => `<div class="tk-row"><span>${k}</span><b>${v}</b></div>`;
   return `<div class="tk-head">${u.company}</div><div class="tk-sub">${u.receipt}</div>
-    ${row(u.employee, '#' + EMP_ID)}${row(u.day, S.day)}${row(u.inTime, '09:00')}${row(u.outTime, '18:00')}
+    ${row(u.employee, profileName())}${row('Nº', EMP_ID)}${row(u.day, S.day)}${row(u.inTime, '09:00')}${row(u.outTime, '18:00')}
     ${row(u.hoursWorked, '9h00')}${row(u.points, fmt(tk.points))}${row(u.salary, '+ ' + money(tk.pay))}
     ${row(u.rank, tk.rank)}${row(u.worst, tk.worst)}<div class="tk-bar"></div>`;
 }

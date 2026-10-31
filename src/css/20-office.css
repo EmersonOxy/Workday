@@ -52,7 +52,6 @@
   body.office .pxbtn { font-size: .95em; }
   body.office #stressWrap { position: relative; height: .85em; min-width: 7em; background: var(--line); box-shadow: 0 0 0 2px var(--ink); }
   body.office #stressWrap::after { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(90deg, transparent 0 calc(100% / 12 - 2px), var(--card) calc(100% / 12 - 2px) calc(100% / 12)); }
-  body.office #stress { transition: width .25s steps(3), background .3s; }
   body.office #desk { display: none; }
   body.office #inv { grid-column: 2; grid-row: 2; gap: .3em; }
   body.office #inv .pxbtn { font-size: .9em; }
@@ -201,3 +200,7 @@
     box-shadow: 0 0 0 2px #2a1f2d, 0 6px 0 rgba(42,31,45,.25); display: flex; flex-direction: column; gap: .15em; z-index: 1; }
   .letter small { color: #8f7d63; text-transform: uppercase; letter-spacing: 1px; }
   .letter b { font-weight: normal; font-size: 1.4em; color: #2f8a45; }
+  /* Estresse: a barra muda na hora (sem transição); o trecho recém-somado pisca por cima com tempo próprio */
+  #stress { transition: none !important; }
+  #stressHit { position: absolute; top: 0; bottom: 0; left: 0; width: 0; opacity: 0; pointer-events: none; z-index: 1; }
+  #stressWrap { position: relative; }

@@ -10,7 +10,13 @@ function officeState() {
   const stress = S ? S.stress : 0;
   const clutter = day ? Math.min(3, Math.floor(stress / 30) + (S.level >= 8 ? 1 : 0)) : 0;
   const ringing = day && S.tasks.some(t => t.type === 'call');
-  return { hour, stress, clutter, decor: P.decor, rank: S ? S.rankIdx : 0, blind: OFFICE.blind, day: S ? S.day : 0, ringing, press: OFFICE.press, click: OFFICE.click };
+  return { hour, stress, clutter, decor: P.decor, rank: S ? S.rankIdx : 0, blind: OFFICE.blind, day: S ? S.day : 0, ringing, press: OFFICE.press, click: OFFICE.click, hw: hw(), badge: badgeInfo() };
+}
+// Crachá da mesa: cores do avatar ou miniatura 4×5 da foto
+function badgeInfo() {
+  if (PROFILE.photo) { const r = PROFILE.photo; return { shirt: WD_PAL.L, mini: [0, 1, 2, 3, 4].map(j => [0, 1, 2, 3].map(i => r[2 + Math.round(j * 3.4)][2 + Math.round(i * 3.7)]).join('')) }; }
+  const a = AVATARS[PROFILE.avatar] || AVATARS[0];
+  return { hair: a.hair, shirt: a.shirt };
 }
 function officeLayout() {
   const want = officeWanted();
@@ -41,7 +47,7 @@ function officeFrame(now) {
   requestAnimationFrame(officeFrame);
   if (!OFFICE.on || document.hidden || now - OFFICE.last < 80) return;   // ~12 quadros/s bastam para o ambiente
   OFFICE.last = now;
-  const st = officeState(), key = [OFFICE.L.VW, OFFICE.L.VH, st.hour * 4 | 0, st.clutter, st.decor.join(), st.rank, st.day].join('|');
+  const st = officeState(), key = [OFFICE.L.VW, OFFICE.L.VH, st.hour * 4 | 0, st.clutter, st.decor.join(), st.rank, st.day, JSON.stringify(st.hw), JSON.stringify(st.badge)].join('|');
   if (key !== OFFICE.key) { OFFICE.key = key; OFFICE.baked = Office.bake(OFFICE.L, st); }
   // Persiana anda em degraus até a posição pedida, com estalinhos do mecanismo
   const want = CFG.blinds ? 1 : 0;
@@ -63,8 +69,20 @@ function onWindow(e) {
   const w = Office.spots(OFFICE.L).win, x = e.clientX / OFFICE.M.k, y = e.clientY / OFFICE.M.k;
   return x >= w.x - 2 && x <= w.x + w.w + 2 && y >= w.y - 2 && y <= w.y + w.h + 4;
 }
-OFFICE.cv.addEventListener('pointerdown', e => { if (onWindow(e)) { CFG.blinds = !CFG.blinds; persist(); } });
-OFFICE.cv.addEventListener('pointermove', e => { OFFICE.cv.style.cursor = onWindow(e) ? 'pointer' : ''; });
+function onBadge(e) {
+  if (!OFFICE.on || !OFFICE.L) return false;
+  const b = Office.badgeRect(OFFICE.L), x = e.clientX / OFFICE.M.k, y = e.clientY / OFFICE.M.k;
+  return x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h;
+}
+// Clicar no crachá abre a versão ampliada; o expediente congela enquanto isso
+function openBadgeFromDesk() {
+  const was = S && S.paused;
+  if (S && S.phase === 'day') S.paused = true;
+  sfx('pop');
+  showBadge(() => { closeModal(); if (S && S.phase === 'day') { S.paused = was; S.last = performance.now(); } });
+}
+OFFICE.cv.addEventListener('pointerdown', e => { if (onWindow(e)) { CFG.blinds = !CFG.blinds; persist(); } else if (onBadge(e) && $('modal').classList.contains('hidden')) openBadgeFromDesk(); });
+OFFICE.cv.addEventListener('pointermove', e => { OFFICE.cv.style.cursor = onWindow(e) || onBadge(e) ? 'pointer' : ''; });
 async function toggleFullscreen() {
   try { if (document.fullscreenElement) await document.exitFullscreen(); else await document.documentElement.requestFullscreen(); } catch (e) {}
 }
@@ -77,6 +95,8 @@ document.addEventListener('pointerdown', () => { if (CFG.display === 'full' && !
 // Botões físicos: afundam ao apertar
 document.addEventListener('pointerdown', e => { const b = e.target.closest('.pxbtn, .task button, .slot, .paym'); if (b && !b.disabled) Motion.press(b); });
 // Teclas e cliques do jogador aparecem no teclado e no mouse da mesa
-addEventListener('keydown', e => { if (e.key.length === 1 || e.key.startsWith('Arrow') || e.key === 'Enter') OFFICE.press = { k: e.key.length === 1 ? e.key.toUpperCase() : e.key, t: performance.now() / 1000 }; }, true);
-addEventListener('pointerdown', () => { OFFICE.click = performance.now() / 1000; }, true);
+// Resposta imediata: o próximo quadro desenha já (sem esperar o ritmo de ~12 qps do ambiente) e outro limpa o realce
+const officeNow = () => { OFFICE.last = 0; clearTimeout(OFFICE.redo); OFFICE.redo = setTimeout(() => { OFFICE.last = 0; }, 150); };
+addEventListener('keydown', e => { if (e.key.length === 1 || e.key.startsWith('Arrow') || e.key === 'Enter') { OFFICE.press = { k: e.key.length === 1 ? e.key.toUpperCase() : e.key, t: performance.now() / 1000 }; officeNow(); } }, true);
+addEventListener('pointerdown', () => { OFFICE.click = performance.now() / 1000; officeNow(); }, true);
 officeLayout(); requestAnimationFrame(officeFrame);

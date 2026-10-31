@@ -171,7 +171,8 @@ function causeBars(causes) {
   return list.map(([k, v]) => `<div class="cause"><span>${L.causes[k]}</span><div class="b" style="width:${v / list[0][1] * 100}%"></div><span>${Math.round(v / total * 100)}%</span></div>`).join('');
 }
 
-function gameOver() {
+// reason: 'quit' (termo de rescisão assinado) ou 'burnout' (estresse chegou a 100). Cada um tem título, carimbo e relatório próprios.
+function gameOver(reason = 'burnout') {
   music('over');
   S.running = false; S.phase = 'over';
   clearDom(); closeScene(); clearCareer();
@@ -182,14 +183,18 @@ function gameOver() {
   P.stats.maxDay = Math.max(P.stats.maxDay, S.day);
   persist(); hud();
   const r = S.rankIdx, next = r + 1 < RANK_POINTS.length ? r + 1 : null;
-  const card = modal(`<span class="over-box"></span><span class="over-stamp">${u.stampOver}</span><h2>${u.quitTitle}</h2><p>${u.hrReport(S.day, clockText())}</p>
+  const quit = reason === 'quit';
+  S.endReason = reason;
+  const card = modal(`<span class="over-box"></span><span class="over-stamp">${quit ? u.resignStamp : u.stampOver}</span><h2>${quit ? u.quitTitle : u.burnoutTitle}</h2><p>${u.hrReport(S.day, clockText())} ${quit ? u.quitLine : u.burnoutLine}</p>
+    <p class="over-who"><span class="over-face"></span><b>${profileName()}</b> · Nº ${EMP_ID}</p>
     <h4>${u.rankReached}</h4><div class="big">${L.ranks[r]}</div>
     <p>${u.summary(fmt(S.score), S.day)} ${next !== null ? u.missing(fmt(RANK_POINTS[next] - S.score), L.ranks[next]) : u.top} ${u.record}: ${fmt(P.best)}.</p>
     <p class="money">${u.severance}: + ${money(rescisao)}</p>
-    <h4>${u.reasons}</h4>${causeBars(S.careerCauses)}
+    <h4>${quit ? u.reasonsQuit : u.reasonsBurnout}</h4>${causeBars(S.careerCauses)}
     <div class="actions"><button class="pxbtn main" id="go">${u.newJob}</button><button class="pxbtn" id="menu">${u.mainMenu}</button></div>`);
   card.classList.add('over-card');
   card.querySelector('.over-box').append(Pixel.el(SPR2.box, 4));
+  card.querySelector('.over-face').append(portrait(2));
   setTimeout(() => { const st = card.querySelector('.over-stamp'); if (st) { st.classList.add('on'); Motion.stamp(st); sfx('err'); } }, 650);
   card.querySelector('#go').onclick = () => newCareer();
   card.querySelector('#menu').onclick = showMenu;

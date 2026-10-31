@@ -261,3 +261,50 @@ Object.assign(LANGS.es.ui, { stampOver: 'RESCINDIDO', certTitle: 'Certificado de
 LANGS.pt.tipsTouch = { file: 'Toque na coluna do setor da etiqueta ou deslize o arquivo para os lados. Deslize para baixo para soltar.', dead: '<b>Arquivo morto</b>: toque nele ou deslize para baixo para apagar.', boss: 'O <b>chefe</b> vem aí! Toque em <b>ESCONDER</b>.', printer: '<b>Impressora</b>: toque na tecla várias vezes.', type: '<b>Digite</b>: toque no campo e escreva a palavra.', freeze: '<b>PC travado</b>: balance o dedo na tela!' };
 LANGS.en.tipsTouch = { file: 'Tap the column of the labeled department or swipe the file sideways. Swipe down to drop it.', dead: '<b>Dead file</b>: tap it or swipe down to delete.', boss: 'The <b>boss</b> is coming! Tap <b>HIDE</b>.', printer: '<b>Printer</b>: tap the key several times.', type: '<b>Type</b>: tap the field and write the word.', freeze: '<b>Frozen PC</b>: shake your finger on the screen!' };
 LANGS.es.tipsTouch = { file: 'Toca la columna del sector de la etiqueta o desliza el archivo a los lados. Desliza hacia abajo para soltarlo.', dead: '<b>Archivo muerto</b>: tócalo o desliza hacia abajo para borrarlo.', boss: '¡Viene el <b>jefe</b>! Toca <b>OCULTAR</b>.', printer: '<b>Impresora</b>: toca la tecla varias veces.', type: '<b>Escribe</b>: toca el campo y escribe la palabra.', freeze: '<b>PC colgada</b>: ¡sacude el dedo en la pantalla!' };
+
+// Entrega 1: assinatura, rescisão, afastamento, crachá e personalização do computador
+Object.assign(LANGS.pt.ui, {
+  clearSig: 'Limpar assinatura', confirmSig: 'Confirmar assinatura', signFirst: 'Assine no espaço acima', cancel: 'Cancelar',
+  certBody: (n, name) => `A WORKDAY LTDA. certifica que <b>${name}</b>, funcionário(a) nº ${n}, foi promovido(a) ao cargo de`,
+  resignTitle: 'Termo de rescisão voluntária', resignStamp: 'DESLIGADO', resignHint: 'Assine para confirmar. Ainda dá para voltar atrás.',
+  resignBody: (name, n) => `Eu, <b>${name}</b>, funcionário(a) nº ${n}, declaro de livre e espontânea vontade (e sem nenhuma reunião de alinhamento prévio) que encerro meu vínculo com a WORKDAY LTDA.`,
+  resignClauses: ['Devolverei o grampeador que nunca foi meu.', 'Reconheço que o café da copa continuará ruim sem mim.', 'Abro mão de todas as reuniões que poderiam ter sido um e-mail.', 'A planta da mesa fica com a empresa. Ela já assinou.'],
+  backToWork: 'Voltar ao expediente', resignConfirm: 'Confirmar demissão',
+  burnoutTitle: 'Afastamento por estresse', burnoutLine: 'O médico do trabalho recomendou distância de planilhas por tempo indeterminado.',
+  quitLine: 'Desligamento voluntário, com termo assinado.', reasonsBurnout: 'O que levou ao esgotamento', reasonsQuit: 'O que mais pesou na carreira',
+  profile: 'Perfil', badgeTitle: 'Crachá', editBadge: 'Editar crachá', nameLabel: 'Nome', namePh: 'Seu nome no crachá', defaultName: 'Funcionário(a)',
+  avatarLabel: 'Avatar', photoLabel: 'Foto do aparelho', photoPick: 'Escolher foto', photoClear: 'Usar avatar', save: 'Salvar',
+  customize: 'Personalizar computador', hwTitle: 'Seu computador', monitorLabel: 'Monitor', keyboardLabel: 'Teclado', mouseLabel: 'Mouse',
+  allLabel: 'Tudo igual', cream: 'Creme', graphite: 'Grafite', wallLabel: 'Papel de parede', hwNote: 'O equipamento aparece na mesa do escritório (computador).',
+  walls: { teal: 'Petróleo', grid: 'Quadriculado', hills: 'Colinas', night: 'Noite' },
+});
+Object.assign(LANGS.en.ui, {
+  clearSig: 'Clear signature', confirmSig: 'Confirm signature', signFirst: 'Sign in the space above', cancel: 'Cancel',
+  certBody: (n, name) => `WORKDAY INC. certifies that <b>${name}</b>, employee no. ${n}, has been promoted to`,
+  resignTitle: 'Voluntary resignation form', resignStamp: 'OFFBOARDED', resignHint: 'Sign to confirm. You can still back out.',
+  resignBody: (name, n) => `I, <b>${name}</b>, employee no. ${n}, of my own free will (and without any prior alignment meeting) hereby end my employment with WORKDAY INC.`,
+  resignClauses: ['I will return the stapler that was never mine.', 'I acknowledge the break room coffee will stay bad without me.', 'I waive every meeting that could have been an email.', 'The desk plant stays with the company. It already signed.'],
+  backToWork: 'Back to work', resignConfirm: 'Confirm resignation',
+  burnoutTitle: 'Stress leave', burnoutLine: 'The company doctor prescribed staying away from spreadsheets indefinitely.',
+  quitLine: 'Voluntary resignation, form signed.', reasonsBurnout: 'What led to the burnout', reasonsQuit: 'What weighed most on your career',
+  profile: 'Profile', badgeTitle: 'ID badge', editBadge: 'Edit badge', nameLabel: 'Name', namePh: 'Your name on the badge', defaultName: 'Employee',
+  avatarLabel: 'Avatar', photoLabel: 'Photo from device', photoPick: 'Choose photo', photoClear: 'Use avatar', save: 'Save',
+  customize: 'Customize computer', hwTitle: 'Your computer', monitorLabel: 'Monitor', keyboardLabel: 'Keyboard', mouseLabel: 'Mouse',
+  allLabel: 'All matching', cream: 'Cream', graphite: 'Graphite', wallLabel: 'Wallpaper', hwNote: 'The hardware shows on the office desk (computer).',
+  walls: { teal: 'Teal', grid: 'Grid', hills: 'Hills', night: 'Night' },
+});
+Object.assign(LANGS.es.ui, {
+  clearSig: 'Borrar firma', confirmSig: 'Confirmar firma', signFirst: 'Firma en el espacio de arriba', cancel: 'Cancelar',
+  certBody: (n, name) => `WORKDAY S.A. certifica que <b>${name}</b>, empleado n.º ${n}, fue ascendido al cargo de`,
+  resignTitle: 'Acta de renuncia voluntaria', resignStamp: 'DESVINCULADO', resignHint: 'Firma para confirmar. Todavía puedes arrepentirte.',
+  resignBody: (name, n) => `Yo, <b>${name}</b>, empleado n.º ${n}, por mi libre voluntad (y sin ninguna reunión de alineamiento previa) termino mi relación laboral con WORKDAY S.A.`,
+  resignClauses: ['Devolveré la engrapadora que nunca fue mía.', 'Reconozco que el café de la cocina seguirá malo sin mí.', 'Renuncio a todas las reuniones que pudieron ser un correo.', 'La planta del escritorio se queda con la empresa. Ya firmó.'],
+  backToWork: 'Volver al trabajo', resignConfirm: 'Confirmar renuncia',
+  burnoutTitle: 'Licencia por estrés', burnoutLine: 'El médico laboral recetó mantenerse lejos de las planillas por tiempo indefinido.',
+  quitLine: 'Renuncia voluntaria, con acta firmada.', reasonsBurnout: 'Lo que llevó al agotamiento', reasonsQuit: 'Lo que más pesó en tu carrera',
+  profile: 'Perfil', badgeTitle: 'Credencial', editBadge: 'Editar credencial', nameLabel: 'Nombre', namePh: 'Tu nombre en la credencial', defaultName: 'Empleado',
+  avatarLabel: 'Avatar', photoLabel: 'Foto del dispositivo', photoPick: 'Elegir foto', photoClear: 'Usar avatar', save: 'Guardar',
+  customize: 'Personalizar computadora', hwTitle: 'Tu computadora', monitorLabel: 'Monitor', keyboardLabel: 'Teclado', mouseLabel: 'Mouse',
+  allLabel: 'Todo igual', cream: 'Crema', graphite: 'Grafito', wallLabel: 'Fondo de pantalla', hwNote: 'El equipo aparece en el escritorio de la oficina (computadora).',
+  walls: { teal: 'Petróleo', grid: 'Cuadriculado', hills: 'Colinas', night: 'Noche' },
+});

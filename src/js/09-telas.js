@@ -12,6 +12,7 @@ function closeModal() { $('modal').classList.add('hidden'); }
 
 function showMenu() {
   document.body.classList.add('menu-mode');
+  if (typeof applyWallpaper === 'function') setTimeout(applyWallpaper, 0);
   music('menu');
   if (S) { S.running = false; S = null; }
   clearDom(); tasksEl.innerHTML = ''; board.innerHTML = ''; $('chips').innerHTML = '';
@@ -44,7 +45,10 @@ function showProfile() {
     [u.files, fmt(s.files)], [u.emails, fmt(s.emails)], [u.calls, fmt(s.calls)], [u.viruses, fmt(s.viruses)], [u.bosses, fmt(s.bosses)],
     [u.videos, fmt(s.videos)], [u.prints, fmt(s.prints)]];
   const card = modal(`<h2>${u.profile}</h2><div class="statgrid">${rows.map(([k, v]) => `<span>${k} <b>${v}</b></span>`).join('')}</div>
-    <div class="actions"><button class="pxbtn main" id="b">${u.back}</button></div>`);
+    <div class="actions"><button class="pxbtn" id="eb">${u.editBadge}</button><button class="pxbtn main" id="b">${u.back}</button></div>`);
+  card.querySelector('.statgrid').before(Object.assign(document.createElement('div'), { className: 'over-who' }));
+  card.querySelector('.over-who').append(portrait(3), Object.assign(document.createElement('b'), { textContent: profileName() + ' · Nº ' + EMP_ID }));
+  card.querySelector('#eb').onclick = () => showBadge(showProfile);
   card.querySelector('#b').onclick = showMenu;
 }
 
@@ -59,6 +63,7 @@ function showSettings(onBack) {
     <div class="setting"><span>${u.soundLabel}</span>${seg('sound', [['1', u.soundOn], ['0', u.soundOff]], soundOn ? '1' : '0')}</div>
     <div class="setting"><span>${u.musicLabel}</span><input type="range" class="pxrange" id="volMusic" min="0" max="100" value="${Math.round(VOL.music * 100)}" aria-label="${u.musicLabel}"></div>
     <div class="setting"><span>${u.sfxLabel}</span><input type="range" class="pxrange" id="volSfx" min="0" max="100" value="${Math.round(VOL.sfx * 100)}" aria-label="${u.sfxLabel}"></div>
+    <div class="setting"><span>${u.badgeTitle}</span><div class="seg"><button class="pxbtn" id="editBadge">${u.editBadge}</button><button class="pxbtn" id="custom">${u.customize}</button></div></div>
     <div class="setting"><span>${u.tutorial}</span><div class="seg"><button class="pxbtn" id="tut">${u.tutorialReset}</button></div></div>
     <div class="setting"><span>${u.progress}</span><div class="seg" id="eraseBox"><button class="pxbtn" id="erase">${u.erase}</button></div></div>
     <div class="actions"><button class="pxbtn main" id="b">${u.back}</button></div>`);
@@ -75,6 +80,8 @@ function showSettings(onBack) {
   card.querySelector('#volMusic').oninput = e => { VOL.music = e.target.value / 100; applyVolumes(); };
   card.querySelector('#volSfx').oninput = e => { VOL.sfx = e.target.value / 100; applyVolumes(); };
   card.querySelector('#volSfx').onchange = () => sfx('ok');
+  card.querySelector('#editBadge').onclick = () => showBadge(() => showSettings(onBack));
+  card.querySelector('#custom').onclick = () => showCustomize(() => showSettings(onBack));
   const tut = card.querySelector('#tut');
   tut.onclick = () => { P.seen = []; persist(); tut.textContent = u.tutorialDone; tut.disabled = true; };
   card.querySelector('#erase').onclick = () => {

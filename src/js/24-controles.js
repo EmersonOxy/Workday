@@ -10,12 +10,13 @@ function setPaused(p) {
 
 document.addEventListener('keydown', e => {
   if (e.target === kb) return;
+  if (e.target.tagName === 'INPUT' && e.target.type === 'text' || e.target.id === 'bgName') return;   // digitando o nome no crachá
   const typingTask = S && S.phase === 'day' && !S.paused ? S.tasks.find(k => k.type === 'type' && !k.dead) : null;
   if ((e.key === 'm' || e.key === 'M') && !typingTask) { setSound(!soundOn); return; }
   if (!S || S.phase !== 'day') return;
   if (e.key === 'Escape') {
     e.preventDefault();
-    if (S.bossAlert && !S.paused) dodgeBoss(); else if (S.bossAuto <= 0 && !$('modal').classList.contains('hidden') && S.paused) closeModal(); else if (S.bossAuto <= 0) setPaused(!S.paused);
+    if (S.bossAlert && !S.paused) dodgeBoss(); else if (S.bossAuto <= 0 && !$('modal').classList.contains('hidden') && S.paused) { const back = $('modal').querySelector('#rsCancel, #bgBack, #hwOk'); if (back && !back.disabled) back.click(); else if (!back) closeModal(); } else if (S.bossAuto <= 0) setPaused(!S.paused);
     return;
   }
   if (S.bossAuto > 0) return;

@@ -185,7 +185,9 @@ const SFX = {
   blind: () => { noise({ f: 2200 + Math.random() * 900, d: 0.03, v: 0.12, q: 3 }); tone({ type: 'square', f: 180, d: 0.015, v: 0.03 }); },
   heart: () => { tone({ type: 'sine', f: 70, f2: 45, d: 0.14, v: 0.35 }); tone({ type: 'sine', f: 65, f2: 42, d: 0.14, v: 0.25, at: 0.18 }); },
 };
+let sfxAt = 0;
 function sfx(name) {
+  sfxAt = performance.now();
   if (!soundOn || !A.ctx || A.ctx.state !== 'running' || !SFX[name]) return;
   try { SFX[name](); } catch (e) {}
 }
@@ -198,3 +200,12 @@ function setSound(on, silent) {
 }
 $('soundBtn').onclick = e => { setSound(!soundOn); e.currentTarget.blur(); };
 
+// Menus, configurações, abas e opções: um clique discreto quando o próprio botão não tocou nada.
+// O som do botão (se houver) toca no handler; este só preenche o silêncio, então nunca há som duplicado.
+document.addEventListener('click', e => {
+  const b = e.target.closest('button, .xl-tab, select, .pxrange');
+  if (!b || b.disabled || b.closest('#pad') || b.classList.contains('tchip')) return;
+  const t0 = performance.now();
+  setTimeout(() => { if (sfxAt < t0) sfx(b.matches('.main, #pok, #pok2') ? 'pop' : 'click'); }, 0);
+});
+document.addEventListener('change', e => { if (e.target.matches('select, input[type=checkbox]')) { const t0 = performance.now(); setTimeout(() => { if (sfxAt < t0) sfx('click'); }, 0); } });

@@ -42,7 +42,7 @@ function buildSheet(paused) {
   box.querySelectorAll('[data-a]').forEach(b => b.onclick = () => {
     if (b.dataset.a === 'resume') setPaused(false);
     if (b.dataset.a === 'cfg') showSettings(closeModal);
-    if (b.dataset.a === 'quit') { hideSheet(); S.paused = false; gameOver(); }
+    if (b.dataset.a === 'quit') showResign();
   });
 }
 function showSheet(paused) {
@@ -73,26 +73,19 @@ function promote() {
   const u = U();
   const card = modal(`<div class="cert"><div class="cert-in">
       <div class="cert-head">${u.certTitle}</div>
-      <p class="cert-body">${u.certBody(EMP_ID)}</p>
+      <p class="cert-body">${u.certBody(EMP_ID, profileName())}</p>
       <div class="cert-rank">${L.ranks[S.rankIdx]}</div>
-      <div class="cert-foot"><div class="cert-sign"><canvas class="sig" width="160" height="40"></canvas><i class="line"></i><small>${u.signature}</small></div><span class="seal"></span></div>
+      <div class="cert-foot"><span class="cert-portrait"></span><span class="slot-sig"></span><span class="seal"></span></div>
     </div></div>
     <p class="cert-hint">${u.signHint}</p>
     <div class="envs"></div><div class="actions" hidden><button class="pxbtn main" id="pok">${u.resume}</button></div>`);
   card.classList.add('promo-card');
   card.querySelector('.seal').append(Pixel.el(ENV.seal, 3));
-  // Assinatura: traço em pixels (canvas pequeno ampliado por escala inteira)
-  const cv = pxFit(card.querySelector('.sig'), () => [Math.min(320, innerWidth * .6), 80]), cx = cv.getContext('2d');
-  let last = null, ink = 0, signed = false;
-  const at = e => { const r = cv.getBoundingClientRect(); return [Math.round((e.clientX - r.left) / r.width * cv.width), Math.round((e.clientY - r.top) / r.height * cv.height)]; };
-  const dot = (x, y) => { cx.fillStyle = '#463462'; cx.fillRect(x, y, 1, 1); };
-  const line = (a, b) => { let [x0, y0] = a; const [x1, y1] = b, dx = Math.abs(x1 - x0), dy = -Math.abs(y1 - y0), sx = x0 < x1 ? 1 : -1, sy = y0 < y1 ? 1 : -1; let err = dx + dy;
-    for (;;) { dot(x0, y0); if (x0 === x1 && y0 === y1) break; const e2 = 2 * err; if (e2 >= dy) { err += dy; x0 += sx; } if (e2 <= dx) { err += dx; y0 += sy; } } };
-  cv.onpointerdown = e => { if (signed) return; cv.setPointerCapture(e.pointerId); last = at(e); dot(...last); };
-  cv.onpointermove = e => { if (!last || signed) return; const p = at(e); ink += Math.hypot(p[0] - last[0], p[1] - last[1]); line(last, p); last = p; if (ink > 4 && (ink | 0) % 9 === 0) sfx('key'); };
-  cv.onpointerup = cv.onpointercancel = () => { last = null; if (!signed && ink > 60) sign(); };
+  card.querySelector('.cert-portrait').append(portrait(2));
+  // Assinatura com quantos traços quiser; só vale ao confirmar
+  card.querySelector('.slot-sig').replaceWith(sigPad(u.signature, () => sign()));
   const sign = () => {
-    signed = true; sfx('level');
+    sfx('level');
     const st = document.createElement('span'); st.className = 'cert-stamp'; st.textContent = u.promoted; card.querySelector('.cert-in').append(st); Motion.stamp(st);
     card.querySelector('.cert-hint').textContent = u.pickEnvelope;
     const envs = card.querySelector('.envs');
@@ -112,13 +105,28 @@ function promote() {
     const frames = [ENV.half, ENV.open];
     frames.forEach((f, i) => setTimeout(() => { b.querySelector('canvas').replaceWith(Pixel.el(f, 5)); sfx('key'); }, 140 + i * 130));
     setTimeout(() => {
+      // A carta sai do envelope e cresce até o centro, em degraus (como um sprite sendo ampliado), com brilho passando
       const letter = document.createElement('div'); letter.className = 'letter';
-      letter.innerHTML = `<small>${u.perkLabel}</small><b>${L.perks[k][0]}</b><span>${L.perks[k][1]}</span>`;
-      b.append(letter); sfx('coin');
-      Motion.play(letter, [{ transform: 'translate(-50%, 30%) scale(.8)', opacity: 0 }, { transform: 'translate(-50%,-34%) scale(1.04)', opacity: 1, offset: .7 }, { transform: 'translate(-50%,-26%) scale(1)', opacity: 1 }], { duration: 520, easing: Motion.E.out });
+      b.append(letter);
+      Motion.play(letter, [{ transform: 'translate(-50%, 30%) scale(.8)', opacity: 0 }, { transform: 'translate(-50%,-30%) scale(1)', opacity: 1 }], { duration: 260, easing: Motion.E.out });
       S.perks.add(k);
-      const act = card.querySelector('.actions'); act.hidden = false; Motion.enter(act, 'down');
+      setTimeout(() => perkReveal(card, k, b), 300);
     }, 460);
   };
   card.querySelector('#pok').onclick = () => { closeModal(); card.classList.remove('promo-card'); S.phase = 'day'; S.last = performance.now(); renderDesk(); sfx('ok'); };
+}
+// Carta do benefício em destaque: centralizada, grande, com moldura em pixel e leitura confortável
+function perkReveal(card, k, env) {
+  const u = U(), from = env.getBoundingClientRect();
+  const ov = document.createElement('div'); ov.className = 'perk-reveal';
+  ov.innerHTML = `<div class="perk-card"><small>${u.perkLabel}</small><b>${L.perks[k][0]}</b><span>${L.perks[k][1]}</span><i class="shine"></i>
+    <button class="pxbtn main" id="pok2">${u.resume}</button></div>`;
+  card.append(ov);
+  const pc = ov.querySelector('.perk-card'), to = pc.getBoundingClientRect();
+  const dx = from.left + from.width / 2 - (to.left + to.width / 2), dy = from.top - (to.top + to.height / 2);
+  sfx('coin');
+  Motion.play(ov, [{ opacity: 0 }, { opacity: 1 }], { duration: 200, easing: 'steps(4)' });
+  Motion.play(pc, [{ transform: `translate(${dx}px,${dy}px) scale(.2)` }, { transform: 'translate(0,-6px) scale(1.06)', offset: .75 }, { transform: 'none' }], { duration: 560, easing: 'steps(9)' });
+  setTimeout(() => sfx('level'), 420);
+  ov.querySelector('#pok2').onclick = () => card.querySelector('#pok').click();
 }

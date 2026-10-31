@@ -1,0 +1,66 @@
+  /* ===== Assinatura reutilizável ===== */
+  .cert-sign .sig-actions { display: flex; gap: .5em; justify-content: center; margin-top: .45em; }
+  .cert-sign .sig-actions .pxbtn { font-size: .95em; padding: 1px 10px 4px; }
+  .cert-sign.signed .sig { cursor: default; }
+  .cert-sign.signed .sig-actions { visibility: hidden; }
+  .cert-portrait { display: grid; place-items: center; padding: 3px; background: #fbf3e2; box-shadow: 0 0 0 2px #2a1f2d, inset 0 -3px 0 #dcc6a0; align-self: center; }
+  .letter:empty { height: 2.6em; background: repeating-linear-gradient(#fff8ec 0 .5em, #dcc6a0 .5em calc(.5em + 2px)); }
+
+  /* ===== Carta do benefício em destaque ===== */
+  .perk-reveal { position: absolute; inset: -12px; z-index: 5; display: grid; place-items: center; background: rgba(42,31,45,.72); }
+  .perk-card { position: relative; width: min(30em, 92%); padding: 1.4em 1.6em 1.2em; overflow: hidden; display: flex; flex-direction: column; gap: .5em; align-items: center; text-align: center;
+    background: #fff8ec; color: #2a1f2d; font-family: var(--pixel);
+    box-shadow: 0 0 0 3px #2a1f2d, inset 0 0 0 5px #f4c15d, inset 0 0 0 8px #c98a2e, 0 10px 0 rgba(42,31,45,.35); }
+  .perk-card small { color: #8a5420; letter-spacing: 3px; text-transform: uppercase; font-size: 1.05em; }
+  .perk-card b { font-weight: normal; font-size: 2.3em; line-height: 1; color: #2f8a45; text-shadow: 0 3px 0 #c4ebb5; }
+  .perk-card span { font-size: 1.35em; line-height: 1.2; max-width: 22em; color: #4a3a4e; }
+  .perk-card .pxbtn { margin-top: .4em; font-size: 1.3em; }
+  .perk-card .shine { position: absolute; top: 0; bottom: 0; width: 2.5em; left: -3em; background: rgba(255,255,255,.55); transform: skewX(-20deg); animation: shine 1.6s steps(10) .5s 2; pointer-events: none; }
+  @keyframes shine { to { left: 110%; } }
+
+  /* ===== Termo de rescisão (parente do certificado, em tons de cartório) ===== */
+  .resign .cert-head { color: #a8262a; }
+  .resign { box-shadow: 0 0 0 3px #2a1f2d, inset 0 0 0 4px #dcc6a0, inset 0 0 0 6px #8f7d63; }
+  .resign .cert-in { box-shadow: inset 0 0 0 2px #8f7d63; }
+  .clauses { text-align: left; margin: .3em auto .6em; max-width: 30em; padding-left: 1.6em; font-family: var(--pixel); font-size: 1.05em; color: #4a3a4e; }
+  .clauses li { margin: .15em 0; }
+  .clauses li::marker { color: #a8262a; }
+  .resign-stamp { top: 22%; right: 6%; }
+  .resign-card .actions { justify-content: center; }
+
+  /* ===== Fim de carreira ===== */
+  .over-who { display: flex; align-items: center; justify-content: center; gap: .5em; font-family: var(--pixel); }
+  .over-face { display: inline-grid; padding: 2px; background: #fbf3e2; box-shadow: 0 0 0 2px #2a1f2d; }
+
+  /* ===== Crachá ampliado ===== */
+  .badge-card { max-width: 34em !important; text-align: center; }
+  .badge-big { display: flex; flex-direction: column; align-items: center; margin: 0 auto .8em; }
+  .bg-clip { width: 3.2em; height: 1.1em; background: #9aa0ab; box-shadow: 0 0 0 2px #2a1f2d, inset 0 -3px 0 #626875; margin-bottom: -2px; position: relative; z-index: 1; }
+  .bg-card { width: 15em; padding: 0 0 .9em; background: #fff8ec; color: #2a1f2d; font-family: var(--pixel); display: flex; flex-direction: column; align-items: center; gap: .2em;
+    box-shadow: 0 0 0 3px #2a1f2d, inset 0 -5px 0 #dcc6a0, 0 8px 0 rgba(42,31,45,.3); }
+  .bg-head { align-self: stretch; background: #6f93d9; color: #fff8ec; letter-spacing: 2px; padding: .35em 0; box-shadow: inset 0 -3px 0 #44609f; margin-bottom: .6em; }
+  .bg-photo { display: grid; place-items: center; padding: 4px; background: #c3d5ff; box-shadow: 0 0 0 2px #2a1f2d; }
+  .bg-name { font-weight: normal; font-size: 1.6em; margin-top: .3em; max-width: 9em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .bg-rank { color: #8f7d63; }
+  .bg-num { font-size: .9em; }
+  .bg-bar { width: 10em; height: 1.4em; background: repeating-linear-gradient(90deg, #2a1f2d 0 2px, transparent 2px 4px, #2a1f2d 4px 7px, transparent 7px 9px); margin-top: .3em; }
+  .bg-edit { display: flex; flex-direction: column; gap: .6em; text-align: left; font-family: var(--pixel); }
+  .bg-edit label { display: flex; flex-direction: column; gap: .2em; }
+  .bg-edit input { font: 1.2em var(--pixel); padding: .3em .5em; border: 0; background: var(--card); color: var(--ink); box-shadow: 0 0 0 2px var(--ink), inset 0 3px 0 var(--line); }
+  .bg-row { display: flex; flex-wrap: wrap; align-items: center; gap: .5em; }
+  .bg-row > span { min-width: 7em; }
+  .bg-avs { display: flex; flex-wrap: wrap; gap: .4em; }
+  .bg-av { padding: 3px !important; line-height: 0; }
+  .bg-av.on { background: var(--hl) !important; box-shadow: 0 0 0 2px var(--ink), 0 0 0 5px #f4c15d !important; }
+
+  /* ===== Personalização do computador ===== */
+  .hw-card { max-width: 38em !important; }
+  .hw-prev { display: grid; place-items: center; margin: .4em 0 .8em; }
+  .hw-scene { image-rendering: pixelated; box-shadow: 0 0 0 2px var(--ink); }
+  .walls { display: flex; flex-wrap: wrap; gap: .5em; }
+  .wall { display: flex; flex-direction: column; align-items: center; gap: .2em; padding: 4px !important; }
+  .wall canvas { image-rendering: pixelated; box-shadow: 0 0 0 1px var(--ink); }
+  .wall.on { background: var(--hl) !important; }
+  /* Opção escolhida continua legível sob o cursor; no toque, o realce de hover não "gruda" */
+  .pxbtn.on:hover:not(:disabled) { background: var(--ink) !important; color: var(--card) !important; }
+  @media (hover: none) { .pxbtn:hover:not(.on):not(.main):not(:disabled) { background: var(--card); } .pxbtn.main:hover:not(:disabled) { background: var(--ink); } }

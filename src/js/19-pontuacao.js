@@ -7,7 +7,23 @@ function flash(text, color, x, y) {
   board.append(el);
   setTimeout(() => el.remove(), 800);
 }
-function addStress(n) { S.stress = Math.max(0, Math.min(100, S.stress + n)); if (n > 0 && S.stress >= 100) S.burnout = true; }
+// O valor muda e a barra acompanha no mesmo instante; o "dano" (faixa clara do trecho recém-somado) tem tempo próprio
+function addStress(n) {
+  const before = S.stress;
+  S.stress = Math.max(0, Math.min(100, S.stress + n));
+  if (n > 0 && S.stress >= 100) S.burnout = true;
+  if (n >= 1 && S.phase === 'day') { stressBar(); stressHit(before, S.stress); }
+}
+function stressBar() {
+  hudSet('stress', 'width', S.stress.toFixed(1) + '%');
+  hudSet('stress', 'background', S.stress < 50 ? 'var(--fin)' : S.stress < 75 ? 'var(--warn)' : 'var(--danger)');
+}
+function stressHit(a, b) {
+  const h = $('stressHit'); if (!h || b <= a) return;
+  h.style.left = a + '%'; h.style.width = (b - a) + '%';
+  Motion.play(h, [{ opacity: 1, background: 'var(--card)' }, { opacity: 1, background: 'var(--card)', offset: .25 }, { opacity: 1, background: 'var(--danger)', offset: .3 }, { opacity: 0, background: 'var(--danger)' }],
+    { duration: 520, easing: 'steps(6)', fill: 'forwards' });
+}
 function blame(cause, n) { S.causes[cause] = (S.causes[cause] || 0) + n; S.careerCauses[cause] = (S.careerCauses[cause] || 0) + n; addStress(n); }
 function success(base, x, y) {
   const m0 = mult();

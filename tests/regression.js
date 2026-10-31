@@ -87,7 +87,7 @@ async function desktop(browser, url, label) {
   ok(!!await p.$('#shopb'), 'ticket rasgado e ações do fim do dia');
   await p.click('#shopb'); await p.waitForTimeout(1100);
   for (const id of ['cafe', 'foto', 'trofeu']) { await p.click(`.slot[data-id=${id}]`); await p.waitForTimeout(650); }
-  await p.evaluate(() => { P.wallet = 300; }); await p.click('#tocash'); await p.waitForTimeout(1000);
+  await p.evaluate(() => { P.wallet = 300; Math.random = (r => () => (r = (r * 9301 + 49297) % 233280) / 233280)(7); }); await p.click('#tocash'); await p.waitForTimeout(1000);
   const s = await (await p.$('.scanner')).boundingBox();
   for (let k = 0; k < 12; k++) {
     const it = await p.$('.lane-in .belt-item'); if (!it) break; const ib = await it.boundingBox();
@@ -174,6 +174,91 @@ function paletteLint() {
   ok(r.status === 0, 'todas as cores do código na paleta WORKDAY' + (r.status ? ': ' + r.stdout.trim().split('\n').slice(-3).join(' / ') : ''));
 }
 
+// Entrega 1: estresse imediato, assinatura, promoção, rescisão, crachá, computador, som dos menus
+async function entrega1(browser, url) {
+  console.log('\n[entrega 1] computador');
+  const ctx = await browser.newContext({ viewport: { width: 1366, height: 768 }, locale: 'pt-BR' });
+  const p = await ctx.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message));
+  await p.goto(url); await p.waitForTimeout(400);
+  await p.evaluate(() => { newCareer(); closeScene(); startDay(); S.level = 3; });
+  // 3. estresse: largura muda no mesmo instante do erro
+  ok(await p.evaluate(() => { fail(10, 'x', 'wrong'); return Math.abs(parseFloat($('stress').style.width) - S.stress) < .2 && getComputedStyle($('stress')).transitionDuration.split(',').every(d => parseFloat(d) === 0); }), 'estresse: barra reage no mesmo quadro do erro, sem transição');
+  // 6. som dos menus: um som por clique, sem duplicar
+  await p.evaluate(() => { window._snd = []; const o = sfx; window.sfx = n => { _snd.push(n); return o(n); }; setPaused(true); });
+  await p.waitForTimeout(300);
+  await p.evaluate(() => { _snd = []; document.querySelector('[data-a=cfg]').click(); });
+  await p.waitForTimeout(50);
+  ok(await p.evaluate(() => _snd.length === 1), 'aba da planilha toca exatamente um som');
+  await p.evaluate(() => { _snd = []; document.querySelector('[data-set=theme] button').click(); });
+  await p.waitForTimeout(50);
+  ok(await p.evaluate(() => _snd.length === 1), 'opção das configurações toca exatamente um som');
+  // 2. pedir demissão: cancelar volta ao expediente sem mexer na carreira
+  await p.evaluate(() => { saveCareer(); closeModal(); showSheet(true); document.querySelector('[data-a=quit]').click(); });
+  await p.waitForTimeout(400);
+  ok(await p.evaluate(() => !!document.querySelector('.resign-card .sig') && S.phase === 'day'), 'pedir demissão abre o termo, sem encerrar a carreira');
+  await p.click('#rsCancel'); await p.waitForTimeout(300);
+  ok(await p.evaluate(() => S.phase === 'day' && S.paused && !$('boss').classList.contains('hidden') && !!localStorage.getItem('expediente-carreira')), 'cancelar o termo volta à pausa com a carreira intacta');
+  // 4. assinatura: vários traços, nada finaliza ao soltar, limpar e confirmar
+  const stroke = async (sel, x0, x1, y, amp = .15) => { const b = await (await p.$(sel)).boundingBox(); await p.mouse.move(b.x + b.width * x0, b.y + b.height * y); await p.mouse.down(); for (let i = 1; i <= 8; i++) await p.mouse.move(b.x + b.width * (x0 + (x1 - x0) * i / 8), b.y + b.height * (y + (i % 2 ? amp : -amp))); await p.mouse.up(); };
+  await p.evaluate(() => document.querySelector('[data-a=quit]').click()); await p.waitForTimeout(400);
+  await stroke('.resign-card .sig', .1, .13, .5, 0);
+  const st1 = await p.evaluate(() => [document.querySelector('[data-s=ok]').disabled, document.querySelector('[data-s=clear]').disabled, !!document.querySelector('.resign-stamp')]);
+  await stroke('.resign-card .sig', .3, .9, .5);
+  const st2 = await p.evaluate(() => [document.querySelector('[data-s=ok]').disabled, !!document.querySelector('.resign-stamp')]);
+  ok(st1[0] && !st1[1] && !st1[2] && !st2[0] && !st2[1], 'assinatura aceita vários traços e só finaliza ao confirmar');
+  await p.click('[data-s=clear]');
+  ok(await p.evaluate(() => document.querySelector('[data-s=ok]').disabled && document.querySelector('[data-s=clear]').disabled), 'limpar assinatura zera o desenho');
+  await stroke('.resign-card .sig', .1, .9, .5); await p.click('[data-s=ok]'); await p.waitForTimeout(1600);
+  ok(await p.evaluate(() => S.phase === 'over' && S.endReason === 'quit' && document.querySelector('.over-card h2').textContent === U().quitTitle && !localStorage.getItem('expediente-carreira')), 'termo assinado encerra a carreira como demissão voluntária');
+  // estresse: relatório diferente
+  await p.evaluate(() => { newCareer(); closeScene(); startDay(); addStress(100); }); await p.waitForTimeout(300);
+  ok(await p.evaluate(() => S.endReason === 'burnout' && document.querySelector('.over-card h2').textContent === U().burnoutTitle), 'estresse em 100 gera afastamento, não pedido de demissão');
+  // 9. crachá: nome e avatar salvos, aparecem no certificado
+  await p.evaluate(() => { newCareer(); closeScene(); startDay(); showBadge(); });
+  await p.fill('#bgName', 'Ana Teste'); await p.click('.bg-av >> nth=2'); await p.click('#bgSave');
+  ok(await p.evaluate(() => JSON.parse(localStorage.getItem('expediente-perfil')).name === 'Ana Teste' && PROFILE.avatar === 2), 'crachá salva nome e avatar');
+  ok(await p.evaluate(() => { const r = photoToRows((() => { const c = document.createElement('canvas'); c.width = 40; c.height = 40; const x = c.getContext('2d'); x.fillStyle = '#c33'; x.fillRect(0, 0, 40, 40); x.fillStyle = '#3c3'; x.fillRect(10, 10, 20, 20); return c; })());
+    return r.length === 18 && r.every(row => row.length === 16 && [...row].every(ch => ch in WD_PAL)); }), 'foto vira grade 16×18 só com cores da paleta');
+  // 1. promoção: assinatura confirmada, carta grande e centralizada
+  await p.evaluate(() => { closeModal(); S.score = 400; S.phase = 'day'; promote(); }); await p.waitForTimeout(500);
+  ok(await p.evaluate(() => document.querySelector('.cert-body').textContent.includes('Ana Teste')), 'certificado mostra o nome do crachá');
+  await stroke('.promo-card .sig', .1, .9, .5); await p.click('[data-s=ok]'); await p.waitForTimeout(700);
+  await p.click('.env >> nth=0'); await p.waitForTimeout(1300);
+  ok(await p.evaluate(() => { const c = document.querySelector('.perk-card'), r = c.getBoundingClientRect(), m = $('modal').querySelector('.card').getBoundingClientRect();
+    return r.width > 330 && Math.abs((r.left + r.width / 2) - (m.left + m.width / 2)) < 8 && parseFloat(getComputedStyle(c.querySelector('b')).fontSize) > 28; }), 'carta do benefício grande, centralizada e legível');
+  await p.click('#pok2'); await p.waitForTimeout(200);
+  ok(await p.evaluate(() => S.phase === 'day' && $('modal').classList.contains('hidden')), 'continuar após o benefício volta ao expediente');
+  // 7. computador: acabamento salvo e desenhado na mesa
+  await p.evaluate(() => showCustomize()); await p.click('[data-hw=all] [data-v=graphite]'); await p.waitForTimeout(300);
+  ok(await p.evaluate(() => { const h = hw(); return h.mon === 'graphite' && h.kb === 'graphite' && h.mouse === 'graphite' && JSON.parse(localStorage.getItem('expediente-config')).hw.kb === 'graphite'; }), 'personalização combinada salva');
+  await p.click('[data-hw=mouse] [data-v=cream]'); await p.click('#hwOk'); await p.waitForTimeout(400);
+  ok(await p.evaluate(() => { const L = OFFICE.L, c = Office.bake(L, officeState()).getContext('2d'), x = c.getImageData(L.kx + 1, L.VH - 8, 1, 1).data, m = c.getImageData(L.kx + L.kw + 18 + 2, L.VH - 10, 1, 1).data;
+    const hex = d => '#' + [0, 1, 2].map(i => d[i].toString(16).padStart(2, '0')).join(''); return hex(x) === Office.HW.graphite.base && hex(m) === Office.HW.cream.base; }), 'teclado grafite e mouse creme desenhados na mesa (cores independentes)');
+  // 9. clique no crachá da mesa
+  const bp = await p.evaluate(() => { const b = Office.badgeRect(OFFICE.L), k = OFFICE.M.k; return [(b.x + 6) * k, (b.y + 16) * k]; });
+  await p.mouse.click(bp[0], bp[1]); await p.waitForTimeout(500);
+  ok(await p.evaluate(() => !!document.querySelector('.badge-card') && S.paused), 'clicar no crachá da mesa abre o crachá e congela o expediente');
+  await p.keyboard.press('Escape'); await p.waitForTimeout(200);
+  ok(await p.evaluate(() => $('modal').classList.contains('hidden') && !S.paused), 'Esc fecha o crachá e retoma');
+  // papel de parede
+  await p.evaluate(() => { setHw({ wall: 'hills' }); showMenu(); }); await p.waitForTimeout(300);
+  ok(await p.evaluate(() => /data:image/.test($('osdesk').style.backgroundImage)), 'papel de parede aplicado na área de trabalho');
+  await p.evaluate(() => setHw({ wall: 'teal', mon: 'cream', kb: 'cream', mouse: 'cream' }));
+  ok(errs.length === 0, 'sem erros de JavaScript' + (errs.length ? ': ' + errs.join(' | ') : ''));
+  await ctx.close();
+  console.log('\n[entrega 1] celular');
+  const m = await (await browser.newContext({ ...devices['iPhone 13'], locale: 'pt-BR' })).newPage(); const merr = []; m.on('pageerror', e => merr.push(e.message));
+  await m.goto(url); await m.waitForTimeout(300);
+  await m.evaluate(() => { newCareer(); closeScene(); startDay(); setPaused(true); document.querySelector('[data-a=cfg]').click(); });
+  await m.waitForTimeout(300); await m.tap('#editBadge'); await m.waitForTimeout(300);
+  ok(await m.evaluate(() => !!document.querySelector('.badge-card .bg-photo canvas')), 'celular: crachá acessível pelas configurações');
+  await m.evaluate(() => { closeModal(); showSheet(true); document.querySelector('[data-a=quit]').click(); }); await m.waitForTimeout(400);
+  const sb = await (await m.$('.resign-card .sig')).boundingBox();
+  for (const [a, c] of [[.1, .4], [.5, .9]]) { await m.mouse.move(sb.x + sb.width * a, sb.y + sb.height / 2); await m.mouse.down(); for (let i = 1; i <= 8; i++) await m.mouse.move(sb.x + sb.width * (a + (c - a) * i / 8), sb.y + sb.height * (i % 2 ? .3 : .7)); await m.mouse.up(); }
+  ok(await m.evaluate(() => !document.querySelector('[data-s=ok]').disabled && !document.querySelector('.resign-stamp')), 'celular: assinatura com dois traços, aguardando confirmação');
+  ok(merr.length === 0, 'celular: sem erros de JavaScript' + (merr.length ? ': ' + merr.join(' | ') : ''));
+}
+
 (async () => {
   paletteLint();
   const browser = await chromium.launch({ args: ['--autoplay-policy=no-user-gesture-required'] });
@@ -182,7 +267,7 @@ function paletteLint() {
   else {
     const srv = await serve(path.join(ROOT, 'dist', 'web'));
     const web = `http://localhost:${srv.address().port}/index.html`;
-    await desktop(browser, web, 'versão web (servidor)'); await mobile(browser, web); await audio(browser, web, 'versão web');
+    await desktop(browser, web, 'versão web (servidor)'); await mobile(browser, web); await entrega1(browser, web); await audio(browser, web, 'versão web');
     await audio(browser, 'file://' + path.join(ROOT, 'dist', 'workday.html'), 'arquivo único offline (file://)');
     await offline(browser, 'file://' + path.join(ROOT, 'dist', 'workday.html'));
     srv.close();

@@ -109,7 +109,7 @@ function update(dt) {
   musicStress(S.stress);
   if (S.stress >= 80 && (S.heartT = (S.heartT || 0) - dt) <= 0) { S.heartT = 1.1 - (S.stress - 80) / 40; sfx('heart'); }
   hud();
-  if (S.burnout) { gameOver(); return; }
+  if (S.burnout) { gameOver('burnout'); return; }
   if (rankIdx(S.score) > S.rankIdx) promote();
 }
 
@@ -143,8 +143,7 @@ function hud() {
   hudSet('score', 'text', fmt(S.score));
   hudSet('mult', 'text', '×' + mult() + (S.combo ? ` (${S.combo})` : ''));
   hudSet('rank', 'text', L.ranks[S.rankIdx]);
-  hudSet('stress', 'width', S.stress.toFixed(1) + '%');
-  hudSet('stress', 'background', S.stress < 50 ? 'var(--fin)' : S.stress < 75 ? 'var(--warn)' : 'var(--danger)');
+  stressBar();
   hudFlag('vignette', 'on', S.phase === 'day' && S.stress >= 80);
 }
 
