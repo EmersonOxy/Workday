@@ -459,3 +459,15 @@ Object.assign(LANGS.es.call, {
   bad: ['Al menos lo intentaste. Es lo que decimos en la evaluación.', 'Hmm. Llamémoslo calentamiento.', 'Tranquilo, yo también perdí contra la impresora hoy.'],
   bye: ['¡Me voy! Viene el jefe.', '¡Chau! Si preguntan, era reunión de alineamiento.', '¡Gracias! Nos vemos en tres días. O cuando se cuelgue la planilla.', 'Voy a regar a Firewall. ¡Hasta luego!', 'Segundo round contra la impresora. ¡Deséame suerte!'],
 });
+Object.assign(LANGS.pt.ui.walls, { ondas: 'Ondas', cidade: 'Cidade', logo: 'Logotipo', blocos: 'Blocos' });
+Object.assign(LANGS.en.ui.walls, { ondas: 'Waves', cidade: 'City', logo: 'Logo', blocos: 'Blocks' });
+Object.assign(LANGS.es.ui.walls, { ondas: 'Olas', cidade: 'Ciudad', logo: 'Logotipo', blocos: 'Bloques' });
+Object.assign(LANGS.pt.shop, { cacto: ['Cacto', 'Fica em cima do monitor. Não precisa de água, só de paciência.'], radio: ['Rádio retrô', 'Toca baixinho em cima do monitor.'], aquario: ['Aquário', 'Um peixinho que trabalha mais tranquilo que você.'] });
+Object.assign(LANGS.en.shop, { cacto: ['Cactus', 'Sits on the monitor. Needs no water, only patience.'], radio: ['Retro radio', 'Plays softly on top of the monitor.'], aquario: ['Fishbowl', 'A fish that works more calmly than you.'] });
+Object.assign(LANGS.es.shop, { cacto: ['Cactus', 'Va encima del monitor. No necesita agua, solo paciencia.'], radio: ['Radio retro', 'Suena bajito encima del monitor.'], aquario: ['Pecera', 'Un pez que trabaja más tranquilo que tú.'] });
+Object.assign(LANGS.pt.ui, { catLabel: 'Gato', coats: { tricolor: 'Tricolor', 'cinza-tigrado': 'Tigrado cinza', 'laranja-tigrado': 'Tigrado laranja', laranja: 'Laranja', preto: 'Preto', branco: 'Branco', frajola: 'Frajola', siames: 'Siamês' } });
+Object.assign(LANGS.en.ui, { catLabel: 'Cat', coats: { tricolor: 'Calico', 'cinza-tigrado': 'Gray tabby', 'laranja-tigrado': 'Orange tabby', laranja: 'Orange', preto: 'Black', branco: 'White', frajola: 'Tuxedo', siames: 'Siamese' } });
+Object.assign(LANGS.es.ui, { catLabel: 'Gato', coats: { tricolor: 'Tricolor', 'cinza-tigrado': 'Atigrado gris', 'laranja-tigrado': 'Atigrado naranja', laranja: 'Naranja', preto: 'Negro', branco: 'Blanco', frajola: 'Esmoquin', siames: 'Siamés' } });
+LANGS.pt.ui.tagline = 'Um expediente aconchegante que vai perdendo o controle.';
+LANGS.en.ui.tagline = 'A cozy workday that slowly loses control.';
+LANGS.es.ui.tagline = 'Una jornada acogedora que se va descontrolando.';

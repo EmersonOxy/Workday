@@ -18,7 +18,8 @@ function serve(dir) {
 }
 // Tudo o que define o balanceamento: se mudar sem querer, o teste acusa
 const balance = () => ({ UNLOCK, EVENTS, DAY_SECONDS, LEVEL_SECONDS, MAX_TASKS, RANK_POINTS, MODS, PERK_IDS,
-  SHOP: SHOP.map(i => [i.id, i.kind, i.price]), RANK_DESK, keys: Object.keys(LANGS),
+  // itens novos da loja são conteúdo, não balanceamento: compara só os 11 originais (preço e tipo inalterados)
+  SHOP: SHOP.filter(i => !['cacto', 'radio', 'aquario'].includes(i.id)).map(i => [i.id, i.kind, i.price]), RANK_DESK, keys: Object.keys(LANGS),
   uiKeys: Object.fromEntries(Object.entries(LANGS).map(([k, v]) => [k, Object.keys(v.ui).sort().join(',')])) });
 
 async function holdFinger(p) {

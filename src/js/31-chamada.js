@@ -85,7 +85,7 @@ function startCall(mode, onExit) {
   Call.mode = mode;
   if (mode === 'work') { S.paused = true; S.resting = true; S.fast = false; muffle(true); }
   const el = document.createElement('div'); el.className = 'vcall';
-  el.innerHTML = `<div class="vc-win"><div class="vc-title"><span>${c.incoming} · ${c.who}</span><b class="rec">●</b></div>
+  el.innerHTML = `<div class="vc-win"><div class="vc-title"><span>${c.incoming} · ${c.who}</span><b class="rec">●</b><button class="vc-x" aria-label="${U().mgQuit}" title="${U().mgQuit}">✕</button></div>
     <div class="vc-body"><div class="vc-cam"><span class="vc-face"></span></div><div class="vc-talk"><p class="vc-line"></p><div class="vc-opts"></div></div></div></div>`;
   uiRoot().append(el); Call.el = el;
   const skip = e => { if (Call.el && Call.skip && !e.target.closest('button, .mg-host')) Call.skip(); };
@@ -93,6 +93,8 @@ function startCall(mode, onExit) {
   Call.key = e => { if (Call.el && !Call.el.classList.contains('playing') && (e.key === ' ' || e.key === 'Enter') && !e.target.closest('button')) { e.preventDefault(); e.stopPropagation(); if (Call.skip) Call.skip(); } };
   addEventListener('keydown', Call.key, true);
   const face = dudaFace(el.querySelector('.vc-face'));
+  // X da janela: no meio de um minigame encerra a partida; fora dele, desliga a chamada
+  el.querySelector('.vc-x').onclick = () => { const h = el.querySelector('.mg-host'); if (h && h._quit) h._quit(); else if (Call.el === el) { sfx('click'); closeCall(mode, onExit); } };
   Motion.play(el.querySelector('.vc-win'), [{ transform: 'scale(.4)', opacity: 0 }, { transform: 'scale(1.06)', opacity: 1, offset: .7 }, { transform: 'scale(1)', opacity: 1 }], { duration: 260, easing: Motion.E.out });
   const finish = async (reaction) => {
     if (reaction) { face.set(reaction === 'bad' ? 'wow' : 'smile', reaction === 'good' ? 'happy' : 'open'); await callSay(pickNew(c[reaction], reaction), null, face); }

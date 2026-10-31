@@ -58,7 +58,7 @@ function sceneIn(sc, sel, gap = 45, delay = 260) {
 // O eletroduto do corredor termina no topo do relógio de ponto: mede o aparelho no HTML e avisa o cenário
 function hallAttach(st, dev) {
   const fit = () => { if (!dev.isConnected) return; const r = dev.getBoundingClientRect(); Stage.set(st, { devTop: Math.round(r.top / st.M.k) }); };
-  requestAnimationFrame(fit); setTimeout(fit, 700); addEventListener('resize', fit);
+  requestAnimationFrame(fit); setTimeout(fit, 700); setTimeout(fit, 1950); dev.addEventListener('animationend', fit); addEventListener('resize', fit);   // inclui o fim do deslize de entrada
   return fit;
 }
 function sceneMsg(sc, text) {

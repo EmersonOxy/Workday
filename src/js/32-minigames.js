@@ -3,13 +3,12 @@
 // e chama done({ score, grade: 'good' | 'ok' | 'bad' }) ao terminar. Não toca em pontos, dinheiro ou cargo.
 const MG = { W: 128, H: 160 };
 function mgStage(host, title, help) {
-  host.innerHTML = `<div class="mg-head"><b>${title}</b><span class="mg-hud"></span><button class="pxbtn mg-x" aria-label="${U().mgQuit}" title="${U().mgQuit}">✕ ${U().mgQuit}</button></div><div class="mg-view"><canvas width="${MG.W}" height="${MG.H}"></canvas><div class="mg-pop"></div></div><p class="mg-help">${help}</p>`;
+  host.innerHTML = `<div class="mg-head"><b>${title}</b><span class="mg-hud"></span></div><div class="mg-view"><canvas width="${MG.W}" height="${MG.H}"></canvas><div class="mg-pop"></div></div><p class="mg-help">${help}</p>`;
   const cv = host.querySelector('canvas');
   pxFit(cv, () => { const v = host.querySelector('.mg-view'); return [v.clientWidth || 256, v.clientHeight || 320]; });
   requestAnimationFrame(() => pxRefit(cv));
   const esc = e => { if (e.key === 'Escape' && host.isConnected && host._quit) { e.preventDefault(); e.stopPropagation(); host._quit(); } };
   addEventListener('keydown', esc, true);
-  host.querySelector('.mg-x').onclick = () => host._quit && host._quit();
   return { cv, x: cv.getContext('2d'), hud: host.querySelector('.mg-hud'), pop: host.querySelector('.mg-pop'), off: () => removeEventListener('keydown', esc, true) };
 }
 function mgPop(stage, text, cls) {

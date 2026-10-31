@@ -22,18 +22,24 @@ const Stage = {
     };
     this.render(st, 0);
     if (kind === 'hall') {
-      Object.assign(opt, { dark: !!(CFG.hall && CFG.hall.dark), curtain: !!(CFG.hall && CFG.hall.curtain) });
+      Object.assign(opt, { dark: CFG.hall && CFG.hall.dark ? 1 : 0, curtain: CFG.hall && CFG.hall.curtain ? 1 : 0 });
       sc.addEventListener('pointerdown', e => {
         if (e.target !== sc || !st.hit) return;
         const x = e.clientX / st.M.k, y = e.clientY / st.M.k, inR = r => r && x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h;
         const k = inR(st.hit.sw) ? 'dark' : inR(st.hit.win) ? 'curtain' : null; if (!k) return;
-        CFG.hall = Object.assign({}, CFG.hall, { [k]: !st.opt[k] }); persist(); sfx(k === 'dark' ? 'switch' : 'blind'); this.set(st, { [k]: !st.opt[k] });
+        const to = st.opt[k] > .5 ? 0 : 1; CFG.hall = Object.assign({}, CFG.hall, { [k]: !!to }); persist(); sfx(k === 'dark' ? 'switch' : 'blind'); this.tween(st, k, to, k === 'dark' ? 380 : 650);
       });
       sc.addEventListener('pointermove', e => { if (e.target !== sc || !st.hit) return; const x = e.clientX / st.M.k, y = e.clientY / st.M.k, inR = r => r && x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h; sc.style.cursor = inR(st.hit.sw) || inR(st.hit.win) ? 'pointer' : ''; });
     }
     if (!Motion.reduced.matches) requestAnimationFrame(loop);
     else addEventListener('resize', () => c.isConnected && this.render(st, 0));
     return st;
+  },
+  // anima um valor do cenário de 0 a 1 em degraus (cortina correndo, luz baixando), redesenhando a cada passo
+  tween(st, key, to, ms) {
+    const from = +st.opt[key] || 0, t0 = performance.now(), steps = Motion.reduced.matches ? 1 : 10;
+    const step = () => { const k = Math.min(1, (performance.now() - t0) / ms), q = Math.ceil(k * steps) / steps; this.set(st, { [key]: from + (to - from) * q }); if (k < 1) requestAnimationFrame(step); };
+    step();
   },
   set(st, opt) { Object.assign(st.opt, opt); st.key = ''; this.render(st, performance.now() / 1000); },
   render(st, t) {
@@ -117,7 +123,7 @@ const Stage = {
     const side = L.cx - 100;                                         // espaço livre de cada lado do relógio
     F(P.C, 0, 0, L.VW, L.floor);
     for (let i = (L.cx % 48) - 24; i < L.VW; i += 48) { F(P.e, i, 7, 1, L.floor); F(P.c, i + 1, 7, 1, L.floor); }
-    this.ceiling(x, L, 120, o.dark ? null : P.c);
+    this.ceiling(x, L, 120, (+o.dark || 0) > .5 ? null : P.c);
     // Rodapé alto de madeira com almofadas
     const wy = L.floor - 26;
     F(P.k, 0, wy - 1, L.VW, 1); F(P[1], 0, wy, L.VW, 2); F(P[3], 0, wy + 2, L.VW, 24); F(P[4], 0, L.floor - 3, L.VW, 3);
@@ -176,18 +182,22 @@ const Stage = {
     // Luz: manhã clara entrando pela janela; fim de tarde alaranjado e sombra arroxeada
     if (o.eve) { x.globalCompositeOperation = 'multiply'; F('rgba(150,100,170,.35)', 0, 0, L.VW, L.VH); x.globalCompositeOperation = 'source-over'; }
     // cortina (clique na janela) e interruptor (clique na plaquinha): só estética
-    if (L.win && o.curtain) { const W = L.win; for (let i = -2; i < W.w + 2; i++) { const f = (i + 2) % 6; F(f === 0 ? P.x : f < 3 ? P.v : P.V, W.x + i, W.y - 2, 1, W.h + 6); } F(P.k, W.x - 4, W.y - 5, W.w + 8, 3); F(P.Z, W.x - 3, W.y - 4, W.w + 6, 1); F(P.x, W.x + (W.w >> 1), W.y - 2, 1, W.h + 6); }
+    const cur = +o.curtain || 0;
+    if (L.win) { const W = L.win, half = (W.w + 4) / 2, open = Math.round(half * (1 - cur) * .82);   // duas folhas correm do meio para as pontas
+      for (const [x0, dir] of [[W.x - 2, 1], [W.x + W.w + 1, -1]]) { const n = Math.max(4, half - open | 0); for (let i = 0; i < n; i++) { const f = i % 6, xx = x0 + dir * i; F(f === 0 ? P.x : f < 3 ? P.v : P.V, xx, W.y - 2, 1, W.h + 6); } F(P.x, x0 + dir * (n - 1), W.y - 2, 1, W.h + 6); }
+      F(P.k, W.x - 4, W.y - 5, W.w + 8, 3); F(P.Z, W.x - 3, W.y - 4, W.w + 6, 1); }
     st.hit = {};
     if (L.win) {
       const sx = L.cx + 120, sy = L.floor - 26 - 18;
-      if (sx + 8 < L.VW) { F(P.k, sx, sy, 8, 12); F(P.c, sx + 1, sy + 1, 6, 10); F(P.e, sx + 6, sy + 1, 1, 10); F(P.k, sx + 3, sy + 3, 2, 6); F(o.dark ? P.e : P.W, sx + 3, o.dark ? sy + 6 : sy + 3, 2, 3); st.hit.sw = { x: sx - 2, y: sy - 2, w: 12, h: 16 }; }
+      if (sx + 8 < L.VW) { F(P.k, sx, sy, 8, 12); F(P.c, sx + 1, sy + 1, 6, 10); F(P.e, sx + 6, sy + 1, 1, 10); F(P.k, sx + 3, sy + 3, 2, 6); F(o.dark > .5 ? P.e : P.W, sx + 3, o.dark > .5 ? sy + 6 : sy + 3, 2, 3); st.hit.sw = { x: sx - 2, y: sy - 2, w: 12, h: 16 }; }
       st.hit.win = { x: L.win.x - 4, y: L.win.y - 4, w: L.win.w + 8, h: L.win.h + 8 };
     }
-    if (o.dark) {   // luzes apagadas: o corredor escurece, a janela (se aberta) continua clara
-      x.save(); x.beginPath(); x.rect(0, 0, L.VW, L.VH); if (L.win && !o.curtain) x.rect(L.win.x, L.win.y, L.win.w, L.win.h); x.clip('evenodd');
-      x.globalCompositeOperation = 'multiply'; F('rgba(60,50,95,.62)', 0, 0, L.VW, L.VH); x.restore();
+    const dk = +o.dark || 0;
+    if (dk > 0) {   // luzes apagando: o corredor escurece aos poucos; a janela (se aberta) continua clara
+      x.save(); x.beginPath(); x.rect(0, 0, L.VW, L.VH); if (L.win && cur < .5) x.rect(L.win.x, L.win.y, L.win.w, L.win.h); x.clip('evenodd');
+      x.globalCompositeOperation = 'multiply'; F(`rgba(60,50,95,${(.62 * dk).toFixed(3)})`, 0, 0, L.VW, L.VH); x.restore();
     }
-    if (L.win && !o.curtain) {
+    if (L.win && cur < .9) {
       const W = L.win, col = o.eve ? 'rgba(255,160,100,.22)' : 'rgba(255,244,200,.20)';
       for (let j = 0; j < L.VH - W.y; j++) Pixel.dither(x, W.x + j * .9 | 0, W.y + j, W.w, 1, col, j);
     }
@@ -395,7 +405,7 @@ const Stage = {
       for (let j = top; j < B.y + 4; j++) for (let i = qx; i < qx + w2; i += 6) { const cell = ((i - qx) / 6 + ((j - top) / 5 | 0)) % 3; G(cell === 0 ? cloth[1] : cell === 1 ? cloth[0] : P.W, i, j, Math.min(6, qx + w2 - i), 1); }
       G(cloth[2], qx, B.y + 2, w2, 2); G(P.W, qx, top, w2, 1); for (let i = qx + 6; i < qx + w2; i += 6) G(cloth[3], i, top + 1, 1, B.y + 2 - top);
       // gato dormindo no pé da cama (se o jogador comprou)
-      if (o.cat) { const cxp = qx + w2 - 22, cyp = top - 8; x.drawImage(Pixel.master(SPR2.cat, WD_PAL), cxp, cyp); G(P[2], cxp + 3, cyp + 4, 2, 1); G(P[2], cxp + 9, cyp + 4, 2, 1); }
+      if (o.cat) { const cxp = qx + w2 - 22, cyp = top - 8; x.drawImage(catCoat(SPR2.cat, o.coat || 'laranja'), cxp, cyp); G(P[2], cxp + 3, cyp + 4, 2, 1); G(P[2], cxp + 9, cyp + 4, 2, 1); }
     },
   },
 };

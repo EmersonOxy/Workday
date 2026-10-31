@@ -18,28 +18,36 @@ function showMenu() {
   clearDom(); tasksEl.innerHTML = ''; board.innerHTML = ''; $('chips').innerHTML = '';
   hud(); renderDesk(); closeScene();
   const u = U(), saved = load('carreira', null);
-  const card = modal(`
-    <div class="logo"><span id="lf"></span><h2>WORKDAY</h2></div>
-    <p class="center hint">${u.record}: ${fmt(P.best)} · ${u.wallet}: ${money(P.wallet)}</p>
-    <div class="menu">
-      ${saved ? `<button class="pxbtn main" id="cont">${u.cont(saved.day + 1)}</button>` : ''}
-      <button class="pxbtn${saved ? '' : ' main'}" id="play">${u.play}</button>
-      <button class="pxbtn" id="how">${u.how}</button>
-      <button class="pxbtn" id="cfg">${u.settings}</button>
-      <button class="pxbtn" id="prof">${u.profile}</button>
-      ${arcadeUnlocked() ? `<button class="pxbtn arcade" id="arc" aria-label="${u.arcadeBtn}" title="${u.arcadeBtn}"></button>` : ''}
-      <button class="pxbtn menusound" id="msnd">${soundOn ? '♪ ' + u.soundLabel + ': ' + u.soundOn : '♪ ' + u.soundLabel + ': ' + u.soundOff}</button>
-    </div>`);
+  const ico = n => `<i class="mico" data-i="${n}"></i>`;
+  const card = modal(`<div class="mw"><div class="mw-bar"><span>WORKDAY.EXE</span><span class="mw-b"><b>_</b><b>□</b><b>✕</b></span></div>
+    <div class="mw-in">
+      <div class="mw-hero"><span class="mw-face"></span><div><h2 class="mw-logo">${[...'WORKDAY'].map(c => `<span>${c}</span>`).join('')}</h2><p class="mw-tag">${u.tagline}</p></div></div>
+      <div class="mw-stats"><span><small>${u.record}</small><b>${fmt(P.best)}</b></span><span><small>${u.wallet}</small><b>${money(P.wallet)}</b></span><span><small>${u.daysWorked}</small><b>${fmt(P.stats.days)}</b></span></div>
+      <div class="menu">
+        ${saved ? `<button class="pxbtn main" id="cont">${ico('cont')}${u.cont(saved.day + 1)}</button>` : ''}
+        <button class="pxbtn${saved ? '' : ' main'}" id="play">${ico('play')}${u.play}</button>
+        <button class="pxbtn" id="how">${ico('how')}${u.how}</button>
+        <button class="pxbtn" id="cfg">${ico('cfg')}${u.settings}</button>
+        <button class="pxbtn" id="prof">${ico('prof')}${u.profile}</button>
+        ${arcadeUnlocked() ? `<button class="pxbtn arcade" id="arc" aria-label="${u.arcadeBtn}" title="${u.arcadeBtn}">${ico('arc')}${u.arcadeBtn}</button>` : ''}
+        <button class="pxbtn menusound" id="msnd">${ico('snd')}${soundOn ? u.soundLabel + ': ' + u.soundOn : u.soundLabel + ': ' + u.soundOff}</button>
+      </div>
+    </div></div>`);
+  card.classList.add('menu-card');
+  const ICO = { cont: () => Pixel.el(SPR2.mug, 2), play: () => Pixel.el(SPR2.doc, 2, WD_SECTOR_RAMP.fin), how: () => Pixel.el(SPR2.postit, 2), cfg: () => Pixel.el(SPR2.gear, 2), prof: () => portrait(28), arc: () => Pixel.el(SPR2.pad, 2), snd: () => Pixel.el(SPR2.note, 2) };
+  card.querySelectorAll('.mico').forEach(i => i.append(ICO[i.dataset.i]()));
+  card.querySelector('.mw-face').append(portrait(112));
+  card.querySelectorAll('.mw-logo span').forEach((sp, i) => Motion.play(sp, [{ transform: 'translateY(-14px)', opacity: 0 }, { transform: 'translateY(2px)', opacity: 1, offset: .7 }, { transform: 'none', opacity: 1 }], { duration: 360, delay: 120 + i * 60, easing: Motion.E.out, fill: 'backwards' }));
+  sceneIn(card, '.mw-stats span, .menu .pxbtn', 45, 300);
   card.querySelector('#msnd').onclick = () => { setSound(!soundOn); showMenu(); };
   $('modal').insertAdjacentHTML('beforeend', `<div class="legalbar"><p>${u.footer}</p></div>`);
-  card.querySelector('#lf').replaceWith(face('#6e3b26', '#2b2340', false, 4));
   card.querySelector('#play').onclick = () => newCareer();
   if (saved) card.querySelector('#cont').onclick = resumeCareer;
   card.querySelector('#how').onclick = () => { const c = modal(`<h2>${u.how}</h2>${u.howText}<div class="actions"><button class="pxbtn main" id="b">${u.back}</button></div>`); c.querySelector('#b').onclick = showMenu; };
   card.querySelector('#cfg').onclick = () => showSettings(showMenu);
   card.querySelector('#prof').onclick = showProfile;
   const arc = card.querySelector('#arc');
-  if (arc) { arc.append(Pixel.el(SPR2.pad, 3)); Motion.dropIn(arc); arc.onclick = () => { closeModal(); startCall('arcade', showMenu); }; }
+  if (arc) { arc.onclick = () => { closeModal(); startCall('arcade', showMenu); }; }
 }
 
 function showProfile() {

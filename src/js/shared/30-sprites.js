@@ -37,3 +37,39 @@ const SPR2 = {
   steam: [['..w.....', '.w..w...', '..w..w..', '.w..w...', '..w.....', '...w....'], ['...w....', '..w..w..', '.w..w...', '..w..w..', '...w....', '..w.....'],
           ['..w..w..', '...w..w.', '..w..w..', '.w......', '..w.....', '.w......']],
 };
+
+// Itens novos da loja (ficam em cima do monitor)
+SPR2.cacto = ['....kkk....', '...kgGhk...', '.k.kgWhk.k.', 'kgkkGGhkkhk', 'kGGkGWhkhhk', '.kGGGGhhhk.', '..kkGGhkk..', '...kGWhk...', '..kkkkkkk..', '..ktTTTuk..', '...ktTuk...', '...kkkkk...'];
+SPR2.radio = ['.............k..', '............k...', '...........k....', 'kkkkkkkkkkkkkkkk', 'k11111111111112k', 'k1kkkkkk1kkkk13k', 'k1kpkpkk1kYYk13k', 'k1kkpkpk1kRYk13k', 'k1kkkkkk1kkkk13k', 'k33333333333333k', 'kkkkkkkkkkkkkkkk', '.kk..........kk.'];
+SPR2.aquario = ['...kkkkkkkk...', '..kmmmmmmmmk..', '.kWllllllllLk.', 'kWlllllllllLLk', 'kllllOOOOllLLk', 'klllOOOOkOlLLk', 'kllllOOOOllLLk', 'kllllllllllLLk', 'klvlllllllvLLk', '.kGGgGllGGgLk.', '.kGhGGhhGGh7k.', '..k77777777k..', '...kkkkkkkk...'];
+// Pelagens do gato: o desenho é o mesmo; a cor de cada pixel vem do padrão (listras, manchas, máscara)
+const CAT_COATS = ['tricolor', 'cinza-tigrado', 'laranja-tigrado', 'laranja', 'preto', 'branco', 'frajola', 'siames'];
+function catCoat(rows, coat, tail) {
+  const key = 'cat:' + coat + ':' + rows.join('|');
+  if (Pixel.cache.has(key)) return Pixel.cache.get(key);
+  const P = WD_PAL, H = rows.length, W = Math.max(...rows.map(r => r.length)), c = document.createElement('canvas'); c.width = W; c.height = H;
+  const x = c.getContext('2d');
+  const R = { laranja: [P[1], P[2], P[3]], cinza: [P.m, P.M, P.j], preto: [P.j, P.J, P[0]], branco: [P.W, P.W, P.p], creme: [P.W, P.w, P.p], escuro: [P[3], P[4], P.k] };
+  rows.forEach((row, j) => [...row].forEach((ch, i) => {
+    if (!WD_PAL[ch]) return;
+    let col = WD_PAL[ch];
+    const tone = ch === '1' ? 0 : ch === '2' ? 1 : ch === '3' ? 2 : -1;
+    if (tone >= 0) {
+      const stripe = !tail && (j + (i >> 2)) % 3 === 0 && j > 2, tstripe = tail && j % 2 === 0, white = !tail && (j > 9 || (j > 6 && i > 2 && i < 6));
+      switch (coat) {
+        case 'laranja-tigrado': col = stripe || tstripe ? R.laranja[2] : R.laranja[tone]; break;
+        case 'cinza-tigrado': col = stripe || tstripe ? R.cinza[2] : R.cinza[tone]; break;
+        case 'tricolor': col = white ? R.branco[tone] : (!tail && i > 7 && j < 7) || (tail && j > 4) ? R.preto[tone] : stripe || tstripe ? R.laranja[2] : R.laranja[tone]; break;
+        case 'preto': col = R.preto[tone]; break;
+        case 'branco': col = R.branco[tone]; break;
+        case 'frajola': col = white ? R.branco[tone] : R.preto[tone]; break;
+        case 'siames': col = tail || j < 2 || (j > 3 && j < 7 && i > 3 && i < 10) || j > 12 ? R.escuro[tone] : R.creme[tone]; break;
+        default: col = R.laranja[tone];
+      }
+    }
+    x.fillStyle = col; x.fillRect(i, j, 1, 1);
+  }));
+  Pixel.cache.set(key, c); return c;
+}
+SPR2.gear = ['..k.k.k..', '.kkmmmkk.', '.kmMMMmk.', 'kkMkkkMkk', '.kMk.kMk.', 'kkMkkkMkk', '.kmMMMjk.', '.kkjjjkk.', '..k.k.k..'];
+SPR2.note = ['...kkkk', '...kYYk', '...kk.k', '...k..k', '...k..k', '.kkk.kk', 'kYYk.kk', 'kYYk...', '.kk....'];

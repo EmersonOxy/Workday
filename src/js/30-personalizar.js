@@ -1,7 +1,7 @@
 /* ================= Personalização do computador ================= */
 // Aparência física do equipamento na mesa (independente do tema claro/escuro da interface) e papel de parede do WorkOS.
 // Salvo em CFG.hw (localStorage "expediente-config"); saves antigos sem essa chave usam o padrão.
-const HW_DEFAULT = { mon: 'cream', kb: 'cream', mouse: 'cream', wall: 'teal' };
+const HW_DEFAULT = { mon: 'cream', kb: 'cream', mouse: 'cream', wall: 'teal', cat: 'tricolor' };
 function hw() { return Object.assign({}, HW_DEFAULT, CFG.hw || {}); }
 function setHw(patch) { CFG.hw = Object.assign(hw(), patch); persist(); OFFICE.key = ''; applyWallpaper(); }
 
@@ -14,6 +14,13 @@ const WALLS = {
     x.fillStyle = P.W; for (let n = 0; n < 4; n++) { const cx = R() * w | 0, cy = 6 + R() * h * .25 | 0; x.fillRect(cx, cy, 14, 3); x.fillRect(cx + 3, cy - 2, 8, 2); }
     const hill = (base, amp, col, ph) => { x.fillStyle = col; for (let i = 0; i < w; i++) { const y = base + Math.round(Math.sin(i / 17 + ph) * amp + Math.sin(i / 7 + ph * 2) * amp * .3); x.fillRect(i, y, 1, h - y); } };
     hill(h * .55, 5, P.G, 1); hill(h * .68, 4, P.h, 3); hill(h * .82, 3, P.H, 5); },
+  ondas(x, w, h) { const P = WD_PAL; x.fillStyle = P.x; x.fillRect(0, 0, w, h);
+    for (let j = 0; j < h; j += 6) for (let i = 0; i < w; i++) { const y = j + Math.round(Math.sin((i + j * 3) / 9) * 2); x.fillStyle = (j / 6) % 2 ? P.V : P.X; x.fillRect(i, y, 1, 2); } },
+  cidade(x, w, h) { const P = WD_PAL, R = Office.rng(21); x.fillStyle = P.v; x.fillRect(0, 0, w, h); x.fillStyle = P.y; for (let j = -8; j <= 8; j++) { const ww = Math.round(Math.sqrt(64 - j * j)); x.fillRect(w * .7 - ww, h * .3 + j, ww * 2, 1); }
+    let bx = 0; while (bx < w) { const bw = 8 + R() * 14 | 0, bh = 20 + R() * h * .5 | 0; x.fillStyle = [P.L, P[7], P.x][R() * 3 | 0]; x.fillRect(bx, h - bh, bw, bh); x.fillStyle = P.l; for (let j = h - bh + 3; j < h - 2; j += 4) for (let i = bx + 2; i < bx + bw - 2; i += 3) if (R() < .5) x.fillRect(i, j, 1, 2); bx += bw + 1; } },
+  logo(x, w, h) { const P = WD_PAL; x.fillStyle = P.n; x.fillRect(0, 0, w, h); for (let j = 4; j < h; j += 12) for (let i = ((j / 12) % 2) * 22; i < w; i += 44) Pixel.text(x, 'WORKDAY', i, j, P.N); x.fillStyle = P.Y; x.fillRect(0, h - 4, w, 4); },
+  blocos(x, w, h) { const P = WD_PAL, R = Office.rng(33), C = [P.F, P.O, P.L, P.I, P.Y, P.T]; x.fillStyle = P.W; x.fillRect(0, 0, w, h);
+    for (let n = 0; n < 40; n++) { const s = 4 + (R() * 3 | 0) * 4, bx = R() * w | 0, by = R() * h | 0; x.fillStyle = P.k; x.fillRect(bx - 1, by - 1, s + 2, s + 2); x.fillStyle = C[R() * C.length | 0]; x.fillRect(bx, by, s, s); } },
   night(x, w, h) { const P = WD_PAL, R = Office.rng(9);
     x.fillStyle = P[0]; x.fillRect(0, 0, w, h); x.fillStyle = P.N; x.fillRect(0, h * .55, w, h);
     for (let n = 0; n < w * h / 60; n++) { x.fillStyle = R() < .8 ? P.W : P.y; x.fillRect(R() * w | 0, R() * h * .55 | 0, 1, 1); }
@@ -44,6 +51,7 @@ function showCustomize(back) {
     <div class="setting"><span>${u.monitorLabel}</span>${seg('mon', ['cream', 'graphite'])}</div>
     <div class="setting"><span>${u.keyboardLabel}</span>${seg('kb', ['cream', 'graphite'])}</div>
     <div class="setting"><span>${u.mouseLabel}</span>${seg('mouse', ['cream', 'graphite'])}</div>
+    <div class="setting"><span>${u.catLabel}</span><div class="walls cats">${CAT_COATS.map(c2 => `<button class="pxbtn wall cat${cur.cat === c2 ? ' on' : ''}" data-c="${c2}"><span class="cimg"></span><small>${u.coats[c2]}</small></button>`).join('')}</div></div>
     <div class="setting"><span>${u.wallLabel}</span><div class="walls">${Object.keys(WALLS).map(w => `<button class="pxbtn wall${cur.wall === w ? ' on' : ''}" data-w="${w}"><canvas width="160" height="90"></canvas><small>${u.walls[w]}</small></button>`).join('')}</div></div>
     <div class="actions"><button class="pxbtn main" id="hwOk">${u.resume}</button></div>`);
   card.classList.add('hw-card');
@@ -51,12 +59,14 @@ function showCustomize(back) {
   const draw = () => {
     const h = hw();
     card.querySelectorAll('.seg[data-hw]').forEach(s => { const k = s.dataset.hw; s.querySelectorAll('button').forEach(b => b.classList.toggle('on', k === 'all' ? ['mon', 'kb', 'mouse'].every(q => h[q] === b.dataset.v) : h[k] === b.dataset.v)); });
-    card.querySelectorAll('.wall').forEach(b => b.classList.toggle('on', b.dataset.w === h.wall));
+    card.querySelectorAll('.wall:not(.cat)').forEach(b => b.classList.toggle('on', b.dataset.w === h.wall));
     Office.hwPreview(prev, h);
   };
   pxFit(prev, () => [Math.min(360, innerWidth * .7), 140]);
-  card.querySelectorAll('.wall').forEach(b => { const c = b.querySelector('canvas'); if (WALLS[b.dataset.w]) WALLS[b.dataset.w](c.getContext('2d'), 160, 90); else { const x = c.getContext('2d'); x.fillStyle = WD_PAL.X; x.fillRect(0, 0, 160, 90); }
+  card.querySelectorAll('.wall:not(.cat)').forEach(b => { const c = b.querySelector('canvas'); if (WALLS[b.dataset.w]) WALLS[b.dataset.w](c.getContext('2d'), 160, 90); else { const x = c.getContext('2d'); x.fillStyle = WD_PAL.X; x.fillRect(0, 0, 160, 90); }
     pxFit(c, () => [64, 36]); b.onclick = () => { setHw({ wall: b.dataset.w }); draw(); }; });
+  card.querySelectorAll('.cat').forEach(b => { const c2 = catCoat(SPR2.cat, b.dataset.c), cv = document.createElement('canvas'); cv.width = c2.width; cv.height = c2.height; cv.getContext('2d').drawImage(c2, 0, 0); b.querySelector('.cimg').append(pxSize(cv, 3));
+    b.onclick = () => { setHw({ cat: b.dataset.c }); card.querySelectorAll('.cat').forEach(x => x.classList.toggle('on', x === b)); sfx('pop'); }; });
   card.querySelectorAll('.seg[data-hw] button').forEach(b => b.onclick = () => {
     const k = b.parentElement.dataset.hw, v = b.dataset.v;
     setHw(k === 'all' ? { mon: v, kb: v, mouse: v } : { [k]: v }); draw();

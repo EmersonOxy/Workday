@@ -33,6 +33,7 @@ const SHOP = [
   { id: 'foto', kind: 'decor', price: 80, spr: 'frame' }, { id: 'lamp', kind: 'decor', price: 120, spr: 'lamp' },
   { id: 'monitor', kind: 'decor', price: 200, spr: 'monitor' }, { id: 'gato', kind: 'decor', price: 350, spr: 'cat' },
   { id: 'trofeu', kind: 'decor', price: 600, spr: 'trophy' },
+  { id: 'cacto', kind: 'decor', price: 70, spr: 'cacto' }, { id: 'radio', kind: 'decor', price: 180, spr: 'radio' }, { id: 'aquario', kind: 'decor', price: 280, spr: 'aquario' },
 ];
 SHOP.forEach(i => { i.price = Math.round(i.price * BAL.priceMul); });
 const RANK_DESK = { 1: 'mug', 2: 'nameplate', 4: 'chair', 6: 'crown' };

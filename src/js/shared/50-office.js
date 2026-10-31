@@ -53,12 +53,14 @@ const Office = {
   // Céu vivo: degradê pontilhado, nuvens, prédios com janelas que acendem e apagam, letreiro, clima e passantes
   sky(ctx, W, st, t, lit) {
     const P = WD_PAL, F = (c, a, b, w, h) => { ctx.fillStyle = c; ctx.fillRect(a | 0, b | 0, w, h); }, wx = st.weather || 'clear';
-    const key = W.w + 'x' + W.h + ':' + (st.hour * 60 | 0) + wx;
+    const key = W.w + 'x' + W.h + ':' + (st.hour * 20 | 0) + wx;
     if (this._skyKey !== key) {     // céu em cache por minuto do jogo: muda suave sem custo por quadro
       this._skyKey = key; const c = this._skyC || (this._skyC = document.createElement('canvas')); c.width = W.w; c.height = W.h;
       const x = c.getContext('2d'), B = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5], gray = wx === 'rain' || wx === 'snow' ? .45 : wx === 'cloudy' ? .2 : 0;
-      for (let j = 0; j < W.h; j++) { const f = j / W.h; for (let i = 0; i < W.w; i++) { const d = (B[(i & 3) + ((j & 3) << 2)] / 16 - .5) * .12, g = Math.max(0, Math.min(1, f + d));
-        const col = lit.top.map((v, n) => { const c0 = v + (lit.bot[n] - v) * g, gr = 150; return Math.round(c0 + (gr - c0) * gray); }); x.fillStyle = `rgb(${col})`; x.fillRect(i, j, 1, 1); } }
+      const img = x.createImageData(W.w, W.h), d = img.data;
+      for (let j = 0; j < W.h; j++) { const f = j / W.h; for (let i = 0; i < W.w; i++) { const g = Math.max(0, Math.min(1, f + (B[(i & 3) + ((j & 3) << 2)] / 16 - .5) * .12)), o = (j * W.w + i) * 4;
+        for (let n = 0; n < 3; n++) { const c0 = lit.top[n] + (lit.bot[n] - lit.top[n]) * g; d[o + n] = Math.round(c0 + (150 - c0) * gray); } d[o + 3] = 255; } }
+      x.putImageData(img, 0, 0);
     }
     ctx.drawImage(this._skyC, W.x, W.y);
     // estrelas no fim do dia
@@ -106,7 +108,7 @@ const Office = {
   spots(L) {
     const M = L.mon, s = L.screen;
     return {
-      win: (() => { const w = L.left > 110 ? Math.min(132, L.left - 30) : Math.max(18, Math.min(56, L.left - 8)); return { x: Math.max(3, (L.left - w) / 2 | 0), y: 10, w, h: Math.max(60, L.desk - 26) }; })(),
+      win: (() => { const x0 = Math.max(6, Math.min(20, L.left >> 3)), w = L.mon.x - x0 + Math.min(120, L.mon.w >> 2); return { x: x0, y: 16, w, h: Math.max(54, (L.desk - 30) * .6 | 0), vis: L.mon.x - x0 }; })(),
       plant: { x: Math.max(1, M.x - 30), y: L.desk + 8 },
       // Objetos comprados ficam na frente da mesa, fora da tela; só descem para a moldura se não houver espaço
       frame: L.kx - 112 > M.x - 4 ? { x: L.kx - 112, y: L.desk + 5 } : { x: M.x + 6, y: L.desk - 10 },
@@ -293,7 +295,7 @@ const Office = {
       else if (now - b.up < 90) { active = true; ctx.fillStyle = HO.hi; ctx.fillRect(bx, my, bw, 1); }
     });
     // objeto clicável sob o mouse: moldura amarela pulsando de leve
-    if (hover) { const r = hover === 'badge' ? this.badgeRect(L) : hover === 'lamp' ? this.lampRect(L) : (() => { const w = this.spots(L).win; return { x: w.x - 3, y: w.y - 3, w: w.w + 6, h: w.h + 8 }; })();
+    if (hover) { const r = hover === 'badge' ? this.badgeRect(L) : hover === 'lamp' ? this.lampRect(L) : (() => { const w = this.spots(L).win; return { x: w.x - 3, y: w.y - 3, w: Math.min(w.w, w.vis) + 3, h: w.h + 8 }; })();
       ctx.fillStyle = (now / 250 | 0) % 2 ? P.Y : P.y; ctx.fillRect(r.x - 1, r.y - 1, r.w + 2, 1); ctx.fillRect(r.x - 1, r.y + r.h, r.w + 2, 1); ctx.fillRect(r.x - 1, r.y, 1, r.h); ctx.fillRect(r.x + r.w, r.y, 1, r.h); active = true; }
     return active;
   },
@@ -337,16 +339,32 @@ const Office = {
     const P = WD_PAL, D = new Set(st.decor || []), s = L.screen, M = L.mon, Z = this.spots(L), lit = this.light(st.hour);
     ctx.drawImage(baked, 0, 0);
     const W = Z.win;
-    ctx.save(); ctx.beginPath(); ctx.rect(W.x, W.y, W.w, W.h); ctx.clip();
-    this.sky(ctx, W, st, t, lit);
-    ctx.restore();
+    ctx.save(); ctx.beginPath(); ctx.rect(W.x - 1, W.y - 1, W.w + 2, W.h + 40); ctx.rect(M.x - 1, M.y - 1, M.w + 2, M.h + 30); ctx.clip('evenodd');
+    ctx.save(); ctx.beginPath(); ctx.rect(W.x, W.y, W.w, W.h); ctx.clip(); this.sky(ctx, W, st, t, lit); ctx.restore();
     // Persiana: 0 = recolhida, 1 = fechada. Lâminas de 3 px descem uma a uma; a luz diminui junto
     const bl = st.blind || 0, slats = Math.max(4, Math.round(4 + bl * (W.h / 3 - 4))), yEnd = W.y + slats * 3;
     ctx.fillStyle = P[4]; ctx.fillRect(W.x - 1, W.y - 1, W.w + 2, 3);
     for (let j = 0; j < slats; j++) { const y = W.y + 2 + j * 3; if (y + 2 > W.y + W.h) break; ctx.fillStyle = P.C; ctx.fillRect(W.x, y, W.w, 2); ctx.fillStyle = P.e; ctx.fillRect(W.x, y + 2, W.w, 1); }
     ctx.fillStyle = P.k; ctx.fillRect(W.x - 1, Math.min(yEnd + 1, W.y + W.h - 2), W.w + 2, 3); ctx.fillStyle = P.z; ctx.fillRect(W.x, Math.min(yEnd + 2, W.y + W.h - 1), W.w, 1);
     const cy = Math.min(yEnd + 4, W.y + W.h - 2);
-    ctx.fillStyle = P.j; ctx.fillRect(W.x + W.w - 4, W.y + 2, 1, cy + 12 - W.y); ctx.fillStyle = P.k; ctx.fillRect(W.x + W.w - 6, cy + 13, 5, 4); ctx.fillStyle = P.z; ctx.fillRect(W.x + W.w - 5, cy + 14, 3, 2);
+    const cdx = W.x + 4;   // cordão da persiana na ponta visível da janela
+    ctx.fillStyle = P.j; ctx.fillRect(cdx, W.y + 2, 1, cy + 12 - W.y); ctx.fillStyle = P.k; ctx.fillRect(cdx - 2, cy + 13, 5, 4); ctx.fillStyle = P.z; ctx.fillRect(cdx - 1, cy + 14, 3, 2);
+    ctx.restore();
+    // Itens da loja numa prateleira de parede embaixo da janela (rádio com notinhas, aquário com bolhas, cacto)
+    const shelfItems = ['radio', 'cacto', 'aquario'].filter(k => D.has(k));
+    if (shelfItems.length) {
+      const sw = Math.max(20, M.x - 6), sx = 3, sy = W.y + W.h + 28;
+      const rows = [[], []]; let used = 0, r = 0;
+      for (const k of shelfItems) { const wv = SPR2[k][0].length; if (used + wv > sw - 2 && rows[0].length) { r = 1; used = 0; } rows[r].push(k); used += wv + 2; }
+      rows.forEach((row, i) => { if (!row.length) return; const y = sy + i * 24;
+        ctx.fillStyle = P.k; ctx.fillRect(sx - 1, y, sw + 2, 4); ctx.fillStyle = P[2]; ctx.fillRect(sx, y + 1, sw, 1); ctx.fillStyle = P[3]; ctx.fillRect(sx, y + 2, sw, 1); ctx.fillStyle = P[4]; ctx.fillRect(sx + 2, y + 4, 1, 3); ctx.fillRect(sx + sw - 3, y + 4, 1, 3);
+        let x0 = sx + 1;
+        for (const k of row) { const spr = SPR2[k], hh = spr.length; ctx.drawImage(Pixel.master(spr, WD_PAL), x0, y - hh + 1);
+          if (k === 'radio' && st.sound) for (let n = 0; n < 2; n++) { const ph = (t * .6 + n * .5) % 1; ctx.fillStyle = ph < .8 ? P.k : P.K; const nx = x0 + 4 + n * 5 + Math.round(Math.sin(t * 3 + n) * 2), ny = y - hh - 2 - ph * 12 | 0; ctx.fillRect(nx, ny, 2, 2); ctx.fillRect(nx + 1, ny - 3, 1, 3); }
+          if (k === 'aquario') { ctx.fillStyle = P.W; for (let n = 0; n < 3; n++) { const ph = (t * .5 + n * .33) % 1; ctx.fillRect(x0 + 4 + n * 3, y - hh + 10 - ph * 6 | 0, 1, 1); } }
+          x0 += spr[0].length + 2; }
+      });
+    }
     // Telefone de mesa (toca quando há uma ligação esperando)
     if (Z.phone) this.phone(ctx, Z.phone.x, Z.phone.y, st.ringing, t);
     // Planta (folhas balançam de leve)
@@ -357,8 +375,8 @@ const Office = {
       for (let i = 0; i < (w - 10) / 4 | 0; i++) { const v = 2 + ((Math.sin(t * 1.5 + i * .9) + 1) * (h - 14) / 4 | 0) + i; ctx.fillStyle = [P.F, P.Q, P.v][i % 3]; ctx.fillRect(px + 5 + i * 4, py + h - 6 - Math.min(v, h - 10), 3, Math.min(v, h - 10)); }
       if ((t * 2 | 0) % 2) { ctx.fillStyle = P.v; ctx.fillRect(px + w - 8, py + 5, 2, 3); } }
     // Luminária
-    const lampOn = !st.lights || st.lights.lamp !== false;
-    if (D.has('lamp')) this.lamp(ctx, Z.lamp.x, Z.lamp.y, t, lampOn);
+    const lampOn = !st.lights || st.lights.lamp !== false, lampLv = st.lampLv !== undefined ? st.lampLv : lampOn ? 1 : 0;
+    if (D.has('lamp')) this.lamp(ctx, Z.lamp.x, Z.lamp.y, t, lampLv > .5);
     // Troféu com brilho que passa de vez em quando
     if (D.has('trofeu')) this.trophy(ctx, Z.trophy.x, Z.trophy.y, t);
     // Caneca com vapor (enquanto o café está quente)
@@ -367,7 +385,7 @@ const Office = {
     if (st.hour < 16 || st.clutter < 2) ctx.drawImage(Pixel.master(SPR2.steam[(t * 5 | 0) % 3], WD_PAL), Z.mug.x + 3, Z.mug.y - 7);
     // Gato: rabo balança, pisca, mexe a orelha
     if (D.has('gato')) { const cx = Z.cat.x, cy = Z.cat.y, ph = (t % 4) < .7 ? ((t * 8 | 0) % 3) : 0;
-      ctx.drawImage(Pixel.master(SPR2.catTail[ph], WD_PAL), cx + 12, cy + 4); ctx.drawImage(Pixel.master(SPR2.cat, WD_PAL), cx, cy);
+      const coat = st.cat || 'laranja'; ctx.drawImage(catCoat(SPR2.catTail[ph], coat, true), cx + 12, cy + 4); ctx.drawImage(catCoat(SPR2.cat, coat), cx, cy);
       if ((t % 6) < .16) { ctx.fillStyle = P[2]; ctx.fillRect(cx + 3, cy + 4, 2, 1); ctx.fillRect(cx + 9, cy + 4, 2, 1); }
       if ((t % 9) < .12) { ctx.fillStyle = P.k; ctx.fillRect(cx + 1, cy, 2, 1); } }
     // Papel do topo da pilha levanta com o caos
@@ -389,7 +407,7 @@ const Office = {
       g.addColorStop(0, `rgba(${b[0] | 0},${b[1] | 0},${b[2] | 0},${a.toFixed(3)})`); g.addColorStop(1, `rgba(${b[0] | 0},${b[1] | 0},${b[2] | 0},0)`);
       ctx.fillStyle = g; ctx.fillRect(0, 0, L.VW, L.VH); }
     if (st.blind) { ctx.fillStyle = `rgba(40,28,60,${.07 * st.blind})`; ctx.fillRect(0, 0, L.VW, L.VH); }
-    if (D.has('lamp') && lampOn) { const fl = .2 + Math.sin(t * 9) * .01; ctx.fillStyle = `rgba(255,231,163,${fl})`; const hx = Z.lamp.x - 14, hy = Z.lamp.y - 44;
+    if (D.has('lamp') && lampLv > 0) { const fl = (.2 + Math.sin(t * 9) * .01) * lampLv; ctx.fillStyle = `rgba(255,231,163,${fl})`; const hx = Z.lamp.x - 14, hy = Z.lamp.y - 44;
       for (let j = 0; j < 44; j++) ctx.fillRect(hx - (j * .5 | 0), hy + 8 + j, 14 + (j * 1.1 | 0), 1); }
     ctx.globalCompositeOperation = lit.tint[1]; ctx.fillStyle = lit.tint[0]; ctx.fillRect(0, 0, L.VW, L.VH);
     ctx.restore();

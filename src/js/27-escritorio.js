@@ -11,7 +11,7 @@ function officeState() {
   const stress = S ? S.stress : 0;
   const clutter = day ? Math.min(3, Math.floor(stress / 30) + (S.level >= 8 ? 1 : 0)) : 0;
   const ringing = (day && S.tasks.some(t => t.type === 'call')) || !!OFFICE.call;
-  return { hour, stress, clutter, decor: P.decor, rank: S ? S.rankIdx : 0, blind: OFFICE.blind, day: S ? S.day : 0, ringing, press: OFFICE.press, click: OFFICE.click, hw: hw(), badge: badgeInfo(), lights: lightState(), weather: Office.weather(S ? S.day : 1) };
+  return { hour, stress, clutter, decor: P.decor, rank: S ? S.rankIdx : 0, blind: OFFICE.blind, day: S ? S.day : 0, ringing, press: OFFICE.press, click: OFFICE.click, hw: hw(), badge: badgeInfo(), lights: lightState(), weather: Office.weather(S ? S.day : 1), cat: hw().cat, sound: soundOn };
 }
 // Crachá da mesa: cores do avatar ou miniatura 4×5 da foto
 function badgeInfo() {
@@ -57,6 +57,9 @@ function officeFrame(now) {
   // Persiana anda em degraus até a posição pedida, com estalinhos do mecanismo
   const want = CFG.blinds ? 1 : 0;
   if (OFFICE.blind !== want) { OFFICE.blind = want > OFFICE.blind ? Math.min(want, OFFICE.blind + .09) : Math.max(want, OFFICE.blind - .12); st.blind = OFFICE.blind; sfx('blind'); }
+  // luz da luminária acende e apaga aos poucos (~0,4 s), em vez de piscar de uma vez
+  const lt = st.lights && st.lights.lamp === false ? 0 : 1; OFFICE.lampLv = OFFICE.lampLv === undefined ? lt : OFFICE.lampLv + Math.sign(lt - OFFICE.lampLv) * Math.min(Math.abs(lt - OFFICE.lampLv), .2);
+  st.lampLv = OFFICE.lampLv; if (OFFICE.lampLv !== lt) OFFICE.last = now - 80 + 16;
   Office.draw(OFFICE.ctx, OFFICE.L, st, OFFICE.baked, now / 1000);
   sysClock();
 }
@@ -78,7 +81,7 @@ setInterval(sysClock, 15000);
 function onWindow(e) {
   if (!OFFICE.on || !OFFICE.L) return false;
   const w = Office.spots(OFFICE.L).win, x = e.clientX / OFFICE.M.k, y = e.clientY / OFFICE.M.k;
-  return x >= w.x - 2 && x <= w.x + w.w + 2 && y >= w.y - 2 && y <= w.y + w.h + 4;
+  return x >= w.x - 2 && x <= w.x + Math.min(w.w, w.vis) + 2 && y >= w.y - 2 && y <= w.y + w.h + 4;
 }
 // Fontes de luz independentes: id, objeto que precisa existir na mesa e estado salvo (CFG.lights).
 // Hoje só a luminária; abajures e outras luzes entram aqui com seu próprio retângulo de clique e área de luz.
@@ -103,6 +106,7 @@ function openBadgeFromDesk() {
   showBadge(() => { closeModal(); if (S && S.phase === 'day') { S.paused = was; S.last = performance.now(); } });
 }
 OFFICE.cv.addEventListener('pointerdown', e => { if (onWindow(e)) { CFG.blinds = !CFG.blinds; persist(); } else if (onLamp(e)) toggleLight('lamp'); else if (onBadge(e) && $('modal').classList.contains('hidden')) openBadgeFromDesk(); });
+OFFICE.cv.addEventListener('pointerleave', () => { if (OFFICE.hover) { OFFICE.hover = null; OFFICE.cv.style.cursor = ''; fxWake(); } });
 OFFICE.cv.addEventListener('pointermove', e => { const hov = onBadge(e) ? 'badge' : onLamp(e) ? 'lamp' : onWindow(e) ? 'win' : null; OFFICE.cv.style.cursor = hov ? 'pointer' : ''; if (hov !== OFFICE.hover) { OFFICE.hover = hov; fxWake(); } });
 async function toggleFullscreen() {
   try { if (document.fullscreenElement) await document.exitFullscreen(); else await document.documentElement.requestFullscreen(); } catch (e) {}
