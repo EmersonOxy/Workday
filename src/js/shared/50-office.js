@@ -193,6 +193,28 @@ const Office = {
     F(P.k, px - 2 + sh, py - 1 + j, 30, 5); F(P.J, px - 1 + sh, py + j, 28, 3); F(P.j, px - 1 + sh, py + j, 28, 1); F(P.J, px - 1 + sh, py + 3 + j, 5, 2); F(P.J, px + 22 + sh, py + 3 + j, 5, 2);
     for (let i = 0; i < 5; i++) F(P.j, px - 3 - (i % 2) + sh, py + 5 + i * 2, 1, 1);
     if (ring && (t * 3 | 0) % 2) { F(P.W, px + 4, py - 5, 1, 2); F(P.W, px + 12, py - 6, 1, 3); F(P.W, px + 20, py - 5, 1, 2); } },
+  // Camada de resposta imediata: teclas e botão do mouse, desenhados a cada quadro só enquanto há interação.
+  // Apertada: a tecla afunda 1 px e acende; ao soltar, sobe com um brilho de 1 px (sobre-impulso) por ~90 ms.
+  keyCell(L, k) {
+    const cols = (L.kw - 6) / 7 | 0;
+    const [r, i] = k === 'ArrowLeft' ? [2, cols - 3] : k === 'ArrowDown' ? [2, cols - 2] : k === 'ArrowRight' ? [2, cols - 1] : k === 'ArrowUp' ? [1, cols - 2] : k === 'Enter' ? [1, cols - 1] : k === ' ' ? [2, 4] : [k.charCodeAt(0) % 3, (k.charCodeAt(0) * 7) % Math.max(1, cols - 4)];
+    const ox = L.kx + 3 + i * 7 + (r % 2) * 3, oy = L.VH - 15 + 2 + r * 5;
+    return ox + 6 <= L.kx + L.kw - 2 ? [ox, oy] : null;
+  },
+  drawInput(ctx, L, hwSel, keys, mouse, now) {
+    const P = WD_PAL, HK = this.ramp(hwSel.kb), HO = this.ramp(hwSel.mouse);
+    ctx.clearRect(0, 0, L.VW, L.VH);
+    let active = false;
+    for (const [k, s] of keys) {
+      const c = this.keyCell(L, k); if (!c) continue; const [ox, oy] = c;
+      if (s.up === null) { active = true; ctx.fillStyle = HK.base; ctx.fillRect(ox, oy, 6, 4); ctx.fillStyle = HK.keySh; ctx.fillRect(ox, oy + 1, 6, 3); ctx.fillStyle = P.y; ctx.fillRect(ox, oy + 2, 6, 1); }
+      else if (now - s.up < 90) { active = true; ctx.fillStyle = P.W; ctx.fillRect(ox, oy, 6, 1); }
+    }
+    const mx = L.kx + L.kw + 18, my = L.VH - 15;
+    if (mouse.down) { active = true; ctx.fillStyle = HO.sh; ctx.fillRect(mx, my, 4, 6); ctx.fillStyle = P.k; ctx.fillRect(mx, my + 1, 4, 1); }
+    else if (now - mouse.up < 90) { active = true; ctx.fillStyle = HO.hi; ctx.fillRect(mx, my, 4, 1); }
+    return active;
+  },
   // Miniatura do equipamento para a tela de personalização (mesmos acabamentos)
   hwPreview(c, h) {
     const x = c.getContext('2d'), P = WD_PAL, F = (col, a, b, w, hh) => { x.fillStyle = col; x.fillRect(a, b, w, hh); };
@@ -253,13 +275,6 @@ const Office = {
     ctx.fillStyle = P.j; ctx.fillRect(W.x + W.w - 4, W.y + 2, 1, cy + 12 - W.y); ctx.fillStyle = P.k; ctx.fillRect(W.x + W.w - 6, cy + 13, 5, 4); ctx.fillStyle = P.z; ctx.fillRect(W.x + W.w - 5, cy + 14, 3, 2);
     // Telefone de mesa (toca quando há uma ligação esperando)
     if (Z.phone) this.phone(ctx, Z.phone.x, Z.phone.y, st.ringing, t);
-    // Teclado e mouse reagem ao jogador: a tecla afunda e acende por um instante
-    if (st.press && t - st.press.t < .14) { const kw = L.kw, cols = (kw - 6) / 7 | 0, k = st.press.k;
-      const [r, i] = k === 'ArrowLeft' ? [2, cols - 3] : k === 'ArrowDown' ? [2, cols - 2] : k === 'ArrowRight' ? [2, cols - 1] : k === 'Enter' ? [1, cols - 1] : [k.charCodeAt(0) % 3, (k.charCodeAt(0) * 7) % (cols - 4)];
-      const ox = L.kx + 3 + i * 7 + (r % 2) * 3, oy = L.VH - 15 + 2 + r * 5;
-      const HK = this.ramp((st.hw || {}).kb);
-      if (ox + 6 <= L.kx + kw - 2) { ctx.fillStyle = HK.keySh; ctx.fillRect(ox, oy, 6, 4); ctx.fillStyle = P.y; ctx.fillRect(ox, oy + 1, 6, 3); } }
-    if (st.click && t - st.click < .12) { const HO = this.ramp((st.hw || {}).mouse), mx = L.kx + L.kw + 18, my = L.VH - 15; ctx.fillStyle = HO.sh; ctx.fillRect(mx, my + 1, 4, 5); ctx.fillStyle = P.k; ctx.fillRect(mx + 1, my + 1, 3, 1); }
     // Planta (folhas balançam de leve)
     if (D.has('planta')) this.plant(ctx, Z.plant.x, Z.plant.y, t);
     // Monitor extra: gráfico subindo e cursor piscando

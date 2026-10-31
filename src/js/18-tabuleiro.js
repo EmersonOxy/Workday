@@ -82,10 +82,13 @@ function toast(from, text) {
   const old = $('toast'); if (old) old.remove();
   const el = document.createElement('div');
   el.id = 'toast'; el.className = 'px';
-  el.append(sprite(SPR.mail, document.body.classList.contains('mobile') ? 2 : 3));
+  const env = Pixel.el(SPR2.envelope, document.body.classList.contains('mobile') ? 2 : 3); env.classList.add('env-ico'); el.append(env);
   el.insertAdjacentHTML('beforeend', `<div><small>${U().from}: ${from}</small>${text}</div>`);
   uiRoot().append(el);
-  Motion.enter(el, 'right');
+  const ent = Motion.enter(el, 'right');
+  // o envelope "chacoalha" como algo vivo, depois que o cartão assenta
+  const wob = async () => { for (let i = 0; i < 3 && env.isConnected; i++) { const a = Motion.play(env, [{ transform: 'rotate(0)' }, { transform: 'rotate(-10deg) translateY(-3px)' }, { transform: 'rotate(8deg)' }, { transform: 'rotate(0)' }], { duration: 300, easing: Motion.E.out, fill: 'none' }); if (!a) return; await a.finished.catch(() => {}); } };
+  if (ent) ent.finished.then(wob, () => {}); else wob();
   setTimeout(() => { const a = Motion.leave(el, 'right'); if (a) a.onfinish = () => el.remove(); else el.remove(); }, 4300);
 }
 

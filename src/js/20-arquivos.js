@@ -16,14 +16,17 @@ function spawnFile() {
     el.insertAdjacentHTML('beforeend', `<div class="txt"><span class="tag" style="color:${dest.color}">${kind === 'urgent' ? '! ' : ''}${sectorName(dest.id)}</span><span class="sub">${kind === 'urgent' ? u.urgent + ' · ' : ''}${pick(L.docs[dest.id])}</span></div>`);
   }
   board.append(el);
-  Motion.play(el, [{ transform: 'translateY(-10px) scale(.9,1.14)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: Motion.T.med, easing: Motion.E.out, fill: 'none' });
+  Motion.play(el, [{ transform: 'translateY(-10px) scale(.9,1.14)', opacity: 0 }, { transform: 'scale(1.03,.97)', opacity: 1, offset: .6 }, { transform: 'none', opacity: 1 }], { duration: Motion.T.med, easing: Motion.E.out, fill: 'none' });
   S.dropNow = false;
   S.file = { el, kind, dest: dest.id, lane: Math.floor(Math.random() * SECTORS.length), y: -60 };
   placeFile();
 }
+// A queda é desenhada com aceleração (velocidade sobe de 0,72× a 1,28× da média), mas o arquivo chega
+// à bandeja no mesmo instante da física original: a posição lógica (f.y) e o tempo de reação não mudam.
+function fallVis(y, H) { if (H <= 0 || y <= 0) return y; const u = Math.min(1, y / H); return H * (.72 * u + .28 * u * u); }
 function placeFile() {
-  const f = S.file, w = laneWidth();
-  f.el.style.left = (f.lane * w + 8) + 'px'; f.el.style.width = (w - 16) + 'px'; f.el.style.top = f.y + 'px';
+  const f = S.file, w = laneWidth(), H = board.clientHeight - S.trays[0].offsetHeight - f.el.offsetHeight;
+  f.el.style.left = (f.lane * w + 8) + 'px'; f.el.style.width = (w - 16) + 'px'; f.el.style.top = (Motion.reduced.matches ? f.y : fallVis(f.y, H)) + 'px';
 }
 // O documento que saiu de jogo continua na tela só para terminar a animação
 function retireFile(el, how) {
@@ -45,8 +48,8 @@ function landFile() {
   else if (SECTORS[S.order[f.lane]].id === f.dest) {
     success(f.kind === 'urgent' ? 20 : 10, x, y); stat('files');
     bumpTray(f.lane, false); retireFile(f.el, 'ok'); spawnFile(); return;
-  } else if (f.kind === 'urgent') fail(26, u.fUrgent, 'urgent');
-  else fail(14, u.fWrong, 'wrong');
+  } else if (f.kind === 'urgent') { fail(26, null, 'urgent'); Motion.floatText(board, u.fUrgent, Math.max(4, x - 40), y, 'bad'); }
+  else { fail(14, null, 'wrong'); Motion.floatText(board, u.fWrong, Math.max(4, x - 40), y, 'bad'); }
   bumpTray(f.lane, true); retireFile(f.el, 'bad');
   spawnFile();
 }

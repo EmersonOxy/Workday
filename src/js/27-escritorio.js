@@ -3,6 +3,7 @@
 // Telas de toque ou pequenas mantêm o layout próprio.
 const OFFICE = { on: false, M: null, L: null, baked: null, key: '', last: 0, cv: $('office'), blind: CFG.blinds ? 1 : 0 };
 OFFICE.ctx = OFFICE.cv.getContext('2d');
+OFFICE.fx = $('officeFx'); OFFICE.fxCtx = OFFICE.fx.getContext('2d'); OFFICE.keys = new Map(); OFFICE.mouse = { down: false, up: -1 };
 function officeWanted() { return !document.body.classList.contains('touch') && innerWidth >= 900 && innerHeight >= 500; }
 function officeState() {
   const day = S && S.phase === 'day';
@@ -30,13 +31,13 @@ function officeLayout() {
   }
   const app = $('app');
   document.body.classList.toggle('mobile', !want);
-  if (!want) { OFFICE.cv.style.display = 'none'; app.style.left = app.style.top = app.style.width = app.style.height = ''; return; }
+  if (!want) { OFFICE.cv.style.display = OFFICE.fx.style.display = 'none'; app.style.left = app.style.top = app.style.width = app.style.height = ''; return; }
   // Resolução escolhida: limita o tamanho do jogo; o escritório preenche o resto da janela
   let [tw, th] = CFG.res && CFG.res !== 'auto' ? CFG.res.split('x').map(Number) : [innerWidth, innerHeight];
   tw = Math.min(tw, innerWidth); th = Math.min(th, innerHeight);
   const M = OFFICE.M = Office.measure(tw, th); M.VW = Math.ceil(innerWidth / M.k); M.VH = Math.ceil(innerHeight / M.k);
   const L = OFFICE.L = Office.layout(M.VW, M.VH, Math.ceil(tw / M.k), Math.ceil(th / M.k)), cv = OFFICE.cv;
-  cv.style.display = 'block'; cv.width = M.VW; cv.height = M.VH; cv.style.width = M.VW * M.k + 'px'; cv.style.height = M.VH * M.k + 'px';
+  for (const c of [cv, OFFICE.fx]) { c.style.display = 'block'; c.width = M.VW; c.height = M.VH; c.style.width = M.VW * M.k + 'px'; c.style.height = M.VH * M.k + 'px'; }
   const s = L.screen, k = M.k;
   Object.assign(app.style, { left: s.x * k + 'px', top: s.y * k + 'px', width: s.w * k + 'px', height: s.h * k + 'px' });
   app.style.setProperty('--fs', Math.max(13, Math.min(26, s.h * k * .027)).toFixed(1) + 'px');
@@ -95,8 +96,21 @@ document.addEventListener('pointerdown', () => { if (CFG.display === 'full' && !
 // Botões físicos: afundam ao apertar
 document.addEventListener('pointerdown', e => { const b = e.target.closest('.pxbtn, .task button, .slot, .paym'); if (b && !b.disabled) Motion.press(b); });
 // Teclas e cliques do jogador aparecem no teclado e no mouse da mesa
-// Resposta imediata: o próximo quadro desenha já (sem esperar o ritmo de ~12 qps do ambiente) e outro limpa o realce
-const officeNow = () => { OFFICE.last = 0; clearTimeout(OFFICE.redo); OFFICE.redo = setTimeout(() => { OFFICE.last = 0; }, 150); };
-addEventListener('keydown', e => { if (e.key.length === 1 || e.key.startsWith('Arrow') || e.key === 'Enter') { OFFICE.press = { k: e.key.length === 1 ? e.key.toUpperCase() : e.key, t: performance.now() / 1000 }; officeNow(); } }, true);
-addEventListener('pointerdown', () => { OFFICE.click = performance.now() / 1000; officeNow(); }, true);
+// Resposta imediata do teclado e do mouse da mesa: camada própria, redesenhada a cada quadro só enquanto há tecla
+// apertada ou o brilho de soltura (~90 ms). O resto do escritório segue no ritmo ambiente (~12 qps).
+function fxFrame() {
+  if (!OFFICE.on || !OFFICE.L) { OFFICE.fxRun = false; return; }
+  const now = performance.now();
+  const active = Office.drawInput(OFFICE.fxCtx, OFFICE.L, hw(), OFFICE.keys, OFFICE.mouse, now);
+  for (const [k, s] of OFFICE.keys) if (s.up !== null && now - s.up > 120) OFFICE.keys.delete(k);
+  if (active) requestAnimationFrame(fxFrame); else OFFICE.fxRun = false;
+}
+const fxWake = () => { if (!OFFICE.fxRun) { OFFICE.fxRun = true; requestAnimationFrame(fxFrame); } };
+const keyName = e => e.key.length === 1 ? e.key.toUpperCase() : e.key;
+const fxKey = e => e.key.length === 1 || e.key.startsWith('Arrow') || e.key === 'Enter';
+addEventListener('keydown', e => { if (!fxKey(e) || e.repeat) return; OFFICE.keys.set(keyName(e), { up: null }); fxWake(); }, true);
+addEventListener('keyup', e => { if (!fxKey(e)) return; const s = OFFICE.keys.get(keyName(e)); if (s) s.up = performance.now(); fxWake(); }, true);
+addEventListener('pointerdown', () => { OFFICE.mouse.down = true; fxWake(); }, true);
+addEventListener('pointerup', () => { OFFICE.mouse.down = false; OFFICE.mouse.up = performance.now(); fxWake(); }, true);
+addEventListener('blur', () => { OFFICE.keys.clear(); OFFICE.mouse.down = false; fxWake(); });
 officeLayout(); requestAnimationFrame(officeFrame);
