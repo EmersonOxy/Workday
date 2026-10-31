@@ -14,6 +14,15 @@ const BALANCE = {
 };
 const BAL_KEY = (() => { try { const c = JSON.parse(localStorage.getItem('expediente-config') || '{}'); return BALANCE[c.balance] ? c.balance : 'original'; } catch (e) { return 'original'; } })();
 const BAL = BALANCE[BAL_KEY];
+// Dificuldade: multiplica o ritmo do expediente (Normal = valores originais, sem mudança).
+// fall: queda dos documentos · ttl: prazo das tarefas · tasks: frequência de tarefas · events: frequência de eventos · stress: estresse recebido
+const DIFFS = {
+  facil:   { fall: .8,   ttl: 1.3, tasks: .75, events: .8,   stress: .7 },
+  normal:  { fall: 1,    ttl: 1,   tasks: 1,   events: 1,    stress: 1 },
+  dificil: { fall: 1.15, ttl: .85, tasks: 1.2, events: 1.15, stress: 1.25 },
+  burnout: { fall: 1.35, ttl: .7,  tasks: 1.45, events: 1.35, stress: 1.6 },
+};
+const DIFF = () => DIFFS[(typeof CFG !== 'undefined' && CFG.diff) || 'normal'] || DIFFS.normal;
 const RANK_POINTS = BAL.ranks;
 const UNLOCK = { button: 2, email: 3, type: 4, call: 5, printer: 6, video: 8 };
 const EVENTS = { boss: 3, shuffle: 5, freeze: 6, virus: 7 };

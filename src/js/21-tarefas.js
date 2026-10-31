@@ -17,7 +17,7 @@ function spawnTask() {
   const el = document.createElement('div');
   el.className = 'task';
   const t = { type, el, life: 0, ttl: 0 };
-  const speed = Math.max(0.55, 1 - Math.max(0, S.level - UNLOCK[type]) * 0.07) * (has('secretaria') ? 1.2 : 1) * (has('postit') ? 1.25 : 1);
+  const speed = Math.max(0.55, 1 - Math.max(0, S.level - UNLOCK[type]) * 0.07) * (has('secretaria') ? 1.2 : 1) * (has('postit') ? 1.25 : 1) * DIFF().ttl;
   const body = document.createElement('div');
   body.className = 'body';
 

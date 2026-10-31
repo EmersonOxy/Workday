@@ -26,13 +26,13 @@ function update(dt) {
   showNextTip(dt);
 
   const f = S.file;
-  const fall = (55 + S.level * 14) * (f.kind === 'urgent' ? 1.6 : 1) * ((S.fast || S.dropNow) && !S.frozen ? 6 : 1) * (has('bandeja') ? 0.85 : 1);
+  const fall = (55 + S.level * 14) * (f.kind === 'urgent' ? 1.6 : 1) * ((S.fast || S.dropNow) && !S.frozen ? 6 : 1) * (has('bandeja') ? 0.85 : 1) * DIFF().fall;
   f.y += fall * sdt;
   if (f.y >= board.clientHeight - S.trays[0].offsetHeight - f.el.offsetHeight) landFile(); else placeFile();
 
-  S.nextTask -= sdt * (mod().taskRate || 1);
+  S.nextTask -= sdt * (mod().taskRate || 1) * DIFF().tasks;
   if (S.nextTask <= 0) { spawnTask(); S.nextTask = Math.max(1.4, 6.5 - S.level * 0.55) * rand(0.7, 1.3); }
-  S.nextEvent -= sdt;
+  S.nextEvent -= sdt * DIFF().events;
   if (S.nextEvent <= 0) { startEvent(); S.nextEvent = Math.max(7, 20 - S.level) * rand(0.7, 1.3); }
   restTick();
 

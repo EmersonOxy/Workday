@@ -139,6 +139,7 @@ function showSettings(onBack) {
   const card = modal(`<h2>${u.settings}</h2>
     <div class="setting"><span>${u.language}</span>${seg('lang', Object.entries(LANGS).map(([k, v]) => [k, v.label]), CFG.lang)}</div>
     <div class="setting"><span>${u.theme}</span>${seg('theme', [['system', u.themeSystem], ['light', u.themeLight], ['dark', u.themeDark]], CFG.theme)}</div>
+    <div class="setting"><span>${u.diffLabel}</span>${seg('diff', Object.keys(DIFFS).map(k => [k, u.diffNames[k]]), CFG.diff || 'normal')}</div>
     <div class="setting"><span>${u.display}</span>${seg('display', [['window', u.windowed], ['full', u.fullscreen]], document.fullscreenElement ? 'full' : 'window')}</div>
     <div class="setting"><span>${u.resolution}</span><select id="resSel" class="pxsel">${RESOLUTIONS.map(r => `<option value="${r}"${(CFG.res || 'auto') === r ? ' selected' : ''}>${r === 'auto' ? u.autoRes : r.replace('x', '×')}</option>`).join('')}</select></div>
     <div class="setting"><span>${u.soundLabel}</span>${seg('sound', [['1', u.soundOn], ['0', u.soundOff]], soundOn ? '1' : '0')}</div>
@@ -155,6 +156,7 @@ function showSettings(onBack) {
     const set = b.parentElement.dataset.set, v = b.dataset.v;
     if (set === 'lang') { CFG.lang = v; applyLang(); }
     if (set === 'theme') { CFG.theme = v; applyTheme(); }
+    if (set === 'diff') { CFG.diff = v; sfx('click'); }
     if (set === 'sound') setSound(v === '1');
     if (set === 'light') { CFG.lights = Object.assign({}, CFG.lights, { lamp: v === '1' }); OFFICE.key = ''; sfx('switch'); }
     if (set === 'display') { CFG.display = v; if ((v === 'full') !== !!document.fullscreenElement) toggleFullscreen(); }

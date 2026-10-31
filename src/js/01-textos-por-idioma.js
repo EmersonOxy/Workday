@@ -475,3 +475,7 @@ LANGS.pt.ui.saveMenu = 'Salvar e ir ao menu'; LANGS.en.ui.saveMenu = 'Save and q
 LANGS.pt.ui.shutdown = 'Desligar'; LANGS.en.ui.shutdown = 'Shut down'; LANGS.es.ui.shutdown = 'Apagar';
 LANGS.pt.ui.shuttingDown = 'Desligando o WorkOS…'; LANGS.en.ui.shuttingDown = 'Shutting down WorkOS…'; LANGS.es.ui.shuttingDown = 'Apagando WorkOS…';
 LANGS.pt.ui.customizePc = 'Personalizar'; LANGS.en.ui.customizePc = 'Customize'; LANGS.es.ui.customizePc = 'Personalizar';
+LANGS.pt.ui.diffLabel = 'Dificuldade'; LANGS.en.ui.diffLabel = 'Difficulty'; LANGS.es.ui.diffLabel = 'Dificultad';
+LANGS.pt.ui.diffNames = { facil: 'Fácil', normal: 'Normal', dificil: 'Difícil', burnout: 'Burnout' };
+LANGS.en.ui.diffNames = { facil: 'Easy', normal: 'Normal', dificil: 'Hard', burnout: 'Burnout' };
+LANGS.es.ui.diffNames = { facil: 'Fácil', normal: 'Normal', dificil: 'Difícil', burnout: 'Burnout' };

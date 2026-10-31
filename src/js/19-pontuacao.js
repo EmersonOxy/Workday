@@ -10,6 +10,7 @@ function flash(text, color, x, y) {
 // O valor muda e a barra acompanha no mesmo instante; o "dano" (faixa clara do trecho recém-somado) tem tempo próprio
 function addStress(n) {
   const before = S.stress;
+  if (n > 0) n *= DIFF().stress;
   S.stress = Math.max(0, Math.min(100, S.stress + n));
   if (n > 0 && S.stress >= 100) S.burnout = true;
   if (n >= 1 && S.phase === 'day') stressBar();
