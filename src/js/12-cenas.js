@@ -19,6 +19,15 @@ function pixelCover(parent, cb) {
 // Transição entre cenas: pontilhado ordenado (Bayer 4×4) em blocos de pixel de arte, varrendo da esquerda
 // para a direita em degraus. Cobre a tela, troca a cena por baixo e revela no mesmo sentido.
 const BAYER4 = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+// Formatos da varredura (campo 0..1 por bloco): a original da esquerda e mais cinco, sorteados sem repetir o anterior
+const WIPE_FIELDS = {
+  sweep:   (i, j, w, h) => i / w,
+  drop:    (i, j, w, h) => j / h,                                                       // cortina de cima para baixo
+  iris:    (i, j, w, h) => Math.min(1, Math.hypot((i - w / 2) / w, (j - h / 2) / h) * 1.42),   // círculo a partir do centro
+  diag:    (i, j, w, h) => (i / w + j / h) / 2,                                         // diagonal
+  blinds:  (i, j, w, h) => ((j % 16) / 16) * .7 + (i / w) * .3,                         // persiana
+  columns: (i, j, w, h) => ((((i >> 3) * 2654435761) >>> 0) % 997) / 997 * .6 + j / h * .4,   // colunas caindo em tempos diferentes
+};
 function wipe(swap, { rgb = [42, 31, 45], dur = 360, hold = 90 } = {}) {
   if (wipe.busy) return;
   wipe.busy = true;
@@ -28,10 +37,12 @@ function wipe(swap, { rgb = [42, 31, 45], dur = 360, hold = 90 } = {}) {
   c.style.width = cw * B * M.k + 'px'; c.style.height = ch * B * M.k + 'px';
   document.body.append(c);
   const x = c.getContext('2d'), img = x.createImageData(cw, ch), px = new Uint32Array(img.data.buffer);
+  const keys = Object.keys(WIPE_FIELDS).filter(k => k !== wipe.last), kind = wipe.last = pick(keys), F = WIPE_FIELDS[kind];
+  const field = new Float32Array(cw * ch); for (let j = 0; j < ch; j++) for (let i = 0; i < cw; i++) field[j * cw + i] = F(i, j, cw, ch);
   const ink = (255 << 24) | (rgb[2] << 16) | (rgb[1] << 8) | rgb[0];
   const paint = (p, back) => {
     for (let j = 0; j < ch; j++) for (let i = 0; i < cw; i++) {
-      const g = i / cw, th = (BAYER4[(i & 3) + ((j & 3) << 2)] + .5) / 16 * .5 + (back ? 1 - g : g) * .5;
+      const g = field[j * cw + i], th = (BAYER4[(i & 3) + ((j & 3) << 2)] + .5) / 16 * .5 + (back ? 1 - g : g) * .5;
       px[j * cw + i] = (back ? p >= th : p > th) ? ink : 0;
     }
     x.putImageData(img, 0, 0);
