@@ -570,3 +570,4 @@ LANGS.es.ui.curNames = { padrao: 'Del sistema', triangulo: 'Triángulo', pequeno
 LANGS.pt.ui.mkCats = { use: '☕ Do dia', desk: '🪴 Mesa', pc: '🖥️ Computador', wall: '🖼️ Parede' };
 LANGS.en.ui.mkCats = { use: '☕ For today', desk: '🪴 Desk', pc: '🖥️ Computer', wall: '🖼️ Wall' };
 LANGS.es.ui.mkCats = { use: '☕ Del día', desk: '🪴 Escritorio', pc: '🖥️ Computadora', wall: '🖼️ Pared' };
+Object.assign(LANGS.pt.ui, { phoneRing: 'CHAMANDO', phoneLine: 'EM LINHA' }); Object.assign(LANGS.en.ui, { phoneRing: 'RINGING', phoneLine: 'ON LINE' }); Object.assign(LANGS.es.ui, { phoneRing: 'LLAMANDO', phoneLine: 'EN LÍNEA' });

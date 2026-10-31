@@ -326,7 +326,7 @@ const Office = {
       this.shadow(x, px - 2, py + 12, 14, 2);
       x.drawImage(Pixel.master(['..kk........', '.krrk....kk.', '.kmmk...kLLk', '.kQQk.k.kLLk', '.kQQkkmkkLLk', '.kQQkkmkkLLk', '.kQQkkmkk7Lk', 'kkkkkkkkkkkk',
         'kJjmjmjmjmJk', 'kjMjMjMjMjjk', 'kJjmjmjmjmJk', 'kjMjMjMjMjjk', 'kJjmjmjmjmJk', 'kjMjMjMjMjjk', 'kJjjjjjjjjJk', '.kkkkkkkkkk.'], P), px - 2, py - 4); }
-    if (Z.phone) this.shadow(x, Z.phone.x - 3, Z.phone.y + 22, 48, 3);
+    if (Z.phone && !st.bigPhone) this.shadow(x, Z.phone.x - 3, Z.phone.y + 22, 48, 3);
     for (let i = 0; i < 12; i++) { const a = i / 12 * Math.PI * 2; F(P[3], Z.mug.x - 8 + Math.round(Math.cos(a) * 5), L.desk + 22 + Math.round(Math.sin(a) * 2), 1, 1); }
     // Objetos parados: porta-retrato, plaquinha do cargo, coroa de CEO, monitor extra (moldura)
     if (typeof drawDecorExtra === 'function') drawDecorExtra(x, L, st.decor);
@@ -472,7 +472,7 @@ const Office = {
       });
     }
     // Telefone de mesa (toca quando há uma ligação esperando)
-    if (Z.phone) this.phone(ctx, Z.phone.x, Z.phone.y, st.ringing, t, st.phoneHeld);
+    if (Z.phone && !st.bigPhone) this.phone(ctx, Z.phone.x, Z.phone.y, st.ringing, t, st.phoneHeld);
     // Planta (folhas balançam de leve)
     if (D.has('planta')) this.plant(ctx, Z.plant.x, Z.plant.y, t);
     // Monitor extra: gráfico subindo e cursor piscando

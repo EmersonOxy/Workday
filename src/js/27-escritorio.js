@@ -11,7 +11,7 @@ function officeState() {
   const stress = S ? S.stress : 0;
   const clutter = day ? Math.min(3, Math.floor(stress / 30) + (S.level >= 8 ? 1 : 0)) : 0;
   const ringing = (day && S.tasks.some(t => t.type === 'call')) || !!OFFICE.call;
-  return { hour, stress, clutter, decor: P.decor, rank: S ? S.rankIdx : 0, blind: OFFICE.blind, day: S ? S.day : 0, ringing, press: OFFICE.press, click: OFFICE.click, phoneHeld: !!(S && S.tasks && S.tasks.some(k => k.type === 'call' && !k.dead && k.holding)), hw: Object.assign(hw(), { badgeColor: (BADGE_COLORS[hw().badge] || [])[0], lanyardColor: (BADGE_COLORS[hw().lanyard] || [])[0] }), badge: badgeInfo(), lights: lightState(), weather: Office.weather(S ? S.day : 1), cat: hw().cat, sound: soundOn };
+  return { hour, stress, clutter, decor: P.decor, rank: S ? S.rankIdx : 0, blind: OFFICE.blind, day: S ? S.day : 0, ringing, press: OFFICE.press, click: OFFICE.click, bigPhone: true, phoneHeld: !!(S && S.tasks && S.tasks.some(k => k.type === 'call' && !k.dead && k.holding)), hw: Object.assign(hw(), { badgeColor: (BADGE_COLORS[hw().badge] || [])[0], lanyardColor: (BADGE_COLORS[hw().lanyard] || [])[0] }), badge: badgeInfo(), lights: lightState(), weather: Office.weather(S ? S.day : 1), cat: hw().cat, sound: soundOn };
 }
 // Crachá da mesa: cores do avatar ou miniatura 4×5 da foto
 function badgeInfo() {
@@ -49,12 +49,14 @@ function officeLayout() {
   else Object.assign(app.style, { left: s.x * k + 'px', top: s.y * k + 'px', width: s.w * k + 'px', height: s.h * k + 'px' });
   if (!focus) app.style.setProperty('--fs', Math.max(13, Math.min(26, s.h * k * .027)).toFixed(1) + 'px');
   OFFICE.key = '';
+  if (typeof deskPhoneLayout === 'function') deskPhoneLayout();
   if (S && S.file && S.phase === 'day') placeFile();
 }
 function officeFrame(now) {
   requestAnimationFrame(officeFrame);
   if (!OFFICE.on || document.hidden || now - OFFICE.last < 80) return;   // ~12 quadros/s bastam para o ambiente
   OFFICE.last = now;
+  if (typeof deskPhoneTick === 'function') deskPhoneTick();
   const st = officeState(), key = [OFFICE.L.VW, OFFICE.L.VH, st.hour * 4 | 0, st.clutter, st.decor.join(), st.rank, st.day, JSON.stringify(st.hw), JSON.stringify(st.badge), JSON.stringify(st.lights)].join('|');
   if (key !== OFFICE.key) { OFFICE.key = key; OFFICE.baked = Office.bake(OFFICE.L, st); }
   // Persiana anda em degraus até a posição pedida, com estalinhos do mecanismo
