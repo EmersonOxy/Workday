@@ -73,7 +73,7 @@ function officeFrame(now) {
   const icons = $('osdesk').querySelector('.icons');
   for (const [rows, label, pal] of [[SPR2.doc, 'WORKDAY.EXE', WD_SECTOR_RAMP.ti], [XL_ICON.sheet, 'ORCAMENTO.XLS'], [SPR2.envelope, 'E-MAIL'], [SPR2.virus, 'NAO_ABRA.EXE'], [SPR.trash, 'LIXEIRA']]) {
     const d = document.createElement('div'); d.className = 'osicon'; d.append(Pixel.el(rows, 3, pal)); d.insertAdjacentHTML('beforeend', `<span>${label}</span>`); icons.append(d); }
-  $('osdesk').querySelector('.start').append(Pixel.el(ORB_ICO, 2)); $('osdesk').querySelector('.start').title = 'WorkOS';
+  $('osdesk').querySelector('.start').append(Pixel.el(ORB_ICO, 3)); $('osdesk').querySelector('.start').title = 'WorkOS';
   // durante o expediente, o botão da barra abre a pausa (a planilha)
   // Durante o expediente o botão mostra o menu Iniciar por cima (sem pausar); fecha sozinho 2 s depois que o mouse sai.
   // Escolher um item é que pausa: Configurações abre por cima da pausa; Desligar salva e volta ao menu.

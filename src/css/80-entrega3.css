@@ -407,3 +407,6 @@
   .os-start.on, #osdesk .start.on { translate: 0 1px; filter: brightness(.9); }
   .os-tasks { left: 4.4em !important; }
   .os-smenu { bottom: 2.6em !important; }
+  .os-start { left: .25em !important; bottom: -.15em !important; }
+  #osdesk .start { top: -.25em; }
+  body.office .taskbar { overflow: visible; }

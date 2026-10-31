@@ -49,7 +49,7 @@ function closeModal() {
 
 // Ícones do menu: todos 12×12, contorno de tinta, mesma luz (de cima à esquerda); botões da barra de título 7×7
 // orbe do botão Iniciar (18x18, desenhado em pixels; sem círculo/degradê do navegador)
-const ORB_ICO = ['..................', '.....kkkkkkkk.....', '....kllllllllk....', '...kWWWlllllllk...', '..klWWWllllllllk..', '.kLLLLLLLLLLLLLLk.', '.kLLLRRRRLFFFLLLk.', '.kLLLRRRRLFFFLLLk.', '.kLLLRRRRLFFFLLLk.', '.kLLLRRRRLFFFLLLk.', '.kLLLLLLLLLLLLLLk.', '.kLLLyyyyLYYYLLLk.', '.k777yyyy7YYY777k.', '..k77yyyy7YYY77k..', '...k7777777777k...', '....k77777777k....', '.....kkkkkkkk.....', '..................'];
+const ORB_ICO = ['......................', '.......kkkkkkkk.......', '.....kkllllllllkk.....', '....kWWWlllllllllk....', '...klWWWWlllllllllk...', '..kllWWWWllllllllllk..', '..kllllllllllllllllk..', '.kLLLLqqqqqL9999LLLLk.', '.kLLLLqRRRRLFFF9LLLLk.', '.kLLLLqRRRRLFFF9LLLLk.', '.kLLLLqRRRRLFFF9LLLLk.', '.kLLLLqRRRRLFFF9LLLLk.', '.kLLLLLLLLLLLLLLLLL7k.', '.kLLLLLllllLYYYzLLL7k.', '.kLLLLLllllLYYYzLLL7k.', '..k777Lllll7YYYz777k..', '..k777LLLLL7zzzz777k..', '...k77777777777777k...', '....k777777777777k....', '.....kk77777777kk.....', '.......kkkkkkkk.......', '......................'];
 const MENU_ICO = {
   cont: ['..w..w......', '...w..w.....', '..w..w......', '.kkkkkkkk...', '.kTTTTTTkkk.', '.kTWTTTTk.k.', '.kTWTTTTk.k.', '.kTTTTTTkkk.', '.kTTTTTTk...', '.kuuuuuuk...', '..kkkkkk....', '............'],
   play: ['...kkkkkk...', '.kkkmmmmkkk.', 'kWWkkkkkkWWk', 'kWwwwwwwwwPk', 'kWwppppwwwPk', 'kWwwwwwwwwPk', 'kWwpppwwFwPk', 'kWwwwwwFFwPk', 'kWwppFwFwwPk', 'kWwwwFFwwwPk', 'kWPPPPPPPPPk', 'kkkkkkkkkkkk'],
@@ -115,7 +115,7 @@ function osStart(u) {
   m.insertAdjacentHTML('beforeend', `<button class="os-start" aria-haspopup="true"></button><div class="os-smenu hidden"><div class="os-sh"><span class="os-me"></span><b></b></div>
     <button data-a="prof">${u.profile}</button><button data-a="pc">${u.customizePc || 'WorkOS'}</button><button data-a="cfg">${u.settings}</button><i></i><button data-a="off">${u.shutdown}</button></div>`);
   const b = m.querySelector('.os-start'), sm = m.querySelector('.os-smenu');
-  b.append(Pixel.el(ORB_ICO, 2)); b.title = 'WorkOS';   // orbe grande, como o Iniciar do Windows 7
+  b.append(Pixel.el(ORB_ICO, 3)); b.title = 'WorkOS';   // orbe grande, como o Iniciar do Windows 7
   const paintMe = () => sm.querySelector('.os-me').replaceChildren(osPicEl(40));
   paintMe(); sm.querySelector('b').textContent = profileName();
   sm.querySelector('.os-me').onclick = e => { e.stopPropagation(); const old = sm.querySelector('.os-pics'); if (old) old.remove(); else osPicPicker(sm.querySelector('.os-sh'), paintMe); };

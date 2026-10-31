@@ -325,7 +325,8 @@ const Office = {
     if (Z.pens) { const px = Z.pens.x, py = Z.pens.y;
       // copo de metal em tela, com lápis (borracha rosa), caneta azul, régua e tesoura
       this.shadow(x, px - 4, py + 12, 17, 2);
-      x.drawImage(Pixel.master(['..kk...........', '.krrk......kk..', '.kmmk.....kLLk.', '.kQQk..k..kLLk.', '.kQQk.kmk.kLLk.', '.kQQk.kmk.kLLk.', '.kQQk.kmk.kLLk.', '.kQQkkkmkkk7Lk.', '.kQQkjkmkJkLLk.', 'kkkkkkkkkkkkkkk', 'kJjmjmjmjmjmjJk', 'kjMjMjMjMjMjMjk', 'kJjmjmjmjmjmjJk', 'kjMjMjMjMjMjMjk', 'kJjmjmjmjmjmjJk', 'kjMjMjMjMjMjMjk', 'kJjmjmjmjmjmjJk', 'kjMjMjMjMjMjMjk', 'kJjjjjjjjjjjjJk', '.kkkkkkkkkkkkk.'], P), px - 4, py - 8); }
+      // cilindro: boca oval com interior escuro, faixa de luz à esquerda (m), sombra à direita (J), base arredondada
+      x.drawImage(Pixel.master(['..kk............', '.krrk......kk...', '.kmmk.....kLLk..', '.kQQk..k..kLLk..', '.kQQk.kmk.kLLk..', '.kQQk.kmk.kLLk..', '.kQQk.kmk.kLLk..', '..kkkkkkkkkkkk..', '.kJJJJJJJJJJJJk.', 'k0J0J0J0J0J0J0Jk', 'kmJjmjmjmjmjJJjk', 'kmjMjMjMjMjMjjJk', 'kmJjmjmjmjmjJJjk', 'kmjMjMjMjMjMjjJk', 'kmJjmjmjmjmjJJjk', 'kmjMjMjMjMjMjjJk', 'kmJjmjmjmjmjJJjk', 'kmjMjMjMjMjMjjJk', '.kMjjjjjjjjjjJk.', '..kkkkkkkkkkkk..'], P), px - 4, py - 8); }
     if (Z.phone && !st.bigPhone) this.shadow(x, Z.phone.x - 3, Z.phone.y + 22, 48, 3);
     for (let i = 0; i < 12; i++) { const a = i / 12 * Math.PI * 2; F(P[3], Z.mug.x - 8 + Math.round(Math.cos(a) * 5), L.desk + 22 + Math.round(Math.sin(a) * 2), 1, 1); }
     // Objetos parados: porta-retrato, plaquinha do cargo, coroa de CEO, monitor extra (moldura)
@@ -409,15 +410,18 @@ const Office = {
   // Sombra pontilhada no tampo: "assenta" os objetos na mesa
   shadow(x, px, py, w, h) { x.fillStyle = WD_PAL[3]; x.fillRect(px + 1, py, w - 2, 1); Pixel.dither(x, px, py + 1, w, h, WD_PAL[4]); },
   paperStack(x, px, py, n) {
-    const P = WD_PAL;
-    this.shadow(x, px - 1, py + 13, 33, 2);
-    for (let i = 0; i < n; i++) { const ox = px + (i % 2 ? 1 : -1) * (i % 3), oy = py - i * 2;
-      x.fillStyle = P.k; x.fillRect(ox - 1, oy - 1, 32, 15); x.fillStyle = P.W; x.fillRect(ox, oy, 30, 13); x.fillStyle = P.w; x.fillRect(ox, oy + 11, 30, 2);
-      x.fillStyle = P.p; for (let l = 3; l < 11; l += 2) x.fillRect(ox + 3, oy + l, 16 + (l * 5 % 8), 1); }
-    if (n > 0) { const ox = px + ((n - 1) % 2 ? 1 : -1) * ((n - 1) % 3), oy = py - (n - 1) * 2;   // folha de cima: cabeçalho, assinatura e clipe
-      x.fillStyle = P.L; x.fillRect(ox + 3, oy + 2, 10, 2); x.fillStyle = P.k; x.fillRect(ox + 20, oy + 9, 6, 1); x.fillRect(ox + 22, oy + 8, 2, 1);
-      x.fillStyle = P.k; x.fillRect(ox + 24, oy - 2, 4, 6); x.fillStyle = P.m; x.fillRect(ox + 25, oy - 1, 2, 4); x.fillStyle = P.M; x.fillRect(ox + 25, oy + 2, 2, 1);
-      x.fillStyle = P.w; x.fillRect(ox + 27, oy, 3, 3); x.fillStyle = P.p; x.fillRect(ox + 28, oy + 1, 2, 2); }
+    // pilha com volume: topo (folha de cima), frente com a borda de cada folha, lateral direita na sombra e sombra de contato
+    const P = WD_PAL, F = (c, a, b, w, h) => { x.fillStyle = c; x.fillRect(a, b, w, h); }, th = Math.max(2, n + 1), W2 = 30, H2 = 12, ty = py - th + 2;
+    this.shadow(x, px + 1, py + H2 + 2, W2 + 3, 3);
+    F(P.k, px - 1, ty - 1, W2 + 3, H2 + th + 2);
+    F(P.W, px, ty, W2, H2); F(P.w, px, ty + H2 - 1, W2, 1);                                              // topo
+    for (let i = 0; i < th; i++) F(i % 2 ? P.p : P.w, px, ty + H2 + i, W2, 1);                         // frente: bordas das folhas
+    for (let i = 0; i < th; i += 3) F(P.W, px + 2 + (i * 7) % 9, ty + H2 + i, 6, 1);                     // folhas desalinhadas
+    F(P.P, px + W2, ty + 1, 1, H2 + th - 1); F(P.p, px + W2 - 1, ty + H2, 1, th);                         // lateral na sombra
+    F(P.L, px + 3, ty + 2, 10, 2); for (let l = 5; l < H2 - 1; l += 2) F(P.p, px + 3, ty + l, 16 + (l * 5 % 8), 1);   // texto da folha de cima
+    F(P.k, px + 20, ty + 9, 6, 1); F(P.k, px + 22, ty + 8, 2, 1);                                         // rubrica
+    F(P.k, px + W2 - 6, ty - 3, 4, 6); F(P.m, px + W2 - 5, ty - 2, 2, 4); F(P.M, px + W2 - 5, ty + 1, 2, 1); // clipe
+    F(P.w, px + W2 - 3, ty, 3, 3); F(P.p, px + W2 - 2, ty + 1, 2, 2);                                     // canto dobrado
   },
   frame(x, px, py) { const P = WD_PAL, F = (c, a, b, w, h) => { x.fillStyle = c; x.fillRect(a, b, w, h); };
     this.shadow(x, px - 1, py + 19, 20, 2);
