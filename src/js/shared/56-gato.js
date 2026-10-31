@@ -63,7 +63,15 @@ function catPose(c, t) {
 
 // ---------- Desenho ----------
 // Devolve a altura usada. x0, by: canto esquerdo e base (onde as patas tocam)
+const CAT_FRAMES = new Map();
 function catDraw(x, x0, by, coat, c, t, k = CAT_K) {
+  const pz = catPose(c, t), key = coat + '|' + k + '|' + JSON.stringify(pz, (n, v) => n === 'hearts' ? (v < 0 ? -1 : Math.round(v * 8)) : n === 'z' ? (v ? Math.round((t * .45) % 1 * 8) : 0) : v);
+  let fr = CAT_FRAMES.get(key);
+  if (!fr) { const [w, h] = catSize(k), cv = document.createElement('canvas'); cv.width = w; cv.height = h + Math.ceil(12 * k); const hh = catDrawRaw(cv.getContext('2d'), 0, cv.height, coat, c, t, k);
+    fr = { cv, hh }; if (CAT_FRAMES.size > 300) CAT_FRAMES.clear(); CAT_FRAMES.set(key, fr); }
+  x.drawImage(fr.cv, Math.round(x0), Math.round(by) - fr.cv.height); return fr.hh;
+}
+function catDrawRaw(x, x0, by, coat, c, t, k = CAT_K) {
   const [coatId, eyeId] = String(coat).split('|'), C = CAT_COATS_NEW[coatId] || CAT_COATS_NEW.laranja, P = WD_PAL, p = catPose(c, t), oy = 2;
   const EY = CAT_EYES[eyeId] || null, eyeCols = side => !EY ? C.eye : Array.isArray(EY[0]) ? EY[side] : EY;
   const W = Math.ceil(42 * k), H = Math.ceil(35 * k), N = W * H;
@@ -234,4 +242,4 @@ function catRows(coat, k) {
 }
 
 // sprite por letras do mesmo gato (prateleira do mercado e catálogo)
-SPR2.cat = catRows('laranja', .8);
+try { SPR2.cat = catRows('laranja', .8); } catch (e) {}   // navegadores que bloqueiam leitura de canvas: fica o sprite antigo
