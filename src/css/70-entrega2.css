@@ -84,3 +84,17 @@
   .mico { display: inline-grid; place-items: center; width: 2em; flex: none; line-height: 0; }
   .menu-card .menu .arcade { justify-self: stretch; width: 100% !important; }
   @media (max-width: 600px) { .mw-logo { font-size: 2.4em; } .mw-hero { flex-direction: column; text-align: center; } }
+  .mw-logo { text-shadow: none !important; line-height: 0; }
+  .mw-logo canvas { image-rendering: pixelated; }
+  .mw-stats span { box-shadow: 0 0 0 2px var(--ink), inset 0 2px 0 rgba(255,255,255,.12), inset 0 -3px 0 var(--line) !important; }
+  /* ===== Personalização: grades uniformes, sem moldura dentro de moldura ===== */
+  .hw-card .setting { align-items: flex-start; }
+  .hw-card .walls { display: grid; grid-template-columns: repeat(auto-fill, minmax(6.4em, 1fr)); gap: .5em; width: 100%; }
+  .hw-card .walls.cats { grid-template-columns: repeat(auto-fill, minmax(5.2em, 1fr)); }
+  .hw-card .wall { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: .25em; padding: .35em .2em .3em !important; min-width: 0; height: 100%; }
+  .hw-card .wall small { width: 100%; font-size: .85em; line-height: 1.1; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .hw-card .wall canvas { box-shadow: none !important; }
+  .hw-card .cat .cimg { display: grid; place-items: center; height: 3.4em; line-height: 0; }
+  .hw-card .wall:not(.cat) canvas { box-shadow: 0 0 0 1px var(--ink) !important; }
+  /* escolhido: anel amarelo, texto continua legível */
+  .hw-card .wall.on { background: var(--card) !important; color: var(--ink) !important; box-shadow: 0 0 0 2px var(--ink), 0 0 0 5px #f4c15d !important; }

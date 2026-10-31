@@ -21,7 +21,7 @@ function showMenu() {
   const ico = n => `<i class="mico" data-i="${n}"></i>`;
   const card = modal(`<div class="mw"><div class="mw-bar"><span>WORKDAY.EXE</span><span class="mw-b"><b>_</b><b>□</b><b>✕</b></span></div>
     <div class="mw-in">
-      <div class="mw-hero"><span class="mw-face"></span><div><h2 class="mw-logo">${[...'WORKDAY'].map(c => `<span>${c}</span>`).join('')}</h2><p class="mw-tag">${u.tagline}</p></div></div>
+      <div class="mw-hero"><span class="mw-face"></span><div><h2 class="mw-logo" aria-label="WORKDAY"></h2><p class="mw-tag">${u.tagline}</p></div></div>
       <div class="mw-stats"><span><small>${u.record}</small><b>${fmt(P.best)}</b></span><span><small>${u.wallet}</small><b>${money(P.wallet)}</b></span><span><small>${u.daysWorked}</small><b>${fmt(P.stats.days)}</b></span></div>
       <div class="menu">
         ${saved ? `<button class="pxbtn main" id="cont">${ico('cont')}${u.cont(saved.day + 1)}</button>` : ''}
@@ -37,7 +37,16 @@ function showMenu() {
   const ICO = { cont: () => Pixel.el(SPR2.mug, 2), play: () => Pixel.el(SPR2.doc, 2, WD_SECTOR_RAMP.fin), how: () => Pixel.el(SPR2.postit, 2), cfg: () => Pixel.el(SPR2.gear, 2), prof: () => portrait(28), arc: () => Pixel.el(SPR2.pad, 2), snd: () => Pixel.el(SPR2.note, 2) };
   card.querySelectorAll('.mico').forEach(i => i.append(ICO[i.dataset.i]()));
   card.querySelector('.mw-face').append(portrait(112));
-  card.querySelectorAll('.mw-logo span').forEach((sp, i) => Motion.play(sp, [{ transform: 'translateY(-14px)', opacity: 0 }, { transform: 'translateY(2px)', opacity: 1, offset: .7 }, { transform: 'none', opacity: 1 }], { duration: 360, delay: 120 + i * 60, easing: Motion.E.out, fill: 'backwards' }));
+  { // logotipo em pixel art: fonte 3×5 com cada pixel valendo 2×2, contorno de 1 px em tinta e sombra em degrau
+    const word = 'WORKDAY', C = 2, gap = 1, W0 = word.length * (3 * C + gap) + 4, H0 = 5 * C + 5, grid = new Uint8Array(W0 * H0);
+    [...word].forEach((ch, i) => { const g = Pixel.FONT[ch] || Pixel.FONT[' ']; for (let k = 0; k < 15; k++) if (g[k] === '1') for (let dy = 0; dy < C; dy++) for (let dx = 0; dx < C; dx++) grid[(2 + Math.floor(k / 3) * C + dy) * W0 + 2 + i * (3 * C + gap) + (k % 3) * C + dx] = 1; });
+    const lc = document.createElement('canvas'); lc.width = W0; lc.height = H0; const x = lc.getContext('2d'), at = (i, j) => i >= 0 && j >= 0 && i < W0 && j < H0 && grid[j * W0 + i];
+    for (let j = 0; j < H0; j++) for (let i = 0; i < W0; i++) {
+      if (at(i, j)) { x.fillStyle = j < 2 + C * 2 ? WD_PAL.W : WD_PAL.w; x.fillRect(i, j, 1, 1); }
+      else if (at(i - 1, j) || at(i + 1, j) || at(i, j - 1) || at(i, j + 1)) { x.fillStyle = WD_PAL.k; x.fillRect(i, j, 1, 1); }
+      else if (at(i - 1, j - 2) || at(i, j - 2)) { x.fillStyle = WD_PAL.z; x.fillRect(i, j, 1, 1); }
+    }
+    const logo = card.querySelector('.mw-logo'); logo.append(pxSize(lc, 4)); Motion.dropIn(logo); }
   sceneIn(card, '.mw-stats span, .menu .pxbtn', 45, 300);
   card.querySelector('#msnd').onclick = () => { setSound(!soundOn); showMenu(); };
   $('modal').insertAdjacentHTML('beforeend', `<div class="legalbar"><p>${u.footer}</p></div>`);

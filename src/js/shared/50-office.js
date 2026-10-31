@@ -28,7 +28,8 @@ const Office = {
     const sx = Math.round((VW - sw) / 2), sy = chinBottom - this.CHIN - sh;
     const mon = { x: sx - this.BEZEL, y: sy - this.BEZEL, w: sw + this.BEZEL * 2, h: sh + this.BEZEL + this.CHIN };
     const kw = Math.min(180, sw * .36 | 0), kx = (VW - kw) / 2 | 0;
-    return { VW, VH, desk, screen: { x: sx, y: sy, w: sw, h: sh }, mon, left: mon.x, right: VW - (mon.x + mon.w), kx, kw };
+    const back = Math.max(desk - 46, Math.round(VH * .7));   // fundo do tampo (encosta na parede), escondido em parte pelo monitor
+    return { VW, VH, desk, back, screen: { x: sx, y: sy, w: sw, h: sh }, mon, left: mon.x, right: VW - (mon.x + mon.w), kx, kw };
   },
 
   // Céu e luz conforme a hora do expediente (9 a 18)
@@ -109,11 +110,11 @@ const Office = {
     const M = L.mon, s = L.screen;
     return {
       win: (() => { const x0 = Math.max(6, Math.min(20, L.left >> 3)), w = L.mon.x - x0 + Math.min(120, L.mon.w >> 2); return { x: x0, y: 16, w, h: Math.max(54, (L.desk - 30) * .6 | 0), vis: L.mon.x - x0 }; })(),
-      plant: { x: Math.max(1, M.x - 30), y: L.desk + 8 },
+      plant: { x: Math.max(1, M.x - 26), y: L.back + 18 },
       // Objetos comprados ficam na frente da mesa, fora da tela; só descem para a moldura se não houver espaço
       frame: L.kx - 112 > M.x - 4 ? { x: L.kx - 112, y: L.desk + 5 } : { x: M.x + 6, y: L.desk - 10 },
       trophy: L.kx + L.kw + 106 < L.VW - 34 ? { x: L.kx + L.kw + 92, y: L.desk + 4 } : { x: M.x + M.w - 20, y: L.desk - 12 },
-      lamp: { x: Math.min(L.VW - 20, M.x + M.w + 14), y: L.desk + 3 },
+      lamp: { x: Math.min(L.VW - 20, M.x + M.w + 14), y: L.back + 14 },
       // Detalhes do ambiente (não dependem de compras)
       phone: L.kx - 158 > M.x - 4 ? { x: L.kx - 158, y: L.desk + 11 } : null,
       pens: L.kx - 126 > M.x - 4 ? { x: L.kx - 125, y: L.desk + 9 } : null,
@@ -160,7 +161,7 @@ const Office = {
     // Parede: papel listrado, rodameio
     F(P.A, 0, 0, L.VW, L.desk);
     for (let i = 0; i < L.VW; i += 12) { F(P.a, i, 0, 1, L.desk); Pixel.dither(x, i + 1, 0, 1, L.desk, P.a, 1); }
-    F(P.b, 0, L.desk - 22, L.VW, 1); F(P.B, 0, L.desk - 21, L.VW, 21); F(P.b, 0, L.desk - 20, L.VW, 1);
+    F(P.b, 0, L.back - 22, L.VW, 1); F(P.B, 0, L.back - 21, L.VW, 21); F(P.b, 0, L.back - 20, L.VW, 1);
     // Janela alta: moldura de madeira, céu em pontilhado, prédios, persiana recolhida, peitoril
     const W = Z.win;
     F(P.k, W.x - 2, W.y - 2, W.w + 4, W.h + 4); F(P[3], W.x - 1, W.y - 1, W.w + 2, W.h + 2);
@@ -188,8 +189,21 @@ const Office = {
     if (L.right > 110) { const sx = M.x + M.w + 64, sw = Math.min(110, L.VW - sx - 8), px = sx + Math.max(0, (sw - 38) / 2 | 0), py = 30 + 4 * 34 + 14; F(P.k, px - 1, py - 1, 38, 50); F(P.R, px, py, 36, 48); F(P.W, px + 3, py + 3, 30, 30); Pixel.text(x, 'SINERGIA', px + 2, py + 37, P.W);
       for (let i = 0; i < 4; i++) F([P.F, P.O, P.L, P.I][i], px + 7 + i * 6, py + 26 - i * 5, 4, 4 + i * 5); }
     // Tampo da mesa: borda iluminada, veios
-    F(P[2], 0, L.desk, L.VW, L.VH - L.desk); F(P[1], 0, L.desk, L.VW, 1); F(P[3], 0, L.desk + 1, L.VW, 1);
-    for (let n = 0; n < L.VW / 9; n++) { const gx = R() * L.VW | 0, gy = L.desk + 4 + R() * (L.VH - L.desk - 6) | 0; F(P[3], gx, gy, 6 + R() * 22 | 0, 1); }
+    // Tampo em perspectiva: do fundo (encostado na parede, atrás do monitor) até a frente, onde você está sentado.
+    // Tábuas e veios convergem para um ponto de fuga no centro; o fundo fica um pouco mais escuro que a frente.
+    { const top = L.back, vpx = L.VW / 2, vpy = top - Math.max(120, L.VH * .55), cx2 = L.VW / 2;
+      F(P[2], 0, top, L.VW, L.VH - top);
+      for (let j = top; j < Math.min(L.VH, top + 8); j++) Pixel.dither(x, 0, j, L.VW, 1, P[3], j);          // fundo mais escuro
+      const at = (x0, y) => vpx + (x0 - vpx) * (y - vpy) / (top - vpy);                                      // x de uma linha de fuga na altura y
+      const plank = 14;
+      for (let n = -Math.ceil(L.VW / plank) * 3; n <= Math.ceil(L.VW / plank) * 3; n++) {
+        const x0 = cx2 + n * plank * .55;
+        for (let y = top + 1; y < L.VH; y++) { const xx = Math.round(at(x0, y)); if (xx < -2 || xx > L.VW + 2) continue; if (n % 3 === 0) F(P[4], xx, y, 1, 1); else if ((y * 7 + n * 13) % 11 < 4) F(P[3], xx, y, 1, 1); }
+      }
+      for (let n = 0; n < L.VW / 7; n++) { const y = top + 4 + R() * (L.VH - top - 6) | 0, x0 = R() * L.VW | 0, len = 4 + R() * 10 | 0; for (let k = 0; k < len; k++) { const xx = Math.round(at(x0 + (x0 - vpx) * k * .02, y + k)); if (y + k < L.VH) F(P[3], xx, y + k, 1, 1); } }   // veios seguindo a perspectiva
+      F(P.k, 0, top, L.VW, 1); for (let j = 1; j < 4; j++) Pixel.dither(x, 0, top + j, L.VW, 1, P[4], j);   // sombra de contato com a parede
+      for (let j = L.VH - 6; j < L.VH; j++) Pixel.dither(x, 0, j, L.VW, 1, P[1], j + 1);                      // borda da frente iluminada
+    }
     // Monitor: moldura fina com volume, tela, queixo com marca e pé
     const cx = M.x + (M.w >> 1);
     this.shadow(x, cx - 40, L.desk + 1, 80, 3);
@@ -279,7 +293,7 @@ const Office = {
     const ox = L.kx + 3 + i * 7 + (r % 2) * 3, oy = L.VH - 15 + 2 + r * 5;
     return ox + 6 <= L.kx + L.kw - 2 ? [ox, oy] : null;
   },
-  drawInput(ctx, L, hwSel, keys, mouse, now, hover) {
+  drawInput(ctx, L, hwSel, keys, mouse, now) {
     const P = WD_PAL, HK = this.ramp(hwSel.kb), HO = this.ramp(hwSel.mouse), R = this.keyRects(L);
     ctx.clearRect(0, 0, L.VW, L.VH);
     let active = false;
@@ -294,9 +308,6 @@ const Office = {
       if (b.down) { active = true; ctx.fillStyle = HO.sh; ctx.fillRect(bx, my, bw, 6); ctx.fillStyle = P.y; ctx.fillRect(bx, my + 4, bw, 1); }
       else if (now - b.up < 90) { active = true; ctx.fillStyle = HO.hi; ctx.fillRect(bx, my, bw, 1); }
     });
-    // objeto clicável sob o mouse: moldura amarela pulsando de leve
-    if (hover) { const r = hover === 'badge' ? this.badgeRect(L) : hover === 'lamp' ? this.lampRect(L) : (() => { const w = this.spots(L).win; return { x: w.x - 3, y: w.y - 3, w: Math.min(w.w, w.vis) + 3, h: w.h + 8 }; })();
-      ctx.fillStyle = (now / 250 | 0) % 2 ? P.Y : P.y; ctx.fillRect(r.x - 1, r.y - 1, r.w + 2, 1); ctx.fillRect(r.x - 1, r.y + r.h, r.w + 2, 1); ctx.fillRect(r.x - 1, r.y, 1, r.h); ctx.fillRect(r.x + r.w, r.y, 1, r.h); active = true; }
     return active;
   },
   // Miniatura do equipamento para a tela de personalização (mesmos acabamentos)

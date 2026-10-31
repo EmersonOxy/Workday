@@ -106,8 +106,7 @@ function openBadgeFromDesk() {
   showBadge(() => { closeModal(); if (S && S.phase === 'day') { S.paused = was; S.last = performance.now(); } });
 }
 OFFICE.cv.addEventListener('pointerdown', e => { if (onWindow(e)) { CFG.blinds = !CFG.blinds; persist(); } else if (onLamp(e)) toggleLight('lamp'); else if (onBadge(e) && $('modal').classList.contains('hidden')) openBadgeFromDesk(); });
-OFFICE.cv.addEventListener('pointerleave', () => { if (OFFICE.hover) { OFFICE.hover = null; OFFICE.cv.style.cursor = ''; fxWake(); } });
-OFFICE.cv.addEventListener('pointermove', e => { const hov = onBadge(e) ? 'badge' : onLamp(e) ? 'lamp' : onWindow(e) ? 'win' : null; OFFICE.cv.style.cursor = hov ? 'pointer' : ''; if (hov !== OFFICE.hover) { OFFICE.hover = hov; fxWake(); } });
+OFFICE.cv.addEventListener('pointermove', e => { OFFICE.cv.style.cursor = onBadge(e) || onLamp(e) || onWindow(e) ? 'pointer' : ''; });
 async function toggleFullscreen() {
   try { if (document.fullscreenElement) await document.exitFullscreen(); else await document.documentElement.requestFullscreen(); } catch (e) {}
 }
@@ -125,7 +124,7 @@ document.addEventListener('pointerdown', e => { const b = e.target.closest('.pxb
 function fxFrame() {
   if (!OFFICE.on || !OFFICE.L) { OFFICE.fxRun = false; return; }
   const now = performance.now();
-  const active = Office.drawInput(OFFICE.fxCtx, OFFICE.L, hw(), OFFICE.keys, OFFICE.mouse, now, OFFICE.hover);
+  const active = Office.drawInput(OFFICE.fxCtx, OFFICE.L, hw(), OFFICE.keys, OFFICE.mouse, now);
   for (const [k, s] of OFFICE.keys) if (s.up !== null && now - s.up > 120) OFFICE.keys.delete(k);
   if (active) requestAnimationFrame(fxFrame); else OFFICE.fxRun = false;
 }

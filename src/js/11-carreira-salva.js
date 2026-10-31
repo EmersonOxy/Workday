@@ -4,6 +4,11 @@ function saveCareer() {
   save('carreira', { day: S.day, score: S.score, rankIdx: S.rankIdx, perks: [...S.perks], today: [...S.today], inv: S.inv,
                      careerCauses: S.careerCauses, stress: S.stress });
 }
+// Sair no meio do expediente: guarda a carreira como estava no começo do dia atual (o dia é refeito ao continuar)
+function saveCareerMidday() {
+  save('carreira', { day: S.day - 1, score: S.score - (S.dayScore || 0), rankIdx: S.rankIdx, perks: [...S.perks], today: [...S.today], inv: S.inv,
+                     careerCauses: S.careerCauses, stress: S.stress });
+}
 function clearCareer() { try { localStorage.removeItem('expediente-' + balKey('carreira')); } catch (e) {} }
 function resumeCareer() {
   const c = load('carreira', null);

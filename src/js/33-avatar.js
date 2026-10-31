@@ -157,9 +157,9 @@ function portrait(h, cfgOverride, photoOverride) {
     let src;
     if (Array.isArray(PROFILE.photo) && photoOverride === undefined) src = Pixel.master(PROFILE.photo, WD_PAL);       // foto de save antigo (16×18)
     else if (ph && ph.big) src = h >= ph.big.height || !ph.mini ? ph.big : ph.mini;
-    else { const full = avRender(cfgOverride || avConfig()); src = h >= AV.H ? full : avHalf(full); }
+    else src = avHalf(avRender(cfgOverride || avConfig()));   // pixel graúdo como o Duda, o chefe e os outros rostos
     c.width = src.width; c.height = src.height; c.getContext('2d').drawImage(src, 0, 0);
-    const n = Math.max(1, Math.floor(h * dpr / src.height));
+    const n = Math.max(1, Math.floor(h * dpr / src.height));   // escala inteira: 168 px → 6× (24×28), 56 px → 2×
     c.style.width = src.width * n / dpr + 'px'; c.style.height = src.height * n / dpr + 'px';
   };
   c._redraw = draw; draw();

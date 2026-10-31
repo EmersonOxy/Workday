@@ -52,7 +52,7 @@ function showCustomize(back) {
     <div class="setting"><span>${u.keyboardLabel}</span>${seg('kb', ['cream', 'graphite'])}</div>
     <div class="setting"><span>${u.mouseLabel}</span>${seg('mouse', ['cream', 'graphite'])}</div>
     <div class="setting"><span>${u.catLabel}</span><div class="walls cats">${CAT_COATS.map(c2 => `<button class="pxbtn wall cat${cur.cat === c2 ? ' on' : ''}" data-c="${c2}"><span class="cimg"></span><small>${u.coats[c2]}</small></button>`).join('')}</div></div>
-    <div class="setting"><span>${u.wallLabel}</span><div class="walls">${Object.keys(WALLS).map(w => `<button class="pxbtn wall${cur.wall === w ? ' on' : ''}" data-w="${w}"><canvas width="160" height="90"></canvas><small>${u.walls[w]}</small></button>`).join('')}</div></div>
+    <div class="setting"><span>${u.wallLabel}</span><div class="walls">${Object.keys(WALLS).map(w => `<button class="pxbtn wall${cur.wall === w ? ' on' : ''}" data-w="${w}"><canvas width="64" height="36"></canvas><small>${u.walls[w]}</small></button>`).join('')}</div></div>
     <div class="actions"><button class="pxbtn main" id="hwOk">${u.resume}</button></div>`);
   card.classList.add('hw-card');
   const prev = card.querySelector('.hw-scene');
@@ -63,8 +63,8 @@ function showCustomize(back) {
     Office.hwPreview(prev, h);
   };
   pxFit(prev, () => [Math.min(360, innerWidth * .7), 140]);
-  card.querySelectorAll('.wall:not(.cat)').forEach(b => { const c = b.querySelector('canvas'); if (WALLS[b.dataset.w]) WALLS[b.dataset.w](c.getContext('2d'), 160, 90); else { const x = c.getContext('2d'); x.fillStyle = WD_PAL.X; x.fillRect(0, 0, 160, 90); }
-    pxFit(c, () => [64, 36]); b.onclick = () => { setHw({ wall: b.dataset.w }); draw(); }; });
+  card.querySelectorAll('.wall:not(.cat)').forEach(b => { const c = b.querySelector('canvas'); if (WALLS[b.dataset.w]) WALLS[b.dataset.w](c.getContext('2d'), 64, 36); else { const x = c.getContext('2d'); x.fillStyle = WD_PAL.X; x.fillRect(0, 0, 64, 36); }   // miniatura desenhada já pequena
+    pxFit(c, () => [80, 45]); b.onclick = () => { setHw({ wall: b.dataset.w }); draw(); }; });
   card.querySelectorAll('.cat').forEach(b => { const c2 = catCoat(SPR2.cat, b.dataset.c), cv = document.createElement('canvas'); cv.width = c2.width; cv.height = c2.height; cv.getContext('2d').drawImage(c2, 0, 0); b.querySelector('.cimg').append(pxSize(cv, 3));
     b.onclick = () => { setHw({ cat: b.dataset.c }); card.querySelectorAll('.cat').forEach(x => x.classList.toggle('on', x === b)); sfx('pop'); }; });
   card.querySelectorAll('.seg[data-hw] button').forEach(b => b.onclick = () => {

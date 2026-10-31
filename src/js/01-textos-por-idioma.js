@@ -471,3 +471,4 @@ Object.assign(LANGS.es.ui, { catLabel: 'Gato', coats: { tricolor: 'Tricolor', 'c
 LANGS.pt.ui.tagline = 'Um expediente aconchegante que vai perdendo o controle.';
 LANGS.en.ui.tagline = 'A cozy workday that slowly loses control.';
 LANGS.es.ui.tagline = 'Una jornada acogedora que se va descontrolando.';
+LANGS.pt.ui.saveMenu = 'Salvar e ir ao menu'; LANGS.en.ui.saveMenu = 'Save and quit to menu'; LANGS.es.ui.saveMenu = 'Guardar e ir al menú';
