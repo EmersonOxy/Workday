@@ -130,7 +130,13 @@ function startCall(mode, onExit) {
   // X da janela: no meio de um minigame encerra a partida; fora dele, desliga a chamada
   el.querySelector('.vc-x').onclick = hangup;
   Motion.play(el.querySelector('.vc-win'), [{ transform: 'scale(.4)', opacity: 0 }, { transform: 'scale(1.06)', opacity: 1, offset: .7 }, { transform: 'scale(1)', opacity: 1 }], { duration: 260, easing: Motion.E.out });
-  const finish = async (reaction) => {
+  const finish = async (reaction, vs) => {
+    if (vs) {   // contra o Duda: reage ao resultado e à sequência (virada, vitória, derrota, empate)
+      const k = vs.broke ? (vs.res === 'win' ? 'vsBrokeMe' : 'vsBrokeDuda') : 'vsAfter_' + vs.res;
+      face.set(vs.res === 'win' ? 'wow' : 'smile', vs.res === 'lose' ? 'happy' : 'open');
+      await callSay(pickNew(c[k], k).replace('{a}', fmt(vs.me)).replace('{b}', fmt(vs.duda)), null, face);
+      reaction = null;
+    }
     if (reaction) { face.set(reaction === 'bad' ? 'wow' : 'smile', reaction === 'good' ? 'happy' : 'open'); await callSay(pickNew(c[reaction], reaction), null, face); }
     face.set('smile', 'happy');
     await callSay(pickNew(mode === 'arcade' ? c.byeArcade : c.bye, mode + 'b'), null, face);
@@ -167,13 +173,20 @@ function startCall(mode, onExit) {
     kind = g === '?' ? pick(MINIGAMES) : g === 'inf' ? 'rhythm' : g;
     if (mode === 'work') save('ultimo-minigame', kind);
     if (kind === 'rhythm') opts.song = g === 'inf' ? 'inf' : Math.random() * RHY.SONGS.length | 0;
+    if (g !== 'inf') {
+      const mood = Rival.mood(kind), T = Rival.total(), rec = T.w + T.l + T.d ? ' ' + c.vsRecord(T.w, T.l, T.d) : '';
+      const m = [[u.vsSolo, 'solo', 'game'], [u.vsDuda, 'vs', 'game alt']]; m.inline = true;
+      face.set(mood === 'cocky' ? 'smile' : 'shut', mood === 'cocky' ? 'happy' : 'open');
+      opts.vs = (await callSay(pickNew(c['vsAsk_' + mood], 'ask' + mood) + rec, m, face)) === 'vs';
+      if (opts.vs) { face.set('smile'); await callSay(pickNew(c.vsGo, 'go'), null, face); }
+    }
     if (mode === 'work') music(null);
     const host = document.createElement('div'); host.className = 'mg-host'; el.querySelector('.vc-win').append(host);
     el.classList.add('playing');
     runMinigame(kind, host, result => {
       host.remove(); el.classList.remove('playing');
       if (mode === 'work') addStress(-10);          // descanso de verdade: alivia um pouco, sem pontos nem dinheiro
-      finish(result.quit ? null : result.grade);
+      finish(result.quit ? null : result.grade, result.quit ? null : result.vs);
     }, opts);
   })();
 }

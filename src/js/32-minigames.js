@@ -36,9 +36,9 @@ function mgDrawParticles(x, list, dt) {
   for (let i = list.length - 1; i >= 0; i--) if (list[i].t <= 0) list.splice(i, 1);
 }
 function runMinigame(kind, host, done, opts) { (kind === 'rhythm' ? mgRhythm : mgShooter)(host, done, opts); }
-function mgResult(stage, host, rows, grade, done) {
-  const u = U(), box = document.createElement('div'); box.className = 'mg-end';
-  box.innerHTML = `<b>${u.mgEnd}</b>${rows.map(([k, v]) => `<span>${k} <i>${v}</i></span>`).join('')}`;
+function mgResult(stage, host, rows, grade, done, vs) {
+  const u = U(), box = document.createElement('div'); box.className = 'mg-end' + (vs ? ' vs-' + vs.res : '');
+  box.innerHTML = `<b>${vs ? u.vsRes[vs.res] : u.mgEnd}</b>${rows.map(([k, v]) => `<span>${k} <i>${v}</i></span>`).join('')}`;
   host.querySelector('.mg-view').append(box); Motion.dropIn(box); sfx(grade === 'bad' ? 'err' : 'level');
   setTimeout(() => done(grade), 2200);
 }
@@ -77,6 +77,7 @@ function mgRhythm(host, done, opts = {}) {
   const notes = [], held = [false, false, false, false], flash = [0, 0, 0, 0], parts = [];
   let score = 0, combo = 0, best = 0, perfect = 0, good = 0, miss = 0, over = false, lastT = clock.now();
   let nextBar = 0, barT = 0, bpm = song.bpm, life = 10;
+  const R = Rival.create('rhythm', opts.vs);
   const songT = () => clock.now() - start;
   // agenda bateria e baixo do compasso no relógio do áudio (o que se ouve = o que se julga)
   const scheduleBar = (b, t0, spb) => {
@@ -134,6 +135,7 @@ function mgRhythm(host, done, opts = {}) {
     genAhead();
     const now = clock.now(), dt = Math.min(.05, Math.max(0, now - lastT)), t = songT(); lastT = now;
     for (const n of notes) {
+      if (R && !n.dj && t >= n.t) { n.dj = true; Rival.note(R, n); }
       if (!n.hit && !n.done && t - n.t > RHY.GOOD) missNote(n);
       if (n.holding && t >= n.end) { n.holding = false; n.done = true; score += 100; mgParticles(parts, LX[n.lane] + LW / 2, HIT, P.y, 10); }
     }
@@ -158,6 +160,7 @@ function mgRhythm(host, done, opts = {}) {
     mgDrawParticles(x, parts, dt);
     if (t < 0) Pixel.text(x, String(Math.ceil(-t)), 62, 70, P.y);
     st.hud.textContent = `${u.mgScore} ${fmt(score)} · ${u.mgCombo} ${combo}`;
+    Rival.hud(R, st, score);
     if (inf ? life <= 0 : (nextBar >= song.bars && !notes.some(n => !n.done) && t > barT)) return finish(false);
     requestAnimationFrame(frame);
   };
@@ -166,7 +169,8 @@ function mgRhythm(host, done, opts = {}) {
     removeEventListener('keydown', kd, true); removeEventListener('keyup', ku, true); clock.stop(); st.off();
     if (aborted) return;
     const total = perfect + good + miss || 1, acc = (perfect + good * .6) / total, grade = inf ? (score >= 15000 ? 'good' : score >= 5000 ? 'ok' : 'bad') : acc >= .85 ? 'good' : acc >= .6 ? 'ok' : 'bad';
-    mgResult(st, host, [[u.mgScore, fmt(score)], [u.mgBest, best], [u.mgAcc, Math.round(acc * 100) + '%']], grade, g => done({ score, grade: g, acc }));
+    const vs = R && Rival.finish(R, score);
+    mgResult(st, host, [[u.mgScore, fmt(score)], ...(vs ? [['Duda', fmt(vs.duda)]] : []), [u.mgBest, best], [u.mgAcc, Math.round(acc * 100) + '%']], vs ? (vs.res === 'win' ? 'good' : vs.res === 'lose' ? 'bad' : 'ok') : grade, g => done({ score, grade: g, acc, vs }), vs);
   };
   mgPop(st, u.mgReady);
   genAhead();
@@ -184,16 +188,18 @@ const SHIP = { rows: ['.....k.....', '....kWk....', '....kLk....', '...kWLWk...'
     mail: ['kkkkkkkkk', 'kpWWWWWpk', 'kWpWWWpWk', 'kWWpRpWWk', 'kWWWqWWWk', 'kwwwwwwwk', 'kkkkkkkkk'],
     note: ['kkkkkkkk', 'kyyyyyyk', 'kYZZZYYk', 'kYYYYYYk', 'kYZZYYzk', 'kYYYYzzk', 'kkkkkkk.'],
   } };
-function mgShooter(host, done) {
+function mgShooter(host, done, opts = {}) {
   const u = U(), touch = document.body.classList.contains('touch');
   const st = mgStage(host, u.mgShooter, touch ? u.mgShooterHelpT : u.mgShooterHelp), x = st.x, P = WD_PAL;
   const ship = { x: 58, y: 146, vx: 0, inv: 0, cd: 0 }, foes = [], shots = [], parts = [], keys = {};
   const DUR = 40;
+  const R = Rival.create('shooter', opts && opts.vs);
   let t = -1.6, score = 0, combo = 0, best = 0, lives = 3, kills = 0, spawnT = 0, over = false, last = performance.now(), hidden = false, target = null;
   const types = Object.keys(SHIP.foes);
   const spawn = () => {
     const k = t > 22 ? pick(types) : t > 10 ? pick(['doc', 'mail', 'sheet']) : pick(['doc', 'mail']), spr = SHIP.foes[k];
     foes.push({ k, x: 4 + Math.random() * (MG.W - 16), y: -10, hp: k === 'sheet' ? 2 : 1, vy: 14 + t * .7 + Math.random() * 8, ph: Math.random() * 6, w: spr[0].length, h: spr.length, hit: 0 });
+    if (R) Rival.foe(R, t, foes[foes.length - 1]);
   };
   const kd = e => { if (['ArrowLeft', 'ArrowRight', 'KeyA', 'KeyD', 'Space'].includes(e.code)) { e.preventDefault(); e.stopPropagation(); keys[e.code] = true; } };
   const ku = e => { if (e.code in keys) { e.stopPropagation(); keys[e.code] = false; } };
@@ -242,6 +248,7 @@ function mgShooter(host, done) {
     mgDrawParticles(x, parts, dt);
     if (t < 0) Pixel.text(x, String(Math.ceil(-t)), 62, 70, P.y);
     st.hud.textContent = `${u.mgScore} ${fmt(score)} · ${u.mgCombo} ${combo} · ${u.mgLives} ${'♥'.repeat(Math.max(0, lives))}`;
+    if (R) { Rival.tick(R, t); Rival.hud(R, st, score); }
     if (lives <= 0 || (t >= DUR && !foes.length) || t >= DUR + 6) return finish(false);
     requestAnimationFrame(frame);
   };
@@ -250,7 +257,8 @@ function mgShooter(host, done) {
     removeEventListener('keydown', kd, true); removeEventListener('keyup', ku, true); document.removeEventListener('visibilitychange', onVis); st.off();
     if (aborted) return;
     const grade = score >= 400 && lives > 0 ? 'good' : score >= 180 ? 'ok' : 'bad';
-    mgResult(st, host, [[u.mgScore, fmt(score)], [u.mgBest, best], [u.mgLives, Math.max(0, lives)]], grade, g => done({ score, grade: g }));
+    const vs = R && Rival.finish(R, score);
+    mgResult(st, host, [[u.mgScore, fmt(score)], ...(vs ? [['Duda', fmt(vs.duda)]] : []), [u.mgBest, best], [u.mgLives, Math.max(0, lives)]], vs ? (vs.res === 'win' ? 'good' : vs.res === 'lose' ? 'bad' : 'ok') : grade, g => done({ score, grade: g, vs }), vs);
   };
   mgPop(st, u.mgReady);
   host._quit = () => { finish(true); done({ score, grade: 'bad', quit: true }); };

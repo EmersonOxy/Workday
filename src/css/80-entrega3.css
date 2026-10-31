@@ -269,3 +269,11 @@
   body.on-break .os-back { animation: none; }
   body.mobile .os-back { right: .5em; bottom: .5em; height: 44px; }
   body.on-break #osdesk { display: block !important; }
+
+  /* ===== Contra o Duda: placar ao vivo e resultado ===== */
+  .mg-view { position: relative; }
+  .mg-vs { position: absolute; top: .4em; left: 50%; translate: -50% 0; display: flex; gap: .5em; align-items: center; padding: .15em .7em .25em; font: 1.05em var(--pixel);
+    background: #2b2340; color: #fff8ec; box-shadow: 0 0 0 2px #2a1f2d, inset 0 -3px 0 #463462; pointer-events: none; white-space: nowrap; }
+  .mg-vs b { font-weight: normal; color: #9aa0ab; }
+  .mg-vs.ahead .me, .mg-vs.behind .du { color: #ffe7a3; }
+  .mg-end.vs-win b:first-child { color: #2f8a45 !important; } .mg-end.vs-lose b:first-child { color: #a8262a !important; }
