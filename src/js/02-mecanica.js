@@ -1,6 +1,20 @@
 /* ================= Mecânica ================= */
 const SECTORS = [{ id: 'fin', color: 'var(--fin)' }, { id: 'rh', color: 'var(--rh)' }, { id: 'jur', color: 'var(--jur)' }, { id: 'ti', color: 'var(--ti)' }];
-const RANK_POINTS = [0, 300, 1000, 2500, 5000, 9000, 15000];
+// Balanceamento (ver design/balanceamento.md). "original" é o padrão; os outros existem só para avaliação
+// (Configurações → Experimental). Cada um guarda carteira, enfeites, recorde, estatísticas e carreira à parte.
+// Estresse, velocidade dos documentos e prazos são iguais nos três.
+const SALARY_MID = [45, 58, 72, 88, 106, 126, 150], SALARY_LONG = [40, 50, 62, 76, 92, 110, 130];
+const BALANCE = {
+  original:      { levelPts: L => L, multCap: 5, comboStep: 5, ranks: [0, 300, 1000, 2500, 5000, 9000, 15000],
+                   dayBonus: d => 100 * d, pay: (ds, d) => Math.round(ds / 10) + 30 * d, severance: ds => Math.round(ds / 20), priceMul: 1 },
+  intermediaria: { levelPts: L => 1 + Math.min(L - 1, 20) * .25, multCap: 4, comboStep: 8, ranks: [0, 900, 2800, 6200, 11500, 19000, 30000],
+                   dayBonus: () => 80, pay: (ds, d, r) => SALARY_MID[r] + Math.min(40, Math.round(ds / 60)), severance: (ds, r) => 2 * SALARY_MID[r], priceMul: 1 },
+  longa:         { levelPts: L => 1 + Math.min(L - 1, 16) * .12, multCap: 3, comboStep: 10, ranks: [0, 1200, 4000, 9500, 19000, 34000, 56000],
+                   dayBonus: () => 60, pay: (ds, d, r) => SALARY_LONG[r] + Math.min(30, Math.round(ds / 80)), severance: (ds, r) => 2 * SALARY_LONG[r], priceMul: 1 },
+};
+const BAL_KEY = (() => { try { const c = JSON.parse(localStorage.getItem('expediente-config') || '{}'); return BALANCE[c.balance] ? c.balance : 'original'; } catch (e) { return 'original'; } })();
+const BAL = BALANCE[BAL_KEY];
+const RANK_POINTS = BAL.ranks;
 const UNLOCK = { button: 2, email: 3, type: 4, call: 5, printer: 6, video: 8 };
 const EVENTS = { boss: 3, shuffle: 5, freeze: 6, virus: 7 };
 const DAY_SECONDS = 150;
@@ -20,6 +34,7 @@ const SHOP = [
   { id: 'monitor', kind: 'decor', price: 200, spr: 'monitor' }, { id: 'gato', kind: 'decor', price: 350, spr: 'cat' },
   { id: 'trofeu', kind: 'decor', price: 600, spr: 'trophy' },
 ];
+SHOP.forEach(i => { i.price = Math.round(i.price * BAL.priceMul); });
 const RANK_DESK = { 1: 'mug', 2: 'nameplate', 4: 'chair', 6: 'crown' };
 
 const $ = id => document.getElementById(id);

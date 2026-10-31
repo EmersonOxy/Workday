@@ -1,5 +1,5 @@
 /* ================= Pontuação ================= */
-function mult() { return Math.min(has('meta') ? 6 : 5, 1 + Math.floor(S.combo / 5)); }
+function mult() { return Math.min(BAL.multCap + (has('meta') ? 1 : 0), 1 + Math.floor(S.combo / BAL.comboStep)); }
 function flash(text, color, x, y) {
   const el = document.createElement('div');
   el.className = 'flash'; el.textContent = text; el.style.color = color;
@@ -39,7 +39,7 @@ function success(base, x, y) {
   const m0 = mult();
   S.combo++;
   if (mult() > m0) { setTimeout(() => sfx('combo'), 90); Motion.punch($('mult'), 1 + mult() * .1); comboLook(); } else Motion.punch($('mult'), 1.12);
-  const pts = Math.round(base * S.level * mult() * (mod().ptsMul || 1));
+  const pts = Math.round(base * BAL.levelPts(S.level) * mult() * (mod().ptsMul || 1));
   S.score += pts; S.dayScore += pts; addStress(-2); sfx('ok');
   if (x !== undefined) Motion.floatText(board, '+' + pts, x, y, 'ok');
   if (S.score > P.best) P.best = S.score;

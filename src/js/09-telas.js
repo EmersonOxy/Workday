@@ -68,6 +68,8 @@ function showSettings(onBack) {
     <div class="setting"><span>${u.sfxLabel}</span><input type="range" class="pxrange" id="volSfx" min="0" max="100" value="${Math.round(VOL.sfx * 100)}" aria-label="${u.sfxLabel}"></div>
     <div class="setting"><span>${u.badgeTitle}</span><div class="seg"><button class="pxbtn" id="editBadge">${u.editBadge}</button><button class="pxbtn" id="custom">${u.customize}</button></div></div>
     <div class="setting"><span>${u.lights}</span>${seg('light', [['1', u.lightOn], ['0', u.lightOff]], lightState().lamp ? '1' : '0')}</div>
+    <div class="setting"><span>${u.backup}</span><div class="seg" id="bkBox"><button class="pxbtn" id="bkOut">${u.exportSave}</button><button class="pxbtn" id="bkIn">${u.importSave}</button><input type="file" id="bkFile" accept=".json,application/json" hidden></div></div>
+    <div class="setting"><span>${u.experimental}</span><div class="seg"><button class="pxbtn" id="balBtn">${u.balTitle}: ${u.balNames[BAL_KEY]}</button></div></div>
     <div class="setting"><span>${u.tutorial}</span><div class="seg"><button class="pxbtn" id="tut">${u.tutorialReset}</button></div></div>
     <div class="setting"><span>${u.progress}</span><div class="seg" id="eraseBox"><button class="pxbtn" id="erase">${u.erase}</button></div></div>
     <div class="actions"><button class="pxbtn main" id="b">${u.back}</button></div>`);
@@ -87,6 +89,10 @@ function showSettings(onBack) {
   card.querySelector('#volSfx').onchange = () => sfx('ok');
   card.querySelector('#editBadge').onclick = () => showBadge(() => showSettings(onBack));
   card.querySelector('#custom').onclick = () => showCustomize(() => showSettings(onBack));
+  card.querySelector('#bkOut').onclick = exportSave;
+  card.querySelector('#bkIn').onclick = () => card.querySelector('#bkFile').click();
+  card.querySelector('#bkFile').onchange = e => { const f = e.target.files[0]; if (f) importSave(f, (msg, bad) => { const s = document.createElement('span'); s.textContent = msg; s.className = bad ? 'bad' : ''; card.querySelector('#bkBox').append(s); }); };
+  card.querySelector('#balBtn').onclick = () => showBalance(() => showSettings(onBack));
   const tut = card.querySelector('#tut');
   tut.onclick = () => { P.seen = []; persist(); tut.textContent = u.tutorialDone; tut.disabled = true; };
   card.querySelector('#erase').onclick = () => {

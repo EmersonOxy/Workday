@@ -1,2 +1,8 @@
 dist/
 node_modules/
+
+# backups exportados pelo jogo e fotos pessoais nunca entram no repositório
+workday-backup-*.json
+*.jpg
+*.jpeg
+*.heic

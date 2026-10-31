@@ -1,6 +1,7 @@
 /* ================= Persistência ================= */
-function load(k, d) { try { const v = localStorage.getItem('expediente-' + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } }
-function save(k, v) { try { localStorage.setItem('expediente-' + k, JSON.stringify(v)); } catch (e) {} }
+const BAL_KEYS = ['carteira', 'enfeites', 'recorde2', 'carreira', 'stats'], balKey = k => BAL_KEY !== 'original' && BAL_KEYS.includes(k) ? k + '@' + BAL_KEY : k;
+function load(k, d) { k = balKey(k); try { const v = localStorage.getItem('expediente-' + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } }
+function save(k, v) { k = balKey(k); try { localStorage.setItem('expediente-' + k, JSON.stringify(v)); } catch (e) {} }
 const STAT_KEYS = ['files', 'emails', 'calls', 'typed', 'prints', 'viruses', 'bosses', 'videos', 'days', 'careers', 'maxDay'];
 const freshStats = () => Object.fromEntries(STAT_KEYS.map(k => [k, 0]));
 function guessLang() { const l = (navigator.language || 'pt').slice(0, 2); return LANGS[l] ? l : 'pt'; }

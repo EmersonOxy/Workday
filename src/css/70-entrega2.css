@@ -53,3 +53,7 @@
   /* ===== Prazo: barra contínua e suave (sem células) ===== */
   .task .timer { -webkit-mask: none !important; mask: none !important; }
   @media (prefers-reduced-motion: reduce) { #stressWrap.crit { animation: none; } }
+  .bal-list { display: flex; flex-direction: column; gap: .5em; }
+  .bal-list .pxbtn { display: flex; flex-direction: column; align-items: flex-start; text-align: left; padding: .4em .8em; }
+  .bal-list small { color: var(--muted); }
+  #bkBox .bad { color: var(--danger); }

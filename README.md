@@ -38,3 +38,8 @@ node tests/regression.js
 © 2026 Émerson K. Boff. Todos os direitos reservados.
 
 É proibido copiar, modificar, redistribuir, republicar ou adaptar este jogo, no todo ou em parte, em qualquer plataforma, sem autorização prévia e por escrito do autor. Veja [LICENSE](LICENSE).
+
+
+## Publicação
+
+Veja [docs/PUBLICAR.md](docs/PUBLICAR.md): build, arquivo único offline, GitHub Pages, itch.io e backup do jogador.

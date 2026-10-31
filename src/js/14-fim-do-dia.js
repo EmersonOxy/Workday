@@ -1,8 +1,8 @@
 /* ================= Fim do dia ================= */
 function endDay() {
   S.phase = 'ending'; S.fast = false;
-  const pay = Math.round(S.dayScore / 10) + 30 * S.day;
-  const bonus = 100 * S.day;
+  const pay = BAL.pay(S.dayScore, S.day, S.rankIdx);   // salário sobre os pontos do dia (antes do bônus), como sempre foi
+  const bonus = BAL.dayBonus(S.day);
   S.score += bonus; S.dayScore += bonus;
   P.wallet += pay; stat('days'); P.stats.maxDay = Math.max(P.stats.maxDay, S.day);
   if (S.score > P.best) P.best = S.score;

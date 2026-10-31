@@ -62,5 +62,5 @@ document.addEventListener('keydown', e => {
 document.addEventListener('keyup', e => { if (S && e.key === 'ArrowDown') S.fast = false; });
 window.addEventListener('blur', () => { if (S && S.phase === 'day' && !S.paused && !S.boss && S.bossAuto <= 0) { S.fast = false; setPaused(true); } });
 window.addEventListener('resize', () => { layoutDecor(); if (S && S.file && S.phase === 'day') placeFile(); });
-window.addEventListener('beforeunload', persist);
+window.addEventListener('beforeunload', () => { if (!window.SKIP_PERSIST) persist(); });   // a importação de backup desliga isto para não sobrescrever os dados novos
 

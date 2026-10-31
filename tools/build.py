@@ -45,6 +45,7 @@ def main():
     (web / 'audio').mkdir(parents=True)
     (web / 'index.html').write_text(page, encoding='utf-8')
     for f in (root / 'audio').glob('*.mp3'): shutil.copy(f, web / 'audio' / f.name)
+    (web / '.nojekyll').write_text('')   # GitHub Pages: servir os arquivos como estão
     (dist / 'workday.html').write_text(inline_audio(page, root / 'audio'), encoding='utf-8')
     guide = root / 'design' / 'style-guide.html'
     if guide.exists():

@@ -177,7 +177,7 @@ function gameOver(reason = 'burnout') {
   S.running = false; S.phase = 'over';
   clearDom(); closeScene(); clearCareer();
   const u = U();
-  const rescisao = Math.round((S.dayScore || 0) / 20);
+  const rescisao = BAL.severance(S.dayScore || 0, S.rankIdx);
   P.wallet += rescisao;
   if (S.score > P.best) P.best = S.score;
   P.stats.maxDay = Math.max(P.stats.maxDay, S.day);

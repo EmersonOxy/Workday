@@ -4,7 +4,7 @@ function saveCareer() {
   save('carreira', { day: S.day, score: S.score, rankIdx: S.rankIdx, perks: [...S.perks], today: [...S.today], inv: S.inv,
                      careerCauses: S.careerCauses, stress: S.stress });
 }
-function clearCareer() { try { localStorage.removeItem('expediente-carreira'); } catch (e) {} }
+function clearCareer() { try { localStorage.removeItem('expediente-' + balKey('carreira')); } catch (e) {} }
 function resumeCareer() {
   const c = load('carreira', null);
   if (!c) { newCareer(); return; }
