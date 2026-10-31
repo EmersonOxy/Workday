@@ -71,7 +71,25 @@ function officeFrame(now) {
   $('osdesk').querySelector('.start').append(Pixel.el(SPR2.doc, 1, WD_SECTOR_RAMP.ti));
   $('osdesk').querySelector('.start').insertAdjacentHTML('beforeend', ' WorkOS');
   // durante o expediente, o botão da barra abre a pausa (a planilha)
-  $('osdesk').querySelector('.start').onclick = () => { if (S && S.phase === 'day' && !S.paused) { sfx('click'); setPaused(true); } };
+  // Durante o expediente o botão mostra o menu Iniciar por cima (sem pausar); fecha sozinho 2 s depois que o mouse sai.
+  // Escolher um item é que pausa: Configurações abre por cima da pausa; Desligar salva e volta ao menu.
+  { const st = $('osdesk').querySelector('.start'), od = $('osdesk'); let sm = null, tmr = 0;
+    const close = () => { clearTimeout(tmr); if (sm) { sm.remove(); sm = null; st.classList.remove('on'); } };
+    const arm = () => { clearTimeout(tmr); tmr = setTimeout(close, 2000); };
+    st.onclick = () => {
+      if (sm) return close();
+      const u = U(); sfx('click'); st.classList.add('on');
+      sm = document.createElement('div'); sm.className = 'os-smenu work';
+      sm.innerHTML = `<div class="os-sh"><span class="os-me"></span><b></b></div><button data-a="cfg">${u.settings}</button><i></i><button data-a="off">${u.shutdown}</button>`;
+      sm.querySelector('.os-me').append(osPicEl(40)); sm.querySelector('b').textContent = profileName();
+      sm.onpointerenter = () => clearTimeout(tmr); sm.onpointerleave = arm;
+      sm.onclick = e => { const b = e.target.closest('button'); if (!b) return; close(); if (!S || S.phase !== 'day') return;
+        if (!S.paused) setPaused(true);
+        if (b.dataset.a === 'cfg') showSettings(closeModal);
+        else { saveCareerMidday(); persist(); hideSheet(); S.paused = false; muffle(false); osShutdown(); } };
+      od.append(sm); arm();
+    };
+    st.onpointerenter = () => clearTimeout(tmr); st.onpointerleave = () => { if (sm) arm(); }; }
 })();
 // Clicar na janela abre ou fecha a persiana
 // Hora e data reais do aparelho: na barra do WorkOS (menu) e no canto do cabeçalho durante o expediente

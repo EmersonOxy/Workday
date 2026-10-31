@@ -119,7 +119,7 @@ async function mobile(browser, url) {
   const ctx = await browser.newContext({ ...devices['iPhone 13'], locale: 'pt-BR' });
   const p = await ctx.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message));
   await p.goto(url);
-  await p.tap('#play'); await p.waitForTimeout(200);
+  await p.tap('#play'); await p.tap('[data-d=normal]'); await p.waitForTimeout(200);
   await p.evaluate(() => { closeScene(); startDay(); S.file.kind = 'normal'; });
   const bx = await (await p.$('#board')).boundingBox();
   await p.tap('#board', { position: { x: bx.width * 0.9, y: bx.height * 0.5 } });

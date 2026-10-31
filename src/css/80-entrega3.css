@@ -147,3 +147,10 @@
   body.office:not(.menu-mode) #osdesk .icons { display: none; }
   body.office:not(.menu-mode) #osdesk .start { cursor: pointer; }
   body.office:not(.menu-mode):not(.mobile) #sysclock { display: none; }
+  .os-smenu.work { left: .4em; bottom: 2.3em; }
+  #osdesk .start.on { box-shadow: 0 0 0 2px #2a1f2d, inset 2px 2px 0 #8f7d63; }
+  .os-me { cursor: pointer; padding: 2px; background: #fff8ec; box-shadow: 0 0 0 2px #2a1f2d; line-height: 0; }
+  .os-pics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; padding: 4px; margin-bottom: 3px; background: #c7b595; box-shadow: inset 2px 2px 0 #8f7d63; }
+  .os-pic { display: grid; place-items: center; height: 44px; padding: 0; border: 0; cursor: pointer; background: #fff8ec; box-shadow: 0 0 0 2px #2a1f2d, inset 0 -3px 0 #dcc6a0; line-height: 0; }
+  .os-pic.on { transform: translateY(2px); box-shadow: 0 0 0 2px #2a1f2d, inset 0 3px 0 #dcc6a0; }
+  body.office.menu-mode .menu-card { position: relative; top: -2.2em; }

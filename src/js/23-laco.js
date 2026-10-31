@@ -112,7 +112,9 @@ function update(dt) {
   hud();
   if (S.burnout) { gameOver('burnout'); return; }
   // promoção exige os pontos E um dia mínimo de casa por cargo, no máximo uma por dia
-  if (rankIdx(S.score) > S.rankIdx && S.day >= RANK_DAYS[S.rankIdx + 1] && S.promoDay !== S.day) { S.promoDay = S.day; promote(); }
+  // promoção: pontos DO DIA acima da meta do próximo cargo (a diferença entre as faixas antigas), dia mínimo e no máximo uma por dia
+  const nx = S.rankIdx + 1;
+  if (nx < RANK_POINTS.length && S.dayScore >= RANK_POINTS[nx] - RANK_POINTS[nx - 1] && S.day >= RANK_DAYS[nx] && S.promoDay !== S.day) { S.promoDay = S.day; promote(); }
 }
 
 const HUD_LAST = {};
@@ -142,7 +144,7 @@ function hud() {
   }
   hudSet('clock', 'text', clockText());
   hudSet('day', 'text', String(S.day));
-  hudSet('score', 'text', fmt(S.score));
+  hudSet('score', 'text', fmt(S.phase === 'day' || S.phase === 'promo' ? S.dayScore || 0 : S.score));   // no expediente, só os pontos do dia
   hudSet('mult', 'text', '×' + mult() + (S.combo ? ` (${S.combo})` : ''));
   hudSet('rank', 'text', L.ranks[S.rankIdx]);
   stressBar();

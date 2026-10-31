@@ -178,26 +178,26 @@ function gameOver(reason = 'burnout') {
   S.running = false; S.phase = 'over';
   clearDom(); closeScene(); clearCareer();
   const u = U();
-  const rescisao = BAL.severance(S.dayScore || 0, S.rankIdx);
+  const rescisao = reason === 'win' ? 0 : BAL.severance(S.dayScore || 0, S.rankIdx);
   P.wallet += rescisao;
   if (S.score > P.best) P.best = S.score;
   P.stats.maxDay = Math.max(P.stats.maxDay, S.day);
   persist(); hud();
   const r = S.rankIdx, next = r + 1 < RANK_POINTS.length ? r + 1 : null;
-  const quit = reason === 'quit';
+  const quit = reason === 'quit', win = reason === 'win';
   S.endReason = reason;
-  const card = modal(`<span class="over-box"></span><span class="over-stamp">${quit ? u.resignStamp : u.stampOver}</span><h2>${quit ? u.quitTitle : u.burnoutTitle}</h2><p>${u.hrReport(S.day, clockText())} ${quit ? u.quitLine : u.burnoutLine}</p>
+  const card = modal(`<span class="over-box"></span><span class="over-stamp">${win ? u.winStamp : quit ? u.resignStamp : u.stampOver}</span><h2>${win ? u.winTitle : quit ? u.quitTitle : u.burnoutTitle}</h2><p>${win ? u.winLine : u.hrReport(S.day, clockText()) + ' ' + (quit ? u.quitLine : u.burnoutLine)}</p>
     <p class="over-who"><span class="over-face"></span><b>${profileName()}</b> · Nº ${EMP_ID}</p>
     <h4>${u.rankReached}</h4><div class="big">${L.ranks[r]}</div>
-    <p>${u.summary(fmt(S.score), S.day)} ${next !== null ? u.missing(fmt(RANK_POINTS[next] - S.score), L.ranks[next]) : u.top} ${u.record}: ${fmt(P.best)}.</p>
+    <p>${u.summary(fmt(S.score), S.day)} ${next === null ? u.top : ""} ${u.record}: ${fmt(P.best)}.</p>
     <p class="money">${u.severance}: + ${money(rescisao)}</p>
-    <h4>${quit ? u.reasonsQuit : u.reasonsBurnout}</h4>${causeBars(S.careerCauses)}
+    ${win ? '' : `<h4>${quit ? u.reasonsQuit : u.reasonsBurnout}</h4>${causeBars(S.careerCauses)}`}
     <div class="actions"><button class="pxbtn main" id="go">${u.newJob}</button><button class="pxbtn" id="menu">${u.mainMenu}</button></div>`);
   card.classList.add('over-card');
   card.querySelector('.over-box').append(Pixel.el(SPR2.box, 4));
   card.querySelector('.over-face').append(portrait(56));
   setTimeout(() => { const st = card.querySelector('.over-stamp'); if (st) { st.classList.add('on'); Motion.stamp(st); sfx('err'); } }, 650);
-  card.querySelector('#go').onclick = () => newCareer();
+  card.querySelector('#go').onclick = () => pickDifficulty(showMenu);
   card.querySelector('#menu').onclick = showMenu;
 }
 

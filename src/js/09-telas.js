@@ -41,6 +41,33 @@ function fitLegal() {
 }
 addEventListener('resize', () => fitLegal());
 
+// Foto de usuário do WorkOS: independente do crachá. 'av' usa o personagem; as outras são figurinhas prontas 12×12
+const OS_PICS = {
+  gato:    ['............', '.k........k.', '.kek....kek.', '.keekkkkeek.', '.keeeeeeeek.', 'keekeeeekeek', 'keeeeeeeeeek', 'keeeerreeeek', '.keeeeeeeek.', '..kkeeeekk..', '....kkkk....', '............'],
+  cao:     ['............', '.kkk....kkk.', 'k22k.kk.k22k', 'k22kk11kk22k', '.kk111111kk.', '..k1k11k1k..', '..k111111k..', '..k11kk11k..', '...k1RR1k...', '....kkkk....', '............', '............'],
+  flor:    ['....kkkk....', '...kRRRRk...', '.kkkRRRRkkk.', 'kRRRkYYkRRRk', 'kRRRkYYkRRRk', '.kkkRRRRkkk.', '...kRRRRk...', '....kkkk....', '.....kG.....', '..kGGkG.....', '...kkkG.....', '.....kG.....'],
+  monte:   ['llllllllllll', 'lllllllYYlll', 'llllllYYYYll', 'lllkllYYYYll', 'llkWklllllll', 'lkWWWkllklll', 'kGkWkGkkhkll', 'GGGkGGkhhhkl', 'GGGGGGhhhhhk', 'hhhhhhhhhhhh', 'HHHHHHHHHHHH', 'HHHHHHHHHHHH'],
+  coracao: ['............', '.kkk....kkk.', 'kRRRk..kRRRk', 'kRrRRkkRRRRk', 'kRrRRRRRRRRk', 'kRRRRRRRRRRk', '.kRRRRRRRRk.', '..kRRRRRRk..', '...kRRRRk...', '....kRRk....', '.....kk.....', '............'],
+  estrela: ['.....kk.....', '....kYYk....', '....kYYk....', 'kkkkYYYYkkkk', 'kYYYYYYYYYYk', '.kYYYYYYYYk.', '..kYYYYYYk..', '..kYYkkYYk..', '.kYYk..kYYk.', '.kYk....kYk.', '.kk......kk.', '............'],
+  cafe:    MENU_ICO.cont,
+  nota:    ['.....kkkkkk.', '.....kIIIIk.', '.....kkkkIk.', '.....k...Ik.', '.....k...Ik.', '.....k...Ik.', '..kkkk.kkkk.', '.k6666kk666k', '.k6666kk666k', '..kkkk..kkk.', '............', '............'],
+  foguete: ['.....kk.....', '....kWWk....', '...kWWWWk...', '...kWllWk...', '...kWllWk...', '...kWWWWk...', '..kkWWWWkk..', '.kRkWWWWkRk.', '.kkkkkkkkkk.', '....kQQk....', '.....QQ.....', '.....Q......'],
+  jogo:    MENU_ICO.arc,
+  engrenagem: MENU_ICO.cfg,
+};
+function osPicEl(size) { const rows = CFG.osPic && OS_PICS[CFG.osPic]; return rows ? Pixel.el(rows, Math.max(1, Math.floor(size / 12))) : portrait(size); }
+// Seletor de foto: grade de figurinhas + o personagem
+function osPicPicker(anchor, onPick) {
+  const g = document.createElement('div'); g.className = 'os-pics';
+  ['av', ...Object.keys(OS_PICS)].forEach(k => {
+    const b = document.createElement('button'); b.className = 'os-pic' + ((CFG.osPic || 'av') === k ? ' on' : '');
+    b.append(k === 'av' ? portrait(36) : Pixel.el(OS_PICS[k], 3));
+    b.onclick = e => { e.stopPropagation(); CFG.osPic = k === 'av' ? null : k; persist(); sfx('click'); g.remove(); onPick(); };
+    g.append(b);
+  });
+  anchor.after(g);
+}
+
 // Botão Iniciar do WorkOS (no menu principal): atalhos e "Desligar", que fecha o WorkOS com animação e volta ao menu
 function osStart(u) {
   if (!document.body.classList.contains('office')) return;
@@ -49,7 +76,9 @@ function osStart(u) {
     <button data-a="prof">${u.profile}</button><button data-a="pc">${u.customizePc || 'WorkOS'}</button><button data-a="cfg">${u.settings}</button><i></i><button data-a="off">${u.shutdown}</button></div>`);
   const b = m.querySelector('.os-start'), sm = m.querySelector('.os-smenu');
   b.append(Pixel.el(MENU_ICO.app, 2)); b.insertAdjacentHTML('beforeend', '<span>WorkOS</span>');
-  sm.querySelector('.os-me').append(portrait(40)); sm.querySelector('b').textContent = profileName();
+  const paintMe = () => sm.querySelector('.os-me').replaceChildren(osPicEl(40));
+  paintMe(); sm.querySelector('b').textContent = profileName();
+  sm.querySelector('.os-me').onclick = e => { e.stopPropagation(); const old = sm.querySelector('.os-pics'); if (old) old.remove(); else osPicPicker(sm.querySelector('.os-sh'), paintMe); };
   const items = { prof: () => showBadge(showMenu), pc: () => showCustomize(showMenu), cfg: () => showSettings(showMenu) };
   b.onclick = e => { e.stopPropagation(); sm.classList.toggle('hidden'); b.classList.toggle('on'); sfx('click'); };
   sm.onclick = e => { const a = e.target.closest('button'); if (!a) return; sm.classList.add('hidden'); b.classList.remove('on');
@@ -64,6 +93,16 @@ function osShutdown() {
 
 // A dificuldade só muda entre dias: durante o expediente (mesmo pausado) fica travada
 function diffLocked() { return !!(S && S.phase === 'day'); }
+
+// Nova carreira: escolhe a dificuldade antes (depois dá para trocar nas Configurações, entre dias)
+function setDifficulty(v) { save('recorde2', P.best); CFG.diff = DIFF_REC = v; P.best = load('recorde2', 0); persist(); }
+function pickDifficulty(back) {
+  const u = U(), cur = CFG.diff || 'normal';
+  const card = modal(`<h2>${u.diffLabel}</h2><div class="bal-list">${Object.keys(DIFFS).map(k => `<button class="pxbtn${k === cur ? ' main' : ''}" data-d="${k}"><b>${u.diffNames[k]}</b><small>${u.diffDesc[k]}</small></button>`).join('')}</div>
+    <div class="actions"><button class="pxbtn" id="dBack">${u.back}</button></div>`);
+  card.querySelectorAll('[data-d]').forEach(b => b.onclick = () => { setDifficulty(b.dataset.d); sfx('click'); newCareer(); });
+  card.querySelector('#dBack').onclick = back;
+}
 
 function showMenu() {
   document.body.classList.add('menu-mode');
@@ -114,7 +153,7 @@ function showMenu() {
   $('modal').insertAdjacentHTML('beforeend', `<div class="legalbar"><p>${u.footer}</p></div>`);
   fitLegal();
   osStart(u);
-  card.querySelector('#play').onclick = () => newCareer();
+  card.querySelector('#play').onclick = () => pickDifficulty(showMenu);
   if (saved) card.querySelector('#cont').onclick = resumeCareer;
   card.querySelector('#how').onclick = () => { const c = modal(`<h2>${u.how}</h2>${u.howText}<div class="actions"><button class="pxbtn main" id="b">${u.back}</button></div>`); c.querySelector('#b').onclick = showMenu; };
   card.querySelector('#cfg').onclick = () => showSettings(showMenu);
@@ -160,7 +199,7 @@ function showSettings(onBack) {
     const set = b.parentElement.dataset.set, v = b.dataset.v;
     if (set === 'lang') { CFG.lang = v; applyLang(); }
     if (set === 'theme') { CFG.theme = v; applyTheme(); }
-    if (set === 'diff') { if (diffLocked()) return; save('recorde2', P.best); CFG.diff = DIFF_REC = v; P.best = load('recorde2', 0); sfx('click'); }
+    if (set === 'diff') { if (diffLocked()) return; setDifficulty(v); sfx('click'); }
     if (set === 'sound') setSound(v === '1');
     if (set === 'light') { CFG.lights = Object.assign({}, CFG.lights, { lamp: v === '1' }); OFFICE.key = ''; sfx('switch'); }
     if (set === 'display') { CFG.display = v; if ((v === 'full') !== !!document.fullscreenElement) toggleFullscreen(); }
