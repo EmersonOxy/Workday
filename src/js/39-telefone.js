@@ -23,6 +23,7 @@ function phoneDraw(x, R, st, t) {
   phPoly(x, [[4, 18], [8, 34], [8, 38], [4, 22]], R.sh);                   // lateral esquerda
   phPoly(x, top, P.k); phPoly(x, [[5, 19], [55, 11], [61, 26], [9, 33]], R.base);
   phPoly(x, [[5, 19], [55, 11], [56, 13], [6, 21]], R.hi);                 // aresta de trás iluminada
+  phPoly(x, [[4, 18], [56, 10], [56, 10.7], [4, 18.7]], R.sh);              // contorno seletivo: do lado da luz o contorno clareia (selout)
   phPoly(x, [[9, 33], [61, 26], [61, 27], [9, 34]], R.sh);
   // berço do fone (rebaixo à esquerda) e teclado 3×4 em perspectiva à direita
   phPoly(x, [[8, 20], [36, 15], [38, 22], [10, 27]], R.sh);

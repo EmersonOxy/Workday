@@ -515,14 +515,15 @@ const Office = {
     for (let n = 0; n < 10; n++) { const ph = (t * .05 + n * .137) % 1, j = W.y + 20 + ph * (L.desk - W.y - 30) | 0, a = W.x + (j - W.y) * slope + ((n * 13 + Math.sin(t + n) * 3) | 0) % Math.max(4, W.vis || W.w); ctx.fillRect(a | 0, j, 1, 1); }
     ctx.globalAlpha = 1;
     // a cor do céu entra pela janela e banha o ambiente, mais forte perto dela (some com a persiana fechada)
-    { const b = lit.beamRGB, g = ctx.createLinearGradient(W.x, 0, W.x + L.VW * .75, 0), a = b[3] * .55 * open;
-      g.addColorStop(0, `rgba(${b[0] | 0},${b[1] | 0},${b[2] | 0},${a.toFixed(3)})`); g.addColorStop(1, `rgba(${b[0] | 0},${b[1] | 0},${b[2] | 0},0)`);
-      ctx.fillStyle = g; ctx.fillRect(0, 0, L.VW, L.VH); }
+    { const b = lit.beamRGB, a = b[3] * .55 * open, span = L.VW * .75, N = 6;   // faixas verticais em degraus, sem degradê suave
+      for (let n = 0; n < N; n++) { ctx.fillStyle = `rgba(${b[0] | 0},${b[1] | 0},${b[2] | 0},${(a * (1 - n / N)).toFixed(3)})`; ctx.fillRect(n === 0 ? 0 : Math.round(W.x + span * n / N), 0, Math.round(n === 0 ? W.x + span / N : span / N), L.VH); } }
     // Cortina fechada: a sala escurece de verdade e o que tem luz própria ganha destaque (tela do monitor, luminária, aquário)
     if (st.blind) { const b = st.blind;
       ctx.save(); ctx.globalCompositeOperation = 'multiply'; ctx.fillStyle = `rgba(70,52,98,${(.55 * b).toFixed(3)})`; ctx.fillRect(0, 0, L.VW, L.VH); ctx.restore();
       ctx.save(); ctx.globalCompositeOperation = 'screen';
-      const glow = (cx, cy, r, rgb, a) => { const g = ctx.createRadialGradient(cx, cy, 2, cx, cy, r); g.addColorStop(0, `rgba(${rgb},${(a * b).toFixed(3)})`); g.addColorStop(1, `rgba(${rgb},0)`); ctx.fillStyle = g; ctx.fillRect(cx - r, cy - r, r * 2, r * 2); };
+      // brilho em anéis de pixel (4 degraus), sem degradê suave: cada anel soma um pouco de luz
+      const glow = (cx, cy, r, rgb, a) => { ctx.fillStyle = `rgba(${rgb},${(a * b / 4).toFixed(3)})`;
+        for (let k = 4; k >= 1; k--) { const rr = r * k / 4; for (let j = -rr | 0; j <= rr; j++) { const w = Math.round(Math.sqrt(rr * rr - j * j)); ctx.fillRect(Math.round(cx - w), Math.round(cy + j), w * 2, 1); } } };
       // brilho frio da tela espalhando pela moldura, mesa e parede próximas
       glow(s.x + s.w / 2, s.y + s.h * .7, Math.max(s.w, s.h) * .8, '120,190,200', .32);
       glow(s.x + s.w / 2, L.desk + 8, s.w * .55, '140,200,210', .28);
