@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Workday</title>
+<meta name="author" content="Émerson K. Boff">
+<meta name="copyright" content="Workday © 2026 Émerson K. Boff. Todos os direitos reservados.">
+<!-- @inject:fonts -->
+<!--
+  Workday © 2026 Émerson K. Boff. Todos os direitos reservados.
+  É proibido copiar, modificar, redistribuir, republicar ou adaptar este jogo,
+  no todo ou em parte, em qualquer plataforma, sem autorização prévia e por escrito do autor.
+-->
+<style>
+/* @inject:css */
+</style>
+</head>
+<body>
+<canvas id="office" aria-hidden="true"></canvas>
+<div id="app">
+  <header>
+    <h1>WORKDAY</h1>
+    <span id="clock">09:00</span>
+    <span class="stat"><span data-t="day"></span> <b id="day">1</b></span>
+    <span class="stat"><span data-t="points"></span> <b id="score">0</b></span>
+    <span class="stat" id="combo">Combo <b id="mult">×1</b></span>
+    <span class="stat"><span data-t="rank"></span> <b id="rank"></b></span>
+    <span class="stat"><span data-t="wallet"></span> <b id="wallet"></b></span>
+    <button id="soundBtn" class="pxbtn"></button>
+    <button id="fsBtn" class="pxbtn" title="Tela cheia (F11)" aria-label="Tela cheia">⛶</button>
+    <div id="stressWrap"><div id="stress"></div></div>
+  </header>
+  <div id="desk"><div class="decor"></div></div>
+  <div id="inv"></div>
+  <div id="board"></div>
+  <div id="tasks"></div>
+  <div id="osdesk"><div class="icons"></div><div class="taskbar"><span class="start"></span><span class="sp"></span><span id="osclock"></span></div></div>
+</div>
+<div id="decorLayer"></div>
+<div id="pad" class="hidden">
+  <button class="pxbtn ctx" id="padBoss" data-k="Escape"></button><button class="pxbtn ctx" id="padDel" data-k="Delete"></button>
+  <div id="chips"></div><button class="pxbtn" id="padPause" data-k=" " aria-label="Pausa">II</button>
+</div>
+<input id="kb" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="teclado">
+<div id="vignette"></div>
+<div id="modal" class="overlay"><div class="card"></div></div>
+<div id="boss" class="hidden">
+  <div class="bar2">Q4_v7_FINAL.xlsx</div>
+  <table id="bossTable"></table>
+</div>
+
+<script>
+/* @inject:js */
+</script>
+</body>
+</html>

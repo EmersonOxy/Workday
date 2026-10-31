@@ -1,0 +1,2486 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Workday</title>
+<meta name="author" content="Émerson K. Boff">
+<meta name="copyright" content="Workday © 2026 Émerson K. Boff. Todos os direitos reservados.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+<!--
+  Workday © 2026 Émerson K. Boff. Todos os direitos reservados.
+  É proibido copiar, modificar, redistribuir, republicar ou adaptar este jogo,
+  no todo ou em parte, em qualquer plataforma, sem autorização prévia e por escrito do autor.
+-->
+<style>
+  :root {
+    --bg: #ecebe6; --panel: #fbfaf7; --card: #ffffff; --ink: #1d1d1b; --muted: #77756e; --line: #d4d2ca;
+    --hl: #fff3cf; --hl2: #ffd56b; --bad-bg: #fde9e5; --dead-bg: #d8d6cf; --slow-bg: #f3ece2;
+    --fin: #2f7d4f; --rh: #c2562f; --jur: #3c5aa8; --ti: #8a5bb5;
+    --danger: #c23b2f; --ok: #2f7d4f; --warn: #e0a030; --wood: #a5734a; --wood-dark: #7a5235;
+    --pixel: 'VT323', ui-monospace, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #17171a; --panel: #212125; --card: #2b2b30; --ink: #ebe9e2; --muted: #9c9a92; --line: #3a3a40;
+      --hl: #4d4118; --hl2: #7a6212; --bad-bg: #4a2522; --dead-bg: #3b3a37; --slow-bg: #2b261f;
+      --ok: #5cbf7e; --danger: #e8604f; --wood: #6e4a2e; --wood-dark: #4a311e; color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #17171a; --panel: #212125; --card: #2b2b30; --ink: #ebe9e2; --muted: #9c9a92; --line: #3a3a40;
+    --hl: #4d4118; --hl2: #7a6212; --bad-bg: #4a2522; --dead-bg: #3b3a37; --slow-bg: #2b261f;
+    --ok: #5cbf7e; --danger: #e8604f; --wood: #6e4a2e; --wood-dark: #4a311e; color-scheme: dark;
+  }
+  * { box-sizing: border-box; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
+  html, body { touch-action: manipulation; overscroll-behavior: none; }
+  canvas, img { -webkit-user-drag: none; pointer-events: auto; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.4 system-ui, sans-serif; user-select: none; overflow-x: hidden; }
+  canvas.sp { image-rendering: pixelated; display: block; }
+  #app { position: relative; z-index: 1; max-width: 980px; margin: 0 auto; padding: 16px; display: grid; grid-template-columns: 1fr 340px; gap: 12px 16px; }
+  header { grid-column: 1 / -1; display: flex; align-items: center; gap: 6px 16px; flex-wrap: wrap; }
+  header h1 { font: 30px/1 var(--pixel); margin: 0; letter-spacing: 1px; }
+  .stat { font-variant-numeric: tabular-nums; color: var(--muted); }
+  .stat b { color: var(--ink); }
+  #clock { font: 26px/1 var(--pixel); background: #1d1d1b; color: #7dff9a; padding: 2px 8px; }
+  #combo b { color: var(--warn); }
+  #stressWrap { flex: 1; min-width: 140px; height: 12px; background: var(--line); overflow: hidden; }
+  #stress { height: 100%; width: 0; background: linear-gradient(90deg, var(--warn), var(--danger)); transition: width .2s; }
+  .pxbtn { font: 18px var(--pixel); background: var(--card); border: 2px solid var(--ink); border-bottom-width: 4px; padding: 0 8px; cursor: pointer; color: var(--ink); }
+  .pxbtn:hover:not(:disabled) { background: var(--hl); }
+  .pxbtn:focus-visible { outline: 3px solid var(--warn); outline-offset: 2px; }
+  .pxbtn:disabled { opacity: .4; cursor: default; }
+  .menu .menusound { font-size: 20px; opacity: .85; }
+  .pxrange { -webkit-appearance: none; appearance: none; width: 100%; max-width: 260px; height: 14px; background: var(--line); box-shadow: inset 0 0 0 2px var(--ink); cursor: pointer; }
+  .pxrange::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 24px; background: var(--card); border: 3px solid var(--ink); border-bottom-width: 5px; }
+  .pxrange::-moz-range-thumb { width: 14px; height: 20px; background: var(--card); border: 3px solid var(--ink); border-radius: 0; }
+  .pxrange:focus-visible { outline: 3px solid var(--warn); outline-offset: 3px; }
+  .pxbtn.on { background: var(--ink); color: var(--card); }
+
+  #desk { grid-column: 1 / -1; min-height: 52px; border-bottom: 8px solid var(--wood); box-shadow: 0 4px 0 var(--wood-dark); padding: 0 8px; }
+  #decorLayer { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+  #decorLayer canvas { position: absolute; height: auto !important; filter: drop-shadow(0 8px 0 rgba(0,0,0,.18)); animation: settle .5s steps(4) both; }
+  @keyframes settle { from { transform: translateY(-18px); opacity: 0; } }
+  #desk .decor { display: flex; align-items: flex-end; justify-content: space-evenly; gap: 10px; flex-wrap: wrap; width: 100%; }
+  #inv { grid-column: 1 / -1; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+  #inv:empty { display: none; }
+  .chip { font: 16px var(--pixel); background: var(--ink); color: var(--card); padding: 0 6px; }
+  .chip.perk-chip { background: var(--fin); color: #fff; }
+
+  .px { background: var(--card); box-shadow: 0 -3px 0 0 var(--ink), 0 3px 0 0 var(--ink), -3px 0 0 0 var(--ink), 3px 0 0 0 var(--ink); margin: 3px; }
+
+  #board { position: relative; height: 540px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  #board.slow { background: var(--slow-bg); }
+  #board.shake { animation: shake .3s; }
+  @keyframes shake { 20% { transform: translate(-6px, 2px); } 40% { transform: translate(5px, -3px); } 60% { transform: translate(-4px, 1px); } 80% { transform: translate(3px, 0); } }
+  .lane { position: absolute; top: 0; bottom: 0; border-right: 1px dashed var(--line); }
+  .tray { position: absolute; bottom: 0; height: 56px; display: flex; align-items: center; justify-content: center;
+          color: #fff; font: 22px var(--pixel); letter-spacing: .5px; transition: background .25s; }
+  .tray.hit { animation: hit .35s; }
+  @keyframes hit { 50% { filter: brightness(1.5); transform: translateY(-4px); } }
+  .tray.warn { animation: warn .2s infinite alternate; }
+  @keyframes warn { to { filter: brightness(1.6) saturate(.3); } }
+  .file { position: absolute; height: 54px; border-radius: 4px; background: var(--card); border: 2px solid; display: flex; align-items: center; gap: 8px;
+          padding: 0 8px; font-size: 12px; box-shadow: 0 2px 4px rgba(0,0,0,.12); transition: left .08s; z-index: 2; }
+  .file .txt { display: flex; flex-direction: column; min-width: 0; }
+  .file .tag { font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .file .sub { color: var(--muted); font-size: 11px; }
+  .file.urgent { animation: urgent .3s infinite alternate; }
+  @keyframes urgent { to { border-color: var(--danger); background: var(--bad-bg); } }
+  .file.dead { background: var(--dead-bg); border-color: var(--muted) !important; border-style: dashed; }
+  .flash { position: absolute; font: 24px var(--pixel); pointer-events: none; animation: up .8s forwards; z-index: 5; white-space: nowrap; }
+  @keyframes up { to { transform: translateY(-40px); opacity: 0; } }
+  .coffee { position: absolute; z-index: 3; cursor: pointer; animation: bob .5s infinite alternate; }
+  @keyframes bob { to { transform: translateY(-6px); } }
+
+  #tip { position: absolute; top: 10px; left: 10px; right: 10px; z-index: 6; display: flex; gap: 10px; align-items: center;
+         padding: 6px 12px; background: var(--hl); font: 22px/1.1 var(--pixel); pointer-events: none; animation: pop .2s; }
+  #tip b { color: var(--danger); font-weight: normal; }
+
+  #freeze { position: absolute; inset: 0; z-index: 4; background: color-mix(in srgb, var(--panel) 75%, transparent); display: flex; flex-direction: column;
+            align-items: center; justify-content: center; gap: 10px; font: 26px var(--pixel); text-align: center; }
+  #freeze .px { padding: 14px 20px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .bar { width: 200px; height: 12px; background: var(--line); }
+  .bar i { display: block; height: 100%; width: 0; background: var(--ok); }
+
+  #tasks { display: flex; flex-direction: column; gap: 10px; height: 540px; overflow: hidden; }
+  .task { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; position: relative; overflow: hidden; animation: pop .15s; display: flex; gap: 10px; align-items: center; }
+  .task.failed { background: var(--bad-bg); }
+  .task .body { flex: 1; min-width: 0; }
+  @keyframes pop { from { transform: scale(.9); opacity: 0; } }
+  .task h3 { margin: 0 0 6px; font: 18px/1 var(--pixel); text-transform: uppercase; letter-spacing: 1px; color: var(--muted); }
+  .task .timer { position: absolute; left: 0; bottom: 0; height: 3px; background: var(--danger); }
+  .task button { font: inherit; padding: 6px 10px; border: 1px solid var(--ink); background: var(--card); color: var(--ink); border-radius: 4px; cursor: pointer; }
+  .task button:hover { background: var(--ink); color: var(--card); }
+  .row { display: flex; gap: 6px; flex-wrap: wrap; }
+  .typed { font: 24px var(--pixel); letter-spacing: 3px; }
+  .typed .done { color: var(--ok); }
+  .typed .wrong { color: var(--danger); }
+  .phone { width: 100%; padding: 12px !important; position: relative; overflow: hidden; }
+  .phone .fill { position: absolute; left: 0; top: 0; bottom: 0; background: color-mix(in srgb, var(--ok) 35%, transparent); width: 0; pointer-events: none; }
+  .keycap { font: 28px var(--pixel); color: var(--ink); cursor: pointer; display: inline-block; padding: 0 10px; border: 2px solid var(--ink); border-bottom-width: 5px; background: var(--card); }
+  .hint { color: var(--muted); font-size: 12px; }
+
+  #bossAlert { position: fixed; top: 16px; left: 50%; transform: translateX(-50%); z-index: 16; display: flex; gap: 12px; align-items: center;
+               padding: 10px 18px; background: var(--hl); font: 28px var(--pixel); animation: alert .25s infinite alternate; white-space: nowrap; }
+  @keyframes alert { to { background: var(--hl2); } }
+
+  /* Janelas de vírus: visual "retrô" fixo, igual nos dois temas */
+  .popup { position: fixed; z-index: 15; width: 230px; font: 20px/1.1 var(--pixel); animation: pop .12s; background: #fffbe6; color: #1d1d1b; }
+  .popup .title { background: #2a2fa0; color: #fff; display: flex; justify-content: space-between; align-items: center; padding: 2px 4px 2px 8px; }
+  .popup .x { width: 22px; height: 20px; background: #c9c6bd; color: #1d1d1b; border: 2px outset #fff; font: 18px/14px var(--pixel); cursor: pointer; padding: 0; }
+  .popup .content { display: flex; gap: 10px; padding: 10px; align-items: center; cursor: pointer; }
+
+  #video { position: fixed; left: 16px; bottom: 16px; z-index: 14; width: 230px; font: 18px var(--pixel); }
+  #video .title { background: var(--ink); color: var(--card); padding: 2px 8px; display: flex; justify-content: space-between; }
+  #video .cam { background: #6e8fb5; display: flex; justify-content: center; padding-top: 10px; position: relative; }
+  #video .cam .rec { position: absolute; top: 6px; left: 8px; color: #fff; }
+  #lane { position: fixed; left: 16px; bottom: 210px; width: 240px; height: 330px; z-index: 14; pointer-events: none; }
+  .bubble { position: absolute; left: 10px; padding: 4px 10px; font: 22px/1.1 var(--pixel); pointer-events: auto; cursor: pointer; white-space: nowrap; }
+  .bubble::after { content: ''; position: absolute; left: 12px; bottom: -9px; width: 3px; height: 3px; background: var(--ink);
+                   box-shadow: 3px 0 var(--ink), 0 3px var(--ink), 3px 3px var(--card), 6px 0 var(--card), 0 6px var(--ink), 6px 3px var(--ink); }
+  .bubble.popped { animation: burst .2s forwards; pointer-events: none; }
+  @keyframes burst { to { transform: scale(1.4); opacity: 0; } }
+
+  #toast { position: fixed; right: 16px; top: 16px; z-index: 13; width: 290px; display: flex; gap: 10px; padding: 10px; font: 20px/1.1 var(--pixel); animation: slide .3s; }
+  #toast small { display: block; color: var(--muted); font-size: 16px; }
+  @keyframes slide { from { transform: translateX(120%); } }
+
+  #vignette { position: fixed; inset: 0; pointer-events: none; z-index: 12; box-shadow: inset 0 0 120px 30px rgba(194,59,47,.55); opacity: 0; }
+  #vignette.on { animation: pulse .6s infinite alternate; }
+  @keyframes pulse { from { opacity: .25; } to { opacity: 1; } }
+
+  .legalbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 1; text-align: center; font-size: 12px; line-height: 1.5; color: #cfcac0;
+              background: rgba(0,0,0,.55); padding: 10px max(16px, env(safe-area-inset-right, 0px)) max(10px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
+  .legalbar b { color: #fff; }
+  .legalbar p { margin: 0 auto; max-width: 1100px; }
+
+  .overlay { position: fixed; inset: 0; background: rgba(15,15,14,.8); display: flex; align-items: center; justify-content: center; z-index: 30; padding: 16px; }
+  .card { background: var(--panel); color: var(--ink); padding: 24px 28px; max-width: 560px; width: 100%; max-height: 92vh; overflow: auto; }
+  .card h2 { margin: 0 0 8px; font: 38px/1 var(--pixel); text-wrap: balance; }
+  .card h4 { margin: 14px 0 6px; font: 22px/1 var(--pixel); text-transform: uppercase; letter-spacing: 1px; color: var(--muted); }
+  .card .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+  .card .pxbtn { font-size: 24px; padding: 2px 14px; }
+  .card .pxbtn.main { background: var(--ink); color: var(--card); }
+  .card .legal { margin-top: 18px; font-size: 11px; color: var(--muted); }
+  .menu { display: flex; flex-direction: column; gap: 10px; align-items: stretch; max-width: 280px; margin: 18px auto 0; }
+  .menu .pxbtn { font-size: 28px; padding: 4px 14px; }
+  .logo { display: flex; justify-content: center; gap: 12px; align-items: flex-end; }
+  .logo h2 { font-size: 64px; margin: 0; }
+  .center { text-align: center; }
+  .setting { display: grid; grid-template-columns: 130px 1fr; gap: 8px 12px; align-items: center; margin: 10px 0; }
+  .setting > span { font: 22px var(--pixel); }
+  .seg { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+  .big { font: 32px var(--pixel); color: var(--ok); }
+  .money { font: 26px var(--pixel); color: var(--ok); }
+  .cause { display: grid; grid-template-columns: 150px 1fr 44px; gap: 8px; align-items: center; font: 20px var(--pixel); }
+  .cause .b { height: 12px; background: var(--danger); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+  .item { border: 2px solid var(--ink); background: var(--card); color: var(--ink); padding: 8px; display: flex; flex-direction: column; gap: 4px; align-items: flex-start; text-align: left; font: inherit; }
+  .item .nm { font: 22px/1 var(--pixel); }
+  .item .ds { font-size: 12px; color: var(--muted); flex: 1; }
+  .item .pr { font: 20px var(--pixel); color: var(--ok); }
+  .item.owned { opacity: .55; }
+  .perk { cursor: pointer; border-width: 3px; }
+  .perk:hover { background: var(--hl); }
+  .statgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 2px 14px; font: 20px var(--pixel); }
+  .statgrid b { font-weight: normal; color: var(--ok); }
+  kbd { border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 3px; padding: 0 5px; font-size: 12px; background: var(--card); color: var(--ink); }
+  .hidden { display: none !important; }
+
+  /* Planilha falsa: imita um programa claro, nos dois temas */
+  #boss { position: fixed; inset: 0; background: #fff; z-index: 40; font: 13px Arial, sans-serif; color: #222; overflow: hidden; }
+  #boss .bar2 { background: #1e6e42; color: #fff; padding: 6px 12px; }
+  #boss table { border-collapse: collapse; }
+  #boss td { border: 1px solid #ddd; padding: 3px 8px; min-width: 90px; height: 22px; }
+  #boss tr:first-child td, #boss td:first-child { background: #f3f3f3; color: #666; text-align: center; }
+
+  /* ===== Cenas: ponto, ticket, mercado, caixa ===== */
+  #scene { position: fixed; inset: 0; z-index: 30; overflow: auto; padding: 16px; }
+  .sc-out { background: rgba(15,15,14,.55); display: flex; flex-direction: column; align-items: center; gap: 12px; padding-top: 4vh; }
+  .sc-in { background: var(--bg); display: flex; justify-content: center; align-items: flex-start; padding-top: 4vh; }
+  .sc-col { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+  .sc-col h2 { font: 52px/1 var(--pixel); margin: 0; }
+  .sc-hint { font: 22px var(--pixel); color: #fff; background: rgba(0,0,0,.55); padding: 2px 12px; margin: 0; }
+  .note { padding: 10px 14px; background: var(--hl); max-width: 380px; display: flex; flex-direction: column; gap: 2px; }
+  .note small { font: 16px var(--pixel); color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+  .note b { font: 30px/1 var(--pixel); }
+  .clockdev { position: relative; width: 248px; background: #c9c5b8; color: #1d1d1b; padding: 14px; display: flex; flex-direction: column; align-items: center; gap: 12px;
+              box-shadow: 0 -4px 0 #1d1d1b, 0 4px 0 #1d1d1b, -4px 0 0 #1d1d1b, 4px 0 0 #1d1d1b, inset -6px -6px 0 #8d8a80, inset 6px 6px 0 #e8e5da, 0 14px 0 rgba(0,0,0,.25); margin-bottom: 380px; }
+  .clockdev::before, .clockdev::after { content: ''; position: absolute; top: 10px; width: 6px; height: 6px; background: #6d6b65; box-shadow: 0 1px 0 #e8e5da; }
+  .clockdev::before { left: 10px; } .clockdev::after { right: 10px; }
+  .clockdev.slide-in { animation: slidein 1.8s cubic-bezier(.15,.8,.25,1) both; }
+  @keyframes slidein { from { transform: translateX(calc(50vw + 320px)); } }
+  .clockdev.shake { animation: shake .3s; }
+  .clockdev .brand { font: 18px var(--pixel); letter-spacing: 2px; color: #4a4843; text-shadow: 0 1px 0 #e8e5da; }
+  .lcd { width: 100%; background: #1f3a24; color: #7dff9a; font: 20px/1.1 var(--pixel); padding: 6px 8px; text-align: center;
+         box-shadow: inset 3px 3px 0 #0f1f12, 0 0 0 3px #4a4843; text-shadow: 0 0 6px rgba(125,255,154,.6);
+         background-image: repeating-linear-gradient(0deg, rgba(0,0,0,.18) 0 1px, transparent 1px 3px); }
+  .lcd .t1 { font-size: 34px; }
+  .lcd.bad { color: #ff6b5b; text-shadow: 0 0 6px rgba(255,107,91,.6); } .lcd.good { color: #c8ff7d; }
+  .pad { position: relative; width: 100px; height: 112px; background: #22252b; display: flex; align-items: center; justify-content: center; cursor: pointer;
+         touch-action: none; box-shadow: inset 0 0 0 4px #1d1d1b, inset 6px 6px 0 #2f333b, 0 0 0 3px #8d8a80; overflow: hidden; }
+  .pad:hover { box-shadow: inset 0 0 0 4px #1d1d1b, inset 6px 6px 0 #2f333b, 0 0 0 3px #7dff9a; }
+  .pad .prog { position: absolute; left: 0; right: 0; bottom: 0; height: 0; background: rgba(125,255,154,.3); pointer-events: none; }
+  .pad .scan { position: absolute; left: 4px; right: 4px; height: 3px; background: #7dff9a; box-shadow: 0 0 8px #7dff9a; top: 0; opacity: 0; pointer-events: none; }
+  .pad.reading .scan { opacity: 1; animation: scan .5s steps(8) infinite alternate; }
+  @keyframes scan { to { top: calc(100% - 3px); } }
+  .clockdev .slot { width: 204px; height: 10px; background: #1d1d1b; box-shadow: 0 -2px 0 #8d8a80, 0 2px 0 #e8e5da; }
+  .paper { position: absolute; top: calc(100% - 19px); left: 50%; transform: translateX(-50%); width: 196px; height: 400px; overflow: hidden; pointer-events: none; }
+  .strip { pointer-events: auto; }
+  .stub { height: 8px; background: #fdfcf6; }
+  .perf { border-top: 3px dashed #9a9a9a; background: #fdfcf6; }
+  .perf.stretch { border-top-color: var(--danger); }
+  .perf.torn { border-top-style: dotted; }
+  .ticket { background: #fdfcf6; color: #1d1d1b; padding: 10px 12px 16px; font: 18px/1.2 var(--pixel); width: 196px; cursor: grab; touch-action: none;
+            background-image: linear-gradient(90deg, rgba(0,0,0,.04) 0 2px, transparent 2px calc(100% - 2px), rgba(0,0,0,.04) calc(100% - 2px));
+            -webkit-mask: linear-gradient(#000 0 0) top/100% calc(100% - 6px) no-repeat, conic-gradient(from 135deg at top, #0000, #000 1deg 89deg, #0000 90deg) bottom/12px 6px repeat-x;
+            mask: linear-gradient(#000 0 0) top/100% calc(100% - 6px) no-repeat, conic-gradient(from 135deg at top, #0000, #000 1deg 89deg, #0000 90deg) bottom/12px 6px repeat-x; }
+  .ticket.grab { cursor: grabbing; }
+  .ticket.free { position: fixed; z-index: 5; cursor: default; filter: drop-shadow(0 8px 0 rgba(0,0,0,.35)); }
+  .tk-head { text-align: center; font-size: 26px; letter-spacing: 2px; }
+  .tk-sub { text-align: center; font-size: 15px; border-bottom: 2px dashed #9a9a9a; margin-bottom: 6px; padding-bottom: 4px; }
+  .tk-row { display: flex; justify-content: space-between; gap: 8px; }
+  .tk-row b { font-weight: normal; text-align: right; }
+  .tk-bar { height: 24px; margin-top: 8px; background: repeating-linear-gradient(90deg, #1d1d1b 0 2px, transparent 2px 4px, #1d1d1b 4px 7px, transparent 7px 9px, #1d1d1b 9px 10px, transparent 10px 13px); }
+  .pxcover { position: fixed; inset: 0; display: grid; z-index: 2; pointer-events: none; }
+  .pxcover i { background: var(--bg); opacity: 0; animation: pxin .01s steps(1) forwards; }
+  @keyframes pxin { to { opacity: 1; } }
+  .endbtns { position: fixed; left: 50%; bottom: max(24px, env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); display: flex; gap: 10px; z-index: 6; flex-wrap: wrap; justify-content: center; width: calc(100% - 32px); }
+  #scene .pxbtn { font-size: 24px; padding: 2px 14px; }
+  #scene .pxbtn.main { background: var(--ink); color: var(--card); }
+  #scene .msg { position: fixed; top: 16px; left: 50%; transform: translateX(-50%); z-index: 12; padding: 6px 14px; font: 22px var(--pixel); background: var(--hl); }
+  #dust { position: fixed; inset: 0; pointer-events: none; z-index: 28; }
+  #dust i { position: fixed; width: 4px; height: 4px; }
+
+  .sc-market { background: var(--bg); padding-bottom: calc(clamp(240px, 28vw, 400px) * 15 / 26 + 40px);
+               background-image: linear-gradient(var(--bg) 0 0), repeating-linear-gradient(90deg, color-mix(in srgb, var(--line) 40%, transparent) 0 2px, transparent 2px 48px);
+               background-size: 100% 0, auto; }
+  .mk-top { display: flex; gap: 8px 18px; align-items: center; flex-wrap: wrap; max-width: 1400px; margin: 0 auto; }
+  .mk-top h2 { font: 44px/1 var(--pixel); margin: 0; flex: 1; }
+  .mk-sign { max-width: 1400px; margin: 0 auto 10px; height: 18px; background: repeating-linear-gradient(90deg, var(--rh) 0 24px, #fdfcf6 24px 48px);
+             clip-path: polygon(0 0, 100% 0, 100% 60%, 97.5% 100%, 95% 60%, 92.5% 100%, 90% 60%, 87.5% 100%, 85% 60%, 82.5% 100%, 80% 60%, 77.5% 100%, 75% 60%, 72.5% 100%, 70% 60%, 67.5% 100%, 65% 60%, 62.5% 100%, 60% 60%, 57.5% 100%, 55% 60%, 52.5% 100%, 50% 60%, 47.5% 100%, 45% 60%, 42.5% 100%, 40% 60%, 37.5% 100%, 35% 60%, 32.5% 100%, 30% 60%, 27.5% 100%, 25% 60%, 22.5% 100%, 20% 60%, 17.5% 100%, 15% 60%, 12.5% 100%, 10% 60%, 7.5% 100%, 5% 60%, 2.5% 100%, 0 60%); }
+  .mk-hint { max-width: 1400px; margin: 6px auto 14px; }
+  .shelves { max-width: 1400px; margin: 0 auto; display: flex; flex-direction: column; gap: 34px; background: var(--panel); padding: 22px 16px 28px;
+             background-image: linear-gradient(90deg, var(--wood-dark) 0 10px, transparent 10px calc(100% - 10px), var(--wood-dark) calc(100% - 10px)); }
+  .shelf { display: flex; justify-content: space-around; align-items: flex-end; gap: 8px; flex-wrap: wrap; border-bottom: 12px solid var(--wood);
+           box-shadow: 0 6px 0 var(--wood-dark), 0 14px 0 rgba(0,0,0,.12); padding: 0 18px 6px; min-height: 120px; }
+  .slot { background: none; border: 0; color: var(--ink); display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; padding: 4px; font: inherit; max-width: 200px; }
+  .slot canvas { width: clamp(56px, 7.5vw, 128px) !important; height: auto !important; transition: transform .12s steps(2); filter: drop-shadow(0 3px 0 rgba(0,0,0,.18)); }
+  .slot:hover:not(.sold) canvas { transform: translateY(-5px); }
+  .slot .nm { font: 20px/1 var(--pixel); text-align: center; }
+  .slot .ds { font-size: 11px; color: var(--muted); text-align: center; }
+  .ptag { font: 18px var(--pixel); background: #ffe066; color: #1d1d1b; padding: 0 6px; box-shadow: 0 2px 0 #b8941d; }
+  .slot.sold { opacity: .3; cursor: default; }
+  .basket { position: fixed; left: 50%; bottom: 12px; transform: translateX(-50%); width: clamp(240px, 28vw, 400px); aspect-ratio: 26 / 15; max-width: calc(100% - 32px); z-index: 4; filter: drop-shadow(0 6px 0 rgba(0,0,0,.25)); }
+  .bitems { position: absolute; left: 4%; right: 4%; top: -30%; bottom: 50%; }
+  .inbasket { position: absolute; cursor: pointer; }
+  .bfront { position: absolute; left: 0; bottom: 0; width: 100% !important; height: auto !important; pointer-events: none; z-index: 2; }
+  .register { max-width: 1100px; margin: 12px auto; display: flex; flex-direction: column; gap: 18px; }
+  .lcd2 { background: #1f3a24; color: #7dff9a; font: 22px/1.2 var(--pixel); padding: 10px 14px; min-height: 120px; box-shadow: inset 3px 3px 0 #0f1f12, 0 0 0 4px #4a4843;
+          text-shadow: 0 0 6px rgba(125,255,154,.5); background-image: repeating-linear-gradient(0deg, rgba(0,0,0,.18) 0 1px, transparent 1px 3px); }
+  .lcd2 .lines div { display: flex; justify-content: space-between; gap: 10px; }
+  .lcd2 .tot { border-top: 2px dashed #3f7a4a; margin-top: 6px; padding-top: 4px; text-align: right; font-size: 28px; }
+  .lcd2.good { color: #c8ff7d; }
+  .lcd2 .funds { text-align: right; font-size: 18px; opacity: .8; }
+  .lcd2.over { color: #ff8a7a; text-shadow: 0 0 6px rgba(255,107,91,.6); }
+  .lcd2.over .funds { opacity: 1; animation: blink .8s steps(1) infinite; }
+  .inbag { cursor: pointer; }
+  .mk-top .money.over b { color: var(--danger); }
+  .belt { display: grid; grid-template-columns: 1fr auto 1fr; align-items: end; gap: 10px; padding: 16px 12px 12px; min-height: 120px;
+          box-shadow: 0 -4px 0 #4a4843, 0 8px 0 #1d1d1b, 0 14px 0 rgba(0,0,0,.2);
+          background: repeating-linear-gradient(90deg, #2b2b30 0 14px, #34343a 14px 28px); animation: belt 1s steps(7) infinite; }
+  @keyframes belt { to { background-position: 28px 0; } }
+  .lane-in, .lane-out { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; min-height: 70px; }
+  .lane-out { justify-content: flex-end; }
+  .belt-item, .lane-out canvas { width: clamp(48px, 6vw, 96px) !important; height: auto !important; }
+  .belt-item { cursor: pointer; transition: transform .1s steps(2); }
+  .belt-item:hover { transform: translateY(-4px); }
+  .scanner { position: relative; }
+  .laser { position: absolute; left: 8px; right: 8px; bottom: calc(100% - 6px); height: 40px; background: linear-gradient(transparent, rgba(255,60,60,.75)); opacity: 0; }
+  .laser.beep { animation: beep .3s steps(2); }
+  @keyframes beep { 50% { opacity: 1; } }
+  .pay { max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
+  .pay h4 { font: 22px var(--pixel); margin: 0; text-transform: uppercase; color: var(--muted); }
+  .paym { display: flex; align-items: center; gap: 8px; }
+  #scene .actions { max-width: 760px; margin: 16px auto; display: flex; gap: 10px; }
+
+  #pad { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; display: flex; gap: 8px; align-items: center;
+         padding: 8px max(12px, env(safe-area-inset-right, 0px)) max(8px, env(safe-area-inset-bottom, 0px)) max(12px, env(safe-area-inset-left, 0px));
+         background: color-mix(in srgb, var(--bg) 92%, transparent); border-top: 3px solid var(--ink); }
+  #pad .pxbtn { font-size: 26px; padding: 8px 0; touch-action: manipulation; }
+  #pad .pxbtn:active { background: var(--hl); transform: translateY(2px); }
+  #pad .pxbtn { padding: 6px 14px; }
+  #pad .ctx { display: none; background: var(--danger); color: #fff; border-color: #1d1d1b; animation: alert .25s infinite alternate; }
+  #pad .ctx.show { display: block; flex: 1; font-size: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #pad .padsp { flex: 1; }
+  #pad .ctx.show ~ .padsp { display: none; }
+  body.touch #app { padding-bottom: 70px; }
+  /* ===== Relógio de ponto (inspirado em aparelho real) ===== */
+  .devwrap { position: fixed; left: 50%; bottom: 20px; transform-origin: bottom center; transition: transform .6s steps(8); }
+  .sc-out .sc-hint { position: fixed; top: 14px; left: 50%; transform: translateX(-50%); z-index: 2; white-space: nowrap; }
+  .clockdev { width: 330px; margin: 0; padding: 0 16px 18px; gap: 14px; color: #e8e4d8; align-items: stretch;
+              background: linear-gradient(160deg, #3a3d45 0%, #1f2025 42%, #131417 100%);
+              box-shadow: 0 -4px 0 #000, 0 4px 0 #000, -4px 0 0 #000, 4px 0 0 #000, inset 0 6px 0 #4f535d, inset -6px 0 0 #0b0c0e, inset 6px 0 0 #2c2e34, 0 16px 0 rgba(0,0,0,.3); }
+  .clockdev::before { left: 0; top: 168px; width: 100%; height: 8px; background: linear-gradient(100deg, transparent 6%, #4f535d 6% 58%, transparent 58%); box-shadow: none; }
+  .clockdev::after { left: 0; right: auto; top: 46px; width: 60%; height: 4px; background: #2c2e34; box-shadow: none; }
+  .clockdev .hump { margin: 0 -16px; height: 38px; background: linear-gradient(#41444d, #24262b); display: flex; justify-content: center; align-items: center;
+                    box-shadow: inset 0 5px 0 #5a5f6a, inset 0 -4px 0 #17181b; }
+  .clockdev .slot { width: 214px; height: 12px; background: #050506; box-shadow: 0 3px 0 #5a5f6a, 0 -3px 0 #0b0c0e; }
+  .cd-row { display: flex; gap: 12px; align-items: center; position: relative; z-index: 1; }
+  .clockdev .lcd { flex: 1; text-align: left; color: #fff; padding: 6px 10px 0; text-shadow: none;
+                   background: linear-gradient(#22376e, #0d1735); box-shadow: 0 0 0 4px #08080a, 0 0 0 7px #3a3d45; }
+  .clockdev .lcd .date { font: 14px var(--pixel); color: #c8d6ff; }
+  .clockdev .lcd .t1 { font: 46px/1 var(--pixel); }
+  .clockdev .lcd .t2 { font: 16px/1.1 var(--pixel); color: #9ec0ff; min-height: 18px; }
+  .clockdev .lcd .menu { margin: 4px -10px 0; background: #c23b2f; text-align: right; font: 12px/14px var(--pixel); padding: 0 6px; }
+  .clockdev .lcd.bad, .clockdev .lcd.good { color: #fff; text-shadow: none; }
+  .clockdev .lcd.bad .t2 { color: #ff8a7a; } .clockdev .lcd.good .t2 { color: #9dff9a; }
+  .cd-side { width: 78px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+  .usb { width: 30px; height: 20px; background: #08080a; box-shadow: inset 0 0 0 3px #75727b, inset 0 0 0 6px #08080a; }
+  .btns { display: flex; gap: 6px; } .rb, .bb { width: 28px; height: 10px; display: block; }
+  .rb { background: #d23a2e; box-shadow: 0 3px 0 #7d1d16; } .bb { background: #2f6bff; box-shadow: 0 3px 0 #173a8f; }
+  .cd-side .brand { font: 16px/1 var(--pixel); color: #e8e4d8; text-align: center; letter-spacing: 1px; text-shadow: none; }
+  .cd-bottom { justify-content: space-between; align-items: flex-end; }
+  .sticker { font: 13px/1.15 var(--pixel); background: #e8e4d8; color: #1d1d1b; padding: 4px 6px; box-shadow: 0 2px 0 #8d8a80; }
+  .reader { background: #08080a; padding: 10px 12px 8px; box-shadow: inset 0 0 0 3px #2a2c31, 0 -5px 0 #3a3d45; }
+  .clockdev .pad { width: 84px; height: 96px; background: radial-gradient(#3f7bff, #0e2a7a 75%); box-shadow: 0 0 18px rgba(47,107,255,.7), inset 0 0 0 3px #0a1a4a; }
+  .clockdev .pad:hover { box-shadow: 0 0 26px rgba(120,170,255,.95), inset 0 0 0 3px #9ec0ff; }
+  .clockdev .pad .scan { background: #dfe9ff; box-shadow: 0 0 8px #dfe9ff; }
+  .clockdev .pad .prog { background: rgba(207,224,255,.35); }
+  .clockdev .paper { top: auto; bottom: calc(100% - 26px); height: 360px; display: flex; flex-direction: column; justify-content: flex-end; }
+  .clockdev .strip { display: flex; flex-direction: column; }
+  .clockdev .ticket { -webkit-mask: linear-gradient(#000 0 0) bottom/100% calc(100% - 6px) no-repeat, conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) top/12px 6px repeat-x;
+                      mask: linear-gradient(#000 0 0) bottom/100% calc(100% - 6px) no-repeat, conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) top/12px 6px repeat-x;
+                      padding: 16px 12px 10px; }
+  .clockdev .perf::after { top: -2px; }
+
+  @media (max-width: 760px) {
+    body.touch #app { height: 100dvh; display: flex; flex-direction: column; padding-bottom: 66px; overflow: hidden; }
+    body.touch #board { flex: 1 1 auto; height: auto; min-height: 0; }
+    body.touch #tasks { flex: 0 0 auto; height: auto; max-height: 36dvh; }
+    body.touch #tasks:empty { display: none; }
+    body.touch #desk { min-height: 0; }
+  }
+  #kb { position: fixed; left: 0; bottom: 0; width: 1px; height: 1px; opacity: 0; font-size: 16px; border: 0; padding: 0; pointer-events: none; }
+  button, .pad, .ticket { touch-action: manipulation; }
+  #board { touch-action: none; }
+  /* ===== v7: ticket, entardecer, sono, mercado em tela cheia, caixa ===== */
+  .perf { position: relative; }
+  .perf::after { content: ''; position: absolute; left: 0; top: -3px; height: 4px; width: var(--p, 0%); background: #1d1d1b; }
+  .sc-out.evening { background: #1f1736; overflow: hidden; }
+  .skyline { position: fixed; inset: 0; width: 100%; height: 100%; object-fit: cover; image-rendering: pixelated; z-index: 3; opacity: 0; pointer-events: none; }
+  .pxcover.dusk i { background: #1f1736; }
+  .pxcover.dusk { z-index: 4; }
+  .ticket.free { z-index: 6; }
+  .endbtns { z-index: 7; }
+  .endbtns .pxbtn { font-size: 26px !important; padding: 6px 18px !important; }
+
+  .tosleep { position: fixed; inset: 0; z-index: 45; background: #000; animation: toblack 1s steps(8) both; }
+  .sc-sleep { background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 28px; overflow: hidden; }
+  @keyframes toblack { from { background: rgba(0,0,0,0); } }
+  .zz { position: absolute; font-family: var(--pixel); color: #9ec0ff; opacity: 0; animation: zfloat 2.6s steps(13) forwards; text-shadow: 0 0 10px rgba(158,192,255,.5); }
+  @keyframes zfloat { 0% { opacity: 0; transform: translate(0,0); } 20% { opacity: 1; } 100% { opacity: 0; transform: translate(50px,-150px); } }
+  .alarm { position: relative; background: #2b2b30; border: 0; padding: 26px 30px; cursor: pointer; animation: ring .1s steps(2) infinite alternate, pop .3s steps(4);
+           box-shadow: 0 -5px 0 #e8e4d8, 0 5px 0 #e8e4d8, -5px 0 0 #e8e4d8, 5px 0 0 #e8e4d8, inset -6px -6px 0 #1d1d20, inset 6px 6px 0 #3a3a40; }
+  .alarm .face { display: block; background: #120707; padding: 14px; box-shadow: inset 4px 4px 0 #000; }
+  .alarm .segs { display: block; width: clamp(200px, 40vw, 360px); height: auto; image-rendering: pixelated; animation: blink 1s steps(1) infinite; filter: drop-shadow(0 0 6px rgba(255,70,54,.6)); }
+  @keyframes blink { 50% { opacity: .35; } }
+  .alarm .bell { position: absolute; top: -26px; width: 44px; height: 22px; background: #c9c5b8; box-shadow: 0 -5px 0 #1d1d1b, -5px 0 0 #1d1d1b, 5px 0 0 #1d1d1b, inset -5px 0 0 #8d8a80; }
+  .alarm .bell.l { left: 4px; } .alarm .bell.r { right: 4px; }
+  .alarm .leg { position: absolute; bottom: -16px; width: 16px; height: 12px; background: #e8e4d8; }
+  .alarm .leg.l { left: 26px; } .alarm .leg.r { right: 26px; }
+  @keyframes ring { from { transform: rotate(-5deg); } to { transform: rotate(5deg) translateX(3px); } }
+  .alarm.off { animation: none; }
+  .alarm.off .segs { animation: none; }
+  .wakeflash { position: fixed; inset: 0; background: #fff; z-index: 9; animation: wake .75s steps(6) forwards; }
+  @keyframes wake { from { opacity: 0; } 50% { opacity: 1; } to { opacity: 1; } }
+
+  #scene.sc-shop { --bh: min(25dvh, 38vw); height: 100dvh; display: flex; flex-direction: column; overflow: hidden; padding-bottom: calc(var(--bh) * 0.8); }
+  .sc-shop .basket { pointer-events: none; } .sc-shop .inbasket { pointer-events: auto; }
+  .sc-shop .mk-hint { margin: 2px auto 6px; }
+  .sc-shop .shelves { flex: 1; min-height: 0; width: 100%; gap: 1.6dvh; padding: 1.4dvh 18px; }
+  .sc-shop .shelf { flex: 1; min-height: 0; container-type: size; flex-wrap: nowrap; padding: 0 10px 4px; align-items: flex-end; }
+  .sc-shop .slot { height: 100%; justify-content: flex-end; max-width: none; flex: 1 1 0; min-width: 0; }
+  .sc-shop .slot canvas { width: auto !important; height: min(62cqh, 17cqw) !important; }
+  .sc-shop .slot .nm { font-size: clamp(14px, 1.4vw, 22px); }
+  @container (max-height: 200px) { .slot .ds { display: none; } }
+  @container (max-height: 105px) { .slot .nm { display: none; } }
+  .sc-shop .basket { height: var(--bh); width: calc(var(--bh) * 26 / 15); max-width: calc(100% - 24px); aspect-ratio: auto; bottom: 0; }
+  .inbasket { height: auto !important; }
+  .spark { position: fixed; width: 6px; height: 6px; z-index: 11; pointer-events: none; }
+
+  .sc-cash .mk-top h2 { flex: 1; }
+  .belt { grid-template-columns: 1fr auto 1fr; align-items: end; }
+  .belt-item { touch-action: none; cursor: grab; }
+  .belt-item.dragging { position: fixed !important; width: var(--dw) !important; z-index: 20; pointer-events: none; cursor: grabbing; filter: drop-shadow(0 10px 0 rgba(0,0,0,.35)); }
+  .belt-item.read { filter: drop-shadow(0 0 6px #7dff9a); }
+  .scanner { position: relative; width: 160px; height: 70px; background: #4a4843; display: flex; align-items: center; justify-content: center;
+             box-shadow: 0 -4px 0 #1d1d1b, 0 4px 0 #1d1d1b, -4px 0 0 #1d1d1b, 4px 0 0 #1d1d1b, inset 4px 4px 0 #6d6b65, inset -4px -4px 0 #2b2b30; }
+  .scanner .glass { width: 120px; height: 34px; background: #1a0b0e; box-shadow: inset 3px 3px 0 #000;
+                    background-image: repeating-linear-gradient(45deg, rgba(255,60,60,.45) 0 2px, transparent 2px 9px), repeating-linear-gradient(-45deg, rgba(255,60,60,.45) 0 2px, transparent 2px 9px); }
+  .scanner .laser { position: absolute; left: 20px; right: 20px; bottom: 100%; height: 110px; opacity: .35; pointer-events: none;
+                    background: linear-gradient(transparent, rgba(255,60,60,.5)); clip-path: polygon(40% 0, 60% 0, 100% 100%, 0 100%); }
+  .scanner.ok .laser { animation: lok .35s steps(3); } .scanner.bad .laser { animation: lbad .45s steps(3); }
+  .scanner.ok { animation: sok .35s steps(2); } .scanner.bad { animation: shake .3s; }
+  @keyframes lok { 50% { opacity: 1; background: linear-gradient(transparent, rgba(125,255,154,.8)); } }
+  @keyframes lbad { 50% { opacity: 1; background: linear-gradient(transparent, rgba(255,60,60,.95)); } }
+  @keyframes sok { 50% { background: #3f7a4a; } }
+  .bags { display: flex; gap: 10px; align-items: flex-end; justify-content: flex-end; flex-wrap: wrap; min-height: 130px; }
+  .bag { position: relative; width: 90px; height: 128px; }
+  .bagin { position: absolute; left: 0; right: 0; top: 0; bottom: 62px; }
+  .inbag { position: absolute; bottom: 0; }
+  .bagfront { position: absolute; left: 0; bottom: 0; z-index: 2; }
+
+  @media (max-width: 760px) {
+    #app { grid-template-columns: 1fr; padding: 10px max(10px, env(safe-area-inset-right, 0px)) 10px max(10px, env(safe-area-inset-left, 0px)); gap: 8px; }
+    header { gap: 2px 10px; font-size: 12px; }
+    header h1 { font-size: 24px; }
+    #clock { font-size: 22px; }
+    #stressWrap { flex-basis: 100%; }
+    #desk { min-height: 34px; }
+    #desk canvas { transform: scale(.75); transform-origin: bottom center; }
+    #board { height: 42dvh; min-height: 260px; }
+    #tasks { height: max(170px, calc(100dvh - 42dvh - 230px)); overflow-y: auto; gap: 6px; }
+    .task { padding: 6px 10px; flex-shrink: 0; }
+    .tray { font-size: 17px; }
+    .file { padding: 0 4px; gap: 4px; } .file canvas { display: none; }
+    #toast { width: calc(100% - 32px); }
+    #bossAlert { font-size: 22px; white-space: normal; width: calc(100% - 32px); }
+    #video { width: 170px; } #video .cam canvas { width: 84px !important; height: auto !important; }
+    #lane { bottom: 170px; height: 240px; }
+    .clockdev { transform-origin: top center; }
+    .card { padding: 18px; }
+    .logo h2 { font-size: 46px; }
+    .mk-top h2 { font-size: 32px; flex-basis: 100%; }
+    .shelves { padding: 14px 8px 18px; gap: 26px; }
+    .slot .ds { display: none; }
+    .sc-shop .shelves { padding: 1dvh 6px; }
+    .sc-shop .shelf { padding: 0 2px 4px; }
+    .sc-shop .slot .nm { font-size: 13px; }
+    .mk-top .money { font-size: 20px; }
+    .belt { grid-template-columns: 1fr auto 1fr; gap: 4px; padding: 10px 4px; }
+    .scanner { width: 92px; } .scanner .glass { width: 70px; }
+    .bag { width: 54px; height: 80px; } .bagfront { width: 54px !important; height: auto !important; } .bagin { bottom: 38px; }
+    .inbag { width: 30px !important; height: auto !important; }
+    .setting { grid-template-columns: 1fr; }
+  }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01s !important; } }
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <h1>WORKDAY</h1>
+    <span id="clock">09:00</span>
+    <span class="stat"><span data-t="day"></span> <b id="day">1</b></span>
+    <span class="stat"><span data-t="points"></span> <b id="score">0</b></span>
+    <span class="stat" id="combo">Combo <b id="mult">×1</b></span>
+    <span class="stat"><span data-t="rank"></span> <b id="rank"></b></span>
+    <span class="stat"><span data-t="wallet"></span> <b id="wallet"></b></span>
+    <button id="soundBtn" class="pxbtn"></button>
+    <div id="stressWrap"><div id="stress"></div></div>
+  </header>
+  <div id="desk"><div class="decor"></div></div>
+  <div id="inv"></div>
+  <div id="board"></div>
+  <div id="tasks"></div>
+</div>
+<div id="decorLayer"></div>
+<div id="pad" class="hidden">
+  <button class="pxbtn ctx" id="padBoss" data-k="Escape"></button><button class="pxbtn ctx" id="padDel" data-k="Delete"></button>
+  <span class="padsp"></span><button class="pxbtn" id="padPause" data-k=" ">II</button>
+</div>
+<input id="kb" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="teclado">
+<div id="vignette"></div>
+<div id="modal" class="overlay"><div class="card"></div></div>
+<div id="boss" class="hidden">
+  <div class="bar2">Q4_v7_FINAL.xlsx</div>
+  <table id="bossTable"></table>
+</div>
+
+<script>
+/* Workday © 2026 Émerson K. Boff. Todos os direitos reservados. Proibida a cópia ou republicação. */
+const AUTHOR = 'Émerson K. Boff';
+const YEAR = 2026;
+
+/* ================= Textos por idioma ================= */
+const LANGS = {
+  pt: {
+    label: 'Português', htmlLang: 'pt-BR', money: 'R$',
+    sectors: { fin: 'Financeiro', rh: 'RH', jur: 'Jurídico', ti: 'TI' },
+    docs: { fin: ['Nota fiscal', 'Reembolso', 'Boleto', 'Balancete'], rh: ['Atestado', 'Férias', 'Currículo', 'Ponto'],
+            jur: ['Contrato', 'Procuração', 'Notificação', 'Aditivo'], ti: ['Chamado', 'Licença', 'Senha', 'Backup'] },
+    words: ['PRAZO', 'PLANILHA', 'REUNIAO', 'PROTOCOLO', 'RELATORIO', 'URGENTE', 'ANEXO', 'SINERGIA',
+            'FEEDBACK', 'ALINHAMENTO', 'ORCAMENTO', 'CRONOGRAMA', 'DEMANDA', 'ESCOPO', 'PAUTA'],
+    buttons: ['Aprovar', 'Assinar', 'Confirmar', 'Arquivar', 'Imprimir', 'Ciente', 'Validar'],
+    callers: ['Cliente irritado', 'Diretoria', 'Fornecedor', 'Ramal 204', 'Número desconhecido'],
+    emails: { 'Dúvida sobre pagamento': 'fin', 'Pedido de férias': 'rh', 'Cláusula 4.2': 'jur', 'Impressora travou': 'ti',
+              'Holerite errado': 'rh', 'Processo novo': 'jur', 'VPN caiu': 'ti', 'Nota em atraso': 'fin' },
+    spam: ['PARABÉNS! Você é o visitante 1.000.000', 'Seu PC está LENTO!!', 'Baixe mais memória RAM', 'Ganhe um celular grátis',
+           'Renda extra trabalhando de casa', 'Sua garantia expirou', 'Clique para limpar o PC', '3 vírus detectados!!!'],
+    bubbles: ['tá me ouvindo?', 'cê tá mudo', 'compartilha a tela', 'travou aqui', 'alguém?', 'volta um slide',
+              'pode repetir?', 'vou ter que sair 5min', 'tá com eco', 'liga a câmera', 'próximo slide', 'tô sem áudio'],
+    memos: [['Chefe', 'Reunião para alinhar a reunião de amanhã. Presença obrigatória.'], ['RH', 'Lembrete: sorrir faz parte da cultura da empresa.'],
+            ['Chefe', 'Vi que você respirou às 10h14. Podemos conversar?'], ['RH', 'O bolo dos aniversariantes foi cancelado por contenção de custos.'],
+            ['TI', 'Favor não reiniciar o computador. Nem ligar.'], ['Chefe', 'Só um pedido rápido (anexo de 340 páginas).'],
+            ['RH', 'Pesquisa de clima: responda até ontem.'], ['Diretoria', 'Somos uma família. Família não ganha hora extra.'],
+            ['Chefe', 'Pode ficar até mais tarde? Só hoje. De novo.'], ['TI', 'Sua senha expirou. A nova não pode ter letras nem números.']],
+    ranks: ['Estagiário', 'Assistente', 'Analista', 'Coordenador', 'Gerente', 'Diretor', 'CEO'],
+    mods: { first: ['Primeiro dia', 'Ninguém espera muito de você. Ainda.'], sexta: ['Sexta-feira', 'Tudo 15% mais lento, mas o chefe ronda o triplo.'],
+            fecha: ['Fechamento do mês', 'Metade dos arquivos do Financeiro chega urgente.'],
+            home: ['Home office', 'Sem chefe e sem setores trocando. Em compensação, chamadas de vídeo desde cedo.'],
+            ar: ['Ar-condicionado quebrado', 'O estresse sobe sozinho o dia inteiro.'], ti: ['Dia da TI', 'PC travando e vírus em dobro, e desde cedo.'],
+            segunda: ['Segunda-feira', 'Tarefas chegam 35% mais rápido.'], audit: ['Auditoria', 'Erros estressam 30% mais, acertos valem 30% mais.'] },
+    perks: { estagiario: ['Estagiário próprio', 'Impressora travada pede metade dos toques.'], fone: ['Fone com cancelamento', 'Ligações exigem metade do tempo segurando.'],
+             antivirus: ['Antivírus corporativo', 'Vírus abrem metade das janelas.'], secretaria: ['Secretária', 'Todas as tarefas ganham 20% mais prazo.'],
+             terapia: ['Plano de terapia', 'O estresse baixa duas vezes mais rápido.'], mouse: ['Mouse gamer', 'PC travado destrava com metade das balançadas.'],
+             bandeja: ['Bandeja inteligente', 'Arquivos caem 15% mais devagar.'], corretor: ['Corretor automático', 'Só aparecem palavras de até 8 letras.'],
+             cafeteira: ['Cafeteira na mesa', 'O café aparece duas vezes mais.'], relacoes: ['Puxa-saco', 'Você tem 3s para esconder a tela do chefe.'],
+             meta: ['Meta batida', 'O combo vai até ×6.'] },
+    shop: { cafe: ['Café coado', 'Tecla 1: deixa tudo lento por 5s.'], cha: ['Chá de camomila', 'Tecla 2: tira 25 de estresse.'],
+            fone: ['Fone emprestado', 'Amanhã: ligações pela metade do tempo.'], antivirus: ['Antivírus pirata', 'Amanhã: vírus abrem metade das janelas.'],
+            postit: ['Bloco de post-it', 'Amanhã: tarefas com 25% mais prazo.'], planta: ['Planta', 'Alguém precisa sobreviver aqui.'],
+            foto: ['Porta-retrato', 'Lembra por que você aguenta isso.'], lamp: ['Luminária', 'Luz própria. Status.'],
+            monitor: ['Monitor extra', 'O dobro de telas, o dobro de problemas.'], gato: ['Gato de mesa', 'Não pergunte. Ele só está aqui.'],
+            trofeu: ['Troféu', '"Funcionário do mês". Comprado.'] },
+    tips: { file: 'Leve o arquivo ao setor da etiqueta com <b>← →</b>. <b>↓</b> acelera.', urgent: 'Arquivo <b>urgente</b>: cai rápido, vale o dobro, erro dói o dobro.',
+            dead: '<b>Arquivo morto</b>: apague com <b>Delete</b> antes de cair.', coffee: 'Um <b>café</b> apareceu! Clique para deixar tudo lento.',
+            button: '<b>Pendência</b>: clique no botão antes do prazo.', email: '<b>E-mail</b>: encaminhe para o setor do assunto.',
+            type: '<b>Digite</b> a palavra e aperte <b>Enter</b>. Sem clicar em nada.', call: '<b>Telefone</b>: clique e <b>segure</b> até encher.',
+            printer: '<b>Impressora</b>: aperte a tecla indicada várias vezes.', video: '<b>Chamada</b>: aceite e clique nos balões antes que subam.',
+            boss: 'O <b>chefe</b> vem aí! Aperte <b>Esc</b> rápido.', shuffle: 'Os <b>setores</b> vão trocar de lugar! Olhe as bandejas.',
+            freeze: '<b>PC travado</b>: as setas param. Balance o mouse!', virus: '<b>Vírus</b>: feche no <b>x</b>. Clicar no anúncio abre outro.' },
+    causes: { wrong: 'Setor errado', urgent: 'Urgente errado', dead: 'Arquivo morto', del: 'Apagou documento', deadline: 'Prazo perdido',
+              email: 'E-mail errado', boss: 'Chefe', freeze: 'PC travado', virus: 'Vírus', video: 'Reunião', typo: 'Digitação', ar: 'Calor' },
+    ui: {
+      day: 'Dia', points: 'Pontos', rank: 'Cargo', wallet: 'Carteira', sound: 'SOM', on: 'ON', off: 'OFF', stress: 'Estresse',
+      play: 'Jogar', how: 'Como jogar', settings: 'Configurações', profile: 'Ficha', back: 'Voltar',
+      howText: `<p>Cada dia vai das 9h às 18h. Arquivos caem na mesa: use <kbd>←</kbd> <kbd>→</kbd> para levá-los ao setor da etiqueta e <kbd>↓</kbd> para acelerar.</p>
+        <p>O escritório desanda aos poucos: pendências, e-mails, digitação, ligações, impressora, chefe, PC travado, vírus e reuniões. Cada novidade é explicada na primeira vez que aparece.</p>
+        <p>Sobreviva aos dias, receba salário, compre coisas no mercado e suba até CEO. Se o estresse encher, você pede demissão.</p>
+        <p class="hint"><kbd>Espaço</kbd> pausa · <kbd>Esc</kbd> planilha falsa · <kbd>M</kbd> som · <kbd>1</kbd> <kbd>2</kbd> itens</p>`,
+      language: 'Idioma', theme: 'Tema', themeSystem: 'Sistema', themeLight: 'Claro', themeDark: 'Escuro', soundLabel: 'Som',
+      soundOn: 'Ligado', soundOff: 'Desligado', tutorial: 'Tutorial', tutorialReset: 'Mostrar dicas de novo', tutorialDone: 'Dicas reativadas',
+      progress: 'Progresso', erase: 'Apagar tudo', eraseConfirm: 'Apaga dinheiro, enfeites, recorde e estatísticas. Confirmar?', eraseYes: 'Sim, apagar', eraseNo: 'Cancelar', erased: 'Progresso apagado',
+      paused: 'Pausa para o café', resumeHint: 'Aperte <kbd>Espaço</kbd> para voltar.', resume: 'Continuar', quit: 'Pedir demissão',
+      record: 'Recorde', daysWorked: 'Dias trabalhados', maxDay: 'Maior dia', careers: 'Carreiras', files: 'Arquivos', emails: 'E-mails',
+      calls: 'Ligações', viruses: 'Vírus fechados', bosses: 'Fugas do chefe', videos: 'Reuniões', prints: 'Impressões',
+      today: 'Hoje', startDay: 'Começar o dia', market: 'Ir ao mercado', marketTitle: 'Mercado', toTake: 'Para levar', decorTitle: 'Enfeites para a mesa',
+      decorHint: 'Ficam com você para sempre, mesmo trocando de emprego.', buy: 'Comprar', bought: 'Comprado', has: n => ` (tem ${n})`,
+      dayDone: d => `18:00. Dia ${d} concluído!`, dayPoints: (p, b) => `Pontos no dia: <b>${p}</b> (inclui bônus de ${b} por sobreviver).`,
+      salary: 'Salário', stressToday: 'O que mais te estressou hoje', perfect: 'Nada. Um dia perfeito, quase suspeito.', goHome: 'Ir para casa',
+      quitTitle: 'Você pediu demissão', hrReport: (d, c) => `Relatório do RH, dia ${d}, ${c}.`, rankReached: 'Cargo alcançado',
+      summary: (p, d) => `${p} pontos em ${d} dia${d > 1 ? 's' : ''}.`, missing: (n, r) => `Faltaram ${n} pontos para ${r}.`, top: 'Não havia mais para onde subir.',
+      severance: 'Rescisão', reasons: 'Motivos do desligamento', newJob: 'Novo emprego', mainMenu: 'Menu',
+      promo: 'Promoção!', promoText: r => `Agora você é <b>${r}</b>. Escolha um benefício para o resto da carreira:`,
+      from: 'De', pending: 'Pendência', newEmail: 'Novo e-mail', forward: 'encaminhar:', fill: 'Preencher campo', typeHint: 'digite e aperte Enter',
+      ringing: 'Telefone tocando', hold: 'segure', printer: 'Impressora travada', press: 'aperte', videoCall: 'Chamada de vídeo', accept: 'Aceitar',
+      deadFile: 'Arquivo morto', pressDelete: 'aperte Delete', urgent: 'URGENTE', coffee: 'café!', notResponding: 'NÃO RESPONDENDO', shake: 'balance o mouse!',
+      bossComing: 'O CHEFE VEM AÍ!', warning: 'AVISO!!!', meeting: 'Reunião rápida',
+      fWrong: 'Setor errado!', fUrgent: 'Urgente no setor errado!', fDead: 'Arquivo morto arquivado!', fDel: 'Você apagou um documento!',
+      fEmail: 'E-mail extraviado', fDeadline: 'Prazo perdido!', fMeeting: 'Perdeu a reunião!', fBoss: 'O chefe viu tudo!', fIgnored: 'Ignorou o colega!',
+      footer: `<b>Workday</b> © ${YEAR} <b>${AUTHOR}</b>. Todos os direitos reservados. É proibido copiar, modificar, redistribuir, republicar ou adaptar este jogo, no todo ou em parte, em qualquer plataforma, sem autorização prévia e por escrito do autor.`,
+    },
+  },
+  en: {
+    label: 'English', htmlLang: 'en', money: '$',
+    sectors: { fin: 'Finance', rh: 'HR', jur: 'Legal', ti: 'IT' },
+    docs: { fin: ['Invoice', 'Refund', 'Bill', 'Balance sheet'], rh: ['Sick note', 'Vacation', 'Résumé', 'Timesheet'],
+            jur: ['Contract', 'Power of attorney', 'Notice', 'Amendment'], ti: ['Ticket', 'License', 'Password', 'Backup'] },
+    words: ['DEADLINE', 'SPREADSHEET', 'MEETING', 'PROTOCOL', 'REPORT', 'URGENT', 'ATTACHMENT', 'SYNERGY',
+            'FEEDBACK', 'ALIGNMENT', 'BUDGET', 'SCHEDULE', 'DEMAND', 'SCOPE', 'AGENDA'],
+    buttons: ['Approve', 'Sign', 'Confirm', 'Archive', 'Print', 'Noted', 'Validate'],
+    callers: ['Angry client', 'The board', 'Supplier', 'Ext. 204', 'Unknown number'],
+    emails: { 'Payment question': 'fin', 'Vacation request': 'rh', 'Clause 4.2': 'jur', 'Printer jammed': 'ti',
+              'Wrong payslip': 'rh', 'New lawsuit': 'jur', 'VPN is down': 'ti', 'Late invoice': 'fin' },
+    spam: ['CONGRATS! You are visitor 1,000,000', 'Your PC is SLOW!!', 'Download more RAM', 'Win a free phone',
+           'Earn money from home', 'Your warranty expired', 'Click to clean your PC', '3 viruses detected!!!'],
+    bubbles: ['can you hear me?', "you're muted", 'share your screen', 'it froze', 'anyone?', 'go back a slide',
+              'can you repeat?', 'brb 5 min', "there's an echo", 'turn your camera on', 'next slide', 'no audio here'],
+    memos: [['Boss', "Meeting to align tomorrow's meeting. Attendance mandatory."], ['HR', 'Reminder: smiling is part of our culture.'],
+            ['Boss', 'I saw you breathe at 10:14. Can we talk?'], ['HR', 'Birthday cake canceled due to cost cutting.'],
+            ['IT', 'Please do not restart your computer. Or turn it on.'], ['Boss', 'Just a quick request (340-page attachment).'],
+            ['HR', 'Engagement survey: reply by yesterday.'], ['The board', "We are a family. Family doesn't get overtime."],
+            ['Boss', 'Can you stay late? Just today. Again.'], ['IT', 'Your password expired. The new one cannot contain letters or numbers.']],
+    ranks: ['Intern', 'Assistant', 'Analyst', 'Coordinator', 'Manager', 'Director', 'CEO'],
+    mods: { first: ['First day', 'Nobody expects much from you. Yet.'], sexta: ['Friday', 'Everything is 15% slower, but the boss shows up three times as often.'],
+            fecha: ['Month-end close', 'Half of the Finance files arrive urgent.'],
+            home: ['Work from home', 'No boss and no shuffling. In exchange, video calls start early.'],
+            ar: ['Broken air conditioning', 'Stress rises on its own all day.'], ti: ['IT day', 'Double the frozen PCs and viruses, and they start early.'],
+            segunda: ['Monday', 'Tasks arrive 35% faster.'], audit: ['Audit', 'Mistakes stress 30% more, hits are worth 30% more.'] },
+    perks: { estagiario: ['Your own intern', 'Jammed printers need half the presses.'], fone: ['Noise-cancelling headset', 'Calls need half the holding time.'],
+             antivirus: ['Corporate antivirus', 'Viruses open half the windows.'], secretaria: ['Secretary', 'All tasks get 20% more time.'],
+             terapia: ['Therapy plan', 'Stress goes down twice as fast.'], mouse: ['Gaming mouse', 'Frozen PCs need half the shaking.'],
+             bandeja: ['Smart tray', 'Files fall 15% slower.'], corretor: ['Autocorrect', 'Only words up to 8 letters.'],
+             cafeteira: ['Desk coffee maker', 'Coffee shows up twice as often.'], relacoes: ["Teacher's pet", 'You get 3s to hide from the boss.'],
+             meta: ['Target hit', 'Combo goes up to ×6.'] },
+    shop: { cafe: ['Drip coffee', 'Key 1: slows everything for 5s.'], cha: ['Chamomile tea', 'Key 2: removes 25 stress.'],
+            fone: ['Borrowed headset', 'Tomorrow: calls take half the time.'], antivirus: ['Pirated antivirus', 'Tomorrow: viruses open half the windows.'],
+            postit: ['Sticky notes', 'Tomorrow: tasks get 25% more time.'], planta: ['Plant', 'Someone has to survive here.'],
+            foto: ['Photo frame', 'Reminds you why you put up with this.'], lamp: ['Desk lamp', 'Your own light. Status.'],
+            monitor: ['Extra monitor', 'Twice the screens, twice the problems.'], gato: ['Desk cat', "Don't ask. It's just here."],
+            trofeu: ['Trophy', '"Employee of the month". Bought.'] },
+    tips: { file: 'Move the file to the labeled department with <b>← →</b>. <b>↓</b> drops faster.', urgent: '<b>Urgent</b> file: falls fast, double points, double pain.',
+            dead: '<b>Dead file</b>: delete it with <b>Delete</b> before it lands.', coffee: 'A <b>coffee</b> appeared! Click it to slow everything down.',
+            button: '<b>Pending item</b>: click the button before time runs out.', email: '<b>Email</b>: forward it to the right department.',
+            type: '<b>Type</b> the word and press <b>Enter</b>. No clicking needed.', call: '<b>Phone</b>: click and <b>hold</b> until it fills.',
+            printer: '<b>Printer</b>: press the shown key several times.', video: '<b>Video call</b>: accept and click the bubbles before they float away.',
+            boss: 'The <b>boss</b> is coming! Press <b>Esc</b> fast.', shuffle: 'The <b>departments</b> are about to swap! Watch the trays.',
+            freeze: '<b>Frozen PC</b>: arrows stop working. Shake the mouse!', virus: '<b>Virus</b>: close on the <b>x</b>. Clicking the ad opens another.' },
+    causes: { wrong: 'Wrong department', urgent: 'Urgent misplaced', dead: 'Dead file', del: 'Deleted a document', deadline: 'Missed deadline',
+              email: 'Wrong email', boss: 'Boss', freeze: 'Frozen PC', virus: 'Virus', video: 'Meeting', typo: 'Typing', ar: 'Heat' },
+    ui: {
+      day: 'Day', points: 'Score', rank: 'Role', wallet: 'Wallet', sound: 'SOUND', on: 'ON', off: 'OFF', stress: 'Stress',
+      play: 'Play', how: 'How to play', settings: 'Settings', profile: 'Profile', back: 'Back',
+      howText: `<p>Each day runs from 9 a.m. to 6 p.m. Files fall on your desk: use <kbd>←</kbd> <kbd>→</kbd> to move them to the labeled department and <kbd>↓</kbd> to drop faster.</p>
+        <p>The office slowly falls apart: pending items, emails, typing, calls, printer, boss, frozen PC, viruses and meetings. Each new thing is explained the first time it shows up.</p>
+        <p>Survive the days, get paid, shop at the market and climb to CEO. If stress fills up, you quit.</p>
+        <p class="hint"><kbd>Space</kbd> pause · <kbd>Esc</kbd> fake spreadsheet · <kbd>M</kbd> sound · <kbd>1</kbd> <kbd>2</kbd> items</p>`,
+      language: 'Language', theme: 'Theme', themeSystem: 'System', themeLight: 'Light', themeDark: 'Dark', soundLabel: 'Sound',
+      soundOn: 'On', soundOff: 'Off', tutorial: 'Tutorial', tutorialReset: 'Show tips again', tutorialDone: 'Tips re-enabled',
+      progress: 'Progress', erase: 'Erase everything', eraseConfirm: 'Erases money, decorations, high score and stats. Confirm?', eraseYes: 'Yes, erase', eraseNo: 'Cancel', erased: 'Progress erased',
+      paused: 'Coffee break', resumeHint: 'Press <kbd>Space</kbd> to resume.', resume: 'Resume', quit: 'Quit job',
+      record: 'High score', daysWorked: 'Days worked', maxDay: 'Best day', careers: 'Careers', files: 'Files', emails: 'Emails',
+      calls: 'Calls', viruses: 'Viruses closed', bosses: 'Boss escapes', videos: 'Meetings', prints: 'Prints',
+      today: 'Today', startDay: 'Start the day', market: 'Go to the market', marketTitle: 'Market', toTake: 'To take', decorTitle: 'Desk decorations',
+      decorHint: 'They stay with you forever, even if you change jobs.', buy: 'Buy', bought: 'Bought', has: n => ` (have ${n})`,
+      dayDone: d => `6:00 p.m. Day ${d} complete!`, dayPoints: (p, b) => `Points today: <b>${p}</b> (includes a ${b} survival bonus).`,
+      salary: 'Salary', stressToday: 'What stressed you most today', perfect: 'Nothing. A perfect day, almost suspicious.', goHome: 'Go home',
+      quitTitle: 'You quit', hrReport: (d, c) => `HR report, day ${d}, ${c}.`, rankReached: 'Role reached',
+      summary: (p, d) => `${p} points in ${d} day${d > 1 ? 's' : ''}.`, missing: (n, r) => `${n} points short of ${r}.`, top: 'There was nowhere left to climb.',
+      severance: 'Severance', reasons: 'Reasons for leaving', newJob: 'New job', mainMenu: 'Menu',
+      promo: 'Promotion!', promoText: r => `You are now <b>${r}</b>. Pick a perk for the rest of your career:`,
+      from: 'From', pending: 'Pending', newEmail: 'New email', forward: 'forward to:', fill: 'Fill in field', typeHint: 'type and press Enter',
+      ringing: 'Phone ringing', hold: 'hold', printer: 'Printer jammed', press: 'press', videoCall: 'Video call', accept: 'Accept',
+      deadFile: 'Dead file', pressDelete: 'press Delete', urgent: 'URGENT', coffee: 'coffee!', notResponding: 'NOT RESPONDING', shake: 'shake the mouse!',
+      bossComing: 'THE BOSS IS COMING!', warning: 'WARNING!!!', meeting: 'Quick sync',
+      fWrong: 'Wrong department!', fUrgent: 'Urgent file misplaced!', fDead: 'Dead file filed!', fDel: 'You deleted a document!',
+      fEmail: 'Email lost', fDeadline: 'Missed deadline!', fMeeting: 'Missed the meeting!', fBoss: 'The boss saw everything!', fIgnored: 'Ignored a coworker!',
+      footer: `<b>Workday</b> © ${YEAR} <b>${AUTHOR}</b>. All rights reserved. Copying, modifying, redistributing, reposting or adapting this game, in whole or in part, on any platform, is prohibited without the author's prior written permission.`,
+    },
+  },
+  es: {
+    label: 'Español', htmlLang: 'es', money: '$',
+    sectors: { fin: 'Finanzas', rh: 'RR. HH.', jur: 'Legal', ti: 'TI' },
+    docs: { fin: ['Factura', 'Reembolso', 'Boleta', 'Balance'], rh: ['Certificado médico', 'Vacaciones', 'Currículum', 'Asistencia'],
+            jur: ['Contrato', 'Poder', 'Notificación', 'Adenda'], ti: ['Ticket', 'Licencia', 'Contraseña', 'Backup'] },
+    words: ['ENTREGA', 'PLANILLA', 'REUNION', 'PROTOCOLO', 'INFORME', 'URGENTE', 'ADJUNTO', 'SINERGIA',
+            'FEEDBACK', 'GASTOS', 'CRONOGRAMA', 'DEMANDA', 'ALCANCE', 'AGENDA', 'PENDIENTE'],
+    buttons: ['Aprobar', 'Firmar', 'Confirmar', 'Archivar', 'Imprimir', 'Visto', 'Validar'],
+    callers: ['Cliente enojado', 'Directorio', 'Proveedor', 'Interno 204', 'Número desconocido'],
+    emails: { 'Duda sobre un pago': 'fin', 'Pedido de vacaciones': 'rh', 'Cláusula 4.2': 'jur', 'Se trabó la impresora': 'ti',
+              'Recibo de sueldo erróneo': 'rh', 'Juicio nuevo': 'jur', 'Se cayó la VPN': 'ti', 'Factura atrasada': 'fin' },
+    spam: ['¡FELICIDADES! Eres el visitante 1.000.000', '¡¡Tu PC está LENTA!!', 'Descarga más RAM', 'Gana un celular gratis',
+           'Ingresos extra desde casa', 'Tu garantía expiró', 'Haz clic para limpiar la PC', '¡¡¡3 virus detectados!!!'],
+    bubbles: ['¿me escuchas?', 'estás muteado', 'comparte pantalla', 'se congeló', '¿alguien?', 'vuelve una diapo',
+              '¿puedes repetir?', 'salgo 5 min', 'hay eco', 'prende la cámara', 'siguiente diapo', 'no tengo audio'],
+    memos: [['Jefe', 'Reunión para alinear la reunión de mañana. Asistencia obligatoria.'], ['RR. HH.', 'Recordatorio: sonreír es parte de nuestra cultura.'],
+            ['Jefe', 'Vi que respiraste a las 10:14. ¿Hablamos?'], ['RR. HH.', 'La torta de cumpleaños se canceló por recorte de gastos.'],
+            ['TI', 'Por favor no reinicien la computadora. Ni la prendan.'], ['Jefe', 'Solo un pedido rápido (adjunto de 340 páginas).'],
+            ['RR. HH.', 'Encuesta de clima: respondan hasta ayer.'], ['Directorio', 'Somos una familia. La familia no cobra horas extra.'],
+            ['Jefe', '¿Te puedes quedar hasta tarde? Solo hoy. Otra vez.'], ['TI', 'Tu contraseña expiró. La nueva no puede tener letras ni números.']],
+    ranks: ['Pasante', 'Asistente', 'Analista', 'Coordinador', 'Gerente', 'Director', 'CEO'],
+    mods: { first: ['Primer día', 'Nadie espera mucho de ti. Todavía.'], sexta: ['Viernes', 'Todo un 15% más lento, pero el jefe ronda el triple.'],
+            fecha: ['Cierre de mes', 'La mitad de los archivos de Finanzas llega urgente.'],
+            home: ['Home office', 'Sin jefe y sin cambios de sector. A cambio, videollamadas desde temprano.'],
+            ar: ['Aire acondicionado roto', 'El estrés sube solo todo el día.'], ti: ['Día de TI', 'PC colgada y virus al doble, y desde temprano.'],
+            segunda: ['Lunes', 'Las tareas llegan un 35% más rápido.'], audit: ['Auditoría', 'Los errores estresan un 30% más, los aciertos valen un 30% más.'] },
+    perks: { estagiario: ['Pasante propio', 'La impresora trabada pide la mitad de toques.'], fone: ['Auriculares con cancelación', 'Las llamadas piden la mitad del tiempo.'],
+             antivirus: ['Antivirus corporativo', 'Los virus abren la mitad de ventanas.'], secretaria: ['Secretaria', 'Todas las tareas tienen 20% más de plazo.'],
+             terapia: ['Plan de terapia', 'El estrés baja el doble de rápido.'], mouse: ['Mouse gamer', 'La PC colgada se arregla con la mitad de sacudidas.'],
+             bandeja: ['Bandeja inteligente', 'Los archivos caen un 15% más lento.'], corretor: ['Autocorrector', 'Solo palabras de hasta 8 letras.'],
+             cafeteira: ['Cafetera en el escritorio', 'El café aparece el doble.'], relacoes: ['Chupamedias', 'Tienes 3 s para esconderte del jefe.'],
+             meta: ['Meta cumplida', 'El combo llega a ×6.'] },
+    shop: { cafe: ['Café de filtro', 'Tecla 1: todo va lento por 5 s.'], cha: ['Té de manzanilla', 'Tecla 2: quita 25 de estrés.'],
+            fone: ['Auriculares prestados', 'Mañana: llamadas a la mitad del tiempo.'], antivirus: ['Antivirus pirata', 'Mañana: los virus abren la mitad de ventanas.'],
+            postit: ['Taco de post-it', 'Mañana: tareas con 25% más de plazo.'], planta: ['Planta', 'Alguien tiene que sobrevivir aquí.'],
+            foto: ['Portarretratos', 'Te recuerda por qué aguantas esto.'], lamp: ['Lámpara', 'Luz propia. Estatus.'],
+            monitor: ['Monitor extra', 'El doble de pantallas, el doble de problemas.'], gato: ['Gato de escritorio', 'No preguntes. Solo está aquí.'],
+            trofeu: ['Trofeo', '"Empleado del mes". Comprado.'] },
+    tips: { file: 'Lleva el archivo al sector de la etiqueta con <b>← →</b>. <b>↓</b> acelera.', urgent: 'Archivo <b>urgente</b>: cae rápido, vale el doble, el error duele el doble.',
+            dead: '<b>Archivo muerto</b>: bórralo con <b>Delete</b> antes de que caiga.', coffee: '¡Apareció un <b>café</b>! Haz clic para que todo vaya lento.',
+            button: '<b>Pendiente</b>: haz clic en el botón antes del plazo.', email: '<b>Correo</b>: reenvíalo al sector del asunto.',
+            type: '<b>Escribe</b> la palabra y pulsa <b>Enter</b>. Sin hacer clic.', call: '<b>Teléfono</b>: haz clic y <b>mantén</b> hasta llenar.',
+            printer: '<b>Impresora</b>: pulsa la tecla indicada varias veces.', video: '<b>Videollamada</b>: acepta y haz clic en los globos antes de que suban.',
+            boss: '¡Viene el <b>jefe</b>! Pulsa <b>Esc</b> rápido.', shuffle: '¡Los <b>sectores</b> van a cambiar de lugar! Mira las bandejas.',
+            freeze: '<b>PC colgada</b>: las flechas no funcionan. ¡Sacude el mouse!', virus: '<b>Virus</b>: cierra en la <b>x</b>. Hacer clic en el anuncio abre otro.' },
+    causes: { wrong: 'Sector equivocado', urgent: 'Urgente equivocado', dead: 'Archivo muerto', del: 'Borró un documento', deadline: 'Plazo vencido',
+              email: 'Correo equivocado', boss: 'Jefe', freeze: 'PC colgada', virus: 'Virus', video: 'Reunión', typo: 'Escritura', ar: 'Calor' },
+    ui: {
+      day: 'Día', points: 'Puntos', rank: 'Cargo', wallet: 'Billetera', sound: 'SONIDO', on: 'SÍ', off: 'NO', stress: 'Estrés',
+      play: 'Jugar', how: 'Cómo jugar', settings: 'Configuración', profile: 'Ficha', back: 'Volver',
+      howText: `<p>Cada día va de 9 a 18 h. Caen archivos en el escritorio: usa <kbd>←</kbd> <kbd>→</kbd> para llevarlos al sector de la etiqueta y <kbd>↓</kbd> para acelerar.</p>
+        <p>La oficina se desmorona de a poco: pendientes, correos, escritura, llamadas, impresora, jefe, PC colgada, virus y reuniones. Cada novedad se explica la primera vez que aparece.</p>
+        <p>Sobrevive a los días, cobra el sueldo, compra en el mercado y llega a CEO. Si el estrés se llena, renuncias.</p>
+        <p class="hint"><kbd>Espacio</kbd> pausa · <kbd>Esc</kbd> planilla falsa · <kbd>M</kbd> sonido · <kbd>1</kbd> <kbd>2</kbd> objetos</p>`,
+      language: 'Idioma', theme: 'Tema', themeSystem: 'Sistema', themeLight: 'Claro', themeDark: 'Oscuro', soundLabel: 'Sonido',
+      soundOn: 'Activado', soundOff: 'Desactivado', tutorial: 'Tutorial', tutorialReset: 'Mostrar consejos de nuevo', tutorialDone: 'Consejos reactivados',
+      progress: 'Progreso', erase: 'Borrar todo', eraseConfirm: 'Borra dinero, adornos, récord y estadísticas. ¿Confirmar?', eraseYes: 'Sí, borrar', eraseNo: 'Cancelar', erased: 'Progreso borrado',
+      paused: 'Pausa para el café', resumeHint: 'Pulsa <kbd>Espacio</kbd> para volver.', resume: 'Continuar', quit: 'Renunciar',
+      record: 'Récord', daysWorked: 'Días trabajados', maxDay: 'Mejor día', careers: 'Carreras', files: 'Archivos', emails: 'Correos',
+      calls: 'Llamadas', viruses: 'Virus cerrados', bosses: 'Escapes del jefe', videos: 'Reuniones', prints: 'Impresiones',
+      today: 'Hoy', startDay: 'Empezar el día', market: 'Ir al mercado', marketTitle: 'Mercado', toTake: 'Para llevar', decorTitle: 'Adornos para el escritorio',
+      decorHint: 'Se quedan contigo para siempre, aunque cambies de trabajo.', buy: 'Comprar', bought: 'Comprado', has: n => ` (tienes ${n})`,
+      dayDone: d => `18:00. ¡Día ${d} completado!`, dayPoints: (p, b) => `Puntos del día: <b>${p}</b> (incluye un bono de ${b} por sobrevivir).`,
+      salary: 'Sueldo', stressToday: 'Lo que más te estresó hoy', perfect: 'Nada. Un día perfecto, casi sospechoso.', goHome: 'Ir a casa',
+      quitTitle: 'Renunciaste', hrReport: (d, c) => `Informe de RR. HH., día ${d}, ${c}.`, rankReached: 'Cargo alcanzado',
+      summary: (p, d) => `${p} puntos en ${d} día${d > 1 ? 's' : ''}.`, missing: (n, r) => `Faltaron ${n} puntos para ${r}.`, top: 'No quedaba más adonde subir.',
+      severance: 'Indemnización', reasons: 'Motivos de la salida', newJob: 'Nuevo empleo', mainMenu: 'Menú',
+      promo: '¡Ascenso!', promoText: r => `Ahora eres <b>${r}</b>. Elige un beneficio para el resto de tu carrera:`,
+      from: 'De', pending: 'Pendiente', newEmail: 'Correo nuevo', forward: 'reenviar a:', fill: 'Completar campo', typeHint: 'escribe y pulsa Enter',
+      ringing: 'Suena el teléfono', hold: 'mantén', printer: 'Impresora trabada', press: 'pulsa', videoCall: 'Videollamada', accept: 'Aceptar',
+      deadFile: 'Archivo muerto', pressDelete: 'pulsa Delete', urgent: 'URGENTE', coffee: '¡café!', notResponding: 'NO RESPONDE', shake: '¡sacude el mouse!',
+      bossComing: '¡VIENE EL JEFE!', warning: '¡¡¡AVISO!!!', meeting: 'Reunión rápida',
+      fWrong: '¡Sector equivocado!', fUrgent: '¡Urgente en el sector equivocado!', fDead: '¡Archivaste un archivo muerto!', fDel: '¡Borraste un documento!',
+      fEmail: 'Correo perdido', fDeadline: '¡Plazo vencido!', fMeeting: '¡Perdiste la reunión!', fBoss: '¡El jefe lo vio todo!', fIgnored: '¡Ignoraste al colega!',
+      footer: `<b>Workday</b> © ${YEAR} <b>${AUTHOR}</b>. Todos los derechos reservados. Se prohíbe copiar, modificar, redistribuir, volver a publicar o adaptar este juego, total o parcialmente, en cualquier plataforma, sin autorización previa y por escrito del autor.`,
+    },
+  },
+};
+
+Object.assign(LANGS.pt.ui, { musicLabel: 'Música', sfxLabel: 'Efeitos', overBudget: 'Saldo insuficiente! Toque num item da sacola para deixá-lo para trás.', hide: 'ESCONDER TELA', del: 'APAGAR ARQUIVO', pullTicket: 'Segure o ticket e puxe para cima para rasgar', finish: 'Encerrar compra', swipeHint: 'Segure um produto e deslize por cima do leitor.', noRead: 'Não leu! Passe de novo.', wakeHint: 'Clique no despertador para acordar', cont: d => `Continuar (dia ${d})`, placeFinger: 'POSICIONE O DEDO', reading: 'LENDO...', readFail: 'FALHOU! DE NOVO',
+  readOk: 'REGISTRADO', holdFinger: 'Clique e segure na digital', printing: 'Imprimindo...', pullTicket: 'Segure o ticket e puxe para cima para rasgar',
+  company: 'WORKDAY LTDA.', receipt: 'COMPROVANTE DE PONTO', employee: 'Funcionário', inTime: 'Entrada', outTime: 'Saída', hoursWorked: 'Horas',
+  worst: 'Pior parte', goRest: 'Ir para casa descansar', goShop: 'Ir às compras', exit: 'Sair', store: 'Mercadinho', total: 'Total',
+  toCheckout: 'Ir ao caixa', skipHome: 'Ir para casa', cantAfford: 'Dinheiro insuficiente!',
+  marketHint: 'Clique nos produtos para pôr na cesta. Clique num produto na cesta para devolver.', checkoutTitle: 'Caixa',
+  scanHint: 'Clique nos produtos para passar no leitor.', payHint: 'Tudo registrado. Escolha como pagar.', payWith: 'Forma de pagamento',
+  cash: 'Dinheiro', card: 'Cartão', pix: 'Pix', pay: 'Pagar', processing: 'PROCESSANDO...', approved: 'APROVADO' });
+Object.assign(LANGS.en.ui, { musicLabel: 'Music', sfxLabel: 'Effects', overBudget: 'Not enough money! Tap an item in the bag to leave it behind.', hide: 'HIDE SCREEN', del: 'DELETE FILE', pullTicket: 'Hold the ticket and pull up to tear it off', finish: 'Finish shopping', swipeHint: 'Hold a product and swipe it over the scanner.', noRead: 'No read! Swipe again.', wakeHint: 'Click the alarm clock to wake up', cont: d => `Continue (day ${d})`, placeFinger: 'PLACE FINGER', reading: 'READING...', readFail: 'FAILED! AGAIN',
+  readOk: 'RECORDED', holdFinger: 'Click and hold the fingerprint', printing: 'Printing...', pullTicket: 'Hold the ticket and pull up to tear it off',
+  company: 'WORKDAY INC.', receipt: 'TIME CARD RECEIPT', employee: 'Employee', inTime: 'In', outTime: 'Out', hoursWorked: 'Hours',
+  worst: 'Worst part', goRest: 'Go home and rest', goShop: 'Go shopping', exit: 'Exit', store: 'Corner store', total: 'Total',
+  toCheckout: 'Go to checkout', skipHome: 'Go home', cantAfford: 'Not enough money!',
+  marketHint: 'Click products to put them in the basket. Click one in the basket to put it back.', checkoutTitle: 'Checkout',
+  scanHint: 'Click the products to scan them.', payHint: 'All scanned. Choose how to pay.', payWith: 'Payment method',
+  cash: 'Cash', card: 'Card', pix: 'Phone', pay: 'Pay', processing: 'PROCESSING...', approved: 'APPROVED' });
+Object.assign(LANGS.es.ui, { musicLabel: 'Música', sfxLabel: 'Efectos', overBudget: '¡Saldo insuficiente! Toca un producto de la bolsa para dejarlo.', hide: 'OCULTAR PANTALLA', del: 'BORRAR ARCHIVO', pullTicket: 'Mantén el ticket y tira hacia arriba para cortarlo', finish: 'Terminar compra', swipeHint: 'Mantén un producto y deslízalo sobre el lector.', noRead: '¡No leyó! Pásalo de nuevo.', wakeHint: 'Haz clic en el despertador para despertar', cont: d => `Continuar (día ${d})`, placeFinger: 'APOYE EL DEDO', reading: 'LEYENDO...', readFail: '¡FALLÓ! DE NUEVO',
+  readOk: 'REGISTRADO', holdFinger: 'Haz clic y mantén sobre la huella', printing: 'Imprimiendo...', pullTicket: 'Mantén el ticket y tira hacia arriba para cortarlo',
+  company: 'WORKDAY S.A.', receipt: 'COMPROBANTE DE ASISTENCIA', employee: 'Empleado', inTime: 'Entrada', outTime: 'Salida', hoursWorked: 'Horas',
+  worst: 'Lo peor', goRest: 'Ir a casa a descansar', goShop: 'Ir de compras', exit: 'Salir', store: 'Almacén', total: 'Total',
+  toCheckout: 'Ir a la caja', skipHome: 'Ir a casa', cantAfford: '¡Dinero insuficiente!',
+  marketHint: 'Haz clic en los productos para ponerlos en la canasta. Haz clic en uno de la canasta para devolverlo.', checkoutTitle: 'Caja',
+  scanHint: 'Haz clic en los productos para escanearlos.', payHint: 'Todo escaneado. Elige cómo pagar.', payWith: 'Forma de pago',
+  cash: 'Efectivo', card: 'Tarjeta', pix: 'QR', pay: 'Pagar', processing: 'PROCESANDO...', approved: 'APROBADO' });
+
+LANGS.pt.tipsTouch = { file: 'Toque na coluna do setor da etiqueta. Toque no arquivo para soltar.', dead: '<b>Arquivo morto</b>: toque nele para apagar.', boss: 'O <b>chefe</b> vem aí! Toque em <b>ESCONDER</b>.', printer: '<b>Impressora</b>: toque na tecla várias vezes.', type: '<b>Digite</b>: toque no campo e escreva a palavra.', freeze: '<b>PC travado</b>: balance o dedo na tela!' };
+LANGS.en.tipsTouch = { file: 'Tap the column of the labeled department. Tap the file to drop it.', dead: '<b>Dead file</b>: tap it to delete.', boss: 'The <b>boss</b> is coming! Tap <b>HIDE</b>.', printer: '<b>Printer</b>: tap the key several times.', type: '<b>Type</b>: tap the field and write the word.', freeze: '<b>Frozen PC</b>: shake your finger on the screen!' };
+LANGS.es.tipsTouch = { file: 'Toca la columna del sector de la etiqueta. Toca el archivo para soltarlo.', dead: '<b>Archivo muerto</b>: tócalo para borrarlo.', boss: '¡Viene el <b>jefe</b>! Toca <b>OCULTAR</b>.', printer: '<b>Impresora</b>: toca la tecla varias veces.', type: '<b>Escribe</b>: toca el campo y escribe la palabra.', freeze: '<b>PC colgada</b>: ¡sacude el dedo en la pantalla!' };
+/* ================= Mecânica ================= */
+const SECTORS = [{ id: 'fin', color: 'var(--fin)' }, { id: 'rh', color: 'var(--rh)' }, { id: 'jur', color: 'var(--jur)' }, { id: 'ti', color: 'var(--ti)' }];
+const RANK_POINTS = [0, 300, 1000, 2500, 5000, 9000, 15000];
+const UNLOCK = { button: 2, email: 3, type: 4, call: 5, printer: 6, video: 8 };
+const EVENTS = { boss: 3, shuffle: 5, freeze: 6, virus: 7 };
+const DAY_SECONDS = 150;
+const LEVEL_SECONDS = 30;
+const MAX_TASKS = 5;
+const MODS = {
+  first: {}, sexta: { speed: 0.85, w: { boss: 3 } }, fecha: { finUrgent: true }, home: { w: { boss: 0, shuffle: 0 }, video: 2 },
+  ar: { drift: 0.9 }, ti: { w: { freeze: 2, virus: 2 }, earlyTech: true }, segunda: { taskRate: 1.35 }, audit: { errMul: 1.3, ptsMul: 1.3 },
+};
+const PERK_IDS = ['estagiario', 'fone', 'antivirus', 'secretaria', 'terapia', 'mouse', 'bandeja', 'corretor', 'cafeteira', 'relacoes', 'meta'];
+const SHOP = [
+  { id: 'cafe', kind: 'use', price: 20, spr: 'coffee' }, { id: 'cha', kind: 'use', price: 30, spr: 'tea' },
+  { id: 'fone', kind: 'day', price: 35, spr: 'headphones' }, { id: 'antivirus', kind: 'day', price: 35, spr: 'shield' },
+  { id: 'postit', kind: 'day', price: 45, spr: 'postit' }, { id: 'planta', kind: 'decor', price: 60, spr: 'plant' },
+  { id: 'foto', kind: 'decor', price: 80, spr: 'frame' }, { id: 'lamp', kind: 'decor', price: 120, spr: 'lamp' },
+  { id: 'monitor', kind: 'decor', price: 200, spr: 'monitor' }, { id: 'gato', kind: 'decor', price: 350, spr: 'cat' },
+  { id: 'trofeu', kind: 'decor', price: 600, spr: 'trophy' },
+];
+const RANK_DESK = { 1: 'mug', 2: 'nameplate', 4: 'chair', 6: 'crown' };
+
+const $ = id => document.getElementById(id);
+const board = $('board'), tasksEl = $('tasks');
+const pick = a => a[Math.floor(Math.random() * a.length)];
+const rand = (a, b) => a + Math.random() * (b - a);
+
+/* ================= Persistência ================= */
+function load(k, d) { try { const v = localStorage.getItem('expediente-' + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } }
+function save(k, v) { try { localStorage.setItem('expediente-' + k, JSON.stringify(v)); } catch (e) {} }
+const STAT_KEYS = ['files', 'emails', 'calls', 'typed', 'prints', 'viruses', 'bosses', 'videos', 'days', 'careers', 'maxDay'];
+const freshStats = () => Object.fromEntries(STAT_KEYS.map(k => [k, 0]));
+function guessLang() { const l = (navigator.language || 'pt').slice(0, 2); return LANGS[l] ? l : 'pt'; }
+const P = { wallet: load('carteira', 0), decor: load('enfeites', []), seen: load('tutorial', []), best: load('recorde2', 0),
+            stats: Object.assign(freshStats(), load('stats', {})) };
+const CFG = Object.assign({ lang: guessLang(), theme: 'system' }, load('config', {}));
+if (!LANGS[CFG.lang]) CFG.lang = 'pt';
+function persist() { save('carteira', P.wallet); save('enfeites', P.decor); save('tutorial', P.seen); save('recorde2', P.best); save('stats', P.stats); save('config', CFG); }
+function stat(k, n = 1) { P.stats[k] += n; }
+
+let L = LANGS[CFG.lang];
+const U = () => L.ui;
+const fmt = n => n.toLocaleString(L.htmlLang);
+const money = n => `${L.money} ${fmt(n)}`;
+const sectorName = id => L.sectors[id];
+
+/* ================= Tema e idioma ================= */
+const hostTheme = document.documentElement.getAttribute('data-theme');
+function applyTheme() {
+  const r = document.documentElement;
+  if (CFG.theme === 'system') { if (hostTheme) r.setAttribute('data-theme', hostTheme); else r.removeAttribute('data-theme'); }
+  else r.setAttribute('data-theme', CFG.theme);
+}
+function applyLang() {
+  L = LANGS[CFG.lang];
+  $('padBoss').textContent = L.ui.hide; $('padDel').textContent = L.ui.del;
+  document.documentElement.lang = L.htmlLang;
+  document.querySelectorAll('[data-t]').forEach(el => { el.textContent = U()[el.dataset.t]; });
+  $('stressWrap').title = U().stress;
+  setSound(soundOn, true);
+  if (S && S.trays) renderTrays();
+  hud(); renderDesk();
+}
+
+/* ================= Pixel art ================= */
+const PAL = {
+  k: '#1d1d1b', w: '#ffffff', W: '#e8e4d8', x: '#c9c4b5',
+  r: '#d94a3a', R: '#9e2e24', q: '#f58a78', g: '#4fb35c', G: '#2d7a3a', t: '#a6e88f',
+  y: '#f2c14e', Y: '#c48a1c', u: '#fff1a8', b: '#4a72c4', B: '#2c4a8a', v: '#9ec0ff',
+  c: '#7a4a28', C: '#4e2e16', o: '#e8873a', O: '#b85e1c', s: '#f0c09a', S: '#d1916a',
+  h: '#4a3426', H: '#2e1f16', n: '#2a2f45', N: '#181b29', e: '#b8b8b8', l: '#c4c0b5', L: '#85827a', d: '#5c5a55', p: '#ec93a6',
+};
+function sprite(rows, scale = 3, pal = PAL) {
+  const c = document.createElement('canvas');
+  c.className = 'sp';
+  c.width = Math.max(...rows.map(r => r.length)); c.height = rows.length;
+  const x = c.getContext('2d');
+  rows.forEach((row, j) => [...row].forEach((ch, i) => { if (pal[ch]) { x.fillStyle = pal[ch]; x.fillRect(i, j, 1, 1); } }));
+  c.style.width = c.width * scale + 'px'; c.style.height = c.height * scale + 'px';
+  return c;
+}
+const SPR = {
+  phone: ['...kkkkkkkkkk...', '.kkrrrrrrrrrrkk.', 'krrqqrrrrrrrrRrk', 'kRRkkkkkkkkkkRRk', '.kk..kkkkkk..kk.', '....krrrrrrk....',
+          '...krwrwrwrRk...', '..krrrrrrrrrRk..', '..krwrwrwrrrRk..', '..krrrrrrrrrRk..', '..krwrwrwrrrRk..', '..kRRRRRRRRRRk..', '..kkkkkkkkkkkk..'],
+  coffee: ['....e...e.......', '.....e...e......', '....e...e.......', '.....e...e......', '................', '..kkkkkkkkkk....',
+           '..kCccccccCk....', '..kwwwwwwwWkkk..', '..kwwwwwwwWk.k..', '..kwrrrrrwWk.k..', '..kwrqrrrwWkkk..', '..kwrrrrrwWk....',
+           '..kwwwwwwwWk....', '...kWWWWWWk.....', 'kkkkkkkkkkkkkk..', '.kxxxxxxxxxxk...'],
+  tea: ['....e...e.......', '.....e...e......', '....e...e.......', '................', '..kkkkkkkkkk....', '..koooooooOk....',
+        '..kgggggggGkkk..', '..kgtggggGGk.k..', '..kgtgggggGk.k..', '..kggggggGGkkk..', '..kggggggGGk.ky.', '..kgggggggGk..k.',
+        '...kGGGGGGk.....', 'kkkkkkkkkkkkkk..', '.kxxxxxxxxxxk...'],
+  virus: ['...t..t..t...', '....g.g.g....', 't..kkkkkkk..t', '.gkgtggggGkg.', '..kgwkggwkGk.', 'ggkggggggGGkg',
+          '..kggkkkkgGk.', '.gkGggggGGGkg', 't..kkkkkkk..t', '....g.g.g....', '...t..t..t...'],
+  printer: ['....kkkkkkkk....', '....kwwwwwwk....', '....kwkkkkwk....', '.kkkkkkkkkkkkkk.', 'kllllllllllllllk', 'klllllllllltlrlk',
+            'kLLLLLLLLLLLLLLk', 'kkkkkkkkkkkkkkkk', '.kdkwwwwwwwwkdk.', '.kdkwkkkkkkwkdk.', '.kdkwwwwwwwwkdk.', '.kdkwkkkkwwwkdk.', '.kkkkkkkkkkkkkk.'],
+  camera: ['.kkkkkkkkk....', '.kbbbbbbbbk.kk', '.kbvvbbbbbkkbk', '.kbvkkkbbbkbbk', '.kbbkvkbbbkbbk', '.kbbkkkbbbkkbk', '.kBBBBBBBBk.kk', '.kkkkkkkkkk...'],
+  hourglass: ['kkkkkkkkkkkk', 'kCCCCCCCCCCk', '.kwyyyyyywk.', '.kwyyyyyywk.', '..kwyyyywk..', '...kwyywk...', '....kwyk....',
+              '....kwyk....', '...kw.ywk...', '..kw..y.wk..', '.kw..yyy.wk.', '.kwyyyyyywk.', 'kCCCCCCCCCCk', 'kkkkkkkkkkkk'],
+  trash: ['....kkkk....', '....kLLk....', 'kkkkkkkkkkkk', 'kllllllllllk', 'kkkkkkkkkkkk', '.klLllLllLk.', '.klLllLllLk.',
+          '.klLllLllLk.', '.klLllLllLk.', '.klLllLllLk.', '.kLLLLLLLLk.', '..kkkkkkkk..'],
+  mail: ['kkkkkkkkkkkkkk', 'kWkwwwwwwwwkWk', 'kwWkwwwwwwkWwk', 'kwwWkwwwwkWwwk', 'kwwwWkrrkWwwwk', 'kwwwwWkkWwwwwk',
+         'kwwwwwwwwwwwwk', 'kxxxxxxxxxxxxk', 'kkkkkkkkkkkkkk'],
+  headphones: ['...kkkkkkkk...', '..kLLLLLLLLk..', '.kLk......kLk.', '.kLk......kLk.', 'kLk........kLk', 'kkkk......kkkk',
+               'krrRk....kRrrk', 'krqRk....kRqrk', 'krrRk....kRrrk', 'kkkkk....kkkkk'],
+  shield: ['kkkkkkkkkkkk', 'kvbbbbbbbbBk', 'kvbbbwwbbbBk', 'kvbbbwwbbbBk', 'kvbwwwwwwbBk', 'kvbwwwwwwbBk', 'kvbbbwwbbbBk',
+           '.kvbbwwbbBk.', '.kvbbbbbbBk.', '..kvbbbbBk..', '...kvbbBk...', '....kBBk....', '.....kk.....'],
+  postit: ['kkkkkkkkkkkk', 'kuuuuuuuuuuk', 'kyyyyyyyyyYk', 'kykkkkkkyyYk', 'kyyyyyyyyyYk', 'kykkkkkyyyYk', 'kyyyyyyyyyYk',
+           'kykkkkkkkyYk', 'kyyyyyyyyYYk', 'kyyyyyyyYYk.', 'kYYYYYYYYk..', 'kkkkkkkkk...'],
+  plant: ['......g.........', '....g.gg..g.....', '...ggtgGg.gg....', '..gtggGgggtg....', '.gtgGggtgGggg...', '..ggGgtggGgg....',
+          '...gGggGgggG....', '....GgGGgG......', '......GG........', '..kkkkkkkkkk....', '..koooooooOk....', '..kOOOOOOOOk....',
+          '...kooooooOk....', '...koooooOOk....', '....kooooOk.....', '....kkkkkkk.....'],
+  frame: ['kkkkkkkkkkkkkk', 'kyyyyyyyyyyyyk', 'kyYkkkkkkkkYyk', 'kyYkvvvvuvkYyk', 'kyYkvhvvhvkYyk', 'kyYkvsvvsvkYyk',
+          'kyYkbbgbbgkYyk', 'kyYkggggggkYyk', 'kyYkkkkkkkkYyk', 'kyYYYYYYYYYYyk', 'kkkkkkkkkkkkkk', '......kk......', '....kkkkkk....'],
+  lamp: ['....kkkkk.....', '...kyyyuyk....', '..kyyyyyyuk...', '.kyyyyyyyyyk..', '.kYYYYYYYYYk..', '..kkkkkkkkk...', '....kLk.......',
+         '.....kLk......', '......kLk.....', '.....kLk......', '....kLk.......', '...kLk........', '..kkkkkkk.....', '.kLLLLLLLk....', '.kkkkkkkkk....'],
+  monitor: ['kkkkkkkkkkkkkkkk', 'kLLLLLLLLLLLLLLk', 'kLkkkkkkkkkkkkLk', 'kLkBbbbbbbbbbkLk', 'kLkbvvbbbbbbbkLk', 'kLkbvbtttbbbbkLk',
+            'kLkbbbbbtttbbkLk', 'kLkbbtttbbbbbkLk', 'kLkbbbbbbbbbbkLk', 'kLkkkkkkkkkkkkLk', 'kLLLLLLLrLLLLLLk', 'kkkkkkkkkkkkkkkk',
+            '......kLLk......', '....kkkkkkkk....'],
+  cat: ['.k.......k....', '.kk.....kk....', '.kokkkkkok....', '.kooooooook...', '.koyooooyok...', '.kooopooooko..', '..kooooooook..',
+        '..kOooooOook..', '.kooooooooook.', '.kooOoooOoook.k', '.kooooooooookk.', '.kooooooooook.k', '.kOkOkkOkOkkk..'],
+  trophy: ['..kkkkkkkkkk..', 'kkkyuyyyyyYkkk', 'k.kyuyyyyyYk.k', 'k.kyuyyyyyYk.k', 'kk.kyyyyyYk.kk', '..kkyyyyyYkk..', '....kyyyYk....',
+           '.....kyYk.....', '.....kyYk.....', '....kyyyYk....', '...kkkkkkkk...', '...kCcccccCk..', '...kCcyycCCk..', '...kkkkkkkkk..'],
+  badge: ['..b....b..', '...b..b...', '....kk....', '.kkkkkkkk.', '.kwwwwwwk.', '.kwhhwWWk.', '.kwsswxxk.', '.kwnnwxxk.', '.kwwwwwwk.', '.kbbbbbbk.', '.kkkkkkkk.'],
+  mug: ['.kkkkkkkk...', '.kCCCCCCk...', '.krrrrrrRkkk', '.krwrrrrRk.k', '.krrqrrrRk.k', '.krrrrrrRkkk', '.krrrrrrRk..', '..kRRRRRk...', '..kkkkkkk...'],
+  nameplate: ['..kkkkkkkkkkkkkk..', '.kyuuuuuuuuuuuuyk.', 'kyykykkykkkykykyYk', 'kyyyyyyyyyyyyyyyYk', 'kYYYYYYYYYYYYYYYYk', 'kCCCCCCCCCCCCCCCCk', 'kkkkkkkkkkkkkkkkkk'],
+  chair: ['..kkkkkkkk..', '.knnnnnnnnk.', '.knknnnnknk.', '.knnnnnnnnk.', '.knknnnnknk.', '.knnnnnnnnk.', '.kNnnnnnnNk.', 'kkkkkkkkkkkk',
+          'knnnnnnnnnnk', 'kNNNNNNNNNNk', 'kkkkkkkkkkkk', '.....kk.....', '.....kk.....', '..kkkkkkkk..', '.kLk.kk.kLk.'],
+  crown: ['k....k....k.', 'ky..kyk..yk.', 'kyk.kuk.kyk.', 'kyyyyuyyyyk.', 'kyyyyyyyyyk.', 'kyryyByygyk.', 'kYYYYYYYYYk.', 'kkkkkkkkkkk.'],
+  finger: ['...kkkkkk...', '..k......k..', '.k..kkkk..k.', 'k..k....k..k', 'k.k..kk..k.k', 'k.k.k..k.k.k', 'k.k.k..k.k.k',
+           'k.k.k.k..k.k', 'k.k..k..k..k', 'k..k...k..k.', '.k..kkk..k..', '..k.....k...', '...kkkkk....'],
+  scanner: ['kkkkkkkkkkkkkkkk', 'kdLLLLLLLLLLLLdk', 'kdkkkkkkkkkkkkdk', 'kdkRrrrqrrrrRkdk', 'kdkkkkkkkkkkkkdk', 'kddddddddddddddk', 'kkkkkkkkkkkkkkkk'],
+  bill: ['kkkkkkkkkkkkkkkk', 'kgggggggggggggGk', 'kgtggggkkggggtGk', 'kggggkgttgkggggk', 'kggggkttttkggggk', 'kggggkgttgkggggk', 'kgtggggkkggggtGk', 'kGGGGGGGGGGGGGGk', 'kkkkkkkkkkkkkkkk'],
+  card: ['kkkkkkkkkkkkkkkk', 'kvvvvvvvvvvvvvBk', 'kkkkkkkkkkkkkkkk', 'kbbbbbbbbbbbbbBk', 'kbuyybbbbbbbbbBk', 'kbyYybbbbbbbbbBk', 'kbbbbbbbbwwwwbBk', 'kBBBBBBBBBBBBBBk', 'kkkkkkkkkkkkkkkk'],
+  paycel: ['.kkkkkkk.', 'kdddddddk', 'kdvvvvvdk', 'kdvkkkvdk', 'kdvkwkvdk', 'kdvkkkvdk', 'kdvvvvvdk', 'kdvwwwvdk', 'kdvvvvvdk', 'kdddkdddk', '.kkkkkkk.'],
+};
+const darken = (hex, f = 0.62) => '#' + [1, 3, 5].map(i => Math.round(parseInt(hex.slice(i, i + 2), 16) * f).toString(16).padStart(2, '0')).join('');
+function face(hair, shirt, open, scale) {
+  const pal = { ...PAL, h: hair, H: darken(hair), n: shirt, N: darken(shirt) };
+  return sprite(['.....kkkkkk.....', '...kkhhhhhhkk...', '..khhhhhhhhhhk..', '.khhHhhhhhhhhhk.', '.khHssssssssHhk.', '.kHsssssssssSHk.',
+                 '.kssskwsskwssSk.', '.kpssssssssspSk.', '.kssssssSsssSk..', open ? '..ksssRRRsssSk..' : '..kssssssssSk...',
+                 open ? '..kSssrqrssSSk..' : '..kSsssRRssSSk...', '...kSSssssSSk...', '....kkSSSSkk....', '...kNnnwwnnNk...',
+                 '..kNnnnwrwnnnNk.', '.kNnnnnwrwnnnnNk', '.kNnnnnnrnnnnnNk', '.kkkkkkkkkkkkkkk'], scale, pal);
+}
+
+/* ================= Áudio ================= */
+// Dois barramentos (música e efeitos) passam por um compressor. A música muda por cena com fade;
+// a do escritório toca em loop sem emenda (buffer) e acelera de leve quando o estresse sobe.
+let soundOn = load('som', false);
+const VOL = Object.assign({ music: 0.6, sfx: 0.8 }, load('volumes', {}));
+const A = { ctx: null, master: null, musicBus: null, sfxBus: null, lowpass: null, noise: null, webaudio: true,
+            mode: null, want: 'menu', el: null, elNode: null, office: null, officeSrc: null, officeGain: null, menuQueue: [], rate: 1 };
+const TRACKS = { menu: ['audio/menu-1.mp3', 'audio/menu-2.mp3', 'audio/menu-3.mp3'], office: 'audio/office-1.mp3', over: 'audio/game-over.mp3' };
+
+function audioInit() {
+  if (A.ctx || !soundOn) return;
+  try {
+    const ctx = A.ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const comp = ctx.createDynamicsCompressor();
+    comp.threshold.value = -14; comp.ratio.value = 4; comp.attack.value = 0.005; comp.release.value = 0.2;
+    A.master = ctx.createGain(); A.master.connect(comp).connect(ctx.destination);
+    A.lowpass = ctx.createBiquadFilter(); A.lowpass.type = 'lowpass'; A.lowpass.frequency.value = 20000;
+    A.musicBus = ctx.createGain(); A.musicBus.connect(A.lowpass).connect(A.master);
+    A.sfxBus = ctx.createGain(); A.sfxBus.connect(A.master);
+    const n = ctx.createBuffer(1, ctx.sampleRate, ctx.sampleRate), d = n.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    A.noise = n;
+    // Em file:// o navegador não deixa processar áudio de arquivos; aí a música toca direto pelo elemento <audio>
+    A.webaudio = location.protocol !== 'file:';
+    applyVolumes();
+    loadOffice();
+  } catch (e) { A.ctx = null; }
+}
+function applyVolumes() {
+  if (!A.ctx) return;
+  const t = A.ctx.currentTime;
+  A.master.gain.setTargetAtTime(soundOn ? 1 : 0, t, 0.05);
+  A.musicBus.gain.setTargetAtTime(VOL.music * 0.55, t, 0.05);
+  A.sfxBus.gain.setTargetAtTime(VOL.sfx * 0.5, t, 0.02);
+  if (A.el && !A.elNode) A.el.volume = soundOn ? VOL.music * 0.55 : 0;
+  save('volumes', VOL);
+}
+async function loadOffice() {
+  if (!A.webaudio || A.office) return;
+  try {
+    const buf = await A.ctx.decodeAudioData(await (await fetch(TRACKS.office)).arrayBuffer());
+    // Corta o silêncio do fim (o MP3 tem preenchimento) para o loop ficar contínuo
+    const ch = buf.getChannelData(0); let end = ch.length - 1;
+    while (end > 0 && Math.abs(ch[end]) < 0.003) end--;
+    A.office = { buf, loopEnd: (end + 1) / buf.sampleRate };
+    if (A.mode === 'office' && !A.officeSrc) startOffice();
+  } catch (e) { A.webaudio = false; }
+}
+function startOffice() {
+  const src = A.ctx.createBufferSource(), g = A.ctx.createGain();
+  src.buffer = A.office.buf; src.loop = true; src.loopStart = 0; src.loopEnd = A.office.loopEnd;
+  src.playbackRate.value = A.rate;
+  g.gain.value = 0; g.gain.setTargetAtTime(1, A.ctx.currentTime, 0.4);
+  src.connect(g).connect(A.musicBus); src.start();
+  A.officeSrc = src; A.officeGain = g;
+}
+function stopOffice(fade = 0.8) {
+  if (!A.officeSrc) return;
+  const src = A.officeSrc, g = A.officeGain, t = A.ctx.currentTime;
+  g.gain.setTargetAtTime(0, t, fade / 4); src.stop(t + fade);
+  A.officeSrc = A.officeGain = null;
+}
+function stopElement(fade = 0.8) {
+  const el = A.el, node = A.elNode;
+  if (!el) return;
+  A.el = A.elNode = null;
+  const v0 = el.volume, t0 = performance.now();
+  const step = () => {
+    const k = Math.min(1, (performance.now() - t0) / (fade * 1000));
+    if (node) node.gain.value = 1 - k; else el.volume = v0 * (1 - k);
+    if (k < 1) requestAnimationFrame(step); else { el.pause(); el.src = ''; }
+  };
+  step();
+}
+function playElement(src, loop, onEnd) {
+  const el = new Audio(src);
+  el.loop = loop; el.preload = 'auto';
+  if (A.webaudio) {
+    try { const s = A.ctx.createMediaElementSource(el), g = A.ctx.createGain(); g.gain.value = 0; s.connect(g).connect(A.musicBus);
+          g.gain.setTargetAtTime(1, A.ctx.currentTime, 0.3); A.elNode = g; } catch (e) { A.elNode = null; }
+  }
+  if (!A.elNode) el.volume = soundOn ? VOL.music * 0.55 : 0;
+  if (onEnd) el.onended = onEnd;
+  A.el = el;
+  el.play().catch(() => {});
+}
+function nextMenuTrack() {
+  if (!A.menuQueue.length) A.menuQueue = [...TRACKS.menu].sort(() => Math.random() - 0.5);
+  playElement(A.menuQueue.shift(), false, () => { if (A.mode === 'menu') { A.el = A.elNode = null; nextMenuTrack(); } });
+}
+// Modos: 'menu' (menu, ponto, fim do dia, mercado), 'office' (expediente), 'over' (demissão), null (silêncio: dormir)
+function music(mode) {
+  A.want = mode;
+  if (!A.ctx || A.mode === mode) return;
+  if (A.mode === 'office') stopOffice(); else stopElement();
+  A.mode = mode;
+  muffle(false);
+  if (mode === 'menu') nextMenuTrack();
+  if (mode === 'over') playElement(TRACKS.over, false, () => { A.el = A.elNode = null; if (A.mode === 'over') { A.mode = null; music('menu'); } });
+  if (mode === 'office') {
+    if (A.webaudio && A.office) startOffice();
+    else if (!A.webaudio) playElement(TRACKS.office, true);
+  }
+}
+// Abafa a música (pausa, planilha do chefe, configurações durante o dia)
+function muffle(on) {
+  if (!A.ctx) return;
+  A.lowpass.frequency.setTargetAtTime(on ? 650 : 20000, A.ctx.currentTime, 0.08);
+}
+// O escritório acelera até 7% quando o estresse passa de 60
+function musicStress(stress) {
+  const r = 1 + Math.max(0, stress - 60) / 40 * 0.07;
+  if (Math.abs(r - A.rate) < 0.004) return;
+  A.rate = r;
+  if (A.officeSrc) A.officeSrc.playbackRate.setTargetAtTime(r, A.ctx.currentTime, 0.5);
+}
+// O navegador só libera áudio após um gesto: o primeiro toque/tecla cria o contexto e retoma a música pedida
+function audioUnlock() {
+  if (!soundOn) return;
+  audioInit();
+  if (A.ctx && A.ctx.state === 'suspended') A.ctx.resume();
+  if (A.ctx && A.mode !== A.want) music(A.want);
+}
+document.addEventListener('pointerdown', audioUnlock, true);
+document.addEventListener('keydown', audioUnlock, true);
+
+/* ----- Efeitos sintetizados ----- */
+function tone(o) {
+  const c = A.ctx, t = c.currentTime + (o.at || 0), d = o.d || 0.1;
+  const osc = c.createOscillator(), g = c.createGain();
+  osc.type = o.type || 'square';
+  osc.frequency.setValueAtTime(o.f, t);
+  if (o.f2) osc.frequency.exponentialRampToValueAtTime(o.f2, t + d);
+  if (o.det) osc.detune.value = o.det;
+  const v = (o.v || 0.3);
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(v, t + (o.a || 0.005));
+  g.gain.exponentialRampToValueAtTime(0.0001, t + d);
+  let out = g;
+  if (o.lp) { const f = c.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = o.lp; g.connect(f); out = f; }
+  osc.connect(g); out.connect(A.sfxBus);
+  osc.start(t); osc.stop(t + d + 0.02);
+}
+function noise(o) {
+  const c = A.ctx, t = c.currentTime + (o.at || 0), d = o.d || 0.1;
+  const src = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain();
+  src.buffer = A.noise; src.loop = true;
+  f.type = o.type || 'bandpass'; f.Q.value = o.q || 1.2;
+  f.frequency.setValueAtTime(o.f || 1500, t);
+  if (o.f2) f.frequency.exponentialRampToValueAtTime(o.f2, t + d);
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(o.v || 0.3, t + (o.a || 0.004));
+  g.gain.exponentialRampToValueAtTime(0.0001, t + d);
+  src.connect(f).connect(g).connect(A.sfxBus);
+  src.start(t, Math.random() * 0.5); src.stop(t + d + 0.02);
+}
+const SFX = {
+  // acerto: papel batendo na bandeja + sininho que sobe com o combo
+  ok: () => { const k = 1 + Math.min(S ? S.combo : 0, 20) * 0.025;
+    noise({ f: 700, d: 0.07, v: 0.25 }); tone({ type: 'triangle', f: 660 * k, d: 0.09, v: 0.22, at: 0.01 }); tone({ type: 'triangle', f: 990 * k, d: 0.16, v: 0.2, at: 0.07 }); },
+  err: () => { tone({ type: 'square', f: 180, f2: 92, d: 0.26, v: 0.2, lp: 900 }); tone({ type: 'square', f: 186, f2: 95, d: 0.26, v: 0.12, lp: 700 }); noise({ f: 200, d: 0.12, v: 0.3, type: 'lowpass' }); },
+  click: () => { tone({ type: 'triangle', f: 1300, d: 0.035, v: 0.16 }); noise({ f: 4000, d: 0.02, v: 0.1 }); },
+  pop: () => { tone({ type: 'sine', f: 420, f2: 1250, d: 0.09, v: 0.3 }); noise({ f: 3000, d: 0.03, v: 0.08 }); },
+  key: () => { noise({ f: 2600 + Math.random() * 1600, d: 0.028, v: 0.18, q: 2 }); tone({ type: 'square', f: 1600 + Math.random() * 500, d: 0.012, v: 0.04 }); },
+  task: () => tone({ type: 'sine', f: 660, f2: 880, d: 0.09, v: 0.14 }),
+  mail: () => { tone({ type: 'sine', f: 1046, d: 0.12, v: 0.18 }); tone({ type: 'sine', f: 1568, d: 0.22, v: 0.15, at: 0.09 }); },
+  ring: () => { for (let i = 0; i < 2; i++) for (let j = 0; j < 8; j++) { const at = i * 0.42 + j * 0.035; tone({ type: 'sine', f: 440, d: 0.03, v: 0.12, at }); tone({ type: 'sine', f: 480, d: 0.03, v: 0.12, at }); } },
+  alarm: () => { [880, 660, 880, 660].forEach((f, i) => tone({ type: 'square', f, d: 0.11, v: 0.13, at: i * 0.12, lp: 2600 })); },
+  glitch: () => { for (let i = 0; i < 4; i++) tone({ type: 'square', f: 200 + Math.random() * 1400, d: 0.04, v: 0.1, at: i * 0.035 }); },
+  freeze: () => { tone({ type: 'sawtooth', f: 320, f2: 55, d: 0.7, v: 0.16, lp: 1200 }); noise({ f: 300, d: 0.5, v: 0.1, type: 'lowpass' }); },
+  unfreeze: () => { tone({ type: 'triangle', f: 300, f2: 1200, d: 0.22, v: 0.2 }); tone({ type: 'triangle', f: 1200, d: 0.12, v: 0.15, at: 0.2 }); },
+  whoosh: () => noise({ f: 300, f2: 3200, d: 0.38, v: 0.25, q: 0.8, a: 0.12 }),
+  coffee: () => { noise({ f: 450, f2: 1900, d: 0.4, v: 0.22, q: 3, a: 0.1 }); tone({ type: 'sine', f: 520, f2: 780, d: 0.3, v: 0.1, at: 0.2 }); },
+  trash: () => { for (let i = 0; i < 5; i++) noise({ f: 1200 + Math.random() * 2500, d: 0.04, v: 0.2, at: i * 0.045, q: 3 }); },
+  coin: () => { tone({ type: 'square', f: 988, d: 0.08, v: 0.13 }); tone({ type: 'square', f: 1319, d: 0.3, v: 0.13, at: 0.07 }); },
+  beep: () => tone({ type: 'sine', f: 1760, d: 0.12, v: 0.25, a: 0.002 }),
+  print: () => { noise({ f: 1800, d: 0.035, v: 0.16, q: 4 }); tone({ type: 'square', f: 130, d: 0.03, v: 0.05 }); },
+  tear: () => { for (let i = 0; i < 6; i++) noise({ f: 2600 - i * 280, d: 0.05, v: 0.25, at: i * 0.04, q: 1.5 }); },
+  level: () => { [523, 659, 784, 1047].forEach((f, i) => tone({ type: 'triangle', f, d: 0.16, v: 0.2, at: i * 0.08 })); tone({ type: 'sine', f: 2093, d: 0.3, v: 0.08, at: 0.32 }); },
+  combo: () => { const b = 523 * (1 + (S ? mult() : 1) * 0.06); [1, 1.26, 1.5].forEach((m, i) => tone({ type: 'square', f: b * m, d: 0.08, v: 0.1, at: i * 0.05, lp: 3000 })); },
+  scan: () => tone({ type: 'sine', f: 220, f2: 330, d: 1.1, v: 0.08, a: 0.1 }),
+  clock: () => { for (let i = 0; i < 4; i++) tone({ type: 'square', f: 2050, d: 0.06, v: 0.1, at: i * 0.12, lp: 4000 }); },
+  wake: () => { tone({ type: 'sine', f: 523, f2: 1046, d: 0.35, v: 0.18 }); noise({ f: 5000, f2: 9000, d: 0.4, v: 0.08, a: 0.1 }); },
+  join: () => { tone({ type: 'sine', f: 523, d: 0.1, v: 0.16 }); tone({ type: 'sine', f: 784, d: 0.18, v: 0.16, at: 0.09 }); },
+  heart: () => { tone({ type: 'sine', f: 70, f2: 45, d: 0.14, v: 0.35 }); tone({ type: 'sine', f: 65, f2: 42, d: 0.14, v: 0.25, at: 0.18 }); },
+};
+function sfx(name) {
+  if (!soundOn || !A.ctx || A.ctx.state !== 'running' || !SFX[name]) return;
+  try { SFX[name](); } catch (e) {}
+}
+function setSound(on, silent) {
+  soundOn = on; $('soundBtn').textContent = `${U().sound}: ${on ? U().on : U().off}`;
+  save('som', on);
+  if (on) { audioInit(); if (A.ctx && A.ctx.state === 'suspended') A.ctx.resume(); if (A.ctx && A.mode !== A.want) music(A.want); }
+  applyVolumes();
+  if (on && !silent) sfx('click');
+}
+$('soundBtn').onclick = e => { setSound(!soundOn); e.currentTarget.blur(); };
+
+/* ================= Estado ================= */
+let S = null;
+const has = id => S && (S.perks.has(id) || S.today.has(id));
+function laneWidth() { return board.clientWidth / SECTORS.length; }
+function rankIdx(score) { let r = 0; RANK_POINTS.forEach((p, i) => { if (score >= p) r = i; }); return r; }
+const mod = () => MODS[S.mod];
+function slow() { return (S.slowT > 0 ? 0.4 : 1) * (mod().speed || 1); }
+const printerKeys = () => [...'QWYZXJKV'].filter(c => !L.words.some(w => w.includes(c)));
+
+/* ================= Mesa ================= */
+// Lugar de cada enfeite nas laterais: lado, altura (fração da tela) e tamanho relativo
+const DECOR_SLOTS = { planta: ['L', 0.03, 0.7], foto: ['L', 0.38, 1], trofeu: ['L', 0.72, 0.62],
+                      lamp: ['R', 0.02, 0.62], monitor: ['R', 0.3, 1], gato: ['R', 0.68, 0.6] };
+function layoutDecor() {
+  const layer = $('decorLayer');
+  layer.innerHTML = '';
+  const appW = Math.min(980, innerWidth), margin = (innerWidth - appW) / 2;
+  if (margin < 90) return;  // sem espaço lateral (telas estreitas): os enfeites ficam fora
+  const size = Math.min(260, margin - 28);
+  for (const it of SHOP) {
+    if (it.kind !== 'decor' || !P.decor.includes(it.id)) continue;
+    const [side, top, rel] = DECOR_SLOTS[it.id], w = Math.round(size * rel);
+    const c = sprite(SPR[it.spr], 1);
+    c.style.width = w + 'px';
+    c.style.top = Math.round(top * innerHeight) + 'px';
+    c.style.left = side === 'L' ? Math.round((margin - w) / 2) + 'px' : Math.round(innerWidth - margin + (margin - w) / 2) + 'px';
+    layer.append(c);
+  }
+}
+function renderDesk() {
+  const decor = $('desk').querySelector('.decor'), inv = $('inv');
+  decor.innerHTML = ''; inv.innerHTML = '';
+  decor.append(sprite(SPR.badge, 4));
+  const r = S ? S.rankIdx : 0;
+  for (const [i, spr] of Object.entries(RANK_DESK)) if (r >= +i) decor.append(sprite(SPR[spr], 3));
+  layoutDecor();
+  if (!S) return;
+  for (const [k, id] of [['1', 'cafe'], ['2', 'cha']]) {
+    if (!S.inv[id]) continue;
+    const b = document.createElement('button');
+    b.className = 'pxbtn'; b.textContent = `[${k}] ${L.shop[id][0]} ×${S.inv[id]}`;
+    b.onclick = e => { e.currentTarget.blur(); useItem(id); };
+    inv.append(b);
+  }
+  for (const id of S.today) inv.insertAdjacentHTML('beforeend', `<span class="chip">${L.shop[id][0]}</span>`);
+  for (const id of S.perks) inv.insertAdjacentHTML('beforeend', `<span class="chip perk-chip">${L.perks[id][0]}</span>`);
+}
+function useItem(id) {
+  if (!S || S.phase !== 'day' || S.paused || !S.inv[id]) return;
+  S.inv[id]--;
+  if (id === 'cafe') { S.slowT = 5; sfx('coffee'); }
+  if (id === 'cha') { addStress(-25); sfx('ok'); }
+  renderDesk();
+}
+
+/* ================= Telas ================= */
+function modal(html) {
+  $('modal').querySelectorAll('.legalbar').forEach(e => e.remove());
+  const card = $('modal').querySelector('.card');
+  card.innerHTML = html;
+  $('modal').classList.remove('hidden');
+  return card;
+}
+function closeModal() { $('modal').classList.add('hidden'); }
+
+function showMenu() {
+  music('menu');
+  if (S) { S.running = false; S = null; }
+  clearDom(); tasksEl.innerHTML = ''; board.innerHTML = '';
+  hud(); renderDesk(); closeScene();
+  const u = U(), saved = load('carreira', null);
+  const card = modal(`
+    <div class="logo"><span id="lf"></span><h2>WORKDAY</h2></div>
+    <p class="center hint">${u.record}: ${fmt(P.best)} · ${u.wallet}: ${money(P.wallet)}</p>
+    <div class="menu">
+      ${saved ? `<button class="pxbtn main" id="cont">${u.cont(saved.day + 1)}</button>` : ''}
+      <button class="pxbtn${saved ? '' : ' main'}" id="play">${u.play}</button>
+      <button class="pxbtn" id="how">${u.how}</button>
+      <button class="pxbtn" id="cfg">${u.settings}</button>
+      <button class="pxbtn" id="prof">${u.profile}</button>
+      <button class="pxbtn menusound" id="msnd">${soundOn ? '♪ ' + u.soundLabel + ': ' + u.soundOn : '♪ ' + u.soundLabel + ': ' + u.soundOff}</button>
+    </div>`);
+  card.querySelector('#msnd').onclick = () => { setSound(!soundOn); showMenu(); };
+  $('modal').insertAdjacentHTML('beforeend', `<div class="legalbar"><p>${u.footer}</p></div>`);
+  card.querySelector('#lf').replaceWith(face('#4a3426', '#2a2f45', false, 4));
+  card.querySelector('#play').onclick = () => newCareer();
+  if (saved) card.querySelector('#cont').onclick = resumeCareer;
+  card.querySelector('#how').onclick = () => { const c = modal(`<h2>${u.how}</h2>${u.howText}<div class="actions"><button class="pxbtn main" id="b">${u.back}</button></div>`); c.querySelector('#b').onclick = showMenu; };
+  card.querySelector('#cfg').onclick = () => showSettings(showMenu);
+  card.querySelector('#prof').onclick = showProfile;
+}
+
+function showProfile() {
+  const s = P.stats, u = U();
+  const rows = [[u.record, fmt(P.best)], [u.wallet, money(P.wallet)], [u.daysWorked, s.days], [u.maxDay, s.maxDay], [u.careers, s.careers],
+    [u.files, fmt(s.files)], [u.emails, fmt(s.emails)], [u.calls, fmt(s.calls)], [u.viruses, fmt(s.viruses)], [u.bosses, fmt(s.bosses)],
+    [u.videos, fmt(s.videos)], [u.prints, fmt(s.prints)]];
+  const card = modal(`<h2>${u.profile}</h2><div class="statgrid">${rows.map(([k, v]) => `<span>${k} <b>${v}</b></span>`).join('')}</div>
+    <div class="actions"><button class="pxbtn main" id="b">${u.back}</button></div>`);
+  card.querySelector('#b').onclick = showMenu;
+}
+
+function showSettings(onBack) {
+  const u = U();
+  const seg = (name, opts, cur) => `<div class="seg" data-set="${name}">${opts.map(([v, l]) => `<button class="pxbtn${v === cur ? ' on' : ''}" data-v="${v}">${l}</button>`).join('')}</div>`;
+  const card = modal(`<h2>${u.settings}</h2>
+    <div class="setting"><span>${u.language}</span>${seg('lang', Object.entries(LANGS).map(([k, v]) => [k, v.label]), CFG.lang)}</div>
+    <div class="setting"><span>${u.theme}</span>${seg('theme', [['system', u.themeSystem], ['light', u.themeLight], ['dark', u.themeDark]], CFG.theme)}</div>
+    <div class="setting"><span>${u.soundLabel}</span>${seg('sound', [['1', u.soundOn], ['0', u.soundOff]], soundOn ? '1' : '0')}</div>
+    <div class="setting"><span>${u.musicLabel}</span><input type="range" class="pxrange" id="volMusic" min="0" max="100" value="${Math.round(VOL.music * 100)}" aria-label="${u.musicLabel}"></div>
+    <div class="setting"><span>${u.sfxLabel}</span><input type="range" class="pxrange" id="volSfx" min="0" max="100" value="${Math.round(VOL.sfx * 100)}" aria-label="${u.sfxLabel}"></div>
+    <div class="setting"><span>${u.tutorial}</span><div class="seg"><button class="pxbtn" id="tut">${u.tutorialReset}</button></div></div>
+    <div class="setting"><span>${u.progress}</span><div class="seg" id="eraseBox"><button class="pxbtn" id="erase">${u.erase}</button></div></div>
+    <div class="actions"><button class="pxbtn main" id="b">${u.back}</button></div>`);
+  card.querySelectorAll('[data-set] button').forEach(b => b.onclick = () => {
+    const set = b.parentElement.dataset.set, v = b.dataset.v;
+    if (set === 'lang') { CFG.lang = v; applyLang(); }
+    if (set === 'theme') { CFG.theme = v; applyTheme(); }
+    if (set === 'sound') setSound(v === '1');
+    persist();
+    showSettings(onBack);
+  });
+  card.querySelector('#volMusic').oninput = e => { VOL.music = e.target.value / 100; applyVolumes(); };
+  card.querySelector('#volSfx').oninput = e => { VOL.sfx = e.target.value / 100; applyVolumes(); };
+  card.querySelector('#volSfx').onchange = () => sfx('ok');
+  const tut = card.querySelector('#tut');
+  tut.onclick = () => { P.seen = []; persist(); tut.textContent = u.tutorialDone; tut.disabled = true; };
+  card.querySelector('#erase').onclick = () => {
+    const box = card.querySelector('#eraseBox');
+    box.innerHTML = `<span>${u.eraseConfirm}</span><button class="pxbtn" id="y">${u.eraseYes}</button><button class="pxbtn" id="n">${u.eraseNo}</button>`;
+    box.querySelector('#n').onclick = () => showSettings(onBack);
+    box.querySelector('#y').onclick = () => {
+      Object.assign(P, { wallet: 0, decor: [], seen: [], best: 0, stats: freshStats() });
+      persist(); hud(); renderDesk();
+      box.innerHTML = `<span>${u.erased}</span>`;
+    };
+  };
+  card.querySelector('#b').onclick = onBack;
+}
+
+function showPause() {
+  const u = U();
+  const card = modal(`<h2>${u.paused}</h2><p>${u.resumeHint}</p>
+    <div class="actions"><button class="pxbtn main" id="r">${u.resume}</button><button class="pxbtn" id="c">${u.settings}</button><button class="pxbtn" id="q">${u.quit}</button></div>`);
+  card.querySelector('#r').onclick = () => setPaused(false);
+  card.querySelector('#c').onclick = () => showSettings(showPause);
+  card.querySelector('#q').onclick = () => { closeModal(); S.paused = false; gameOver(); };
+}
+
+/* ================= Carreira e dias ================= */
+function newCareer(resume) {
+  S = { running: true, phase: 'intro', paused: false, boss: false, bossAuto: 0, day: 0, score: 0, combo: 0, stress: 0,
+        rankIdx: 0, perks: new Set(), today: new Set(), inv: { cafe: 0, cha: 0 }, causes: {}, careerCauses: {},
+        tasks: [], order: [0, 1, 2, 3], cart: [], last: performance.now() };
+  if (resume !== true) { clearCareer(); stat('careers'); persist(); nextDay(); }
+  hud(); renderDesk();
+  requestAnimationFrame(loop);
+}
+
+/* ================= Carreira salva ================= */
+const EMP_ID = load('func', 0) || (() => { const n = 1000 + Math.floor(Math.random() * 9000); save('func', n); return n; })();
+function saveCareer() {
+  save('carreira', { day: S.day, score: S.score, rankIdx: S.rankIdx, perks: [...S.perks], today: [...S.today], inv: S.inv,
+                     careerCauses: S.careerCauses, stress: S.stress });
+}
+function clearCareer() { try { localStorage.removeItem('expediente-carreira'); } catch (e) {} }
+function resumeCareer() {
+  const c = load('carreira', null);
+  if (!c) { newCareer(); return; }
+  newCareer(true);
+  Object.assign(S, { day: c.day, score: c.score, rankIdx: c.rankIdx, perks: new Set(c.perks), today: new Set(c.today || []),
+                     inv: c.inv, careerCauses: c.careerCauses || {}, stress: c.stress || 0 });
+  hud(); renderDesk();
+  nextDay();
+}
+
+function nextDay() {
+  S.day++;
+  S.mod = S.day === 1 ? 'first' : pick(Object.keys(MODS).filter(k => k !== 'first'));
+  S.phase = 'intro';
+  closeModal();
+  clockIn();
+}
+
+/* ================= Cenas ================= */
+function scene(cls) {
+  closeScene();
+  const el = document.createElement('div');
+  el.id = 'scene'; el.className = cls;
+  document.body.append(el);
+  return el;
+}
+function closeScene() { const s = $('scene'); if (s) s.remove(); }
+function pixelCover(parent, cb) {
+  const g = document.createElement('div');
+  g.className = 'pxcover';
+  const size = 48, cols = Math.ceil(innerWidth / size), rows = Math.ceil(innerHeight / size);
+  g.style.gridTemplateColumns = `repeat(${cols}, 1fr)`; g.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+  for (let i = 0; i < cols * rows; i++) { const c = document.createElement('i'); c.style.animationDelay = rand(0, 0.6) + 's'; g.append(c); }
+  parent.append(g);
+  setTimeout(cb, 850);
+}
+function sceneMsg(sc, text) {
+  const old = sc.querySelector('.msg'); if (old) old.remove();
+  const m = document.createElement('div');
+  m.className = 'msg px'; m.textContent = text;
+  sc.append(m);
+  setTimeout(() => m.remove(), 1300);
+}
+
+/* ================= Relógio de ponto ================= */
+function clockDevice(time) {
+  const u = U();
+  const dev = document.createElement('div');
+  dev.className = 'clockdev';
+  dev.innerHTML = `<div class="paper"></div><div class="hump"><div class="slot"></div></div>
+    <div class="cd-row">
+      <div class="lcd"><div class="date">${u.day} ${S ? S.day : 1} · WORKDAY</div><div class="t1">${time}</div><div class="t2">${u.placeFinger}</div><div class="menu">MENU</div></div>
+      <div class="cd-side"><span class="usb"></span><span class="btns"><i class="rb"></i><i class="bb"></i></span><span class="brand">PONTO<br>MATIC</span></div>
+    </div>
+    <div class="cd-row cd-bottom"><span class="sticker">WORKDAY LTDA.<br>Nº ${EMP_ID}</span>
+      <div class="reader"><div class="pad"><span class="fp"></span><i class="scan"></i><b class="prog"></b></div></div></div>`;
+  dev.querySelector('.fp').replaceWith(sprite(SPR.finger, 5, { ...PAL, k: '#cfe0ff' }));
+  return dev;
+}
+// Segurar na digital por 1,1 s; às vezes a leitura falha e é preciso repetir
+function fingerprint(dev, onOk) {
+  const pad = dev.querySelector('.pad'), lcd = dev.querySelector('.lcd'), t2 = dev.querySelector('.t2'), prog = dev.querySelector('.prog'), u = U();
+  let holding = false, t = 0, last = 0, fails = 0, busy = false;
+  const set = (txt, cls) => { t2.textContent = txt; lcd.className = 'lcd ' + (cls || ''); };
+  const tick = now => {
+    if (!holding) return;
+    t += (now - last) / 1000; last = now;
+    prog.style.height = Math.min(100, t / 1.1 * 100) + '%';
+    if (t >= 1.1) { holding = false; finish(); return; }
+    requestAnimationFrame(tick);
+  };
+  const finish = () => {
+    busy = true; pad.classList.remove('reading');
+    if (fails < 2 && Math.random() < 0.3) {
+      fails++; set(u.readFail, 'bad'); sfx('err');
+      dev.classList.remove('shake'); void dev.offsetWidth; dev.classList.add('shake');
+      setTimeout(() => { busy = false; prog.style.height = '0'; set(u.placeFinger); }, 1000);
+    } else { set(u.readOk, 'good'); sfx('ok'); setTimeout(onOk, 600); }
+  };
+  pad.onpointerdown = e => {
+    if (busy) return;
+    holding = true; t = 0; last = performance.now();
+    pad.setPointerCapture(e.pointerId); pad.classList.add('reading'); set(u.reading); sfx('scan');
+    requestAnimationFrame(tick);
+  };
+  pad.onpointerup = pad.onpointercancel = () => {
+    if (!holding) return;
+    holding = false; pad.classList.remove('reading'); prog.style.height = '0'; set(u.placeFinger);
+  };
+}
+
+function clockIn() {
+  music('menu');
+  const u = U(), [name, desc] = L.mods[S.mod];
+  const sc = scene('sc-in');
+  sc.innerHTML = `<div class="sc-col"><h2>${u.day} ${S.day}</h2>
+    <div class="note px"><small>${u.today}</small><b>${name}</b><span>${desc}</span></div>
+    <p class="sc-hint">${u.holdFinger}</p></div>`;
+  const dev = clockDevice('09:00');
+  dev.style.zoom = Math.max(0.8, Math.min(1.4, (innerHeight - 330) / 330, (innerWidth - 32) / 330)).toFixed(2);
+  sc.querySelector('.sc-col').append(dev);
+  fingerprint(dev, () => pixelCover(sc, () => { closeScene(); startDay(); }));
+}
+
+/* ================= Fim do dia ================= */
+function endDay() {
+  S.phase = 'ending'; S.fast = false;
+  const pay = Math.round(S.dayScore / 10) + 30 * S.day;
+  const bonus = 100 * S.day;
+  S.score += bonus; S.dayScore += bonus;
+  P.wallet += pay; stat('days'); P.stats.maxDay = Math.max(P.stats.maxDay, S.day);
+  if (S.score > P.best) P.best = S.score;
+  S.today.clear();
+  const worst = Object.entries(S.causes).filter(([, v]) => v >= 1).sort((a, b) => b[1] - a[1])[0];
+  S.ticket = { pay, points: S.dayScore, rank: L.ranks[S.rankIdx], worst: worst ? L.causes[worst[0]] : '—' };
+  persist(); saveCareer(); hud(); renderDesk(); sfx('level');
+  $('vignette').classList.remove('on'); $('boss').classList.add('hidden');
+  thanos(); music(null);
+  setTimeout(() => { music('menu'); clockOut(); }, 1600);
+}
+
+// Tudo o que estava na tela vira poeira, da esquerda para a direita
+function thanos() {
+  const layer = document.createElement('div');
+  layer.id = 'dust';
+  document.body.append(layer);
+  const els = [...document.querySelectorAll('#tasks .task, #board .file, .coffee, .popup, #video, .bubble, #toast, #bossAlert, #tip, #freeze')];
+  for (const el of els) {
+    const r = el.getBoundingClientRect();
+    if (!r.width || !r.height) { el.remove(); continue; }
+    const cs = getComputedStyle(el);
+    const colors = [cs.backgroundColor, cs.borderTopColor, cs.color].filter(c => c && c !== 'rgba(0, 0, 0, 0)');
+    const n = Math.min(90, Math.max(20, Math.round(r.width * r.height / 220)));
+    for (let i = 0; i < n; i++) {
+      const p = document.createElement('i');
+      const x = Math.random() * r.width, y = Math.random() * r.height;
+      p.style.cssText = `left:${r.left + x}px;top:${r.top + y}px;background:${pick(colors)}`;
+      layer.append(p);
+      p.animate([{ transform: 'translate(0,0)', opacity: 1 }, { transform: `translate(${rand(30, 120)}px,${rand(-80, -10)}px)`, opacity: 0 }],
+                { duration: rand(700, 1100), delay: x / r.width * 700 + Math.random() * 200, easing: 'ease-out', fill: 'both' });
+    }
+    el.style.pointerEvents = 'none';
+    el.animate([{ clipPath: 'inset(0 0 0 0)' }, { clipPath: 'inset(0 0 0 100%)' }], { duration: 900, easing: 'steps(10)', fill: 'forwards' });
+  }
+  setTimeout(() => { els.forEach(e => e.remove()); layer.remove(); S.tasks = []; S.video = null; }, 1700);
+}
+
+function clockOut() {
+  const sc = scene('sc-out');
+  sc.innerHTML = `<p class="sc-hint">${U().holdFinger}</p>`;
+  const dev = clockDevice('18:00');
+  dev.classList.add('slide-in');
+  // Grande enquanto lê a digital; depois encolhe para baixo e abre espaço para o ticket sair por cima
+  const wrap = document.createElement('div');
+  wrap.className = 'devwrap';
+  const fit = (h) => Math.min(1.7, (innerHeight - 70) / h, (innerWidth - 24) / 330);
+  wrap.style.transform = `translateX(-50%) scale(${fit(350)})`;
+  wrap.append(dev);
+  sc.append(wrap);
+  fingerprint(dev, () => { wrap.style.transform = `translateX(-50%) scale(${fit(690)})`; setTimeout(() => printTicket(sc, dev), 650); });
+}
+
+function ticketHTML() {
+  const u = U(), tk = S.ticket;
+  const row = (k, v) => `<div class="tk-row"><span>${k}</span><b>${v}</b></div>`;
+  return `<div class="tk-head">${u.company}</div><div class="tk-sub">${u.receipt}</div>
+    ${row(u.employee, '#' + EMP_ID)}${row(u.day, S.day)}${row(u.inTime, '09:00')}${row(u.outTime, '18:00')}
+    ${row(u.hoursWorked, '9h00')}${row(u.points, fmt(tk.points))}${row(u.salary, '+ ' + money(tk.pay))}
+    ${row(u.rank, tk.rank)}${row(u.worst, tk.worst)}<div class="tk-bar"></div>`;
+}
+
+// O ticket rasga aos poucos: o lado esquerdo se solta primeiro, depois o direito
+function printTicket(sc, dev) {
+  const u = U(), hint = sc.querySelector('.sc-hint');
+  hint.textContent = u.printing;
+  const paper = dev.querySelector('.paper');
+  paper.innerHTML = `<div class="strip"><div class="ticket">${ticketHTML()}</div><div class="perf"></div><div class="stub"></div></div>`;
+  const strip = paper.querySelector('.strip'), perf = paper.querySelector('.perf'), tkt = paper.querySelector('.ticket');
+  const noise = setInterval(() => sfx('print'), 120);
+  let ready = false, y0 = null, t0 = 0, torn = false, R = null, lastTick = 0;
+  strip.animate([{ transform: 'translateY(100%)' }, { transform: 'translateY(0)' }], { duration: 2200, easing: 'steps(14)', fill: 'forwards' })
+    .onfinish = () => { clearInterval(noise); hint.textContent = u.pullTicket; ready = true; };
+  const pose = p => {
+    tkt.style.transformOrigin = 'bottom right';
+    tkt.style.transform = `translateY(${-p * 10}px) rotate(${-p * 7}deg)`;
+    perf.style.setProperty('--p', (p * 100).toFixed(1) + '%');
+  };
+  tkt.onpointerdown = e => {
+    if (!ready || torn) return;
+    R = tkt.getBoundingClientRect();
+    y0 = e.clientY; t0 = performance.now();
+    tkt.setPointerCapture(e.pointerId); tkt.classList.add('grab');
+  };
+  tkt.onpointermove = e => {
+    if (y0 === null || torn) return;
+    const p = Math.max(0, Math.min(1, (y0 - e.clientY - 8) / 120));
+    pose(p);
+    if (p - lastTick > 0.12) { lastTick = p; sfx('key'); }
+    if (p >= 1 && performance.now() - t0 > 300) tear();
+  };
+  tkt.onpointerup = tkt.onpointercancel = () => {
+    if (torn) return;
+    y0 = null; lastTick = 0; tkt.classList.remove('grab');
+    tkt.animate([{ transform: tkt.style.transform }, { transform: 'none' }], { duration: 150, easing: 'steps(3)' });
+    pose(0); tkt.style.transform = '';
+  };
+  const tear = () => {
+    torn = true; sfx('tear');
+    const z = R.width / 196, h = R.height / z;
+    sc.append(tkt);
+    tkt.className = 'ticket free';
+    tkt.style.cssText = `left:${R.left}px;top:${R.top}px;width:196px;transform-origin:0 0`;
+    perf.style.setProperty('--p', '100%'); perf.classList.add('torn');
+    hint.remove();
+    const S1 = Math.min(1.35, (innerHeight - 150) / h, (innerWidth - 40) / 196);
+    const tx = innerWidth / 2 - 196 * S1 / 2 - R.left, ty = Math.max(16, (innerHeight - 110) / 2 - h * S1 / 2) - R.top;
+    // o canto direito se solta, o ticket cai um pouco e balança
+    tkt.animate([{ transform: `scale(${z}) rotate(-5deg)` }, { transform: `translate(-6px,-30px) scale(${z}) rotate(6deg)`, offset: 0.5 },
+                 { transform: `translate(0,34px) scale(${z}) rotate(-3deg)` }], { duration: 420, easing: 'ease-out', fill: 'forwards' });
+    dusk(sc, () => {
+      tkt.animate([{ transform: `translate(0,34px) scale(${z}) rotate(-3deg)` }, { transform: `translate(${tx}px,${ty}px) scale(${S1}) rotate(0deg)` }],
+                  { duration: 650, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'forwards' });
+      setTimeout(() => dayEndActions(sc), 680);
+    });
+  };
+}
+
+// Fundo do fim do expediente: blocos escuros cobrem tudo e revelam o entardecer em pixel art
+function dusk(sc, cb) {
+  const g = document.createElement('div');
+  g.className = 'pxcover dusk';
+  const size = 48, cols = Math.ceil(innerWidth / size), rows = Math.ceil(innerHeight / size);
+  g.style.gridTemplateColumns = `repeat(${cols}, 1fr)`; g.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+  for (let i = 0; i < cols * rows; i++) { const c = document.createElement('i'); c.style.animationDelay = rand(0, 0.5) + 's'; g.append(c); }
+  sc.append(g);
+  setTimeout(() => {
+    sc.querySelectorAll('.clockdev, .devwrap').forEach(e => e.remove());
+    const sky = skyline();
+    sc.append(sky);
+    sky.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 500, easing: 'steps(5)', fill: 'forwards' }).onfinish = () => g.remove();
+    sc.classList.add('evening');
+    cb();
+  }, 750);
+}
+function skyline() {
+  const W = 192, H = 108, c = document.createElement('canvas');
+  c.width = W; c.height = H; c.className = 'skyline';
+  const x = c.getContext('2d'), hz = 80;
+  const bands = ['#1f1736', '#2a1c47', '#3d2457', '#572d60', '#753763', '#984360', '#bd545a', '#dd6d4f', '#f08f4c', '#f7b55a'];
+  bands.forEach((col, i) => { x.fillStyle = col; x.fillRect(0, Math.floor(i * hz / bands.length), W, Math.ceil(hz / bands.length) + 1); });
+  x.fillStyle = '#ffd98a';
+  for (let dy = -13; dy <= 0; dy++) { const w = Math.round(Math.sqrt(169 - dy * dy)); x.fillRect(Math.round(W * 0.64) - w, hz + dy, w * 2, 1); }
+  x.fillStyle = '#fff3cf';
+  for (let i = 0; i < 45; i++) x.fillRect(Math.random() * W | 0, Math.random() * 28 | 0, 1, 1);
+  const row = (base, col, minH, maxH, lit) => {
+    let px = -3;
+    while (px < W) {
+      const w = 6 + Math.random() * 14 | 0, h = minH + Math.random() * (maxH - minH) | 0;
+      x.fillStyle = col; x.fillRect(px, base - h, w, H);
+      if (Math.random() < 0.3) x.fillRect(px + (w >> 1), base - h - 4, 1, 4);
+      if (lit) for (let wy = base - h + 3; wy < H - 10; wy += 4) for (let wx = px + 2; wx < px + w - 1; wx += 3)
+        if (Math.random() < 0.32) { x.fillStyle = Math.random() < 0.8 ? '#f2c14e' : '#9ec0ff'; x.fillRect(wx, wy, 1, 2); }
+      px += w + (Math.random() * 3 | 0);
+    }
+  };
+  row(hz + 6, '#3a2550', 8, 34, false);
+  row(hz + 16, '#18122b', 12, 46, true);
+  x.fillStyle = '#100c1d'; x.fillRect(0, H - 9, W, 9);
+  return c;
+}
+
+function dayEndActions(sc) {
+  const u = U();
+  const box = document.createElement('div');
+  box.className = 'endbtns';
+  box.innerHTML = `<button class="pxbtn main" id="rest">${u.goRest}</button><button class="pxbtn" id="shopb">${u.goShop}</button><button class="pxbtn" id="exit">${u.exit}</button>`;
+  sc.append(box);
+  box.querySelector('#rest').onclick = sleep;
+  box.querySelector('#shopb').onclick = market;
+  box.querySelector('#exit').onclick = () => { saveCareer(); persist(); closeScene(); showMenu(); };
+}
+
+/* ================= Dormir e acordar ================= */
+function sleep() {
+  music(null);
+  const fade = document.createElement('div');
+  fade.className = 'tosleep';
+  document.body.append(fade);
+  setTimeout(() => { sleepScene(); fade.remove(); }, 1000);
+}
+function sleepScene() {
+  const sc = scene('sc-sleep');
+  for (let i = 0; i < 11; i++) {
+    const z = document.createElement('span');
+    z.className = 'zz'; z.textContent = i % 3 ? 'z' : 'Z';
+    z.style.cssText = `left:${rand(38, 58)}%;top:${rand(48, 62)}%;font-size:${rand(30, 90) | 0}px;animation-delay:${0.1 + i * 0.26}s`;
+    sc.append(z);
+  }
+  setTimeout(() => { if ($('scene') === sc) alarm(sc); }, 3500);
+}
+// Dígitos de despertador feitos de quadradinhos (fonte 3x5)
+function segDigits(str) {
+  const F = { 0: ['111', '101', '101', '101', '111'], 1: ['010', '110', '010', '010', '111'], 2: ['111', '001', '111', '100', '111'],
+    3: ['111', '001', '111', '001', '111'], 4: ['101', '101', '111', '001', '001'], 5: ['111', '100', '111', '001', '111'],
+    6: ['111', '100', '111', '101', '111'], 7: ['111', '001', '010', '010', '010'], 8: ['111', '101', '111', '101', '111'],
+    9: ['111', '101', '111', '001', '111'], ':': ['0', '1', '0', '1', '0'] };
+  const cell = 9, gap = 2, glyphs = [...str].map(ch => F[ch]);
+  const cols = glyphs.reduce((a, g) => a + g[0].length + 1, -1);
+  const c = document.createElement('canvas');
+  c.width = cols * cell; c.height = 5 * cell; c.className = 'segs';
+  const x = c.getContext('2d');
+  let ox = 0;
+  for (const g of glyphs) {
+    g.forEach((row, j) => [...row].forEach((v, i) => {
+      x.fillStyle = v === '1' ? '#ff4636' : '#3a1310';
+      x.fillRect((ox + i) * cell, j * cell, cell - gap, cell - gap);
+    }));
+    ox += g[0].length + 1;
+  }
+  return c;
+}
+function alarm(sc) {
+  const box = document.createElement('button');
+  box.className = 'alarm';
+  box.innerHTML = `<i class="bell l"></i><i class="bell r"></i><span class="face"></span><i class="leg l"></i><i class="leg r"></i>`;
+  box.querySelector('.face').append(segDigits('06:00'));
+  const hint = document.createElement('p');
+  hint.className = 'sc-hint'; hint.textContent = U().wakeHint;
+  sc.append(box, hint);
+  sfx('clock');
+  const ring = setInterval(() => sfx('clock'), 1000);
+  box.onclick = () => {
+    clearInterval(ring); sfx('wake');
+    box.classList.add('off'); hint.remove();
+    const flash = document.createElement('div');
+    flash.className = 'wakeflash';
+    sc.append(flash);
+    setTimeout(nextDay, 750);
+  };
+}
+
+/* ================= Mercado ================= */
+const cartTotal = () => S.cart.reduce((a, id) => a + SHOP.find(i => i.id === id).price, 0);
+function canAdd(it) {
+  if (it.kind === 'decor' && (P.decor.includes(it.id) || S.cart.includes(it.id))) return false;
+  if (it.kind === 'day' && (S.today.has(it.id) || S.cart.includes(it.id))) return false;
+  return true;
+}
+function basketSprite() {
+  const W = 26, rows = ['k'.repeat(W)];
+  for (let i = 0; i < 6; i++) rows.push('k' + (i % 2 ? 'r'.repeat(W - 2) : [...Array(W - 2)].map((_, j) => j % 3 === 1 ? '.' : 'r').join('')) + 'k');
+  rows.push('.k' + 'r'.repeat(W - 4) + 'k.', '..' + 'k'.repeat(W - 4) + '..');
+  const c = sprite(rows, 10, { ...PAL, r: '#d94a3a' });
+  c.classList.add('bfront');
+  return c;
+}
+function bagSprite() {
+  const pal = { ...PAL, a: '#d9b382', A: '#a87d4a' };
+  const c = sprite(['.kkkkkkkkkkkkkkkk.', '.kAaAaAaAaAaAaAak.', '.kaaaaaaaaaaaaaak.', '.kaaaaaaaaaaaaaAk.', '.kaaaaakkkkaaaaAk.',
+    '.kaaaaakaakaaaaAk.', '.kaaaaakkkkaaaaAk.', '.kaaaaaaaaaaaaaAk.', '.kaaaaaaaaaaaaaAk.', '.kaaaaaaaaaaaaaAk.', '.kaaaaaaaaaaaaaAk.',
+    '.kaaaaaaaaaaaaaAk.', '.kaaaaaaaaaaaaaAk.', '.kaaaaaaaaaaaaaAk.', '.kAAAAAAAAAAAAAAk.', '.kkkkkkkkkkkkkkkk.'], 5, pal);
+  c.classList.add('bagfront');
+  return c;
+}
+
+function market() {
+  const u = U();
+  S.cart = [];
+  const sc = scene('sc-market sc-shop');
+  sc.innerHTML = `<div class="mk-top"><h2>${u.store}</h2><span class="money">${u.wallet}: <b id="mw"></b></span><span class="money">${u.total}: <b id="mt"></b></span>
+      <button class="pxbtn main" id="tocash">${u.toCheckout}</button><button class="pxbtn" id="mkhome">${u.skipHome}</button></div>
+    <div class="mk-sign"></div><p class="hint mk-hint">${u.marketHint}</p>
+    <div class="shelves px"><div class="shelf" data-r="0"></div><div class="shelf" data-r="1"></div><div class="shelf" data-r="2"></div></div>
+    <div class="basket"><div class="bitems"></div></div>`;
+  sc.querySelector('.basket').append(basketSprite());
+  [SHOP.slice(0, 5), SHOP.slice(5, 8), SHOP.slice(8)].forEach((items, i) => {
+    const shelf = sc.querySelector(`[data-r="${i}"]`);
+    items.forEach(it => shelf.append(shelfSlot(it, sc)));
+  });
+  sc.querySelector('#tocash').onclick = () => { if (S.cart.length) checkout(); };
+  sc.querySelector('#mkhome').onclick = () => { S.cart = []; sleep(); };
+  updateCart(sc);
+}
+function shelfSlot(it, sc) {
+  const el = document.createElement('button');
+  el.className = 'slot'; el.dataset.id = it.id; el.title = L.shop[it.id][1];
+  const spr = sprite(SPR[it.spr], 5);
+  el.append(spr);
+  el.insertAdjacentHTML('beforeend', `<span class="nm">${L.shop[it.id][0]}</span><span class="ds">${L.shop[it.id][1]}</span><span class="ptag">${money(it.price)}</span>`);
+  el.onclick = () => {
+    if (!canAdd(it)) return;
+    S.cart.push(it.id); sfx('pop');
+    updateCart(sc);
+    flyToBasket(spr, it, sc);
+  };
+  return el;
+}
+function updateCart(sc) {
+  sc.querySelector('#mw').textContent = money(P.wallet);
+  sc.querySelector('#mt').textContent = money(cartTotal());
+  sc.querySelector('#mt').parentElement.classList.toggle('over', cartTotal() > P.wallet);
+  sc.querySelector('#tocash').disabled = !S.cart.length;
+  sc.querySelectorAll('.slot').forEach(s => s.classList.toggle('sold', !canAdd(SHOP.find(i => i.id === s.dataset.id))));
+}
+function burst(sc, cx, cy) {
+  for (let i = 0; i < 10; i++) {
+    const p = document.createElement('i');
+    p.className = 'spark';
+    p.style.left = cx + 'px'; p.style.top = cy + 'px';
+    p.style.background = pick(['#ffffff', '#fff1a8', '#f2c14e']);
+    sc.append(p);
+    const a = i / 10 * Math.PI * 2, d = rand(26, 44);
+    p.animate([{ transform: 'translate(0,0)', opacity: 1 }, { transform: `translate(${Math.cos(a) * d}px,${Math.sin(a) * d}px)`, opacity: 0 }],
+              { duration: 260, easing: 'steps(4)' }).onfinish = () => p.remove();
+  }
+}
+// "Estoura" na prateleira e cai com gravidade dentro da cesta
+function flyToBasket(spr, it, sc) {
+  const from = spr.getBoundingClientRect(), basket = sc.querySelector('.basket'), bi = sc.querySelector('.bitems'), br = bi.getBoundingClientRect();
+  burst(sc, from.left + from.width / 2, from.top + from.height / 2);
+  const w = br.width * rand(0.22, 0.3), s = w / from.width, hS = from.height * s;
+  const x = rand(0, br.width - w), y = rand(0, br.height * 0.1);
+  const clone = sprite(SPR[it.spr], 5);
+  clone.style.cssText += `;position:fixed;left:${from.left}px;top:${from.top}px;width:${from.width}px;height:${from.height}px;z-index:10`;
+  sc.append(clone);
+  const tx = br.left + x - from.left - (from.width - w) / 2;
+  const ty = br.bottom - y - from.top - from.height / 2 - hS / 2;
+  clone.animate([
+    { transform: 'translate(0,0) scale(1)', easing: 'cubic-bezier(.2,.9,.3,1)' },
+    { transform: `translate(${tx * 0.06}px,-30px) scale(1.25)`, offset: 0.22, easing: 'cubic-bezier(.6,0,1,.6)' },
+    { transform: `translate(${tx}px,${ty}px) scale(${s})` },
+  ], { duration: 500, fill: 'forwards' }).onfinish = () => {
+    clone.remove(); sfx('key');
+    basket.animate([{ translate: '0 0' }, { translate: '0 6px' }, { translate: '0 0' }], { duration: 160, easing: 'steps(3)' });
+    const inB = sprite(SPR[it.spr], 5);
+    inB.classList.add('inbasket');
+    inB.style.width = w + 'px'; inB.style.left = x + 'px'; inB.style.bottom = y + 'px';
+    inB.onclick = () => { const k = S.cart.indexOf(it.id); if (k >= 0) S.cart.splice(k, 1); inB.remove(); updateCart(sc); sfx('click'); };
+    bi.append(inB);
+  };
+}
+
+/* ================= Caixa ================= */
+// O jogador arrasta cada produto por cima do leitor; às vezes não lê e precisa passar de novo
+function checkout() {
+  const u = U();
+  const sc = scene('sc-market sc-cash');
+  sc.innerHTML = `<div class="mk-top"><h2>${u.checkoutTitle}</h2><button class="pxbtn main" id="finish" disabled>${u.finish}</button></div>
+    <p class="hint mk-hint" id="chint">${u.swipeHint}</p>
+    <div class="register">
+      <div class="lcd2" id="lcd"><div class="lines"></div><div class="tot">${u.total}: ${money(0)}</div><div class="funds"></div></div>
+      <div class="belt"><div class="lane-in"></div><div class="scanner"><i class="laser"></i><span class="glass"></span></div><div class="bags"></div></div>
+    </div>
+    <div class="pay hidden"><h4>${u.payWith}</h4><div class="seg" id="methods"></div><button class="pxbtn main" id="paybtn" disabled>${u.pay}</button></div>
+    <div class="actions hidden" id="after"><button class="pxbtn main" id="home">${u.skipHome}</button></div>`;
+  const laneIn = sc.querySelector('.lane-in'), bags = sc.querySelector('.bags'), scanner = sc.querySelector('.scanner');
+  const lines = sc.querySelector('.lines'), tot = sc.querySelector('.tot'), hint = sc.querySelector('#chint'), finish = sc.querySelector('#finish');
+  const bought = [], funds = sc.querySelector('.funds'), lcd = sc.querySelector('#lcd');
+  let total = 0, fails = 0, closed = false, method = null, paid = false;
+  // Se o que passou no leitor custa mais do que a carteira, o pagamento trava até o jogador deixar algo para trás
+  const checkFunds = () => {
+    const over = total > P.wallet;
+    funds.textContent = `${u.wallet}: ${money(P.wallet)}`;
+    lcd.classList.toggle('over', over);
+    if (closed && !paid) {
+      hint.textContent = over ? u.overBudget : u.payHint;
+      sc.querySelector('#paybtn').disabled = over || !method;
+    }
+  };
+
+  const flashScanner = cls => { scanner.classList.remove('ok', 'bad'); void scanner.offsetWidth; scanner.classList.add(cls); };
+  const addToBag = id => {
+    let bag = bags.lastElementChild;
+    if (!bag || bag.querySelectorAll('.inbag').length >= 3) {
+      bag = document.createElement('div');
+      bag.className = 'bag'; bag.innerHTML = '<div class="bagin"></div>';
+      bag.append(bagSprite()); bags.append(bag);
+      bag.animate([{ transform: 'translateY(16px)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 200, easing: 'steps(4)' });
+    }
+    const n = bag.querySelectorAll('.inbag').length;
+    const c = sprite(SPR[SHOP.find(i => i.id === id).spr], 3);
+    c.classList.add('inbag'); c.style.left = (4 + n * 26) + '%';
+    c.onclick = () => {
+      if (paid) return;
+      const k = bought.indexOf(id);
+      if (k >= 0) bought.splice(k, 1);
+      total -= SHOP.find(i => i.id === id).price;
+      const line = lines.querySelector(`[data-id="${id}"]`); if (line) line.remove();
+      tot.textContent = `${u.total}: ${money(total)}`;
+      c.remove(); if (!bag.querySelector('.inbag')) bag.remove();
+      sfx('click'); checkFunds();
+      if (!bought.length && closed) hint.textContent = u.payHint;
+    };
+    bag.querySelector('.bagin').append(c);
+    c.animate([{ transform: 'translateY(-50px)' }, { transform: 'translateY(0)' }], { duration: 240, easing: 'cubic-bezier(.6,0,1,.6)' });
+    sfx('key');
+  };
+  const registerItem = id => {
+    const it = SHOP.find(i => i.id === id);
+    bought.push(id); total += it.price;
+    lines.insertAdjacentHTML('beforeend', `<div data-id="${id}"><span>${L.shop[id][0]}</span><span>${money(it.price)}</span></div>`);
+    tot.textContent = `${u.total}: ${money(total)}`;
+    finish.disabled = false;
+    checkFunds();
+  };
+  const showPay = () => {
+    if (closed) return;
+    closed = true; finish.disabled = true;
+    laneIn.querySelectorAll('.belt-item').forEach(el => el.animate([{ opacity: 1 }, { opacity: 0.25 }], { duration: 300, fill: 'forwards' }));
+    sc.querySelector('.pay').classList.remove('hidden');
+    checkFunds();
+  };
+  finish.onclick = showPay;
+
+  const startDrag = (e, el, id) => {
+    if (closed) return;
+    e.preventDefault();
+    const r = el.getBoundingClientRect(), ox = e.clientX - r.left, oy = e.clientY - r.top;
+    el.style.setProperty('--dw', r.width + 'px');
+    el.classList.add('dragging');
+    el.style.left = r.left + 'px'; el.style.top = r.top + 'px';
+    sc.append(el);
+    let inside = false, enterSide = 0, read = false;
+    const move = ev => {
+      el.style.left = ev.clientX - ox + 'px'; el.style.top = ev.clientY - oy + 'px';
+      if (read) return;
+      const s = scanner.getBoundingClientRect(), mid = s.left + s.width / 2;
+      const now = ev.clientX > s.left - 10 && ev.clientX < s.right + 10 && ev.clientY > s.top - 110 && ev.clientY < s.bottom + 10;
+      if (now && !inside) { inside = true; enterSide = ev.clientX < mid ? -1 : 1; }
+      if (!now && inside) {
+        inside = false;
+        if ((ev.clientX < mid ? -1 : 1) !== enterSide) {
+          if (fails < 2 && Math.random() < 0.3) { fails++; flashScanner('bad'); sfx('err'); hint.textContent = u.noRead; }
+          else { fails = 0; read = true; flashScanner('ok'); sfx('beep'); el.classList.add('read'); registerItem(id); hint.textContent = u.swipeHint; }
+        }
+      }
+    };
+    const up = () => {
+      document.removeEventListener('pointermove', move);
+      document.removeEventListener('pointerup', up);
+      document.removeEventListener('pointercancel', up);
+      el.classList.remove('dragging');
+      el.style.left = el.style.top = '';
+      if (read) { el.remove(); addToBag(id); if (!laneIn.querySelector('.belt-item')) showPay(); }
+      else laneIn.append(el);
+    };
+    document.addEventListener('pointermove', move);
+    document.addEventListener('pointerup', up);
+    document.addEventListener('pointercancel', up);
+  };
+  for (const id of S.cart) {
+    const el = sprite(SPR[SHOP.find(i => i.id === id).spr], 5);
+    el.classList.add('belt-item');
+    el.onpointerdown = e => startDrag(e, el, id);
+    laneIn.append(el);
+  }
+
+  const methods = sc.querySelector('#methods'), payBtn = sc.querySelector('#paybtn');
+  [['cash', 'bill'], ['card', 'card'], ['pix', 'paycel']].forEach(([k, spr]) => {
+    const b = document.createElement('button');
+    b.className = 'pxbtn paym';
+    b.append(sprite(SPR[spr], 3));
+    b.insertAdjacentHTML('beforeend', `<span>${u[k]}</span>`);
+    b.onclick = () => { method = k; methods.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); sfx('click'); checkFunds(); };
+    methods.append(b);
+  });
+  payBtn.onclick = () => {
+    if (total > P.wallet || !bought.length) { sfx('err'); checkFunds(); return; }
+    paid = true; payBtn.disabled = true; methods.querySelectorAll('button').forEach(x => { x.disabled = true; });
+    tot.textContent = u.processing;
+    setTimeout(() => {
+      tot.textContent = `${u.approved} · ${money(total)}`; sc.querySelector('#lcd').classList.add('good'); sfx('coin');
+      P.wallet -= total;
+      funds.textContent = `${u.wallet}: ${money(P.wallet)}`;
+      for (const id of bought) {
+        const it = SHOP.find(i => i.id === id);
+        if (it.kind === 'use') S.inv[id]++;
+        if (it.kind === 'day') S.today.add(id);
+        if (it.kind === 'decor' && !P.decor.includes(id)) P.decor.push(id);
+      }
+      S.cart = [];
+      persist(); saveCareer(); hud(); renderDesk();
+      sc.querySelector('#after').classList.remove('hidden');
+    }, 1000);
+  };
+  sc.querySelector('#home').onclick = sleep;
+}
+
+function clearDom() {
+  document.querySelectorAll('.popup, #bossAlert, #video, #lane, #toast, #tip, #dust').forEach(e => e.remove());
+  $('boss').classList.add('hidden');
+  $('vignette').classList.remove('on');
+}
+
+function startDay() {
+  closeModal(); clearDom();
+  tasksEl.innerHTML = '';
+  Object.assign(S, { phase: 'day', paused: false, boss: false, bossAuto: 0, dayT: 0, dayScore: 0, level: 1, lastLevel: 1,
+    stress: Math.round(S.stress * 0.4), causes: {}, file: null, fast: false, tasks: [], nextTask: 5, nextEvent: 16,
+    nextCoffee: rand(15, 25), order: [0, 1, 2, 3], slowT: 0, coffee: null, bossAlert: null, frozen: null, virus: false,
+    shuffleT: 0, video: null, burnout: false, tipQ: [], tipT: 0, last: performance.now() });
+  buildBoard(); spawnFile(); hud(); renderDesk();
+  music('office');
+}
+
+function causeBars(causes) {
+  const list = Object.entries(causes).filter(([, v]) => v >= 1).sort((a, b) => b[1] - a[1]).slice(0, 6);
+  if (!list.length) return `<p>${U().perfect}</p>`;
+  const total = list.reduce((a, [, v]) => a + v, 0);
+  return list.map(([k, v]) => `<div class="cause"><span>${L.causes[k]}</span><div class="b" style="width:${v / list[0][1] * 100}%"></div><span>${Math.round(v / total * 100)}%</span></div>`).join('');
+}
+
+function gameOver() {
+  music('over');
+  S.running = false; S.phase = 'over';
+  clearDom(); closeScene(); clearCareer();
+  const u = U();
+  const rescisao = Math.round((S.dayScore || 0) / 20);
+  P.wallet += rescisao;
+  if (S.score > P.best) P.best = S.score;
+  P.stats.maxDay = Math.max(P.stats.maxDay, S.day);
+  persist(); hud();
+  const r = S.rankIdx, next = r + 1 < RANK_POINTS.length ? r + 1 : null;
+  const card = modal(`<h2>${u.quitTitle}</h2><p>${u.hrReport(S.day, clockText())}</p>
+    <h4>${u.rankReached}</h4><div class="big">${L.ranks[r]}</div>
+    <p>${u.summary(fmt(S.score), S.day)} ${next !== null ? u.missing(fmt(RANK_POINTS[next] - S.score), L.ranks[next]) : u.top} ${u.record}: ${fmt(P.best)}.</p>
+    <p class="money">${u.severance}: + ${money(rescisao)}</p>
+    <h4>${u.reasons}</h4>${causeBars(S.careerCauses)}
+    <div class="actions"><button class="pxbtn main" id="go">${u.newJob}</button><button class="pxbtn" id="menu">${u.mainMenu}</button></div>`);
+  card.querySelector('#go').onclick = () => newCareer();
+  card.querySelector('#menu').onclick = showMenu;
+}
+
+function promote() {
+  S.phase = 'promo';
+  S.rankIdx++;
+  sfx('level'); renderDesk();
+  const opts = PERK_IDS.filter(k => !S.perks.has(k)).sort(() => Math.random() - .5).slice(0, 2);
+  if (!opts.length) { S.phase = 'day'; return; }
+  const card = modal(`<h2>${U().promo}</h2><p>${U().promoText(L.ranks[S.rankIdx])}</p><div class="grid" id="g"></div>`);
+  for (const k of opts) {
+    const el = document.createElement('button');
+    el.className = 'item perk';
+    el.innerHTML = `<span class="nm">${L.perks[k][0]}</span><span class="ds">${L.perks[k][1]}</span>`;
+    el.onclick = () => { S.perks.add(k); closeModal(); S.phase = 'day'; S.last = performance.now(); renderDesk(); sfx('ok'); };
+    card.querySelector('#g').append(el);
+  }
+}
+
+/* ================= Tabuleiro ================= */
+board.addEventListener('pointerdown', e => {
+  if (!S || S.phase !== 'day' || S.paused || S.frozen || !S.file || e.target.closest('.coffee')) return;
+  if (e.target.closest('.file')) { if (S.file.kind === 'dead') deleteFile(); else S.dropNow = true; return; }
+  const lane = Math.floor((e.clientX - board.getBoundingClientRect().left) / laneWidth());
+  S.file.lane = Math.max(0, Math.min(SECTORS.length - 1, lane)); placeFile();
+});
+function buildBoard() {
+  board.innerHTML = '';
+  const w = 100 / SECTORS.length;
+  S.trays = SECTORS.map((_, i) => {
+    const lane = document.createElement('div');
+    lane.className = 'lane'; lane.style.left = (i * w) + '%'; lane.style.width = w + '%';
+    const tray = document.createElement('div');
+    tray.className = 'tray'; tray.style.left = (i * w) + '%'; tray.style.width = w + '%';
+    board.append(lane, tray);
+    return tray;
+  });
+  renderTrays();
+}
+function renderTrays() { S.trays.forEach((t, i) => { const s = SECTORS[S.order[i]]; t.style.background = s.color; t.textContent = sectorName(s.id); }); }
+
+function tip(key) { if (!P.seen.includes(key) && !S.tipQ.includes(key)) S.tipQ.push(key); }
+function showNextTip(dt) {
+  if (S.tipT > 0) { S.tipT -= dt; if (S.tipT <= 0) { const t = $('tip'); if (t) t.remove(); } return; }
+  const key = S.tipQ.shift();
+  if (!key) return;
+  P.seen.push(key); persist();
+  const el = document.createElement('div');
+  el.id = 'tip'; el.className = 'px';
+  el.innerHTML = `<span>${(document.body.classList.contains('touch') && L.tipsTouch[key]) || L.tips[key]}</span>`;
+  board.append(el);
+  S.tipT = 4;
+}
+
+function toast(from, text) {
+  const old = $('toast'); if (old) old.remove();
+  const el = document.createElement('div');
+  el.id = 'toast'; el.className = 'px';
+  el.append(sprite(SPR.mail, 3));
+  el.insertAdjacentHTML('beforeend', `<div><small>${U().from}: ${from}</small>${text}</div>`);
+  document.body.append(el);
+  setTimeout(() => el.remove(), 4500);
+}
+
+/* ================= Pontuação ================= */
+function mult() { return Math.min(has('meta') ? 6 : 5, 1 + Math.floor(S.combo / 5)); }
+function flash(text, color, x, y) {
+  const el = document.createElement('div');
+  el.className = 'flash'; el.textContent = text; el.style.color = color;
+  el.style.left = Math.max(4, Math.min(x, board.clientWidth - 160)) + 'px'; el.style.top = y + 'px';
+  board.append(el);
+  setTimeout(() => el.remove(), 800);
+}
+function addStress(n) { S.stress = Math.max(0, Math.min(100, S.stress + n)); if (n > 0 && S.stress >= 100) S.burnout = true; }
+function blame(cause, n) { S.causes[cause] = (S.causes[cause] || 0) + n; S.careerCauses[cause] = (S.careerCauses[cause] || 0) + n; addStress(n); }
+function success(base, x, y) {
+  const m0 = mult();
+  S.combo++;
+  if (mult() > m0) setTimeout(() => sfx('combo'), 90);
+  const pts = Math.round(base * S.level * mult() * (mod().ptsMul || 1));
+  S.score += pts; S.dayScore += pts; addStress(-2); sfx('ok');
+  if (x !== undefined) flash('+' + pts, 'var(--ok)', x, y);
+  if (S.score > P.best) P.best = S.score;
+  return pts;
+}
+function fail(stress, msg, cause) {
+  S.combo = 0; blame(cause, stress * (mod().errMul || 1)); sfx('err');
+  board.classList.remove('shake'); void board.offsetWidth; board.classList.add('shake');
+  if (msg) flash(msg, 'var(--danger)', 20, 60 + Math.random() * 60);
+}
+
+/* ================= Arquivos ================= */
+function spawnFile() {
+  const dest = pick(SECTORS), u = U();
+  let kind = S.level >= 4 && Math.random() < 0.15 ? 'dead' : S.level >= 3 && Math.random() < 0.2 ? 'urgent' : 'normal';
+  if (kind === 'normal' && mod().finUrgent && dest.id === 'fin' && Math.random() < 0.5) kind = 'urgent';
+  tip(kind === 'normal' ? 'file' : kind);
+  const el = document.createElement('div');
+  el.className = 'file' + (kind === 'normal' ? '' : ' ' + kind);
+  if (kind === 'dead') {
+    el.append(sprite(SPR.trash, 3));
+    el.insertAdjacentHTML('beforeend', `<div class="txt"><span class="tag">${u.deadFile}</span><span class="sub">${u.pressDelete}</span></div>`);
+  } else {
+    el.style.borderColor = dest.color;
+    el.insertAdjacentHTML('beforeend', `<div class="txt"><span class="tag" style="color:${dest.color}">${kind === 'urgent' ? '! ' : ''}${sectorName(dest.id)}</span><span class="sub">${kind === 'urgent' ? u.urgent + ' · ' : ''}${pick(L.docs[dest.id])}</span></div>`);
+  }
+  board.append(el);
+  S.dropNow = false;
+  S.file = { el, kind, dest: dest.id, lane: Math.floor(Math.random() * SECTORS.length), y: -60 };
+  placeFile();
+}
+function placeFile() {
+  const f = S.file, w = laneWidth();
+  f.el.style.left = (f.lane * w + 8) + 'px'; f.el.style.width = (w - 16) + 'px'; f.el.style.top = f.y + 'px';
+}
+function landFile() {
+  const f = S.file, w = laneWidth(), x = f.lane * w + 10, y = board.clientHeight - 100, u = U();
+  if (f.kind === 'dead') fail(12, u.fDead, 'dead');
+  else if (SECTORS[S.order[f.lane]].id === f.dest) {
+    success(f.kind === 'urgent' ? 20 : 10, x, y); stat('files');
+    const t = S.trays[f.lane]; t.classList.remove('hit'); void t.offsetWidth; t.classList.add('hit');
+  } else if (f.kind === 'urgent') fail(26, u.fUrgent, 'urgent');
+  else fail(14, u.fWrong, 'wrong');
+  f.el.remove();
+  spawnFile();
+}
+function deleteFile() {
+  const f = S.file;
+  if (f.kind === 'dead') { sfx('trash'); success(12, f.lane * laneWidth() + 10, f.y); }
+  else fail(18, U().fDel, 'del');
+  f.el.remove();
+  spawnFile();
+}
+
+/* ================= Tarefas ================= */
+function unlocked(type) {
+  if (type === 'video' && mod().video) return S.level >= mod().video;
+  return S.level >= UNLOCK[type];
+}
+function availableTypes() {
+  return Object.keys(UNLOCK).filter(t => unlocked(t)
+    && !(['type', 'call', 'video'].includes(t) && S.tasks.some(k => k.type === t))
+    && !(t === 'video' && S.video));
+}
+
+function spawnTask() {
+  const types = availableTypes();
+  if (!types.length || S.tasks.length >= MAX_TASKS) return;
+  const type = pick(types), u = U();
+  tip(type);
+  const el = document.createElement('div');
+  el.className = 'task';
+  const t = { type, el, life: 0, ttl: 0 };
+  const speed = Math.max(0.55, 1 - Math.max(0, S.level - UNLOCK[type]) * 0.07) * (has('secretaria') ? 1.2 : 1) * (has('postit') ? 1.25 : 1);
+  const body = document.createElement('div');
+  body.className = 'body';
+
+  sfx({ email: 'mail', call: 'ring', video: 'join' }[type] || 'task');
+  if (type === 'button') {
+    t.ttl = 7 * speed;
+    body.innerHTML = `<h3>${u.pending}</h3><button>${pick(L.buttons)}</button>`;
+    body.querySelector('button').onclick = () => completeTask(t, 15);
+  } else if (type === 'email') {
+    const subj = pick(Object.keys(L.emails));
+    t.ttl = 11 * speed;
+    el.append(sprite(SPR.mail, 3));
+    body.innerHTML = `<h3>${u.newEmail}</h3><div style="margin-bottom:6px">“${subj}” → ${u.forward}</div><div class="row"></div>`;
+    SECTORS.forEach(s => {
+      const b = document.createElement('button');
+      b.textContent = sectorName(s.id);
+      b.onclick = () => { if (s.id === L.emails[subj]) { completeTask(t, 25); stat('emails'); } else failTask(t, 10, u.fEmail, 'email'); };
+      body.querySelector('.row').append(b);
+    });
+  } else if (type === 'type') {
+    const pool = has('corretor') ? L.words.filter(w => w.length <= 8) : L.words;
+    t.word = pick(pool); t.typed = '';
+    t.ttl = (5 + t.word.length * 0.8) * speed;
+    body.innerHTML = `<h3>${u.fill}</h3><div class="typed"></div><div class="hint">${u.typeHint}</div>`;
+    el.onclick = () => { if (TOUCH) { const k = $('kb'); k.value = ' '; k.focus({ preventScroll: true }); } };
+  } else if (type === 'call') {
+    t.need = rand(1.6, 3) * (has('fone') ? 0.5 : 1); t.held = 0; t.holding = false;
+    t.ttl = 9 * speed;
+    body.innerHTML = `<h3>${u.ringing}</h3><button class="phone"><span class="fill"></span>${pick(L.callers)} · ${u.hold}</button>`;
+    el.prepend(sprite(SPR.phone, 3));
+    const b = body.querySelector('button');
+    b.onpointerdown = e => { t.holding = true; b.setPointerCapture(e.pointerId); sfx('click'); };
+    b.onpointerup = b.onpointercancel = () => { t.holding = false; if (t.held < t.need) t.held = 0; };
+  } else if (type === 'printer') {
+    t.key = pick(printerKeys()); t.need = 6 + Math.floor(Math.random() * 6); t.hits = 0;
+    if (has('estagiario')) t.need = Math.ceil(t.need / 2);
+    t.ttl = (4 + t.need * 0.45) * speed;
+    el.append(sprite(SPR.printer, 3));
+    body.innerHTML = `<h3>${u.printer}</h3>${u.press} <button class="keycap">${t.key}</button> <b class="cnt"></b>`;
+    body.querySelector('.keycap').onpointerdown = e => { e.preventDefault(); key(t.key); };
+  } else if (type === 'video') {
+    t.ttl = 8 * speed;
+    el.append(sprite(SPR.camera, 4));
+    body.innerHTML = `<h3>${u.videoCall}</h3><button>${u.accept}</button>`;
+    body.querySelector('button').onclick = () => { if (S.paused) return; removeTask(t); sfx('click'); startVideo(); };
+  }
+  el.append(body);
+  el.insertAdjacentHTML('beforeend', '<div class="timer"></div>');
+  tasksEl.append(el);
+  S.tasks.push(t);
+  if (type === 'type') renderTyped(t);
+  if (type === 'printer') renderPrinter(t);
+}
+
+function renderTyped(t) {
+  let html = '';
+  for (let i = 0; i < t.word.length; i++) {
+    if (i < t.typed.length) html += `<span class="${t.typed[i] === t.word[i] ? 'done' : 'wrong'}">${t.typed[i]}</span>`;
+    else html += t.word[i];
+  }
+  t.el.querySelector('.typed').innerHTML = html;
+}
+function renderPrinter(t) { t.el.querySelector('.cnt').textContent = `${t.hits}/${t.need}`; }
+function removeTask(t) { S.tasks = S.tasks.filter(k => k !== t); t.el.remove(); }
+function completeTask(t, pts) { if (S.phase !== 'day' || S.paused || t.dead) return; success(pts); removeTask(t); }
+function failTask(t, stress, msg, cause) {
+  if (t.dead) return;
+  t.dead = true; fail(stress, msg, cause); t.el.classList.add('failed');
+  setTimeout(() => removeTask(t), 150);
+}
+
+/* ================= Eventos ================= */
+function startEvent() {
+  const w = Object.assign({ boss: 1, shuffle: 1, freeze: 1, virus: 1 }, mod().w || {});
+  const opts = Object.keys(EVENTS).filter(k => w[k] > 0
+    && (S.level >= EVENTS[k] || (mod().earlyTech && (k === 'freeze' || k === 'virus') && S.level >= 2))
+    && !(k === 'boss' && S.bossAlert) && !(k === 'freeze' && S.frozen) && !(k === 'virus' && S.virus) && !(k === 'shuffle' && S.shuffleT > 0));
+  if (!opts.length) return;
+  let r = Math.random() * opts.reduce((a, k) => a + w[k], 0), k = opts[0];
+  for (const o of opts) { r -= w[o]; if (r <= 0) { k = o; break; } }
+  tip(k);
+  ({ boss: bossComing, shuffle: () => { S.shuffleT = 1.3; S.trays.forEach(t => t.classList.add('warn')); },
+     freeze: freezePc, virus: startVirus })[k]();
+}
+
+function bossComing() {
+  const el = document.createElement('div');
+  el.id = 'bossAlert'; el.className = 'px';
+  el.append(face('#4a3426', '#2a2f45', false, 3));
+  el.insertAdjacentHTML('beforeend', `<span>${U().bossComing} <b>Esc</b> <span class="cd"></span></span>`);
+  el.onclick = () => { if (S.bossAlert && !S.paused) dodgeBoss(); };
+  document.body.append(el);
+  S.bossAlert = { el, t: has('relacoes') ? 3 : 2 };
+  sfx('alarm');
+}
+function dodgeBoss() {
+  S.bossAlert.el.remove(); S.bossAlert = null;
+  success(20); stat('bosses');
+  S.bossAuto = 1.6; muffle(true);
+  $('boss').classList.remove('hidden');
+}
+function doShuffle() {
+  S.trays.forEach(t => t.classList.remove('warn'));
+  sfx('whoosh');
+  const prev = S.order.join();
+  do { S.order.sort(() => Math.random() - 0.5); } while (S.order.join() === prev);
+  renderTrays();
+}
+
+function freezePc() {
+  const el = document.createElement('div');
+  el.id = 'freeze';
+  const box = document.createElement('div');
+  box.className = 'px';
+  box.append(sprite(SPR.hourglass, 5));
+  box.insertAdjacentHTML('beforeend', `<div>${U().notResponding}</div><div style="font-size:20px">${U().shake}</div><div class="bar"><i></i></div>`);
+  el.append(box);
+  board.append(el);
+  const need = 12 + Math.min(10, Math.max(0, S.level - 6));
+  sfx('freeze');
+  S.frozen = { el, rev: 0, need: has('mouse') ? Math.ceil(need / 2) : need, dir: 0, x: null };
+}
+document.addEventListener('pointermove', e => {
+  const f = S && S.frozen;
+  if (!f || S.paused || S.phase !== 'day') return;
+  if (f.x === null) { f.x = e.clientX; return; }
+  const dx = e.clientX - f.x;
+  if (Math.abs(dx) < 6) return;
+  f.x = e.clientX;
+  const dir = Math.sign(dx);
+  if (f.dir && dir !== f.dir) { f.rev++; sfx('key'); }
+  f.dir = dir;
+  f.el.querySelector('.bar i').style.width = Math.min(100, f.rev / f.need * 100) + '%';
+  if (f.rev >= f.need) { f.el.remove(); S.frozen = null; sfx('unfreeze'); success(15); }
+});
+
+function startVirus() {
+  S.virus = true;
+  let n = 5 + Math.min(5, Math.max(0, S.level - 7));
+  if (has('antivirus')) n = Math.ceil(n / 2);
+  for (let i = 0; i < n; i++) setTimeout(() => S && S.phase === 'day' && spawnPopup(), i * 90);
+}
+function spawnPopup() {
+  if (document.querySelectorAll('.popup').length >= 14) return;
+  const el = document.createElement('div');
+  el.className = 'popup px';
+  el.style.left = rand(8, Math.max(10, innerWidth - 250)) + 'px';
+  el.style.top = rand(8, Math.max(10, innerHeight - 140)) + 'px';
+  el.innerHTML = `<div class="title"><span>${U().warning}</span><button class="x">x</button></div><div class="content"></div>`;
+  const content = el.querySelector('.content');
+  content.append(sprite(SPR.virus, 4));
+  content.insertAdjacentHTML('beforeend', `<span>${pick(L.spam)}</span>`);
+  el.querySelector('.x').onclick = e => {
+    e.stopPropagation();
+    if (S.paused) return;
+    el.remove(); sfx('pop'); stat('viruses');
+    if (!document.querySelector('.popup')) { S.virus = false; success(20); }
+  };
+  content.onclick = () => { if (!S.paused) { sfx('err'); spawnPopup(); } };
+  document.body.append(el);
+  sfx('glitch');
+}
+
+function startVideo() {
+  const win = document.createElement('div');
+  win.id = 'video'; win.className = 'px';
+  win.innerHTML = `<div class="title"><span>${U().meeting}</span><span>●</span></div><div class="cam"><span class="rec">REC</span></div>`;
+  const hair = pick(['#4a3426', '#d9a441', '#1d1d1b', '#a0452c']), shirt = pick(['#3c5aa8', '#2f7d4f', '#8a5bb5', '#c2562f']);
+  const a = face(hair, shirt, false, 7), b = face(hair, shirt, true, 7);
+  b.style.display = 'none';
+  win.querySelector('.cam').append(a, b);
+  const lane = document.createElement('div');
+  lane.id = 'lane';
+  document.body.append(lane, win);
+  S.video = { win, lane, faces: [a, b], mouth: 0, mouthT: 0, left: 7 + Math.min(6, Math.max(0, S.level - 8)), next: 0.4, bubbles: [] };
+}
+function endVideo() { S.video.win.remove(); S.video.lane.remove(); S.video = null; success(25); stat('videos'); }
+
+/* ================= Laço ================= */
+function loop(now) {
+  if (!S || !S.running) return;
+  const dt = Math.min(0.05, (now - S.last) / 1000);
+  S.last = now;
+  if (S.bossAuto > 0) {
+    S.bossAuto -= dt;
+    if (S.bossAuto <= 0) { $('boss').classList.add('hidden'); muffle(false); }
+  } else if (S.phase === 'day' && !S.paused) update(dt);
+  requestAnimationFrame(loop);
+}
+
+function clockText() {
+  const m = Math.min(540, Math.floor(((S && S.dayT) || 0) / DAY_SECONDS * 540)) + 540;
+  return String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(Math.floor(m % 60 / 10) * 10).padStart(2, '0');
+}
+
+function update(dt) {
+  S.dayT += dt;
+  if (S.dayT >= DAY_SECONDS) { endDay(); return; }
+  S.level = 1 + (S.day - 1) * 2 + Math.floor(S.dayT / LEVEL_SECONDS);
+  if (S.level > S.lastLevel) { S.lastLevel = S.level; toast(...pick(L.memos)); }
+  const sdt = dt * slow(), u = U();
+  if (S.slowT > 0) S.slowT -= dt;
+  board.classList.toggle('slow', S.slowT > 0);
+  showNextTip(dt);
+
+  const f = S.file;
+  const fall = (55 + S.level * 14) * (f.kind === 'urgent' ? 1.6 : 1) * ((S.fast || S.dropNow) && !S.frozen ? 6 : 1) * (has('bandeja') ? 0.85 : 1);
+  f.y += fall * sdt;
+  if (f.y >= board.clientHeight - 56 - 54) landFile(); else placeFile();
+
+  S.nextTask -= sdt * (mod().taskRate || 1);
+  if (S.nextTask <= 0) { spawnTask(); S.nextTask = Math.max(1.4, 6.5 - S.level * 0.55) * rand(0.7, 1.3); }
+  S.nextEvent -= sdt;
+  if (S.nextEvent <= 0) { startEvent(); S.nextEvent = Math.max(7, 20 - S.level) * rand(0.7, 1.3); }
+
+  if (S.level >= 2) {
+    S.nextCoffee -= dt;
+    if (S.nextCoffee <= 0 && !S.coffee) {
+      tip('coffee');
+      const el = document.createElement('div');
+      el.className = 'coffee';
+      el.append(sprite(SPR.coffee, 4));
+      el.style.left = rand(10, board.clientWidth - 60) + 'px'; el.style.top = rand(60, board.clientHeight - 160) + 'px';
+      el.onclick = () => { if (S.paused) return; S.slowT = 5; el.remove(); S.coffee = null; sfx('coffee'); flash(u.coffee, 'var(--warn)', parseFloat(el.style.left), parseFloat(el.style.top)); };
+      board.append(el);
+      S.coffee = { el, life: 6 };
+      S.nextCoffee = rand(25, 40) * (has('cafeteira') ? 0.5 : 1);
+    }
+  }
+  if (S.coffee && (S.coffee.life -= dt) <= 0) { S.coffee.el.remove(); S.coffee = null; }
+
+  for (const t of [...S.tasks]) {
+    if (t.dead) continue;
+    if (t.type === 'call') {
+      if (t.holding) t.held += dt; else t.life += sdt;
+      t.el.querySelector('.fill').style.width = Math.min(100, t.held / t.need * 100) + '%';
+      if (t.held >= t.need) { completeTask(t, 30); stat('calls'); continue; }
+    } else t.life += sdt;
+    t.el.querySelector('.timer').style.width = Math.max(0, 100 - t.life / t.ttl * 100) + '%';
+    if (t.life >= t.ttl) failTask(t, 12, t.type === 'video' ? u.fMeeting : u.fDeadline, t.type === 'video' ? 'video' : 'deadline');
+  }
+
+  if (S.bossAlert) {
+    S.bossAlert.t -= dt;
+    S.bossAlert.el.querySelector('.cd').textContent = Math.max(0, S.bossAlert.t).toFixed(1);
+    if (S.bossAlert.t <= 0) { S.bossAlert.el.remove(); S.bossAlert = null; fail(30, u.fBoss, 'boss'); }
+  }
+  if (S.shuffleT > 0 && (S.shuffleT -= dt) <= 0) doShuffle();
+
+  if (S.frozen) blame('freeze', 2.5 * dt);
+  const popups = document.querySelectorAll('.popup').length;
+  if (popups) blame('virus', popups * 0.7 * dt);
+  if (mod().drift) blame('ar', mod().drift * dt);
+
+  const v = S.video;
+  if (v) {
+    if ((v.mouthT += dt) > 0.18) { v.mouthT = 0; v.mouth ^= 1; v.faces[0].style.display = v.mouth ? 'none' : ''; v.faces[1].style.display = v.mouth ? '' : 'none'; }
+    v.next -= sdt;
+    if (v.left > 0 && v.next <= 0) {
+      v.left--; v.next = rand(0.9, 1.6) * Math.max(0.6, 1 - Math.max(0, S.level - 8) * 0.05);
+      const el = document.createElement('div');
+      el.className = 'bubble px';
+      el.textContent = pick(L.bubbles);
+      el.style.left = rand(4, 60) + 'px';
+      const bub = { el, y: 0 };
+      el.onpointerdown = () => {
+        if (S.paused || bub.done) return;
+        bub.done = true; el.classList.add('popped'); sfx('pop'); success(8);
+        setTimeout(() => el.remove(), 200);
+      };
+      v.lane.append(el); v.bubbles.push(bub);
+    }
+    for (const b of v.bubbles) {
+      if (b.done) continue;
+      b.y += (60 + S.level * 3) * sdt;
+      b.el.style.bottom = b.y + 'px';
+      if (b.y > v.lane.clientHeight - 30) { b.done = true; b.el.remove(); fail(5, u.fIgnored, 'video'); }
+    }
+    if (v.left === 0 && v.bubbles.every(b => b.done)) endVideo();
+  }
+
+  addStress(-0.8 * dt * (has('terapia') ? 2 : 1));
+  musicStress(S.stress);
+  if (S.stress >= 80 && (S.heartT = (S.heartT || 0) - dt) <= 0) { S.heartT = 1.1 - (S.stress - 80) / 40; sfx('heart'); }
+  hud();
+  if (S.burnout) { gameOver(); return; }
+  if (rankIdx(S.score) > S.rankIdx) promote();
+}
+
+function hud() {
+  $('pad').classList.toggle('hidden', !document.body.classList.contains('touch') || !S || S.phase !== 'day');
+  if (S && S.phase === 'day') {
+    $('padBoss').classList.toggle('show', !!S.bossAlert);
+    $('padDel').classList.toggle('show', !!S.file && S.file.kind === 'dead');
+  }
+  $('wallet').textContent = money(P.wallet);
+  if (!S) {
+    $('clock').textContent = '09:00'; $('day').textContent = '-'; $('score').textContent = '0';
+    $('mult').textContent = '×1'; $('rank').textContent = L.ranks[0]; $('stress').style.width = '0';
+    return;
+  }
+  $('clock').textContent = clockText();
+  $('day').textContent = S.day;
+  $('score').textContent = fmt(S.score);
+  $('mult').textContent = '×' + mult() + (S.combo ? ` (${S.combo})` : '');
+  $('rank').textContent = L.ranks[S.rankIdx];
+  $('stress').style.width = S.stress + '%';
+  $('vignette').classList.toggle('on', S.phase === 'day' && S.stress >= 80);
+}
+
+/* ================= Controles ================= */
+function setPaused(p) {
+  S.paused = p;
+  muffle(p);
+  if (p && !S.boss) showPause();
+  if (!p) { closeModal(); S.last = performance.now(); }
+}
+function toggleBoss() {
+  S.boss = !S.boss;
+  $('boss').classList.toggle('hidden', !S.boss);
+  muffle(S.boss);
+  if (S.boss) { S.wasPaused = S.paused; S.paused = true; }
+  else S.paused = S.wasPaused;
+}
+
+function buildBoss() {
+  const cols = 'ABCDEFGHIJ', rows = ['Q1', 'Q2', 'Q3', 'Q4', 'Opex', 'Capex', 'Tax', 'EBITDA', '%'];
+  let html = '<tr><td></td>' + [...cols].map(c => `<td>${c}</td>`).join('') + '</tr>';
+  for (let r = 1; r <= 30; r++) {
+    html += `<tr><td>${r}</td>`;
+    for (let c = 0; c < cols.length; c++) {
+      let v = '';
+      if (r === 1 && c > 0) v = String(c).padStart(2, '0');
+      else if (r > 1 && r <= rows.length + 1) v = c === 0 ? rows[r - 2] : Math.round(Math.random() * 90000 + 1000);
+      html += `<td>${v}</td>`;
+    }
+    html += '</tr>';
+  }
+  $('bossTable').innerHTML = html;
+}
+buildBoss();
+
+document.addEventListener('keydown', e => {
+  if (e.target === kb) return;
+  const typingTask = S && S.phase === 'day' && !S.paused ? S.tasks.find(k => k.type === 'type' && !k.dead) : null;
+  if ((e.key === 'm' || e.key === 'M') && !typingTask) { setSound(!soundOn); return; }
+  if (!S || S.phase !== 'day') return;
+  if (e.key === 'Escape') {
+    e.preventDefault();
+    if (S.bossAlert && !S.paused) dodgeBoss(); else if (S.bossAuto <= 0) toggleBoss();
+    return;
+  }
+  if (S.boss || S.bossAuto > 0) return;
+  if (e.key === ' ') { e.preventDefault(); setPaused(!S.paused); return; }
+  if (S.paused) return;
+  if (e.key === '1') { useItem('cafe'); return; }
+  if (e.key === '2') { useItem('cha'); return; }
+
+  if (['ArrowLeft', 'ArrowRight', 'ArrowDown'].includes(e.key)) {
+    e.preventDefault();
+    if (S.frozen) { sfx('err'); return; }
+    if (e.key === 'ArrowLeft')  { S.file.lane = Math.max(0, S.file.lane - 1); placeFile(); }
+    if (e.key === 'ArrowRight') { S.file.lane = Math.min(SECTORS.length - 1, S.file.lane + 1); placeFile(); }
+    if (e.key === 'ArrowDown')  S.fast = true;
+    return;
+  }
+  if (e.key === 'Delete' || (e.key === 'Backspace' && !typingTask)) {
+    e.preventDefault();
+    if (!S.frozen) deleteFile();
+    return;
+  }
+
+  const key = e.key.length === 1 ? e.key.toUpperCase() : '';
+  const printer = S.tasks.find(k => k.type === 'printer' && !k.dead && k.key === key);
+  if (printer) {
+    printer.hits++; sfx('key'); renderPrinter(printer);
+    if (printer.hits >= printer.need) { completeTask(printer, 4 + printer.need); stat('prints'); }
+    return;
+  }
+
+  const t = typingTask;
+  if (!t) return;
+  if (e.key === 'Backspace') { e.preventDefault(); t.typed = t.typed.slice(0, -1); renderTyped(t); }
+  else if (e.key === 'Enter') {
+    e.preventDefault();
+    if (t.typed === t.word) { completeTask(t, 8 + t.word.length * 3); stat('typed'); }
+    else { fail(6, null, 'typo'); t.typed = ''; renderTyped(t); }
+  } else if (/^[A-ZÇÑ]$/.test(key) && t.typed.length < t.word.length) {
+    t.typed += key; renderTyped(t); sfx('key');
+  }
+});
+document.addEventListener('keyup', e => { if (S && e.key === 'ArrowDown') S.fast = false; });
+window.addEventListener('blur', () => { if (S && S.phase === 'day' && !S.paused && !S.boss && S.bossAuto <= 0) { S.fast = false; setPaused(true); } });
+window.addEventListener('resize', () => { layoutDecor(); if (S && S.file && S.phase === 'day') placeFile(); });
+window.addEventListener('beforeunload', persist);
+
+/* ================= Toque ================= */
+const TOUCH = matchMedia('(pointer: coarse)').matches;
+const key = (k, type = 'keydown') => document.dispatchEvent(new KeyboardEvent(type, { key: k, bubbles: true }));
+if (TOUCH) {
+  document.body.classList.add('touch');
+  hud();
+  $('pad').querySelectorAll('button').forEach(b => {
+    b.onpointerdown = e => { e.preventDefault(); key(b.dataset.k); };
+    b.onpointerup = b.onpointercancel = () => key(b.dataset.k, 'keyup');
+  });
+}
+// O teclado virtual manda letras pelo evento "input"; um espaço fica de sentinela para detectar o apagar
+const kb = $('kb');
+kb.addEventListener('input', e => {
+  if (kb.value.length < 1 || e.inputType === 'deleteContentBackward') key('Backspace');
+  else for (const ch of kb.value.slice(1)) key(ch);
+  kb.value = ' ';
+});
+// Toque longo não abre menu nem seleciona nada
+document.addEventListener('contextmenu', e => { if (document.body.classList.contains('touch')) e.preventDefault(); });
+document.addEventListener('selectstart', e => { if (e.target !== kb) e.preventDefault(); });
+kb.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); key('Enter'); } });
+
+applyTheme(); applyLang(); showMenu();
+</script>
+</body>
+</html>

@@ -1,0 +1,150 @@
+{
+ "UNLOCK": {
+  "button": 2,
+  "email": 3,
+  "type": 4,
+  "call": 5,
+  "printer": 6,
+  "video": 8
+ },
+ "EVENTS": {
+  "boss": 3,
+  "shuffle": 5,
+  "freeze": 6,
+  "virus": 7
+ },
+ "DAY_SECONDS": 150,
+ "LEVEL_SECONDS": 30,
+ "MAX_TASKS": 5,
+ "RANK_POINTS": [
+  0,
+  300,
+  1000,
+  2500,
+  5000,
+  9000,
+  15000
+ ],
+ "MODS": {
+  "first": {},
+  "sexta": {
+   "speed": 0.85,
+   "w": {
+    "boss": 3
+   }
+  },
+  "fecha": {
+   "finUrgent": true
+  },
+  "home": {
+   "w": {
+    "boss": 0,
+    "shuffle": 0
+   },
+   "video": 2
+  },
+  "ar": {
+   "drift": 0.9
+  },
+  "ti": {
+   "w": {
+    "freeze": 2,
+    "virus": 2
+   },
+   "earlyTech": true
+  },
+  "segunda": {
+   "taskRate": 1.35
+  },
+  "audit": {
+   "errMul": 1.3,
+   "ptsMul": 1.3
+  }
+ },
+ "PERK_IDS": [
+  "estagiario",
+  "fone",
+  "antivirus",
+  "secretaria",
+  "terapia",
+  "mouse",
+  "bandeja",
+  "corretor",
+  "cafeteira",
+  "relacoes",
+  "meta"
+ ],
+ "SHOP": [
+  [
+   "cafe",
+   "use",
+   20
+  ],
+  [
+   "cha",
+   "use",
+   30
+  ],
+  [
+   "fone",
+   "day",
+   35
+  ],
+  [
+   "antivirus",
+   "day",
+   35
+  ],
+  [
+   "postit",
+   "day",
+   45
+  ],
+  [
+   "planta",
+   "decor",
+   60
+  ],
+  [
+   "foto",
+   "decor",
+   80
+  ],
+  [
+   "lamp",
+   "decor",
+   120
+  ],
+  [
+   "monitor",
+   "decor",
+   200
+  ],
+  [
+   "gato",
+   "decor",
+   350
+  ],
+  [
+   "trofeu",
+   "decor",
+   600
+  ]
+ ],
+ "RANK_DESK": {
+  "1": "mug",
+  "2": "nameplate",
+  "4": "chair",
+  "6": "crown"
+ },
+ "keys": [
+  "pt",
+  "en",
+  "es"
+ ],
+ "uiKeys": {
+  "pt": "accept,approved,back,bossComing,bosses,bought,buy,calls,cantAfford,card,careers,cash,checkoutTitle,coffee,company,cont,day,dayDone,dayPoints,daysWorked,deadFile,decorHint,decorTitle,del,emails,employee,erase,eraseConfirm,eraseNo,eraseYes,erased,exit,fBoss,fDead,fDeadline,fDel,fEmail,fIgnored,fMeeting,fUrgent,fWrong,files,fill,finish,footer,forward,from,goHome,goRest,goShop,has,hide,hold,holdFinger,hoursWorked,how,howText,hrReport,inTime,language,mainMenu,market,marketHint,marketTitle,maxDay,meeting,missing,musicLabel,newEmail,newJob,noRead,notResponding,off,on,outTime,overBudget,paused,pay,payHint,payWith,pending,perfect,pix,placeFinger,play,points,press,pressDelete,printer,printing,prints,processing,profile,progress,promo,promoText,pullTicket,quit,quitTitle,rank,rankReached,readFail,readOk,reading,reasons,receipt,record,resume,resumeHint,ringing,salary,scanHint,settings,severance,sfxLabel,shake,skipHome,sound,soundLabel,soundOff,soundOn,startDay,store,stress,stressToday,summary,swipeHint,theme,themeDark,themeLight,themeSystem,toCheckout,toTake,today,top,total,tutorial,tutorialDone,tutorialReset,typeHint,urgent,videoCall,videos,viruses,wakeHint,wallet,warning,worst",
+  "en": "accept,approved,back,bossComing,bosses,bought,buy,calls,cantAfford,card,careers,cash,checkoutTitle,coffee,company,cont,day,dayDone,dayPoints,daysWorked,deadFile,decorHint,decorTitle,del,emails,employee,erase,eraseConfirm,eraseNo,eraseYes,erased,exit,fBoss,fDead,fDeadline,fDel,fEmail,fIgnored,fMeeting,fUrgent,fWrong,files,fill,finish,footer,forward,from,goHome,goRest,goShop,has,hide,hold,holdFinger,hoursWorked,how,howText,hrReport,inTime,language,mainMenu,market,marketHint,marketTitle,maxDay,meeting,missing,musicLabel,newEmail,newJob,noRead,notResponding,off,on,outTime,overBudget,paused,pay,payHint,payWith,pending,perfect,pix,placeFinger,play,points,press,pressDelete,printer,printing,prints,processing,profile,progress,promo,promoText,pullTicket,quit,quitTitle,rank,rankReached,readFail,readOk,reading,reasons,receipt,record,resume,resumeHint,ringing,salary,scanHint,settings,severance,sfxLabel,shake,skipHome,sound,soundLabel,soundOff,soundOn,startDay,store,stress,stressToday,summary,swipeHint,theme,themeDark,themeLight,themeSystem,toCheckout,toTake,today,top,total,tutorial,tutorialDone,tutorialReset,typeHint,urgent,videoCall,videos,viruses,wakeHint,wallet,warning,worst",
+  "es": "accept,approved,back,bossComing,bosses,bought,buy,calls,cantAfford,card,careers,cash,checkoutTitle,coffee,company,cont,day,dayDone,dayPoints,daysWorked,deadFile,decorHint,decorTitle,del,emails,employee,erase,eraseConfirm,eraseNo,eraseYes,erased,exit,fBoss,fDead,fDeadline,fDel,fEmail,fIgnored,fMeeting,fUrgent,fWrong,files,fill,finish,footer,forward,from,goHome,goRest,goShop,has,hide,hold,holdFinger,hoursWorked,how,howText,hrReport,inTime,language,mainMenu,market,marketHint,marketTitle,maxDay,meeting,missing,musicLabel,newEmail,newJob,noRead,notResponding,off,on,outTime,overBudget,paused,pay,payHint,payWith,pending,perfect,pix,placeFinger,play,points,press,pressDelete,printer,printing,prints,processing,profile,progress,promo,promoText,pullTicket,quit,quitTitle,rank,rankReached,readFail,readOk,reading,reasons,receipt,record,resume,resumeHint,ringing,salary,scanHint,settings,severance,sfxLabel,shake,skipHome,sound,soundLabel,soundOff,soundOn,startDay,store,stress,stressToday,summary,swipeHint,theme,themeDark,themeLight,themeSystem,toCheckout,toTake,today,top,total,tutorial,tutorialDone,tutorialReset,typeHint,urgent,videoCall,videos,viruses,wakeHint,wallet,warning,worst"
+ }
+}

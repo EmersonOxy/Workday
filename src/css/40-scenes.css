@@ -1,0 +1,66 @@
+  /* ===== Cenas com cenário em pixel art: o mesmo mundo do escritório ===== */
+  /* As peças do cenário são objetos do mundo (papel, madeira, plástico): usam a paleta fixa, nos dois temas */
+  #scene.staged { --ink: #2a1f2d; --card: #fff8ec; --panel: #f3e6cc; --line: #dcc6a0; --muted: #8f7d63; --hl: #fff1a8; --wood: #a8623a; --wood-dark: #6e3b26;
+    --ok: #2f8a45; --danger: #ef4b3f; --rh: #ef4b3f; background: transparent !important; color: var(--ink); font-family: var(--pixel); }
+  #scene > .stage { position: fixed; left: 0; top: 0; z-index: -1; image-rendering: pixelated; pointer-events: none; }
+  #scene.staged .hint { font: 18px/1.15 var(--pixel); color: var(--ink); }
+  #scene.staged .pxbtn { border: 0; border-radius: 0; background: var(--card); color: var(--ink); box-shadow: 0 0 0 2px var(--ink), inset 0 -4px 0 var(--line), 0 4px 0 rgba(42,31,45,.25);
+    padding: 3px 14px 7px; margin: 2px; }
+  #scene.staged .pxbtn:hover:not(:disabled) { background: var(--hl); }
+  #scene.staged .pxbtn:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 0 0 2px var(--ink), inset 0 -2px 0 var(--line); }
+  #scene.staged .pxbtn.main { background: var(--ink); color: var(--card); box-shadow: 0 0 0 2px var(--ink), inset 0 -4px 0 #4a3a4e, 0 4px 0 rgba(42,31,45,.25); }
+  #scene.staged .pxbtn.main:hover:not(:disabled) { background: #4a3a4e; }
+  #scene.staged .pxbtn:disabled { opacity: .55; }
+  #scene.staged .sc-hint { background: var(--ink); color: var(--card); box-shadow: 0 4px 0 rgba(42,31,45,.3); padding: 2px 12px 4px; }
+  #scene.staged .msg { background: #ffe7a3; color: var(--ink); box-shadow: 0 0 0 2px var(--ink), 0 4px 0 rgba(42,31,45,.3); }
+  /* Painel de papel com contorno de tinta (placares, avisos) */
+  #scene.staged .mk-top, #scene.staged .pay { background: var(--card); box-shadow: 0 0 0 2px var(--ink), inset 0 -4px 0 var(--line), 0 5px 0 rgba(42,31,45,.25); padding: 6px 12px 10px; }
+
+  /* Relógio de ponto: placa do dia, recado em post-it, aparelho preso na parede */
+  .sc-in.staged { padding-top: calc(var(--ak, 2px) * 18); }
+  .sc-in.staged .sc-col h2 { background: var(--ink); color: #ffe7a3; padding: 2px 18px 6px; font-size: 40px; box-shadow: inset 0 -4px 0 #4a3a4e, 0 4px 0 rgba(42,31,45,.3); }
+  .sc-in.staged .note { background: #ffe7a3; color: var(--ink); margin: 0; font: 18px/1.15 var(--pixel); rotate: -1.5deg;
+    box-shadow: 0 0 0 2px var(--ink), inset 0 -5px 0 #f4c15d, 0 5px 0 rgba(42,31,45,.25); }
+  .sc-in.staged .note small { color: #8a5420; }
+  #scene.staged .clockdev { filter: drop-shadow(5px 6px 0 rgba(42,31,45,.35)); }
+
+  /* Mercado: o toldo é do cenário; letreiro e prateleira viram peças de papel e madeira */
+  .sc-shop.staged { padding-top: calc(var(--ak, 2px) * 27); }
+  .sc-shop.staged .mk-sign { display: none; }
+  .sc-shop.staged .mk-top { width: 100%; max-width: 1400px; }
+  .sc-shop.staged .mk-top h2 { font-size: 36px; }
+  .sc-shop.staged .mk-hint { background: var(--card); box-shadow: 0 0 0 2px var(--ink); padding: 1px 8px 3px; width: fit-content; max-width: calc(100% - 8px); margin: 10px auto 8px; font-size: 16px; }
+  .sc-shop.staged .shelves { box-shadow: 0 0 0 3px var(--ink), 0 8px 0 rgba(42,31,45,.28); background-color: #e9dcc2; }
+  .sc-shop.staged .slot { color: var(--ink); }
+  .sc-shop.staged .ptag { background: #ffe7a3; color: var(--ink); box-shadow: 0 0 0 2px var(--ink), inset 0 -3px 0 #f4c15d; padding: 0 6px 2px; }
+  #scene.staged .money { color: var(--ok); font-size: 22px; }
+
+  /* Caixa: balcão em cima do piso, visor e esteira já são pixel art */
+  .sc-cash.staged { padding-top: calc(var(--ak, 2px) * 27); }
+  .sc-cash.staged .mk-top { max-width: 1100px; margin: 0 auto; }
+  .sc-cash.staged .mk-top h2 { font-size: 36px; margin: 0; }
+  .sc-cash.staged .mk-hint { background: var(--card); box-shadow: 0 0 0 2px var(--ink); padding: 1px 8px 3px; width: fit-content; margin: 10px auto 0; font-size: 16px; }
+  .sc-cash.staged .register { filter: drop-shadow(0 6px 0 rgba(42,31,45,.3)); }
+  .sc-cash.staged .lcd2 { box-shadow: inset 3px 3px 0 #0f1f12, 0 0 0 4px #626875, 0 0 0 6px var(--ink); }
+  .sc-cash.staged .pay h4 { color: var(--muted); }
+
+  /* Quarto: o despertador fica no chão do quarto, à frente da cama */
+  .sc-sleep.staged { justify-content: flex-end; padding-bottom: calc(var(--ak, 2px) * 10); }
+  .sc-sleep.staged .zz { color: #c3d5ff; text-shadow: 0 0 0 transparent, 2px 2px 0 #2b2340; }
+  .sc-sleep.staged .alarm { box-shadow: 0 0 0 3px var(--ink), inset 0 -6px 0 #1a1a1f, 0 8px 0 rgba(20,14,30,.5); }
+
+  /* Fim da carreira: a caixa de papelão e o carimbo da rescisão */
+  .card.over-card { position: relative; overflow: visible; }
+  .over-card .over-box { display: flex; justify-content: center; margin-bottom: 4px; }
+  .over-card .over-stamp { position: absolute; right: 6%; top: 10%; font: 26px/1 var(--pixel); letter-spacing: 2px; color: #ef4b3f; padding: 2px 10px 4px;
+    box-shadow: 0 0 0 3px #ef4b3f, inset 0 0 0 1px rgba(239,75,63,.35); rotate: -8deg; opacity: 0; pointer-events: none; mix-blend-mode: multiply; }
+  .over-card .over-stamp.on { opacity: .9; }
+  @media (max-width: 600px) { .over-card .over-stamp { font-size: 18px; top: 4%; right: 4%; } .sc-in.staged .sc-col h2 { font-size: 32px; } .sc-shop.staged .mk-top h2, .sc-cash.staged .mk-top h2 { font-size: 28px; } }
+  .sc-sleep .onstand { position: fixed; transform: translate(-50%, -100%); z-index: 2; }
+  .onstand .alarm { padding: 12px 14px; } .onstand .alarm .face { padding: 6px; }
+  .onstand .alarm .segs { width: clamp(90px, 9vw, 150px); }
+  .onstand .alarm .bell { top: -14px; width: 24px; height: 12px; } .onstand .alarm .leg { bottom: -8px; width: 10px; height: 8px; } .onstand .alarm .leg.l { left: 14px; } .onstand .alarm .leg.r { right: 14px; }
+  .over-card p { font-family: var(--pixel); font-size: 1.15em; line-height: 1.15; }
+  div.skyline { overflow: hidden; }
+  div.skyline > .stage { position: absolute; left: 0; top: 0; image-rendering: pixelated; }
+  canvas.wipe { position: fixed; left: 0; top: 0; z-index: 70; image-rendering: pixelated; pointer-events: auto; }

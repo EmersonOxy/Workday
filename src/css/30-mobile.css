@@ -1,0 +1,124 @@
+
+  /* ===== Celular: composição própria (retrato e paisagem), toque primeiro ===== */
+  body.mobile {
+    --panel: #ece3cf; --card: #fff8ec; --ink: #2a1f2d; --muted: #8f7d63; --line: #c7b595; --os-bg: #1f4a52;
+    --hl: #fff1a8; --hl2: #f4c15d; --bad-bg: #ffd8cf; --dead-bg: #d9d3c7; --slow-bg: #f4e6c8;
+    --fin: #6fbf73; --rh: #f0915f; --jur: #6f93d9; --ti: #a983d6; --danger: #ef4b3f; --ok: #2f8a45; --warn: #ffb938;
+    --fs: clamp(14px, 4.1vw, 18px); --padh: 66px;
+    background: var(--os-bg); overflow: hidden;
+  }
+  :root[data-theme="dark"] body.mobile { --os-bg: #132a31; --panel: #2c2733; --card: #3a3241; --ink: #f3e6cc; --muted: #b9a991; --line: #5d5063; --hl: #5a4a1c; --bad-bg: #4f2622; --dead-bg: #45404a; --slow-bg: #3a3022; --ok: #7ed98c; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) body.mobile { --os-bg: #132a31; --panel: #2c2733; --card: #3a3241; --ink: #f3e6cc; --muted: #b9a991; --line: #5d5063; --hl: #5a4a1c; --bad-bg: #4f2622; --dead-bg: #45404a; --slow-bg: #3a3022; --ok: #7ed98c; } }
+  body.mobile #decorLayer, body.mobile #desk { display: none !important; }
+  body.mobile #app {
+    position: fixed; inset: 0; max-width: none; margin: 0; height: 100dvh; display: flex; flex-direction: column; gap: 8px; overflow: hidden;
+    font: var(--fs) var(--pixel); color: var(--ink); background: var(--os-bg) repeating-conic-gradient(rgba(255,255,255,.03) 0 25%, transparent 0 50%) 0 0 / 18px 18px;
+    padding: max(8px, env(safe-area-inset-top, 0px)) max(8px, env(safe-area-inset-right, 0px)) calc(var(--padh) + env(safe-area-inset-bottom, 0px) + 6px) max(8px, env(safe-area-inset-left, 0px));
+  }
+  body.mobile.menu-mode #app > *:not(#osdesk) { visibility: hidden; }
+  /* Placar compacto: relógio, dia, pontos, combo; medidor em linha cheia */
+  body.mobile header { display: grid; grid-template-columns: auto auto 1fr auto; gap: 4px 10px; align-items: center; padding: 6px 10px 8px;
+    background: var(--card); box-shadow: 0 0 0 2px var(--ink), inset 0 -4px 0 var(--line); flex: none; font-size: 1em; white-space: nowrap; }
+  body.mobile header h1, body.mobile #soundBtn, body.mobile #fsBtn, body.mobile header .stat:has(#rank), body.mobile header .stat:has(#wallet) { display: none; }
+  body.mobile header .stat > span[data-t] { display: none; }
+  body.mobile .stat { font-family: var(--pixel); color: var(--muted); }
+  body.mobile .stat b { font-weight: normal; color: var(--ink); }
+  body.mobile #clock { font-size: 1.15em; }
+  body.mobile #day::before { content: 'D'; color: var(--muted); }
+  body.mobile #score::after { content: ' pts'; color: var(--muted); font-size: .8em; }
+  body.mobile #combo { justify-self: end; }
+  body.mobile #combo b { background: #2a1f2d; color: #ffe7a3; padding: 0 .3em; }
+  body.mobile #stressWrap { grid-column: 1 / -1; position: relative; height: 10px; background: var(--line); box-shadow: 0 0 0 2px var(--ink); }
+  body.mobile #stressWrap::after { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(90deg, transparent 0 calc(100% / 12 - 2px), var(--card) calc(100% / 12 - 2px) calc(100% / 12)); }
+  body.mobile #inv { flex: none; gap: 6px; }
+  body.mobile #inv:empty, body.mobile #inv .chip { display: none; }
+  body.mobile #inv .pxbtn { font-size: .85em; padding: 2px 8px; }
+  /* Tabuleiro ocupa o que sobra; encolhe quando um cartão abre (nunca é coberto) */
+  body.mobile #board { flex: 1 1 auto; height: auto; min-height: 120px; border: 0; border-radius: 0; background-color: var(--panel);
+    background-image: linear-gradient(rgba(42,31,45,.06) 1px, transparent 1px), linear-gradient(90deg, rgba(42,31,45,.06) 1px, transparent 1px); background-size: 22px 22px;
+    box-shadow: 0 0 0 2px var(--ink), inset 0 0 0 3px var(--card); }
+  body.mobile #board.slow { background-color: var(--slow-bg); }
+  body.mobile .lane { border-right: 2px dashed rgba(42,31,45,.14); }
+  body.mobile .tray { height: 54px; flex-direction: column; gap: 2px; font: .75em var(--pixel); color: #fff8ec; text-shadow: 0 2px 0 rgba(42,31,45,.45);
+    box-shadow: inset 0 4px 0 rgba(255,255,255,.32), inset 0 -4px 0 rgba(42,31,45,.28), inset -2px 0 0 rgba(42,31,45,.25); }
+  body.mobile .tray span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 0 2px; }
+  body.mobile .file { height: auto; min-height: 2.9em; border: 0 !important; border-radius: 0; background: var(--card); color: var(--ink); padding: .5em .35em .3em; gap: .3em; font-size: .8em;
+    box-shadow: 0 0 0 2px var(--ink), inset 0 .32em 0 var(--c, var(--line)), 0 .35em 0 rgba(0,0,0,.18); rotate: -1deg; animation: sway 1.4s ease-in-out infinite alternate; }
+  body.mobile .file .tile { width: 1.6em; height: 1.6em; }
+  body.mobile .file .tile canvas { display: block; }
+  body.mobile .file .tag { font-weight: normal; font-size: 1.05em; }
+  body.mobile .file .sub { color: var(--muted); }
+  body.mobile .file.urgent { animation: sway .7s ease-in-out infinite alternate, urgentdoc .35s steps(2) infinite; }
+  body.mobile .file.dead { background: var(--dead-bg); box-shadow: 0 0 0 2px var(--muted), inset 0 .32em 0 var(--muted); animation: none; rotate: 0deg; }
+  body.mobile .file.gone { animation: none; }
+  body.mobile #tip { font-size: .95em; left: 6px; right: 6px; top: 6px; }
+  /* Retrato: só o cartão aberto aparece, logo acima da doca */
+  body.mobile #tasks { flex: none; height: auto; max-height: 42dvh; overflow: auto; gap: 0; padding: 2px; }
+  body.mobile .task { display: none; border: 0; border-radius: 0; background: var(--card); color: var(--ink); box-shadow: 0 0 0 2px var(--ink), 0 4px 0 rgba(0,0,0,.25); padding: 8px 10px 10px; animation: none; }
+  body.mobile .task.open { display: flex; }
+  body.mobile .task h3 { font-size: .8em; color: var(--muted); }
+  body.mobile .task .timer { height: 6px; background: #5fa79a; }
+  body.mobile .task.soon .timer { background: var(--warn); }
+  body.mobile .task.late { box-shadow: 0 0 0 2px var(--danger), 0 4px 0 rgba(239,75,63,.35); }
+  body.mobile .task.late .timer { background: var(--danger); }
+  body.mobile .task button { font: 1em var(--pixel); min-height: 40px; padding: 2px 12px; border: 0; border-radius: 0; background: var(--card); color: var(--ink); box-shadow: 0 0 0 2px var(--ink), inset 0 -4px 0 var(--line); }
+  body.mobile .task .row { gap: 8px; }
+  body.mobile .typed { font-size: 1.5em; }
+  body.mobile .keycap { min-width: 56px; min-height: 48px; font-size: 1.6em; background: var(--card); color: var(--ink); }
+  /* Doca: fichas com anel de prazo + botões de contexto + pausa */
+  body.mobile #pad { display: flex; gap: 8px; align-items: center; height: calc(var(--padh) + env(safe-area-inset-bottom, 0px)); background: #2a1f2d; border: 0;
+    padding: 0 max(10px, env(safe-area-inset-right, 0px)) env(safe-area-inset-bottom, 0px) max(10px, env(safe-area-inset-left, 0px)); box-shadow: 0 -3px 0 #45384a; }
+  body.mobile #pad.hidden { display: none; }
+  body.mobile #chips { flex: 1; display: flex; gap: 10px; align-items: center; overflow-x: auto; padding: 8px 2px; scrollbar-width: none; }
+  body.mobile #padPause { flex: none; width: 46px; height: 46px; font: 22px var(--pixel); padding: 0; border: 0; border-radius: 0; background: #fff8ec; color: #2a1f2d; box-shadow: 0 0 0 2px #2a1f2d, inset 0 -4px 0 #dcc6a0; }
+  body.mobile #pad .ctx.show { flex: 1; height: 48px; font-size: 22px; }
+  body.mobile #pad .ctx.show ~ #chips { display: none; }
+  .tchip { position: relative; flex: none; width: 50px; height: 50px; padding: 4px; border: 0; cursor: pointer; touch-action: manipulation;
+    --ring: #5fa79a; background: conic-gradient(var(--ring) calc(var(--p, 1) * 360deg), rgba(255,255,255,.14) 0); }
+  .tchip > span { display: grid; place-items: center; width: 100%; height: 100%; background: #fff8ec; box-shadow: 0 0 0 2px #2a1f2d, inset 0 -3px 0 #dcc6a0; }
+  .tchip.soon { --ring: #ffb938; }
+  .tchip.late { --ring: #ef4b3f; animation: chipwig .9s infinite; }
+  .tchip.late::after { content: '!'; position: absolute; right: -6px; top: -6px; width: 18px; height: 18px; display: grid; place-items: center; background: #ef4b3f; color: #fff; font: 16px var(--pixel); box-shadow: 0 0 0 2px #2a1f2d; }
+  .tchip.sel { transform: translateY(-5px); }
+  .tchip.sel > span { box-shadow: 0 0 0 2px #2a1f2d, 0 0 0 5px #f4c15d; }
+  @keyframes chipwig { 0%, 40%, 100% { rotate: 0deg; } 10% { rotate: -7deg; } 20% { rotate: 7deg; } 30% { rotate: -3deg; } }
+  /* Janelas de evento adaptadas à tela pequena */
+  /* Recado é só leitura: toques atravessam até as colunas */
+  body.mobile #toast { left: 14px; right: 14px; top: calc(max(8px, env(safe-area-inset-top, 0px)) + 66px); width: auto; padding: 6px 8px; font-size: 15px; background: var(--card); color: var(--ink); pointer-events: none; opacity: .96; }
+  body.mobile #toast canvas { width: 32px !important; height: auto !important; image-rendering: pixelated; }
+  body.mobile #toast small { font-size: 13px; }
+  body.mobile #bossAlert { top: calc(max(8px, env(safe-area-inset-top, 0px)) + 64px); width: calc(100% - 16px); white-space: normal; font-size: 20px; }
+  body.mobile .popup, body.mobile .popup-closing { width: min(210px, 70vw); font-size: 16px; }
+  body.mobile .popup .x { width: 34px; height: 30px; font-size: 20px; }
+  body.mobile #video { left: auto; right: 8px; bottom: auto; top: calc(max(8px, env(safe-area-inset-top, 0px)) + 64px); width: 150px; font-size: 14px; }
+  body.mobile #video .cam canvas { width: 70px !important; height: auto !important; }
+  body.mobile #lane { left: auto; right: 4px; top: calc(max(8px, env(safe-area-inset-top, 0px)) + 200px); bottom: auto; width: 170px; height: 34dvh; }
+  body.mobile .bubble { font-size: 17px; padding: 6px 10px; }
+  body.mobile #modal .card { max-height: calc(100dvh - 32px); }
+
+  /* Paisagem baixa (ex.: 844×390): tabuleiro à esquerda, tarefas sempre visíveis à direita, nada cortado */
+  @media (orientation: landscape) and (max-height: 560px) {
+    body.mobile { --fs: clamp(13px, 3.6vh, 16px); --padh: 0px; --colw: max(200px, calc((100vw - 24px - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px)) * .34)); }
+    body.mobile #app { display: grid; grid-template-columns: minmax(0, 1fr) var(--colw); grid-template-rows: auto minmax(0, 1fr); gap: 6px 8px;
+      padding: max(6px, env(safe-area-inset-top, 0px)) max(8px, env(safe-area-inset-right, 0px)) max(6px, env(safe-area-inset-bottom, 0px)) max(8px, env(safe-area-inset-left, 0px)); }
+    body.mobile header { grid-column: 1 / -1; grid-template-columns: auto auto auto auto 1fr; padding: 4px 10px; }
+    body.mobile #stressWrap { grid-column: auto; }
+    body.mobile #inv { display: none; }
+    body.mobile #board { grid-column: 1; grid-row: 2; min-height: 0; }
+    body.mobile .tray { height: 42px; flex-direction: row; gap: 4px; }
+    body.mobile #tasks { grid-column: 2; grid-row: 2; max-height: none; height: auto; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding: 2px; margin-bottom: 54px; }
+    body.mobile .task { display: flex; flex: none; padding: 6px 8px 8px; }
+    body.mobile .task button { min-height: 34px; }
+    /* A doca vira uma faixa sob a coluna de tarefas: mesma largura, nunca por cima de um cartão */
+    body.mobile #pad { position: fixed; left: auto; right: max(8px, env(safe-area-inset-right, 0px)); bottom: max(6px, env(safe-area-inset-bottom, 0px)); top: auto;
+      width: var(--colw); height: 48px; padding: 0; background: transparent; box-shadow: none; justify-content: flex-end; }
+    body.mobile #padPause { width: 44px; height: 44px; font-size: 20px; }
+    body.mobile #pad .ctx.show { height: 44px; font-size: 18px; }
+    body.mobile #chips { display: none; }
+    /* Avisos ficam sobre o tabuleiro, nunca sobre a coluna de tarefas */
+    body.mobile #toast { top: 48px; left: max(12px, env(safe-area-inset-left, 0px)); right: calc(var(--colw) + 24px); width: auto; font-size: 15px; padding: 6px 8px; }
+    body.mobile #bossAlert { top: 48px; left: calc((100vw - var(--colw) - 8px) / 2); width: calc(100vw - var(--colw) - 40px); font-size: 16px; padding: 4px 10px; }
+    body.mobile #toast small { font-size: 13px; }
+    body.mobile #video { width: 130px; right: calc(var(--colw) + 24px); top: 48px; }
+    body.mobile #lane { height: 50dvh; top: 140px; right: calc(var(--colw) + 24px); }
+  }

@@ -1,0 +1,527 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Guia Visual Workday</title>
+<!-- @inject:fonts -->
+<style>
+  /* Guia em fundo escuro de propósito (um só visual): a paleta do jogo aparece com mais clareza */
+  :root {
+    --g-bg: #1d1820; --g-panel: #2a222e; --g-line: #43374a; --g-text: #f3e6cc; --g-muted: #b9a991; --g-accent: #f4c15d;
+    --pixel: 'VT323', ui-monospace, monospace;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--g-bg); color: var(--g-text); font: 15px/1.55 system-ui, sans-serif; }
+  .wrap { max-width: 1180px; margin: 0 auto; padding-block: 28px 80px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  h1, h2, h3 { font-family: var(--pixel); font-weight: normal; margin: 0; text-wrap: balance; }
+  h1 { font-size: clamp(44px, 7vw, 76px); line-height: .95; letter-spacing: 2px; }
+  h2 { font-size: 36px; color: var(--g-accent); margin: 56px 0 6px; }
+  h3 { font-size: 24px; margin: 22px 0 8px; }
+  p { max-width: 68ch; color: var(--g-text); }
+  .muted { color: var(--g-muted); }
+  .lede { font-size: 17px; max-width: 70ch; }
+  .tag { font-family: var(--pixel); font-size: 18px; color: var(--g-muted); letter-spacing: 1px; text-transform: uppercase; }
+  .panel { background: var(--g-panel); border: 2px solid var(--g-line); padding: 18px; }
+  .grid { display: grid; gap: 14px; }
+  .cols2 { grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+  .cols3 { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+  .btn { font: 20px var(--pixel); background: var(--g-text); color: var(--g-bg); border: 0; padding: 4px 14px; cursor: pointer; box-shadow: 0 4px 0 #8f7d63; }
+  .btn:active { transform: translateY(3px); box-shadow: 0 1px 0 #8f7d63; }
+  .btn.ghost { background: transparent; color: var(--g-text); box-shadow: inset 0 0 0 2px var(--g-line); }
+  .btn:focus-visible, input:focus-visible, select:focus-visible { outline: 3px solid var(--g-accent); outline-offset: 2px; }
+  canvas.px-sprite, .pixelated { image-rendering: pixelated; }
+  code { font-family: ui-monospace, monospace; font-size: 13px; color: var(--g-accent); }
+
+  /* Paleta */
+  .ramps { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 10px; }
+  .ramp { display: grid; grid-template-columns: 1fr auto; gap: 6px 10px; align-items: center; background: var(--g-panel); padding: 10px 12px; border: 2px solid var(--g-line); }
+  .ramp .chips { display: flex; height: 34px; }
+  .ramp .chips span { flex: 1; position: relative; }
+  .ramp .chips span em { position: absolute; left: 3px; bottom: 1px; font: 13px var(--pixel); font-style: normal; color: rgba(0,0,0,.55); }
+  .ramp .name { font: 20px var(--pixel); }
+  .ramp .hex { grid-column: 1 / -1; font: 12px ui-monospace, monospace; color: var(--g-muted); word-spacing: 4px; }
+
+  /* Sprites */
+  .sheet { display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-end; }
+  .sheet figure { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .sheet figcaption { font: 16px var(--pixel); color: var(--g-muted); }
+  .gridon .px-sprite { background-image: linear-gradient(rgba(255,255,255,.08) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.08) 1px, transparent 1px); background-size: var(--cell) var(--cell); }
+  .rules { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+  .rule { background: var(--g-panel); border-left: 4px solid var(--g-accent); padding: 10px 14px; }
+  .rule b { font-family: var(--pixel); font-size: 21px; font-weight: normal; display: block; color: var(--g-accent); }
+  .compare { display: flex; gap: 22px; align-items: flex-end; flex-wrap: wrap; }
+  .compare figure { margin: 0; text-align: center; font: 16px var(--pixel); color: var(--g-muted); }
+  .bad { filter: none; image-rendering: auto !important; }
+
+  /* Linguagem de animação */
+  .tokens { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 8px; }
+  .tok { background: var(--g-panel); padding: 8px 10px; border: 2px solid var(--g-line); font-size: 13px; }
+  .tok b { font: 19px var(--pixel); font-weight: normal; display: block; color: var(--g-accent); }
+  .demos { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 14px; }
+  .demo { background: var(--g-panel); border: 2px solid var(--g-line); display: flex; flex-direction: column; }
+  .demo header { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; border-bottom: 2px solid var(--g-line); }
+  .demo header h3 { margin: 0; font-size: 21px; }
+  .demo .stage { position: relative; height: 210px; overflow: hidden; background: #e9e1d0; color: #2a1f2d; }
+  .demo .why { font-size: 13px; color: var(--g-muted); padding: 8px 12px 12px; margin: 0; }
+  .mo-float { position: absolute; font: 24px var(--pixel); color: #2f8a45; pointer-events: none; white-space: nowrap; text-shadow: 0 2px 0 #fff8ec; z-index: 5; }
+  .mo-float.bad { color: #a8262a; }
+
+  /* ======== Componentes do jogo (protótipo dos estilos que irão para o jogo) ======== */
+  .wd { --fs: 18px; --u: 1px; position: absolute; font-family: var(--pixel); font-size: var(--fs); color: #2a1f2d; overflow: hidden;
+        background: #1f4a52; display: grid; grid-template-rows: auto 1fr; container-type: size; }
+  .wd::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(0deg, rgba(0,0,0,.05) 0 1px, transparent 1px 3px), radial-gradient(120% 90% at 50% 40%, transparent 60%, rgba(0,0,0,.28)); }
+  .wd-bar { display: flex; align-items: center; gap: .6em; padding: .25em .5em; background: #f3e6cc; box-shadow: inset 0 -3px 0 #c7b595, 0 2px 0 #2a1f2d; white-space: nowrap; overflow: hidden; z-index: 2; }
+  .wd-bar .title { display: flex; gap: .35em; align-items: center; font-size: 1.1em; }
+  .wd-bar .sp { flex: 1; }
+  .wd-bar .st { color: #6e3b26; } .wd-bar .st b { color: #2a1f2d; font-weight: normal; }
+  .wd-combo { background: #2a1f2d; color: #ffe7a3; padding: 0 .4em; display: inline-block; }
+  .wd-lcd { background: #1f3a24; color: #7dff9a; padding: 0 .4em; text-shadow: 0 0 6px rgba(125,255,154,.55); box-shadow: inset 2px 2px 0 #0f1f12; }
+  .wd-meter { display: flex; gap: 2px; align-items: center; }
+  .wd-meter i { width: .42em; height: .9em; background: #c7b595; box-shadow: inset 0 -2px 0 rgba(0,0,0,.18); }
+  .wd-meter i.on { background: var(--c); }
+  .wd-meter.hot { animation: meterhot .5s steps(2) infinite; }
+  @keyframes meterhot { 50% { filter: brightness(1.3); } }
+  .wd-main { display: grid; grid-template-columns: 1.6fr 1fr; gap: .6em; padding: .6em; min-height: 0; z-index: 1; }
+  .wd-board { position: relative; background: #ece3cf; box-shadow: 0 0 0 2px #2a1f2d, inset 0 0 0 3px #fff8ec; overflow: hidden;
+              background-image: linear-gradient(rgba(42,31,45,.06) 1px, transparent 1px), linear-gradient(90deg, rgba(42,31,45,.06) 1px, transparent 1px); background-size: 1.6em 1.6em; }
+  .wd-lanes { position: absolute; inset: 0 0 3.4em 0; display: grid; grid-template-columns: repeat(4, 1fr); }
+  .wd-lanes i { border-right: 2px dashed rgba(42,31,45,.14); }
+  .wd-lanes i:last-child { border: 0; }
+  .wd-trays { position: absolute; left: 0; right: 0; bottom: 0; height: 3.4em; display: grid; grid-template-columns: repeat(4, 1fr); }
+  .wd-tray { position: relative; display: flex; align-items: center; justify-content: center; gap: .35em; color: #fff8ec; text-shadow: 0 2px 0 rgba(42,31,45,.45);
+             background: var(--c); box-shadow: inset 0 4px 0 var(--hi), inset 0 -4px 0 var(--lo), inset -2px 0 0 rgba(42,31,45,.25); font-size: 1.05em; }
+  .wd-tray .glyph { image-rendering: pixelated; filter: drop-shadow(0 2px 0 rgba(42,31,45,.4)); }
+  .wd-doc { position: absolute; z-index: 3; display: flex; align-items: center; gap: .4em; padding: .3em .45em .3em .35em; background: #fff8ec;
+            box-shadow: 0 0 0 2px #2a1f2d, inset 0 .32em 0 var(--c), inset 0 -3px 0 #dcc6a0, 0 6px 0 rgba(42,31,45,.18); transform-origin: 50% 100%; }
+  .wd-doc .tile { display: grid; place-items: center; width: 1.7em; height: 1.7em; background: var(--c); box-shadow: inset 0 3px 0 var(--hi), inset 0 -3px 0 var(--lo); margin-top: .25em; }
+  .wd-doc .txt { line-height: 1; margin-top: .25em; }
+  .wd-doc .txt b { display: block; font-weight: normal; color: var(--lo); }
+  .wd-doc .txt span { color: #8f7d63; font-size: .9em; }
+  .wd-doc.urgent { animation: urgentdoc .35s steps(2) infinite; }
+  @keyframes urgentdoc { 50% { box-shadow: 0 0 0 2px #a8262a, inset 0 .32em 0 #ef4b3f, inset 0 -3px 0 #dcc6a0, 0 6px 0 rgba(168,38,42,.35); } }
+  .wd-doc .stampu { position: absolute; right: -.4em; top: -.6em; background: #ef4b3f; color: #fff8ec; padding: 0 .3em; font-size: .8em; transform: rotate(8deg); box-shadow: 0 0 0 2px #2a1f2d; }
+  .wd-side { display: flex; flex-direction: column; gap: .5em; min-height: 0; overflow: hidden; }
+  .wd-side h4 { margin: 0; font-weight: normal; color: #f3e6cc; font-size: 1em; letter-spacing: 1px; display: flex; justify-content: space-between; }
+  .wd-task { position: relative; background: #fff8ec; box-shadow: 0 0 0 2px #2a1f2d, 0 4px 0 rgba(0,0,0,.25); display: grid; grid-template-columns: auto 1fr; gap: .1em .5em; padding: .35em .5em .45em; }
+  .wd-task .ico { grid-row: span 2; align-self: center; }
+  .wd-task .tt { color: #8f7d63; font-size: .85em; letter-spacing: 1px; text-transform: uppercase; display: flex; justify-content: space-between; }
+  .wd-task .act { display: flex; gap: .3em; flex-wrap: wrap; }
+  .wd-key { font: inherit; font-size: .95em; padding: .05em .5em; background: #fbf3e2; color: #2a1f2d; border: 0; box-shadow: 0 0 0 2px #2a1f2d, inset 0 -4px 0 #c7b595; cursor: pointer; }
+  .wd-key:active { transform: translateY(2px); box-shadow: 0 0 0 2px #2a1f2d, inset 0 -1px 0 #c7b595; }
+  .wd-timer { grid-column: 1 / -1; display: flex; gap: 2px; margin-top: .15em; }
+  .wd-timer i { flex: 1; height: .32em; background: #5fa79a; }
+  .wd-timer i.off { background: #e9dcc2; }
+  .wd-task.soon .wd-timer i { background: #ffb938; }
+  .wd-task.late { box-shadow: 0 0 0 2px #a8262a, 0 4px 0 rgba(168,38,42,.4); }
+  .wd-task.late .wd-timer i { background: #ef4b3f; }
+  .wd-task.late .tt { color: #a8262a; }
+  .wd-task .okstamp { position: absolute; right: .4em; top: .2em; color: #2f8a45; border: 3px solid #2f8a45; padding: 0 .3em; font-size: 1.2em; background: rgba(255,248,236,.85); }
+  .wd-toast { position: absolute; right: .7em; top: 2.6em; z-index: 6; display: flex; gap: .5em; align-items: center; background: #fff8ec; padding: .4em .6em; max-width: 46%;
+              box-shadow: 0 0 0 2px #2a1f2d, 0 6px 0 rgba(0,0,0,.3); line-height: 1.05; }
+  .wd-toast small { display: block; color: #8f7d63; }
+  .wd-popup { position: absolute; z-index: 7; width: 15em; background: #fffbe6; box-shadow: 0 0 0 2px #2a1f2d, 0 6px 0 rgba(0,0,0,.3); }
+  .wd-popup .tb { background: #2c3fa0; color: #fff; padding: .05em .4em; display: flex; justify-content: space-between; }
+  .wd-popup .tb button { font: inherit; width: 1.2em; line-height: 1; padding: 0; background: #c9c6bd; border: 2px outset #fff; cursor: pointer; }
+  .wd-popup .bd { display: flex; gap: .5em; padding: .5em; align-items: center; }
+
+  /* Protótipo desktop */
+  .proto-controls { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; margin: 12px 0; }
+  .proto-controls label { display: flex; gap: 8px; align-items: center; font: 19px var(--pixel); }
+  .proto-controls select, .proto-controls input[type=range] { accent-color: #f4c15d; }
+  .proto-controls select { font: 18px var(--pixel); background: var(--g-panel); color: var(--g-text); border: 2px solid var(--g-line); }
+  .viewport { position: relative; width: 100%; background: #000; overflow: hidden; border: 2px solid var(--g-line); }
+  .stage { position: absolute; left: 0; top: 0; transform-origin: 0 0; overflow: hidden; }
+  .stage > canvas { position: absolute; left: 0; top: 0; image-rendering: pixelated; }
+  .stage.full { position: fixed; inset: 0; transform: none !important; z-index: 50; width: 100vw !important; height: 100vh !important; }
+  .exitfull { position: fixed; right: 16px; top: 16px; z-index: 60; display: none; }
+  .stage.full ~ .exitfull, body.isfull .exitfull { display: block; }
+  .dims { font: 16px var(--pixel); color: var(--g-muted); margin-top: 6px; }
+
+  /* Protótipos mobile */
+  .phones { display: flex; gap: 22px; flex-wrap: wrap; align-items: flex-start; }
+  .phone { flex: none; background: #0d0b10; border-radius: 34px; padding: 10px; box-shadow: 0 0 0 2px #43374a; }
+  .phone .scr { position: relative; width: 300px; height: 650px; border-radius: 26px; overflow: hidden; background: #1f4a52; font-family: var(--pixel); color: #2a1f2d; font-size: 17px; display: flex; flex-direction: column; }
+  .phone.land .scr { width: 650px; height: 300px; flex-direction: row; }
+  .phone figcaption { font: 18px var(--pixel); color: var(--g-muted); margin-top: 8px; text-align: center; max-width: 300px; }
+  .mb-hud { background: #f3e6cc; padding: 22px 10px 6px; box-shadow: inset 0 -3px 0 #c7b595; display: grid; grid-template-columns: auto 1fr auto; gap: 4px 8px; align-items: center; }
+  .mb-hud .wd-meter { grid-column: 1 / -1; } .mb-hud .wd-meter i { flex: 1; height: 8px; }
+  .mb-pause { font: inherit; background: #fbf3e2; border: 0; box-shadow: 0 0 0 2px #2a1f2d, inset 0 -3px 0 #c7b595; width: 34px; height: 30px; }
+  .mb-board { position: relative; flex: 1; margin: 8px; min-height: 0; transition: flex-basis .26s cubic-bezier(.22,1,.36,1); }
+  .mb-dock { display: flex; gap: 8px; padding: 8px 10px 22px; background: #2a1f2d; align-items: center; }
+  .mb-chip { position: relative; width: 48px; height: 48px; display: grid; place-items: center; background: #fff8ec; border: 0;
+             box-shadow: 0 0 0 2px #2a1f2d, 0 0 0 5px var(--ring, #5fa79a), inset 0 -3px 0 #dcc6a0; }
+  .mb-chip.soon { --ring: #ffb938; } .mb-chip.late { --ring: #ef4b3f; animation: chipwig .9s infinite; }
+  .mb-chip.late::after { content: '!'; position: absolute; right: -8px; top: -10px; background: #ef4b3f; color: #fff; width: 18px; height: 18px; display: grid; place-items: center; box-shadow: 0 0 0 2px #2a1f2d; font-size: 15px; }
+  .mb-chip.sel { transform: translateY(-4px); box-shadow: 0 0 0 2px #2a1f2d, 0 0 0 5px #f4c15d, inset 0 -3px 0 #dcc6a0; }
+  @keyframes chipwig { 0%, 40%, 100% { transform: rotate(0); } 10% { transform: rotate(-6deg); } 20% { transform: rotate(6deg); } 30% { transform: rotate(-3deg); } }
+  .mb-more { color: #f3e6cc; font-size: 18px; margin-left: auto; }
+  .mb-sheet { margin: 0 8px 8px; }
+  .mb-kb { background: #c9ccd3; padding: 6px 4px 22px; display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; font-family: system-ui, sans-serif; font-size: 13px; }
+  .mb-kb i { background: #fff; border-radius: 5px; height: 34px; display: grid; place-items: center; font-style: normal; box-shadow: 0 1px 0 #8e9199; }
+  .mb-boss { margin: 0; flex: 1; font: 26px var(--pixel); color: #fff8ec; background: #ef4b3f; border: 0; height: 54px; box-shadow: 0 0 0 2px #2a1f2d, inset 0 -5px 0 #a8262a; display: flex; align-items: center; justify-content: center; gap: 10px; animation: bossbtn .3s steps(2) infinite; }
+  @keyframes bossbtn { 50% { background: #ff6a5b; } }
+  .mb-banner { position: absolute; left: 8px; right: 8px; top: 8px; z-index: 5; background: #ffb938; box-shadow: 0 0 0 2px #2a1f2d; padding: 4px 8px; display: flex; gap: 8px; align-items: center; font-size: 18px; }
+  .land .mb-side { width: 230px; display: flex; flex-direction: column; gap: 6px; padding: 8px 8px 8px 0; overflow: hidden; }
+  .land .mb-hudl { position: absolute; left: 0; right: 238px; top: 0; z-index: 3; display: flex; gap: 10px; align-items: center; padding: 4px 10px; background: #f3e6cc; box-shadow: inset 0 -3px 0 #c7b595; font-size: 16px; }
+
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01s !important; animation-iteration-count: 1 !important; } }
+  @media (max-width: 700px) { .phone { transform: scale(.9); transform-origin: top left; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <span class="tag">Etapa 2 · proposta para aprovação</span>
+  <h1>WORKDAY<br><span style="color:var(--g-accent)">guia visual</span></h1>
+  <p class="lede">Conceito: <b>um escritório aconchegante que vai perdendo o controle</b>. De manhã a luz é dourada, a mesa está arrumada e o café fumega. Ao longo do expediente a luz esfria e avermelha, papéis e post-its se acumulam e o LED do monitor muda de verde para vermelho. As cores fortes ficam reservadas para urgência, erro e perigo: elas só "gritam" quando o jogo precisa da sua atenção.</p>
+
+  <h2>1. Paleta</h2>
+  <p>Paleta fechada de 54 cores em rampas por material, com no máximo 4 tons cada (brilho, base, sombra, fundo). Os fundos e os móveis usam tons quentes e terrosos, com a parede em verde-musgo; os setores são suaves, mas distintos entre si, e cada um tem símbolo próprio, para não depender só da cor. O contorno é uma tinta escura arroxeada, nunca preto puro, o que deixa a arte mais macia sem perder definição.</p>
+  <div class="ramps" id="ramps"></div>
+
+  <h2>2. Regras de pixel art</h2>
+  <div class="rules">
+    <div class="rule"><b>Grade</b>Ícones 7×7 a 16×16; objetos de mesa 12×12 a 16×20; personagens 16×18; cenário em blocos de 1 px sobre a resolução virtual 640×360.</div>
+    <div class="rule"><b>Escala inteira</b>Cada pixel da arte vira um número inteiro de pixels físicos (o cálculo considera o zoom do sistema). Nada de escala 2,5×, de <code>zoom</code> ou de <code>vw</code> em sprite.</div>
+    <div class="rule"><b>Contorno</b>1 px em tinta <code>#2a1f2d</code>. Exceções: símbolos brancos sobre cor de setor e elementos de luz (sem contorno).</div>
+    <div class="rule"><b>Luz</b>Sempre de cima à esquerda: borda superior e esquerda com o tom de brilho, inferior e direita com o de sombra. Sem sombreamento em "travesseiro".</div>
+    <div class="rule"><b>Tons por material</b>No máximo 4. Pontilhado 2×2 só em áreas grandes (parede, feixe de luz, sombra sob o monitor), nunca em ícones.</div>
+    <div class="rule"><b>Texto</b>Interface em VT323 com tamanho relativo à tela do monitor (cresce com a resolução, sem ficar borrado). Letreiros dentro da cena usam a fonte 3×5 desenhada pixel a pixel.</div>
+  </div>
+  <h3>Sprites da nova direção</h3>
+  <p class="muted">Amostra redesenhada na grade nova, em escala 4×. Clique para ligar a grade de pixels. O documento é um único desenho cujo cabeçalho troca de cor por setor (e fica cinza no arquivo morto e vermelho no urgente).</p>
+  <div class="sheet" id="sheet"></div>
+  <h3>Por que escala inteira</h3>
+  <div class="compare" id="compare"></div>
+
+  <h2>3. Linguagem de animação</h2>
+  <p>Cada animação tem quatro tempos: <b>antecipação</b> (recua ou se prepara), <b>ação</b>, <b>impacto</b> (achata, carimba, quica) e <b>acomodação</b> (passa do ponto e volta). O que é físico, como papel, cartões e botões, usa curvas suaves. O que é máquina, como LEDs, impressora, vapor e cursor, anda em quadros. Tremores e flashes ficam curtos e raros, para não atrapalhar a leitura, e com "reduzir movimento" ligado viram transições simples.</p>
+  <div class="tokens" id="tokens"></div>
+  <h3>Demonstrações</h3>
+  <div class="demos" id="demos"></div>
+
+  <h2>4. Protótipo: computador</h2>
+  <p>O monitor domina a cena e o jogo roda dentro da tela dele. A mesa, o teclado, a caneca e os enfeites ficam nas bordas, só para construir o ambiente. Em 1366×768 a tela do jogo tem <b id="area1366">1134×638 px</b>, maior que a área atual. Em monitores ultrawide a cena se expande pelas laterais (janela, estante, pôster), sem barras pretas. Use os controles para ver a passagem do dia e o aumento do caos.</p>
+  <div class="proto-controls">
+    <label>Resolução <select id="res"><option value="1366x768">1366×768</option><option value="1920x1080">1920×1080</option><option value="2560x1080">2560×1080 (ultrawide)</option><option value="1280x800">1280×800 (16:10)</option><option value="1024x768">1024×768 (4:3)</option></select></label>
+    <label>Hora <input type="range" id="hour" min="9" max="18" step=".25" value="10"> <span id="hourv">10:00</span></label>
+    <label>Caos <input type="range" id="chaos" min="0" max="3" step="1" value="0"> <span id="chaosv">calmo</span></label>
+    <label><input type="checkbox" id="decor" checked> enfeites</label>
+    <button class="btn" id="fullBtn">Ver em tela cheia</button>
+  </div>
+  <div class="viewport" id="vp"><div class="stage" id="stage"><canvas id="scene"></canvas></div></div>
+  <div class="dims" id="dims"></div>
+  <button class="btn exitfull" id="exitFull">Sair da tela cheia (Esc)</button>
+
+  <h2>5. Protótipo: celular</h2>
+  <p>No celular não há monitor nem cenário. O jogo é a tela inteira, e as tarefas vivem numa <b>doca de fichas</b> no rodapé, na zona do polegar. Cada ficha mostra o tipo de tarefa e o prazo num anel colorido: verde tranquilo, âmbar acabando, vermelho tremendo com "!". Nada abre sozinho. Ao tocar numa ficha, a tarefa sobe acima da doca e o tabuleiro <b>encolhe em vez de ser coberto</b>, então o arquivo em queda e as bandejas continuam visíveis. Com o teclado aberto, o tabuleiro encolhe mais um pouco, mas não some. Eventos como o chefe tomam o lugar da doca com um botão grande, sem cobrir o jogo.</p>
+  <div class="phones" id="phones"></div>
+</div>
+
+<script>
+/* @inject:shared-js */
+</script>
+<script>
+const $ = s => document.querySelector(s);
+const P = WD_PAL;
+const SECT = [
+  { id: 'fin', name: 'Financeiro', c: P.F, hi: P.f, lo: P[9], glyph: 'glyphFin', doc: 'Nota fiscal' },
+  { id: 'rh', name: 'RH', c: P.O, hi: P.o, lo: P[8], glyph: 'glyphHr', doc: 'Atestado' },
+  { id: 'jur', name: 'Jurídico', c: P.L, hi: P.l, lo: P[7], glyph: 'glyphJur', doc: 'Contrato' },
+  { id: 'ti', name: 'TI', c: P.I, hi: P.i, lo: P[6], glyph: 'glyphTi', doc: 'Chamado' },
+];
+
+/* ---------- 1. Paleta ---------- */
+const roles = { ink: 'contornos e texto', paper: 'documentos, cartões, janelas', wood: 'mesa e móveis', plastic: 'monitor, teclado, botões', wall: 'parede do escritório',
+  leaf: 'plantas', terra: 'caneca, vaso', brass: 'luz, luminária, troféu', metal: 'aparelhos, fios', screen: 'tela, fundo do sistema', skin: 'personagens',
+  night: 'fim do dia, céu', fin: 'Financeiro', hr: 'RH', legal: 'Jurídico', it: 'TI', danger: 'erro, urgência, chefe', warn: 'prazo acabando', ok: 'acerto, combo', white: 'brilho especular' };
+for (const [key, m] of Object.entries(WD_PALETTE)) {
+  const el = document.createElement('div'); el.className = 'ramp';
+  el.innerHTML = `<span class="name">${m.label}</span><span class="muted" style="font-size:12px">${roles[key]}</span>
+    <div class="chips" style="grid-column:1/-1">${Object.entries(m.tones).map(([l, c]) => `<span style="background:${c}"><em>${l}</em></span>`).join('')}</div>
+    <span class="hex">${Object.values(m.tones).join(' ')}</span>`;
+  $('#ramps').append(el);
+}
+
+/* ---------- 2. Sprites ---------- */
+const sheet = $('#sheet');
+const fig = (canvas, label, scale) => { const f = document.createElement('figure'); f.style.setProperty('--cell', scale + 'px'); f.append(canvas); f.insertAdjacentHTML('beforeend', `<figcaption>${label}</figcaption>`); sheet.append(f); };
+for (const s of SECT) fig(Pixel.el(SPR2.doc, 4, WD_SECTOR_RAMP[s.id]), 'doc · ' + s.name, 4);
+fig(Pixel.el(SPR2.doc, 4, WD_SECTOR_RAMP.urgent), 'doc · urgente', 4);
+fig(Pixel.el(SPR2.doc, 4, WD_SECTOR_RAMP.dead), 'doc · morto', 4);
+for (const s of SECT) { const c = Pixel.el(SPR2[s.glyph], 4); c.style.background = s.c; c.style.padding = '8px'; fig(c, 'símbolo ' + s.name, 4); }
+[['mug', 'caneca'], ['envelope', 'e-mail'], ['virus', 'vírus'], ['postit', 'post-it'], ['plant', 'planta'], ['cat', 'gato']].forEach(([k, n]) => fig(Pixel.el(SPR2[k], 4), n, 4));
+sheet.onclick = () => sheet.classList.toggle('gridon');
+// Comparação: escala inteira vs. fracionária com suavização
+const cmp = $('#compare');
+const mk = (scale, smooth, label) => { const f = document.createElement('figure'); const c = Pixel.el(SPR2.virus, 1); c.style.width = 13 * scale + 'px'; c.style.height = 13 * scale + 'px';
+  if (smooth) c.classList.add('bad'); f.append(c); f.insertAdjacentHTML('beforeend', `<figcaption>${label}</figcaption>`); cmp.append(f); };
+mk(5, false, '5× inteira (certo)'); mk(4.6, true, '4,6× suavizada (errado)'); mk(3, false, '3× inteira (certo)');
+
+/* ---------- 3. Tokens e demonstrações ---------- */
+const TOK = [['micro 90 ms', 'tecla, clique, troca de ficha'], ['curto 160 ms', 'botão físico, foco'], ['médio 260 ms', 'cartões entrando e saindo, impacto'],
+  ['longo 420 ms', 'documento chegando, carimbo grande'], ['compasso 600 ms', 'erro completo, mudança de cena'],
+  ['out', 'entradas: desacelera'], ['back', 'chegadas com personalidade: passa e volta'], ['anticip', 'saídas: recua antes de ir'], ['in', 'quedas: acelera com a gravidade'], ['steps', 'máquinas: LED, impressora, vapor, cursor']];
+$('#tokens').innerHTML = TOK.map(([a, b]) => `<div class="tok"><b>${a}</b>${b}</div>`).join('');
+
+function wdDoc(sec, urgent) {
+  const d = document.createElement('div'); d.className = 'wd-doc' + (urgent ? ' urgent' : '');
+  d.style.setProperty('--c', urgent ? P.R : sec.c); d.style.setProperty('--hi', sec.hi); d.style.setProperty('--lo', sec.lo);
+  const tile = document.createElement('span'); tile.className = 'tile'; tile.append(Pixel.el(SPR2[sec.glyph], 2));
+  d.append(tile); d.insertAdjacentHTML('beforeend', `<span class="txt"><b>${sec.name}</b><span>${sec.doc}</span></span>${urgent ? '<i class="stampu">URGENTE</i>' : ''}`);
+  return d;
+}
+function miniBoard(stage, n = 4) {
+  const b = document.createElement('div'); b.className = 'wd wd-demo'; b.style.cssText = 'inset:0;display:block;font-size:16px;background:#ece3cf';
+  b.innerHTML = `<div class="wd-board" style="position:absolute;inset:0"><div class="wd-lanes">${'<i></i>'.repeat(n)}</div><div class="wd-trays"></div></div>`;
+  const trays = b.querySelector('.wd-trays'); trays.style.gridTemplateColumns = `repeat(${n},1fr)`; b.querySelector('.wd-lanes').style.gridTemplateColumns = `repeat(${n},1fr)`;
+  SECT.slice(0, n).forEach(s => { const t = document.createElement('div'); t.className = 'wd-tray'; t.style.cssText = `--c:${s.c};--hi:${s.hi};--lo:${s.lo}`; const g = Pixel.el(SPR2[s.glyph], 2); g.classList.add('glyph'); t.append(g); trays.append(t); });
+  stage.append(b); return b;
+}
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+// Documento: cai com leve balanço, pousa achatando, bandeja quica, pontos sobem
+async function demoHit(stage, wrong) {
+  stage.innerHTML = ''; const b = miniBoard(stage), board = b.querySelector('.wd-board');
+  const lane = 2, sec = SECT[wrong ? 0 : lane], w = board.clientWidth / 4, d = wdDoc(sec);
+  d.style.width = (w * 1.5 | 0) + 'px'; d.style.left = (lane * w + w / 2 - w * .75 | 0) + 'px'; d.style.top = '-60px'; board.append(d);
+  const trayTop = board.clientHeight - board.querySelector('.wd-trays').clientHeight;
+  Motion.play(d, [{ transform: 'scale(.9,1.12)' }, { transform: 'scale(1)' }], { duration: 260, easing: Motion.E.out });
+  await Motion.play(d, [{ top: '-60px', rotate: '-2deg' }, { top: trayTop * .5 + 'px', rotate: '2deg', offset: .55 }, { top: trayTop - d.offsetHeight + 'px', rotate: '0deg' }],
+    { duration: 1300, easing: Motion.E.in }).finished;
+  const tray = board.querySelectorAll('.wd-tray')[lane];
+  if (!wrong) {
+    Motion.squash(d); Motion.play(tray, [{ transform: 'translateY(0)' }, { transform: 'translateY(5px)', offset: .3 }, { transform: 'translateY(-2px)', offset: .7 }, { transform: 'translateY(0)' }], { duration: 300, easing: Motion.E.out, fill: 'none' });
+    Motion.floatText(board, '+40', lane * w + w / 2 - 14, trayTop - 70);
+    await sleep(260); await Motion.play(d, [{ opacity: 1, transform: 'translateY(0) scale(1)' }, { opacity: 0, transform: 'translateY(26px) scale(.8,.6)' }], { duration: 220, easing: Motion.E.in }).finished; d.remove();
+  } else {
+    Motion.reject(d); Motion.shake(tray, 5);
+    Motion.play(tray, [{ filter: 'none' }, { filter: 'brightness(.6) sepia(1) hue-rotate(-40deg) saturate(4)' }, { filter: 'none' }], { duration: 420, easing: 'steps(4)', fill: 'none' });
+    Motion.floatText(board, 'Setor errado!', 12, trayTop - 70, 'bad');
+    await sleep(650); await Motion.leave(d, 'down').finished; d.remove();
+  }
+}
+function wdTask(type, title, body, iconRows, pal) {
+  const t = document.createElement('div'); t.className = 'wd-task';
+  const ico = Pixel.el(iconRows, 2, pal); ico.classList.add('ico'); t.append(ico);
+  t.insertAdjacentHTML('beforeend', `<div class="tt"><span>${type}</span></div><div class="act">${body}</div><div class="wd-timer">${'<i></i>'.repeat(10)}</div>`);
+  return t;
+}
+function setTimer(t, frac) { t.querySelectorAll('.wd-timer i').forEach((i, n) => i.classList.toggle('off', n >= Math.ceil(frac * 10))); t.classList.toggle('soon', frac <= .5 && frac > .25); t.classList.toggle('late', frac <= .25); }
+async function demoTask(stage) {
+  stage.innerHTML = ''; stage.style.background = '#1f4a52'; stage.style.padding = '14px'; stage.style.fontFamily = 'var(--pixel)'; stage.style.fontSize = '18px';
+  const t = wdTask('Novo e-mail', '', `“VPN caiu” → <button class="wd-key">Financeiro</button><button class="wd-key">TI</button>`, SPR2.envelope);
+  stage.append(t); await Motion.enter(t, 'right').finished;
+  let urg = null;
+  for (let f = 1; f >= .15; f -= .05) { setTimer(t, f); if (f <= .25 && !urg) urg = Motion.urgent(t); await sleep(120); }
+  if (urg) urg.cancel();
+  const s = document.createElement('span'); s.className = 'okstamp'; s.textContent = 'OK'; t.append(s); await Motion.stamp(s).finished;
+  await sleep(350); await Motion.leave(t, 'right').finished; t.remove();
+}
+async function demoToast(stage) {
+  stage.innerHTML = ''; stage.style.background = '#1f4a52';
+  const t = document.createElement('div'); t.className = 'wd-toast'; t.style.cssText = 'right:12px;top:14px;max-width:none;font-family:var(--pixel);font-size:18px';
+  const env = Pixel.el(SPR2.envelope, 3); t.append(env);
+  t.insertAdjacentHTML('beforeend', '<div><small>De: Chefe</small>Vi que você respirou às 10h14.<br>Podemos conversar?</div>');
+  stage.append(t); await Motion.enter(t, 'right').finished;
+  for (let i = 0; i < 3; i++) { await Motion.play(env, [{ transform: 'rotate(0)' }, { transform: 'rotate(-10deg) translateY(-3px)' }, { transform: 'rotate(8deg)' }, { transform: 'rotate(0)' }], { duration: 300, easing: Motion.E.out, fill: 'none' }).finished; }
+  await sleep(1300); await Motion.leave(t, 'right').finished; t.remove();
+}
+async function demoCombo(stage) {
+  stage.innerHTML = ''; stage.style.cssText += ';display:grid;place-items:center;font-family:var(--pixel);font-size:44px';
+  const c = document.createElement('span'); c.className = 'wd-combo'; stage.append(c);
+  for (let m = 1; m <= 5; m++) { c.textContent = 'COMBO ×' + m; c.style.color = m >= 4 ? '#ffb938' : '#ffe7a3'; c.style.textShadow = m >= 4 ? '0 0 10px rgba(255,185,56,.8)' : 'none'; Motion.punch(c, 1 + m * .08); await sleep(550); }
+  await sleep(400); c.textContent = 'COMBO ×1'; c.style.color = '#ff9d86'; c.style.textShadow = 'none'; Motion.shake(c, 8);
+}
+async function demoStress(stage) {
+  stage.innerHTML = ''; stage.style.cssText += ';display:grid;place-items:center;font-family:var(--pixel);font-size:22px';
+  const m = document.createElement('div'); m.className = 'wd-meter'; m.innerHTML = '<i></i>'.repeat(12); m.style.transform = 'scale(2)'; stage.append(m);
+  const segs = [...m.children], col = n => n < 6 ? P.F : n < 9 ? P.Q : P.R;
+  for (let v = 0; v <= 12; v++) { segs.forEach((s, n) => { s.classList.toggle('on', n < v); s.style.setProperty('--c', col(n)); }); m.classList.toggle('hot', v >= 10);
+    if (v >= 8) Motion.play(m, [{ transform: 'scale(2) translateX(0)' }, { transform: `scale(2) translateX(${v - 7}px)` }, { transform: 'scale(2) translateX(0)' }], { duration: 120, fill: 'none' });
+    await sleep(240); }
+}
+async function demoButton(stage) {
+  stage.innerHTML = ''; stage.style.cssText += ';display:flex;gap:14px;align-items:center;justify-content:center;font-family:var(--pixel);font-size:24px';
+  for (const n of ['Aprovar', 'Assinar', 'Ciente']) { const b = document.createElement('button'); b.className = 'wd-key'; b.textContent = n; b.onclick = () => Motion.press(b); stage.append(b); }
+  for (const b of stage.querySelectorAll('button')) { await sleep(350); Motion.press(b); }
+}
+async function demoPopup(stage) {
+  stage.innerHTML = ''; stage.style.background = '#1f4a52'; stage.style.fontFamily = 'var(--pixel)'; stage.style.fontSize = '17px';
+  const spam = ['Seu PC está LENTO!!', 'Baixe mais RAM', 'Você ganhou!'];
+  const wins = [];
+  for (let i = 0; i < 3; i++) { const w = document.createElement('div'); w.className = 'wd-popup'; w.style.left = 14 + i * 30 + 'px'; w.style.top = 14 + i * 34 + 'px';
+    w.innerHTML = `<div class="tb"><span>AVISO!!!</span><button>x</button></div><div class="bd"></div>`; w.querySelector('.bd').append(Pixel.el(SPR2.virus, 3)); w.querySelector('.bd').insertAdjacentHTML('beforeend', `<span>${spam[i]}</span>`);
+    stage.append(w); wins.push(w);
+    Motion.play(w, [{ transform: 'scale(.4)', opacity: 0 }, { transform: 'scale(1.08)', opacity: 1, offset: .7 }, { transform: 'scale(1)', opacity: 1 }], { duration: 220, easing: Motion.E.out }); await sleep(180); }
+  await sleep(700);
+  for (const w of wins.reverse()) { await Motion.play(w, [{ transform: 'scale(1)', opacity: 1 }, { transform: 'scale(1.05,.9)', offset: .3, opacity: 1 }, { transform: 'scale(.2,.05) translateY(400%)', opacity: 0 }], { duration: 240, easing: Motion.E.anticip }).finished; w.remove(); }
+}
+function demoAmbient(stage) {
+  stage.innerHTML = ''; const c = document.createElement('canvas'); c.width = 120; c.height = 64; c.style.cssText = 'width:360px;height:192px;image-rendering:pixelated;display:block;margin:auto';
+  stage.append(c); const x = c.getContext('2d'); stage.style.background = P.A;
+  const loop = t => { if (!c.isConnected) return; t /= 1000; x.fillStyle = P.A; x.fillRect(0, 0, 120, 64); x.fillStyle = P[2]; x.fillRect(0, 50, 120, 14); x.fillStyle = P[1]; x.fillRect(0, 50, 120, 1);
+    x.drawImage(Pixel.master(SPR2.mug, WD_PAL), 14, 41); x.drawImage(Pixel.master(SPR2.steam[(t * 6 | 0) % 3], WD_PAL), 17, 36);
+    const m = Pixel.master(SPR2.plant, WD_PAL), sway = Math.sin(t * 1.2) > .6 ? 1 : 0; x.drawImage(m, 0, 0, 16, 12, 44 + sway, 18, 16, 12); x.drawImage(m, 0, 12, 16, 8, 44, 30, 16, 8);
+    x.fillStyle = P.C; x.fillRect(72, 30, 44, 20); x.fillStyle = P.c; x.fillRect(72, 30, 44, 1);
+    x.drawImage(Pixel.master(SPR2.cat, WD_PAL), 80, 22); const ph = (t % 4) < .6 ? ((t * 8 | 0) % 3) : 0; x.drawImage(Pixel.master(SPR2.catTail[ph], WD_PAL), 95, 28);
+    x.fillStyle = (t * 2 | 0) % 2 ? P.d : P.D; x.fillRect(110, 45, 2, 2);
+    requestAnimationFrame(loop); };
+  requestAnimationFrame(loop);
+}
+const DEMOS = [
+  ['Documento: acerto', 'Cai acelerando com leve balanço; no impacto achata (squash) e a bandeja afunda e volta. Os pontos sobem passando do tamanho e somem.', s => demoHit(s, false)],
+  ['Documento: erro', 'Quica para fora inclinando, a bandeja treme e escurece uma vez. Um único tremor, curto: informa sem cansar.', s => demoHit(s, true)],
+  ['Tarefa: vida completa', 'Entra deslizando com sobre-impulso; o prazo muda de cor em 50% e 25%; no fim treme a cada segundo. Concluir dá um carimbo e a saída recua antes de ir.', demoTask],
+  ['Notificação', 'O e-mail do chefe chega pelo lado, o envelope "chacoalha" como algo vivo e sai sozinho.', demoToast],
+  ['Combo', 'O contador "soca" maior a cada nível e ganha brilho em ×4. Quebrar o combo treme e fica vermelho.', demoCombo],
+  ['Estresse', 'Barra segmentada: cada segmento acende em degrau. Acima de 8/12 a barra vibra com intensidade crescente; perto do fim, pisca.', demoStress],
+  ['Botões', 'Teclas físicas: afundam ao apertar e voltam com leve sobre-impulso. Clique para testar.', demoButton],
+  ['Vírus', 'Janelas abrem passando do tamanho; ao fechar, "minimizam" para baixo com antecipação.', demoPopup],
+  ['Ambiente', 'Vapor da caneca em 3 quadros, planta balançando 1 px, rabo do gato de vez em quando, LED piscando. Movimento pequeno e lento, nunca chamando atenção.', demoAmbient],
+];
+for (const [title, why, fn] of DEMOS) {
+  const d = document.createElement('div'); d.className = 'demo';
+  d.innerHTML = `<header><h3>${title}</h3><button class="btn ghost">▶ repetir</button></header><div class="stage"></div><p class="why">${why}</p>`;
+  const st = d.querySelector('.stage'); const run = () => { st.getAnimations({ subtree: true }).forEach(a => a.cancel()); fn(st); };
+  d.querySelector('button').onclick = run; $('#demos').append(d);
+  new IntersectionObserver((e, o) => { if (e[0].isIntersecting) { run(); o.disconnect(); } }).observe(d);
+}
+
+/* ---------- 4. Protótipo desktop ---------- */
+const vp = $('#vp'), stage = $('#stage'), cv = $('#scene'), ctx = cv.getContext('2d');
+const ST = { hour: 10, clutter: 0, stress: 15, decor: ['planta', 'foto', 'lamp', 'gato', 'trofeu', 'monitor'] };
+let Lay = null, M = null, baked = null, ui = null, full = false;
+function stageSize() { if (full) return [innerWidth, innerHeight, window.devicePixelRatio || 1]; const [w, h] = $('#res').value.split('x').map(Number); return [w, h, 1]; }
+function buildStage() {
+  const [w, h, dpr] = stageSize();
+  M = Office.measure(w, h, dpr); Lay = Office.layout(M.VW, M.VH);
+  cv.width = M.VW; cv.height = M.VH; cv.style.width = M.VW * M.k + 'px'; cv.style.height = M.VH * M.k + 'px';
+  stage.style.width = w + 'px'; stage.style.height = h + 'px';
+  if (!full) { const s = vp.clientWidth / w; stage.style.transform = `scale(${s})`; vp.style.height = h * s + 'px'; }
+  rebake(); placeUI();
+  const sw = Lay.screen.w * M.k | 0, sh = Lay.screen.h * M.k | 0;
+  $('#dims').textContent = `${w}×${h}: escala ${M.S}× (cada pixel da arte = ${M.S} px físicos), cena ${M.VW}×${M.VH}, área do jogo ${sw}×${sh} px (${Math.round(sw / w * 100)}% × ${Math.round(sh / h * 100)}% da tela)` + (full ? '' : ' · prévia reduzida para caber na página; use “Ver em tela cheia” para ver pixel a pixel');
+}
+function rebake() { baked = Office.bake(Lay, { ...ST, decor: $('#decor').checked ? ST.decor : [] }); }
+function placeUI() {
+  if (!ui) { ui = buildUI(); stage.append(ui); }
+  const s = Lay.screen, k = M.k;
+  Object.assign(ui.style, { left: s.x * k + 'px', top: s.y * k + 'px', width: s.w * k + 'px', height: s.h * k + 'px' });
+  ui.style.setProperty('--fs', Math.max(14, Math.min(28, s.h * k * .031)) + 'px');
+}
+function buildUI() {
+  const u = document.createElement('div'); u.className = 'wd';
+  u.innerHTML = `<div class="wd-bar"><span class="title"></span><span class="st">Dia <b>3</b> · Sexta-feira</span><span class="sp"></span>
+      <span class="st">Pontos <b id="pts">12.450</b></span><span class="wd-combo" id="cmb">COMBO ×3</span><span class="st">Cargo <b>Analista</b></span><span class="st">R$ <b>380</b></span>
+      <span class="wd-meter" id="meter">${'<i></i>'.repeat(12)}</span><span class="wd-lcd" id="clk">10:00</span></div>
+    <div class="wd-main"><div class="wd-board"><div class="wd-lanes"><i></i><i></i><i></i><i></i></div><div class="wd-trays"></div></div>
+      <div class="wd-side"><h4><span>CAIXA DE ENTRADA</span><span id="cnt">3</span></h4></div></div>`;
+  u.querySelector('.title').append(Pixel.el(SPR2.doc, 1, WD_SECTOR_RAMP.ti)); u.querySelector('.title').insertAdjacentHTML('beforeend', 'WORKDAY.EXE');
+  const trays = u.querySelector('.wd-trays');
+  SECT.forEach(s => { const t = document.createElement('div'); t.className = 'wd-tray'; t.style.cssText = `--c:${s.c};--hi:${s.hi};--lo:${s.lo}`; const g = Pixel.el(SPR2[s.glyph], 2); g.classList.add('glyph'); t.append(g); t.insertAdjacentHTML('beforeend', s.name); trays.append(t); });
+  const side = u.querySelector('.wd-side');
+  side.append(wdTask('Novo e-mail', '', `“VPN caiu” → <button class="wd-key">TI</button><button class="wd-key">RH</button>`, SPR2.envelope));
+  side.append(wdTask('Pendência', '', `<button class="wd-key">Aprovar</button>`, SPR2.doc, WD_SECTOR_RAMP.fin));
+  side.append(wdTask('Preencher campo', '', `<span style="letter-spacing:3px">SINER<span style="color:#8f7d63">GIA</span></span>`, SPR2.postit));
+  [...side.querySelectorAll('.wd-task')].forEach((t, i) => setTimer(t, [.8, .45, .2][i]));
+  Motion.urgent(side.querySelectorAll('.wd-task')[2]);
+  return u;
+}
+// Laço do protótipo: documentos caindo de verdade dentro do monitor
+let doc = null;
+async function protoDocLoop() {
+  while (true) {
+    const board = ui && ui.querySelector('.wd-board'); if (!board) { await sleep(300); continue; }
+    const lane = Math.random() * 4 | 0, sec = SECT[Math.random() < .8 ? lane : (lane + 1) % 4], urgent = ST.clutter >= 2 && Math.random() < .3;
+    const w = board.clientWidth / 4, d = wdDoc(sec, urgent); d.style.width = (w - 16) + 'px'; d.style.left = (lane * w + 8) + 'px'; d.style.top = '-80px'; board.append(d);
+    const trayTop = board.clientHeight - board.querySelector('.wd-trays').clientHeight;
+    Motion.play(d, [{ transform: 'scale(.92,1.1)' }, { transform: 'scale(1)' }], { duration: 260, easing: Motion.E.out });
+    await Motion.play(d, [{ top: '-80px', rotate: '-1.5deg' }, { top: trayTop * .5 + 'px', rotate: '1.5deg', offset: .5 }, { top: trayTop - d.offsetHeight + 'px', rotate: '0deg' }],
+      { duration: (urgent ? 1500 : 2600) - ST.clutter * 300, easing: Motion.E.in }).finished;
+    const tray = board.querySelectorAll('.wd-tray')[lane];
+    if (sec === SECT[lane]) { Motion.squash(d); Motion.play(tray, [{ transform: 'translateY(0)' }, { transform: 'translateY(5px)', offset: .3 }, { transform: 'translateY(0)' }], { duration: 280, easing: Motion.E.out, fill: 'none' });
+      Motion.floatText(board, '+' + (urgent ? 80 : 40), lane * w + w / 2 - 16, trayTop - 60); Motion.punch(ui.querySelector('#cmb'), 1.25);
+      await sleep(220); await Motion.play(d, [{ opacity: 1 }, { opacity: 0, transform: 'translateY(24px) scale(.85,.6)' }], { duration: 200, easing: Motion.E.in }).finished; }
+    else { Motion.reject(d); Motion.shake(tray, 5); Motion.floatText(board, 'Setor errado!', lane * w + 6, trayTop - 60, 'bad'); await sleep(600); await Motion.leave(d, 'down').finished; }
+    d.remove(); await sleep(250);
+  }
+}
+let virusWin = null, toastT = 0;
+function protoFrame(t) {
+  t /= 1000;
+  if (baked) Office.draw(ctx, Lay, { ...ST, decor: $('#decor').checked ? ST.decor : [] }, baked, t);
+  if (ui) {
+    const segs = ui.querySelectorAll('#meter i'), v = Math.round(ST.stress / 100 * 12);
+    segs.forEach((s, n) => { s.classList.toggle('on', n < v); s.style.setProperty('--c', n < 6 ? P.F : n < 9 ? P.Q : P.R); });
+    ui.querySelector('#meter').classList.toggle('hot', v >= 10);
+    const hh = Math.floor(ST.hour), mm = Math.round((ST.hour - hh) * 60); ui.querySelector('#clk').textContent = `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`;
+    // Notificação ocasional e janela de vírus no caos máximo
+    if (t - toastT > 9) { toastT = t; const tt = document.createElement('div'); tt.className = 'wd-toast'; tt.append(Pixel.el(SPR2.envelope, 2));
+      tt.insertAdjacentHTML('beforeend', '<div><small>De: RH</small>Pesquisa de clima: responda até ontem.</div>'); ui.append(tt); Motion.enter(tt, 'right');
+      setTimeout(() => Motion.leave(tt, 'right').finished.then(() => tt.remove()), 3800); }
+    if (ST.clutter >= 3 && !virusWin) { virusWin = document.createElement('div'); virusWin.className = 'wd-popup'; virusWin.style.cssText = 'left:22%;top:30%';
+      virusWin.innerHTML = '<div class="tb"><span>AVISO!!!</span><button>x</button></div><div class="bd"></div>'; virusWin.querySelector('.bd').append(Pixel.el(SPR2.virus, 3));
+      virusWin.querySelector('.bd').insertAdjacentHTML('beforeend', '<span>3 vírus detectados!!!</span>'); ui.append(virusWin);
+      Motion.play(virusWin, [{ transform: 'scale(.4)', opacity: 0 }, { transform: 'scale(1.08)', opacity: 1, offset: .7 }, { transform: 'scale(1)', opacity: 1 }], { duration: 220, easing: Motion.E.out }); }
+    if (ST.clutter < 3 && virusWin) { virusWin.remove(); virusWin = null; }
+  }
+  requestAnimationFrame(protoFrame);
+}
+const chaosNames = ['calmo', 'agitado', 'caótico', 'colapso'];
+$('#hour').oninput = e => { ST.hour = +e.target.value; const hh = Math.floor(ST.hour), mm = Math.round((ST.hour - hh) * 60); $('#hourv').textContent = `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`; rebake(); };
+$('#chaos').oninput = e => { ST.clutter = +e.target.value; ST.stress = [15, 45, 72, 95][ST.clutter]; $('#chaosv').textContent = chaosNames[ST.clutter]; rebake(); };
+$('#decor').onchange = rebake;
+$('#res').onchange = buildStage;
+addEventListener('resize', () => { if (full) buildStage(); else buildStage(); });
+const enterFull = async () => { full = true; stage.classList.add('full'); document.body.classList.add('isfull'); try { await document.documentElement.requestFullscreen(); } catch (e) {} buildStage(); };
+const exitFull = async () => { full = false; stage.classList.remove('full'); document.body.classList.remove('isfull'); if (document.fullscreenElement) { try { await document.exitFullscreen(); } catch (e) {} } buildStage(); };
+$('#fullBtn').onclick = enterFull; $('#exitFull').onclick = exitFull;
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && full) exitFull(); });
+document.addEventListener('fullscreenchange', () => { if (!document.fullscreenElement && full) exitFull(); });
+buildStage(); requestAnimationFrame(protoFrame); protoDocLoop();
+{ const m = Office.measure(1366, 768, 1), l = Office.layout(m.VW, m.VH); $('#area1366').textContent = `${l.screen.w * m.k}×${l.screen.h * m.k} px`; }
+
+/* ---------- 5. Protótipos mobile ---------- */
+function phone(caption, land, build) {
+  const f = document.createElement('figure'); f.className = 'phone' + (land ? ' land' : ''); f.style.margin = 0;
+  f.innerHTML = '<div class="scr"></div><figcaption></figcaption>'; f.querySelector('figcaption').textContent = caption; build(f.querySelector('.scr')); $('#phones').append(f);
+}
+function mbHud(s) { const h = document.createElement('div'); h.className = 'mb-hud';
+  h.innerHTML = `<span class="wd-lcd" style="font-size:20px">14:20</span><span>Dia 3 · <span style="color:#6e3b26">12.450</span> <span class="wd-combo">×3</span></span><button class="mb-pause">II</button><span class="wd-meter">${'<i></i>'.repeat(12)}</span>`;
+  h.querySelectorAll('.wd-meter i').forEach((i, n) => { i.classList.toggle('on', n < 7); i.style.setProperty('--c', n < 6 ? P.F : P.Q); }); s.append(h); }
+function mbBoard(s, grow = 1, docAt = .35) { const b = document.createElement('div'); b.className = 'mb-board'; b.style.flex = grow + ' 1 0';
+  const w = document.createElement('div'); w.className = 'wd'; w.style.cssText = 'inset:0;display:block;font-size:15px;background:transparent'; b.append(w);
+  w.innerHTML = '<div class="wd-board" style="position:absolute;inset:0"><div class="wd-lanes"><i></i><i></i><i></i><i></i></div><div class="wd-trays"></div></div>';
+  SECT.forEach(sec => { const t = document.createElement('div'); t.className = 'wd-tray'; t.style.cssText = `--c:${sec.c};--hi:${sec.hi};--lo:${sec.lo};flex-direction:column;gap:2px;font-size:13px`; const g = Pixel.el(SPR2[sec.glyph], 2); g.classList.add('glyph'); t.append(g); t.insertAdjacentHTML('beforeend', sec.name.replace('Financeiro', 'Financ.')); w.querySelector('.wd-trays').append(t); });
+  s.append(b);
+  requestAnimationFrame(() => { const bd = w.querySelector('.wd-board'), lw = bd.clientWidth / 4, d = wdDoc(SECT[1]); d.style.width = (lw * 1.6 | 0) + 'px'; d.style.left = (lw * 1 - lw * .3 | 0) + 'px'; d.style.fontSize = '14px';
+    const trayTop = bd.clientHeight - bd.querySelector('.wd-trays').clientHeight; bd.append(d);
+    Motion.play(d, [{ top: '-50px' }, { top: (trayTop - 50) + 'px' }], { duration: 4200, iterations: Infinity, easing: 'linear', fill: 'none' }); });
+  return b; }
+function mbDock(s, sel, extra = '') { const d = document.createElement('div'); d.className = 'mb-dock';
+  const chips = [['envelope', '', 'soon'], ['doc', WD_SECTOR_RAMP.fin, ''], ['postit', '', 'late'], ['virus', '', '']];
+  chips.forEach(([k, pal, cls], i) => { const c = document.createElement('button'); c.className = 'mb-chip ' + cls + (sel === i ? ' sel' : ''); c.append(Pixel.el(SPR2[k], 2, pal || undefined)); d.append(c); });
+  d.insertAdjacentHTML('beforeend', '<span class="mb-more">+1</span>' + extra); s.append(d);
+  requestAnimationFrame(() => Motion.enter(d.children[3], 'down')); return d; }
+phone('1 · jogando: fichas com anel de prazo na zona do polegar', false, s => { mbHud(s); mbBoard(s); mbDock(s, -1); });
+phone('2 · ficha aberta: o tabuleiro encolhe, nada é coberto', false, s => { mbHud(s); mbBoard(s, 1);
+  const sh = document.createElement('div'); sh.className = 'mb-sheet'; sh.append(wdTask('Novo e-mail', '', '“VPN caiu” →<br><button class="wd-key">Financ.</button> <button class="wd-key">RH</button> <button class="wd-key">Jurídico</button> <button class="wd-key">TI</button>', SPR2.envelope));
+  setTimer(sh.firstChild, .45); s.append(sh); requestAnimationFrame(() => Motion.enter(sh, 'down')); mbDock(s, 0); });
+phone('3 · digitação: tabuleiro menor, mas visível acima do teclado', false, s => { mbHud(s); mbBoard(s, 1);
+  const sh = document.createElement('div'); sh.className = 'mb-sheet'; sh.append(wdTask('Preencher campo', '', '<span style="letter-spacing:4px;font-size:24px">SINER<span style="color:#8f7d63">GIA_</span></span>', SPR2.postit)); setTimer(sh.firstChild, .3); s.append(sh);
+  const kb = document.createElement('div'); kb.className = 'mb-kb'; kb.innerHTML = [...'QWERTYUIOPASDFGHJKLÇZXCVBNM⌫↵'].map(c => `<i>${c}</i>`).join(''); s.append(kb); });
+phone('4 · chefe: a doca vira um botão grande, sem cobrir o tabuleiro', false, s => { mbHud(s); mbBoard(s);
+  const ban = document.createElement('div'); ban.className = 'mb-banner'; ban.innerHTML = '<b>O CHEFE VEM AÍ!</b><span style="margin-left:auto" class="wd-lcd">1.4</span>'; s.querySelector('.mb-board').append(ban);
+  const d = document.createElement('div'); d.className = 'mb-dock'; d.innerHTML = '<button class="mb-boss">ESCONDER TELA</button>'; s.append(d); });
+phone('5 · paisagem: tabuleiro à esquerda, tarefas sempre visíveis à direita', true, s => {
+  const left = document.createElement('div'); left.style.cssText = 'position:relative;flex:1;display:flex;flex-direction:column;padding-top:32px'; s.append(left);
+  const hud = document.createElement('div'); hud.className = 'mb-hudl'; hud.innerHTML = `<span class="wd-lcd">14:20</span><span>Dia 3</span><span>12.450</span><span class="wd-combo">×3</span><span class="wd-meter" style="flex:1">${'<i></i>'.repeat(12)}</span>`;
+  hud.querySelectorAll('.wd-meter i').forEach((i, n) => { i.classList.toggle('on', n < 7); i.style.setProperty('--c', n < 6 ? P.F : P.Q); i.style.flex = 1; });
+  s.append(hud); mbBoard(left);
+  const side = document.createElement('div'); side.className = 'mb-side'; side.style.fontSize = '15px';
+  side.append(wdTask('E-mail', '', '<button class="wd-key">TI</button><button class="wd-key">RH</button>', SPR2.envelope), wdTask('Pendência', '', '<button class="wd-key">Aprovar</button>', SPR2.doc, WD_SECTOR_RAMP.fin));
+  [...side.children].forEach((t, i) => setTimer(t, [.4, .8][i])); s.append(side); });
+</script>
+</body>
+</html>
