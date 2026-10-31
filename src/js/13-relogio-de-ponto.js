@@ -46,6 +46,7 @@ function fingerprint(dev, onOk) {
 }
 
 function clockIn() {
+  if (ARRIVED) { ARRIVED = false; startDay(); return; }   // o ponto já foi batido na chegada
   music('menu');
   const u = U(), [name, desc] = L.mods[S.mod];
   const sc = scene('sc-in');

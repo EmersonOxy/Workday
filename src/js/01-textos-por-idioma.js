@@ -492,3 +492,4 @@ LANGS.es.ui.diffDesc = { facil: 'Documentos más lentos, plazos largos, menos es
 LANGS.pt.ui.diffStart = 'Começar'; LANGS.en.ui.diffStart = 'Start'; LANGS.es.ui.diffStart = 'Empezar';
 LANGS.pt.ui.loading = 'Carregando expediente…'; LANGS.en.ui.loading = 'Loading workday…'; LANGS.es.ui.loading = 'Cargando jornada…';
 LANGS.pt.ui.pressStart = 'Clique no botão ou aperte Enter'; LANGS.en.ui.pressStart = 'Click the button or press Enter'; LANGS.es.ui.pressStart = 'Haz clic en el botón o pulsa Enter';
+LANGS.pt.ui.arrival = 'Bom dia!'; LANGS.en.ui.arrival = 'Good morning!'; LANGS.es.ui.arrival = '¡Buenos días!';

@@ -3,10 +3,31 @@ function modal(html) {
   $('modal').querySelectorAll('.legalbar, .os-start, .os-smenu').forEach(e => e.remove());
   const card = $('modal').querySelector('.card');
   card.className = 'card'; card.innerHTML = html;
+  winChrome(card);
   const was = $('modal').classList.contains('hidden');
   $('modal').classList.remove('hidden');
   if (was) Motion.play(card, [{ transform: 'translateY(14px) scale(.94)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: Motion.T.med, easing: Motion.E.back, fill: 'none' });
   return card;
+}
+// Toda tela em #modal vira janela do WorkOS: barra de título (com o h2 como título), minimizar (recolhe),
+// maximizar (ocupa a área) e fechar (aciona o Voltar/Cancelar da própria tela; sem ele, fecha a janela)
+function winChrome(card) {
+  if (card.querySelector(':scope > .mw')) return;
+  const h = card.querySelector(':scope > h2'), title = (h ? h.textContent : 'WorkOS').trim();
+  const bar = document.createElement('div'); bar.className = 'mw-bar win-bar';
+  bar.innerHTML = `<span class="mw-ttl"><i class="mw-app"></i></span><i class="mw-stripes"></i><span class="mw-b"><b data-g="min" class="min"></b><b data-g="max" class="max"></b><b data-g="x" class="x"></b></span>`;
+  bar.querySelector('.mw-ttl').append(document.createTextNode(title));
+  const body = document.createElement('div'); body.className = 'win-body'; body.append(...card.childNodes);
+  card.append(bar, body); card.classList.add('oswin');
+  bar.querySelector('.mw-app').append(Pixel.el(MENU_ICO.app, 2));
+  bar.querySelectorAll('.mw-b b').forEach(b => b.append(Pixel.el(MENU_ICO[b.dataset.g], 2)));
+  bar.querySelector('.min').onclick = () => { sfx('click'); card.classList.toggle('mini'); };
+  bar.querySelector('.max').onclick = () => { sfx('click'); card.classList.toggle('maxi'); };
+  bar.querySelector('.x').onclick = () => {
+    const u = U(), names = [u.back, u.cancel, u.backToWork, u.close].filter(Boolean);
+    const b = [...body.querySelectorAll('button')].find(x => /^(back|b|bgBack|dBack|rsCancel|avCancel|phCancel|close)$/.test(x.id) || names.includes(x.textContent.trim()));
+    if (b) b.click(); else { sfx('click'); closeModal(); if (document.body.classList.contains('menu-mode')) showMenu(); }
+  };
 }
 function closeModal() { $('modal').classList.add('hidden'); }
 
@@ -132,14 +153,29 @@ function launchWorkday() {
   const tick = () => { if (!w.isConnected) return; if (n < cells.length) { cells[n++].classList.add('on'); if (n % 4 === 0) sfx('key'); setTimeout(tick, 60 + Math.random() * 90); } else setTimeout(() => wipe(() => { w.remove(); newCareer(); }), 250); };
   setTimeout(tick, 300);
 }
+// Chegada: depois da tela de título, a batida de ponto (só cerimônia) e então o computador com o portal
+let ARRIVED = false;
+function showArrival() {
+  music('menu'); const u = U();
+  const sc = scene('sc-in');
+  sc.innerHTML = `<div class="sc-col"><h2>${u.arrival}</h2><p class="sc-hint">${u.holdFinger}</p></div>`;
+  const stg = Stage.mount(sc, 'hall', { eve: false });
+  const now = new Date(), dev = clockDevice(String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0'));
+  const z = +Math.max(0.8, Math.min(1.4, (innerHeight - 330) / 330, (innerWidth - 32) / 330)).toFixed(2);
+  dev.style.zoom = z; pxSnap(dev.querySelector('.pad canvas'), 5, z);
+  sc.querySelector('.sc-col').append(dev);
+  hallAttach(stg, dev);
+  sceneIn(sc, 'h2, .sc-hint', 70, 380);
+  fingerprint(dev, () => wipe(() => { closeScene(); ARRIVED = true; showMenu(); }));
+}
 // Tela de título: nome do jogo e o botão Iniciar (orbe do WorkOS) no centro
 function showTitle() {
   const t = document.createElement('div'); t.id = 'titlescr';
-  t.innerHTML = `<div class="tt-logo"></div><button class="tt-orb" aria-label="${U().diffStart}"></button><small>${U().pressStart}</small><p class="tt-legal">${U().footer}</p>`;
+  t.innerHTML = `<div class="tt-logo"></div><button class="tt-orb" aria-label="${U().diffStart}"></button><p class="tt-legal">${U().footer}</p>`;
   t.querySelector('.tt-logo').append(pxSize(logoCanvas(), 8));
   t.querySelector('.tt-orb').append(Pixel.el(MENU_ICO.app, 8));
   document.body.append(t);
-  const go = () => { removeEventListener('keydown', key); sfx('ok'); wipe(() => { t.remove(); showMenu(); }); };
+  const go = () => { removeEventListener('keydown', key); sfx('ok'); wipe(() => { t.remove(); showArrival(); }); };
   const key = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } };
   t.querySelector('.tt-orb').onclick = go; addEventListener('keydown', key);
 }
