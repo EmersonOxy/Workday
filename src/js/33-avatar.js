@@ -171,14 +171,14 @@ function loadPhoto() {
   if (!p || !p.big) return;
   for (const k of ['big', 'mini']) { const im = new Image(); im.onload = () => { PHOTO[k] = im; OFFICE.key = ''; document.querySelectorAll('canvas.portrait').forEach(c => c._redraw && c._redraw()); }; im.src = p[k]; }
 }
-function portrait(h, cfgOverride, photoOverride) {
+function portrait(h, cfgOverride, photoOverride, full) {
   const dpr = window.devicePixelRatio || 1, c = document.createElement('canvas'); c.className = 'portrait';
   const draw = () => {
     const ph = photoOverride !== undefined ? photoOverride : (PROFILE.photo === 'local' ? PHOTO : null);
     let src;
     if (Array.isArray(PROFILE.photo) && photoOverride === undefined) src = Pixel.master(PROFILE.photo, WD_PAL);       // foto de save antigo (16×18)
     else if (ph && ph.big) src = h >= ph.big.height || !ph.mini ? ph.big : ph.mini;
-    else src = avHalf(avRender(cfgOverride || avConfig()));   // pixel graúdo como o Duda, o chefe e os outros rostos
+    else src = full ? avRender(cfgOverride || avConfig()) : avHalf(avRender(cfgOverride || avConfig()));   // pixel graúdo como o Duda, o chefe e os outros rostos
     c.width = src.width; c.height = src.height; c.getContext('2d').drawImage(src, 0, 0);
     const n = Math.max(1, Math.floor(h * dpr / src.height));   // escala inteira: 168 px → 6× (24×28), 56 px → 2×
     c.style.width = src.width * n / dpr + 'px'; c.style.height = src.height * n / dpr + 'px';
@@ -204,7 +204,7 @@ function showAvatarEditor(start, onDone) {
     eyes: [['eyes', AV_OPT.eyes, 'style'], ['eyeColor', Object.keys(AV_RAMPS.eye), 'color', k => AV_RAMPS.eye[k]], ['brows', AV_OPT.brows, 'style']],
     outfit: [['outfit', AV_OPT.outfit, 'style'], ['outfitColor', Object.keys(AV_RAMPS.cloth), 'color', k => AV_RAMPS.cloth[k][1]], ['detail', AV_OPT.detail, 'style'], ['detailColor', Object.keys(AV_RAMPS.cloth), 'color', k => AV_RAMPS.cloth[k][1]]],
     bg: [['bg', AV_OPT.bg, 'style']] };
-  const paintPrev = () => card.querySelector('.av-prev').replaceChildren(portrait(168, cfg, null));
+  const paintPrev = () => card.querySelector('.av-prev').replaceChildren(portrait(168, cfg, null, true));   // no editor, prévia e opções na mesma resolução
   const paintTabs = () => card.querySelector('.av-tabs').replaceChildren(...Object.keys(TABS).map(k => { const b = document.createElement('button'); b.className = 'pxbtn' + (k === tab ? ' on' : ''); b.textContent = t.tabs[k]; b.onclick = () => { tab = k; paintTabs(); paintPanel(); }; return b; }));
   const paintPanel = () => {
     const panel = card.querySelector('.av-panel'), keep = panel.scrollTop; panel.replaceChildren(); requestAnimationFrame(() => { panel.scrollTop = keep; });

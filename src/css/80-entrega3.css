@@ -384,7 +384,7 @@
 
   /* ===== Telefone da mesa (canvas em pixel art, deitado no canto) ===== */
   .dphone { display: none; position: fixed; z-index: 1; image-rendering: pixelated; cursor: pointer; touch-action: none; }
-  body.office:not(.menu-mode):not(.focus):not(.mobile) .dphone { display: block; }
+  body.office:not(.focus):not(.mobile) .dphone { display: block; }
   .dphone.ring { animation: dpring .12s steps(2) infinite; }
   @keyframes dpring { 50% { translate: 2px 0; } }
   .swatches.cursors { position: relative; }
