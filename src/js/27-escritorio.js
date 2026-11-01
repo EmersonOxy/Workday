@@ -7,7 +7,7 @@ OFFICE.fx = $('officeFx'); OFFICE.fxCtx = OFFICE.fx.getContext('2d'); OFFICE.key
 function officeWanted() { return !document.body.classList.contains('touch') && innerWidth >= 900 && innerHeight >= 500; }
 function officeState() {
   const day = S && S.phase === 'day';
-  const hour = day ? 9 + Math.min(9, S.dayT / DAY_SECONDS * 9) : S && (S.phase === 'ending' || S.phase === 'report') ? 18 : 9.5;
+  const hour = day ? gameMin() / 60 : S && (S.phase === 'ending' || S.phase === 'report') ? 18 : 9.5;
   const stress = S ? S.stress : 0;
   const clutter = day ? Math.min(3, Math.floor(stress / 30) + (S.level >= 8 ? 1 : 0)) : 0;
   const ringing = (day && S.tasks.some(t => t.type === 'call')) || !!OFFICE.call;

@@ -5,7 +5,7 @@ function clockDevice(time) {
   dev.className = 'clockdev';
   dev.innerHTML = `<div class="paper"></div><div class="hump"><div class="slot"></div></div>
     <div class="cd-row">
-      <div class="lcd"><div class="date">${u.day} ${S ? S.day : 1} · WORKDAY</div><div class="t1">${time}</div><div class="t2">${u.placeFinger}</div><div class="menu">MENU</div></div>
+      <div class="lcd"><div class="date">${u.day} ${Quests.today()} · ${gameDateOf(Quests.today()).toLocaleDateString(L.htmlLang, { day: '2-digit', month: '2-digit' })}</div><div class="t1">${time}</div><div class="t2">${u.placeFinger}</div><div class="menu">MENU</div></div>
       <div class="cd-side"><span class="usb"></span><span class="btns"><i class="rb"></i><i class="bb"></i></span><span class="brand">PONTO<br>MATIC</span></div>
     </div>
     <div class="cd-row cd-bottom"><span class="sticker">WORKDAY LTDA.<br>Nº ${EMP_ID}</span>
@@ -54,7 +54,7 @@ function clockIn() {
     <div class="note px"><small>${u.today}</small><b>${name}</b><span>${desc}</span></div>
     <p class="sc-hint">${u.holdFinger}</p></div>`;
   const stg = Stage.mount(sc, 'hall', { eve: false });
-  const dev = clockDevice('09:00');
+  const dev = clockDevice(gameTime());   // hora da chegada do dia (travada até começar o expediente)
   const z = +Math.max(0.8, Math.min(1.4, (innerHeight - 330) / 330, (innerWidth - 32) / 330)).toFixed(2);
   dev.style.zoom = z; pxSnap(dev.querySelector('.pad canvas'), 5, z);
   sc.querySelector('.sc-col').append(dev);
