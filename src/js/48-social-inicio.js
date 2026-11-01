@@ -7,19 +7,19 @@ LANGS.pt.ui.acc = { label: 'Nome de usuário', ph: 'Digite seu nome', need: 'Dig
 LANGS.en.ui.acc = { label: 'Username', ph: 'Type your name', need: 'Type a name to sign in. Each name has its own save.' };
 LANGS.es.ui.acc = { label: 'Nombre de usuario', ph: 'Escribe tu nombre', need: 'Escribe un nombre para entrar. Cada nombre tiene su propia partida.' };
 Object.assign(LANGS.pt.ui.msn, {
-  add: 'Adicionar contato', addPh: 'Nome ou e-mail do contato', addGo: 'Adicionar', addNone: 'Nenhum usuário encontrado com esse nome.', addHas: n => `${n} já está na sua lista.`, addOk: n => `${n} foi adicionado(a).`,
+  callFirst: n => `Mande uma mensagem para ${n} antes de ligar.`, add: 'Adicionar contato', addPh: 'Nome ou e-mail do contato', addGo: 'Adicionar', addNone: 'Nenhum usuário encontrado com esse nome.', addHas: n => `${n} já está na sua lista.`, addOk: n => `${n} foi adicionado(a).`,
   onb: { title: 'E-MAIL · CAIXA DE ENTRADA', from: 'Bia Torres · RH', subject: 'Antes do seu primeiro dia', open: 'Abrir o MSworkN', start: 'Começar o expediente', back: 'Depois',
     body: n => `<p>Oi, ${n}! Seja bem-vindo(a) à Workday!</p><p>Antes de bater o ponto, só uma coisinha: abra o <b>MSworkN</b> (o ícone de balões na área de trabalho) e adicione o <b>Duda</b>, do TI. É só clicar em <i>Adicionar contato</i> e procurar por "Duda".</p><p>Depois manda um <b>oi</b> pra ele, assim ele também fica com o seu contato e consegue te socorrer quando o computador travar (vai travar).</p><p>Te vejo lá dentro!<br>Bia Torres — RH</p>`,
     steps: { add: 'Adicionar o Duda no MSworkN', hi: 'Mandar um oi para o Duda' } },
 });
 Object.assign(LANGS.en.ui.msn, {
-  add: 'Add contact', addPh: 'Contact name or e-mail', addGo: 'Add', addNone: 'No user found with that name.', addHas: n => `${n} is already on your list.`, addOk: n => `${n} was added.`,
+  callFirst: n => `Send ${n} a message before calling.`, add: 'Add contact', addPh: 'Contact name or e-mail', addGo: 'Add', addNone: 'No user found with that name.', addHas: n => `${n} is already on your list.`, addOk: n => `${n} was added.`,
   onb: { title: 'E-MAIL · INBOX', from: 'Bia Torres · HR', subject: 'Before your first day', open: 'Open MSworkN', start: 'Start the workday', back: 'Later',
     body: n => `<p>Hi, ${n}! Welcome to Workday!</p><p>Before you clock in, one small thing: open <b>MSworkN</b> (the speech-bubble icon on the desktop) and add <b>Duda</b> from IT. Just click <i>Add contact</i> and search for "Duda".</p><p>Then send him a <b>hi</b>, so he has your contact too and can rescue you when the computer freezes (it will).</p><p>See you inside!<br>Bia Torres — HR</p>`,
     steps: { add: 'Add Duda on MSworkN', hi: 'Say hi to Duda' } },
 });
 Object.assign(LANGS.es.ui.msn, {
-  add: 'Agregar contacto', addPh: 'Nombre o correo del contacto', addGo: 'Agregar', addNone: 'No se encontró ningún usuario con ese nombre.', addHas: n => `${n} ya está en tu lista.`, addOk: n => `${n} fue agregado(a).`,
+  callFirst: n => `Envía un mensaje a ${n} antes de llamar.`, add: 'Agregar contacto', addPh: 'Nombre o correo del contacto', addGo: 'Agregar', addNone: 'No se encontró ningún usuario con ese nombre.', addHas: n => `${n} ya está en tu lista.`, addOk: n => `${n} fue agregado(a).`,
   onb: { title: 'CORREO · BANDEJA DE ENTRADA', from: 'Bia Torres · RR. HH.', subject: 'Antes de tu primer día', open: 'Abrir MSworkN', start: 'Empezar la jornada', back: 'Después',
     body: n => `<p>¡Hola, ${n}! ¡Bienvenido(a) a Workday!</p><p>Antes de marcar entrada, una cosita: abre <b>MSworkN</b> (el icono de globos en el escritorio) y agrega a <b>Duda</b>, de TI. Solo haz clic en <i>Agregar contacto</i> y busca "Duda".</p><p>Después mándale un <b>hola</b>, así él también tiene tu contacto y puede rescatarte cuando la computadora se cuelgue (se va a colgar).</p><p>¡Nos vemos adentro!<br>Bia Torres — RR. HH.</p>`,
     steps: { add: 'Agregar a Duda en MSworkN', hi: 'Saludar a Duda' } },

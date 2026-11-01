@@ -290,12 +290,15 @@ function socChoose(npc, idx, typed) {
   socDirty(); return true;
 }
 // Assuntos que o jogador pode puxar com aquele contato agora
+// contato com diálogo inicial (ex.: o oi para o Duda): nada de assuntos sugeridos nem chamadas antes dele acontecer
+function socFirstPending(npc) { const fm = CAST[npc] && CAST[npc].firstMsg; return !!fm && !Object.keys(SOC.done).some(k => k.split(/[#@]/)[0] === fm); }
 function socTopics(npc, ctx = socCtx()) {
+  if (socFirstPending(npc)) return [];
   return Object.values(SOC_THREADS).filter(T => T.by === 'player' && T.npc === npc && socCond(T.when, npc, ctx)
     && (T.repeat ? (SOC.done[socKey(T, ctx)] == null || ctx.day - SOC.done[socKey(T, ctx)] >= T.repeat) : SOC.done[socKey(T, ctx)] == null));
 }
 function socTopic(npc, id, typed) {
-  const ctx = socCtx(), T = SOC_THREADS[id]; if (!T || SOC.th[npc]) return false;
+  const ctx = socCtx(), T = SOC_THREADS[id]; if (!T || SOC.th[npc] || socFirstPending(npc)) return false;
   socStart(T, ctx, typed || true); return true;
 }
 

@@ -76,6 +76,7 @@ async function settle(p, ms = 2500) { const t0 = Date.now(); while (Date.now() -
     await p.click('#onbMsn'); await p.waitForTimeout(400);
     await p.fill('.msn-addin', 'Duda'); await p.press('.msn-addin', 'Enter'); await p.waitForTimeout(300);
     ok(await p.evaluate(() => SOC.c.duda.st === 'known' && document.querySelector('#onbGo').disabled), 'Duda adicionado pelo botão do MSworkN; ainda falta o oi');
+    ok(await p.evaluate(() => socTopics('duda').length === 0 && !document.querySelector('.msn-opt.topic') && !socTopic('duda', 'duda_jogo') && !socCallCheck('duda').ok), 'antes da primeira conversa com o Duda: sem convite para jogar nem chamada');
     await p.fill('.msn-in', 'oi duda'); await p.press('.msn-in', 'Enter'); await settle(p, 2500);
     ok(await p.evaluate(() => !document.querySelector('#onbGo').disabled && SOC.done.duda_hello != null && SOC.c.duda.log.some(m => m.f === 'n')), 'o oi chega ao Duda, ele responde e o expediente é liberado');
     await p.waitForTimeout(1900); await p.click('#onbGo'); await p.waitForTimeout(200);

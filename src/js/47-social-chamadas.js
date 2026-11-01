@@ -57,6 +57,7 @@ function socCallCheck(id, ctx = socCtx()) {
   if (Call.el) return { ok: false, why: '' };
   if (S && S.phase !== 'over' && !S.onBreak) return { ok: false, why: u.callWork };
   const p = socPresence(id, ctx);
+  if (socFirstPending(id)) return { ok: false, why: u.callFirst(castFirst(id)) };
   if (p.s === 'offline' || p.s === 'away') return { ok: false, why: u.callOff(castFirst(id)) };
   return { ok: true, busy: p.s === 'busy' };
 }
