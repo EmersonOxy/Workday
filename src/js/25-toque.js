@@ -5,6 +5,8 @@ if (TOUCH) {
   document.body.classList.add('touch');
   hud();
   $('pad').querySelectorAll('button').forEach(b => {
+    // Pausa chama a ação direto: o Espaço (que este botão simulava) passou a só atender o telefone
+    if (b.id === 'padPause') { b.onpointerdown = e => { e.preventDefault(); if (S && S.phase === 'day' && !S.resting && S.bossAuto <= 0) setPaused(!S.paused); }; return; }
     b.onpointerdown = e => { e.preventDefault(); key(b.dataset.k); };
     b.onpointerup = b.onpointercancel = () => key(b.dataset.k, 'keyup');
   });

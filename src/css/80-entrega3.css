@@ -142,7 +142,7 @@
   @keyframes vcnudge { 50% { transform: translateX(3px); } }
 
   /* ===== Barra de tarefas também durante o expediente ===== */
-  body.office:not(.menu-mode):not(.mobile) #app { padding-bottom: 2.7em; }
+  body.office:not(.menu-mode):not(.mobile) #app { padding-bottom: max(2.7em, calc(1.3em + 37px)); }   /* o orbe (66 px fixos) sobe acima da barra: o tabuleiro termina antes dele */
   body.office:not(.menu-mode):not(.mobile) #osdesk { display: block; position: absolute; left: 0; right: 0; bottom: 0; height: 2.1em; z-index: 2; background: none; }
   body.office:not(.menu-mode) #osdesk .icons { display: none; }
   body.office:not(.menu-mode) #osdesk .start { cursor: pointer; }
