@@ -110,7 +110,6 @@ function osPicPicker(anchor, onPick) {
 
 // Botão Iniciar do WorkOS (no menu principal): atalhos e "Desligar", que fecha o WorkOS com animação e volta ao menu
 function osStart(u) {
-  if (!document.body.classList.contains('office')) return;
   const m = $('modal'); m.querySelectorAll('.os-start, .os-smenu').forEach(e => e.remove());
   m.insertAdjacentHTML('beforeend', `<button class="os-start" aria-haspopup="true"></button><div class="os-smenu hidden"><div class="os-sh"><span class="os-me"></span><b></b></div>
     <button data-a="prof">${u.profile}</button><button data-a="msn" data-msn-badge>${u.msn.app}</button><button data-a="pc">${u.customizePc || 'WorkOS'}</button><button data-a="arr">${u.arr.title}</button><button data-a="cfg">${u.settings}</button><i></i><button data-a="off">${u.shutdown}</button></div>`);
@@ -168,11 +167,11 @@ new MutationObserver(() => $('modal').querySelectorAll('.os-task').forEach(b => 
   .observe($('modal'), { childList: true, subtree: true });
 function osTaskOf(win) { return [...$('modal').querySelectorAll('.os-task')].find(b => b._win === win); }
 function osFocus(win) { win.style.zIndex = ++OS_Z; $('modal').querySelectorAll('.os-task').forEach(b => b.classList.toggle('on', b._win === win)); }
-function osTaskBtn(win, title) {
+function osTaskBtn(win, title, icon) {
   let btn = osTaskOf(win);
   if (!btn) {
     btn = document.createElement('button'); btn.className = 'os-task'; btn._win = win;
-    btn.append(Pixel.el(MENU_ICO.app, 1)); btn.append(document.createTextNode(''));
+    btn.append(Pixel.el(icon || MENU_ICO.app, document.body.classList.contains('mobile') ? 2 : 1)); btn.append(document.createTextNode(''));   // ícone do próprio aplicativo
     btn.onclick = () => { if (win.style.display === 'none') osRestore(win); else if (btn.classList.contains('on')) osMinimize(win); else { sfx('click'); osFocus(win); } };
     osTasks().append(btn);
     if (!win._taskWatch) { win._taskWatch = true; win.addEventListener('pointerdown', () => osFocus(win)); }
@@ -271,7 +270,6 @@ function osApp(id) {
 }
 function osIcons() {
   const m = $('modal'), t = U().osApps; m.querySelectorAll('.os-icons').forEach(e => e.remove());
-  if (!document.body.classList.contains('office')) return;
   const g = document.createElement('div'); g.className = 'os-icons';
   for (const [id, rows, label, pal] of [...(S && S.onBreak ? [] : [['workday', SPR2.doc, 'PORTAL_RH.EXE', WD_SECTOR_RAMP.ti]]), ['cal', APP_ICO.cal, t.calendar], ['calc', APP_ICO.calc, t.calc], ['notes', APP_ICO.notes, t.notes], ['music', APP_ICO.music, t.music], ['paint', APP_ICO.paint, t.paint], ['prof', MENU_ICO.prof, U().profile], ['arq', APP_ICO.arq, U().ev.archive], ['shop', APP_ICO.shop, U().cat.app], ['msn', APP_ICO.msn, U().msn.exe]]) {
     const d = document.createElement('button'); d.className = 'osicon'; d.dataset.app = id; if (id === 'msn') d.dataset.msnBadge = ''; d.append(Pixel.el(rows, 3, pal)); d.insertAdjacentHTML('beforeend', `<span>${label}</span>`);
@@ -298,7 +296,7 @@ function osWindow(title, html, { icon = MENU_ICO.app, cls = '', onClose } = {}) 
   w.querySelector('.mw-b .min').onclick = () => osMinimize(w);
   w.querySelector('.mw-b .max').onclick = () => { sfx(w.classList.contains('maxi') ? 'winMin' : 'winMax'); w.classList.toggle('maxi'); };
   w.querySelector('.mw-b [data-g=x]').onclick = close; w.close = close;
-  $('modal').append(w); sfx('winOpen'); osDrag(w, w.querySelector('.mw-bar')); osTaskBtn(w, title); osFocus(w);
+  $('modal').append(w); sfx('winOpen'); osDrag(w, w.querySelector('.mw-bar')); osTaskBtn(w, title, icon); osFocus(w);
   Motion.play(w, OS_OPEN, { duration: 300, easing: 'steps(10)' });
   return w;
 }
@@ -428,7 +426,7 @@ function showMenu() {
   card.querySelectorAll('.mico').forEach(i => { const n = i.dataset.i === 'snd' && !soundOn ? 'mute' : i.dataset.i; i.append(Pixel.el(n === 'msn' ? APP_ICO.msn : MENU_ICO[n], n === 'msn' ? 1 : 2)); });
   card.querySelectorAll('.mw-b b').forEach(b => b.append(Pixel.el(MENU_ICO[b.dataset.g], 2)));
   // o portal não fecha: minimizar (ou fechar) manda para a barra de tarefas; maximizar alterna o tamanho
-  osTaskBtn(card, 'PORTAL_RH.EXE');
+  osTaskBtn(card, 'PORTAL_RH.EXE', SPR2.doc);
   card.querySelector('.mw-b [data-g=min]').onclick = card.querySelector('.mw-b [data-g=x]').onclick = () => osMinimize(card);
   card.querySelector('.mw-b [data-g=max]').onclick = () => { sfx('click'); card.classList.toggle('maxi'); };
   card.style.removeProperty('--dx'); card.style.removeProperty('--dy'); delete card.dataset.dx; delete card.dataset.dy; osDrag(card, card.querySelector('.mw-bar'));

@@ -19,7 +19,8 @@ function spawnFile() {
   board.append(el);
   Motion.play(el, [{ transform: 'translateY(-10px) scale(.9,1.14)', opacity: 0 }, { transform: 'scale(1.03,.97)', opacity: 1, offset: .6 }, { transform: 'none', opacity: 1 }], { duration: Motion.T.med, easing: Motion.E.out, fill: 'none' });
   S.dropNow = false;
-  S.file = { el, kind, dest: dest.id, lane: Math.floor(Math.random() * SECTORS.length), y: -60 };
+  // cada documento cai do seu jeito: fase, ritmo e amplitude próprios do balanço, e um leve desvio dentro da coluna
+  S.file = { el, kind, dest: dest.id, lane: Math.floor(Math.random() * SECTORS.length), y: -60, ph: Math.random() * 6.28, sp: 2.2 + Math.random() * 1.4, amp: 3 + Math.random() * 4, off: Math.round((Math.random() - .5) * 8) };
   placeFile();
 }
 // A queda é desenhada com aceleração (velocidade sobe de 0,72× a 1,28× da média), mas o arquivo chega
@@ -29,8 +30,11 @@ function placeFile() {
   const f = S.file, w = laneWidth(), H = board.clientHeight - S.trays[0].offsetHeight - f.el.offsetHeight;
   f.el.style.left = (f.lane * w + 8) + 'px'; f.el.style.width = (w - 16) + 'px'; const u = H > 0 ? Math.min(1, Math.max(0, f.y / H)) : 0, red = Motion.reduced.matches;
   f.el.style.top = (red ? f.y : fallVis(f.y, H)) + 'px';
-  // balanço do guia sem girar (girar pixel art borra a grade): desloca em pixels inteiros, −2 → 2 → 0
-  f.el.style.rotate = ''; f.el.style.translate = red ? '' : Math.round(u < .5 ? -2 + u * 8 : 2 - (u - .5) * 4) + 'px 0';
+  // balanço de folha caindo, sem girar o sprite (girar borra a grade): pêndulo lateral no tempo, que amortece perto da bandeja;
+  // o deslocamento é arredondado para pixels físicos inteiros (nítido) e acompanha cada quadro (suave)
+  const dpr = window.devicePixelRatio || 1, damp = 1 - u * .65, t = performance.now() / 1000;
+  const sx = red ? 0 : ((f.off || 0) + Math.sin(t * (f.sp || 2.6) + (f.ph || 0)) * (f.amp || 4) * damp), sy = red ? 0 : Math.abs(Math.cos(t * (f.sp || 2.6) + (f.ph || 0))) * 1.5 * damp;
+  f.el.style.rotate = ''; f.el.style.translate = red ? '' : `${Math.round(sx * dpr) / dpr}px ${Math.round(-sy * dpr) / dpr}px`;
 }
 // O documento que saiu de jogo continua na tela só para terminar a animação
 function retireFile(el, how) {
