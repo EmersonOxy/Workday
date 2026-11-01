@@ -22,6 +22,8 @@ const balance = () => ({ UNLOCK, EVENTS, DAY_SECONDS, LEVEL_SECONDS, MAX_TASKS, 
   SHOP: SHOP.filter(i => !['cacto', 'radio', 'aquario'].includes(i.id)).map(i => [i.id, i.kind, i.price]), RANK_DESK, keys: Object.keys(LANGS),
   uiKeys: Object.fromEntries(Object.entries(LANGS).map(([k, v]) => [k, Object.keys(v.ui).sort().join(',')])) });
 
+// a tela de título (orbe Iniciar) veio depois destes testes: some antes de interagir com o menu
+const noTitle = pg => pg.evaluate(() => { const t = document.getElementById('titlescr'); if (t) t.remove(); }).catch(() => {});
 async function holdFinger(p) {
   for (let i = 0; i < 5; i++) {
     const pad = await p.$('.pad'); if (!pad) return;
@@ -43,7 +45,7 @@ async function desktop(browser, url, label) {
     s('config', { lang: 'pt', theme: 'dark' }); s('som', false);
     s('carreira', { day: 2, score: 1500, rankIdx: 2, perks: ['terapia'], today: [], inv: { cafe: 1, cha: 0 }, careerCauses: { wrong: 5 }, stress: 20 });
   });
-  await p.goto(url);
+  await p.goto(url); await noTitle(p);
   const bal = await p.evaluate(balance);
   if (!fs.existsSync(BASELINE)) { fs.writeFileSync(BASELINE, JSON.stringify(bal, null, 1)); console.log('  (linha de base de balanceamento criada)'); }
   const base = JSON.parse(fs.readFileSync(BASELINE, 'utf8')), strip = o => { const c = { ...o }; delete c.uiKeys; return JSON.stringify(c); };
@@ -118,7 +120,7 @@ async function mobile(browser, url) {
   console.log('\n[celular] iPhone 13');
   const ctx = await browser.newContext({ ...devices['iPhone 13'], locale: 'pt-BR' });
   const p = await ctx.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message));
-  await p.goto(url);
+  await p.goto(url); await noTitle(p);
   await p.tap('#play'); await p.tap('[data-d=normal]'); await p.waitForTimeout(200);
   await p.evaluate(() => { closeScene(); startDay(); S.file.kind = 'normal'; });
   const bx = await (await p.$('#board')).boundingBox();
@@ -145,7 +147,7 @@ async function mobile(browser, url) {
 async function audio(browser, url, label) {
   console.log(`\n[áudio] ${label}`);
   const p = await browser.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message));
-  await p.goto(url); await p.click('#msnd'); await p.waitForTimeout(1500);
+  await p.goto(url); await noTitle(p); await p.click('#msnd'); await p.waitForTimeout(1500);
   ok(await p.evaluate(() => A.mode === 'menu' && !!A.el && !A.el.paused), 'música do menu tocando');
   await p.evaluate(() => { newCareer(); closeScene(); startDay(); }); await p.waitForTimeout(1500);
   ok(await p.evaluate(() => A.mode === 'office' && (!!A.officeSrc || (!!A.el && !A.el.paused))), 'música do escritório tocando');
@@ -159,7 +161,7 @@ async function offline(browser, url) {
   const ctx = await browser.newContext({ viewport: { width: 1366, height: 768 } });
   const ext = []; await ctx.route(/^https?:/, r => { ext.push(r.request().url()); r.abort(); });
   const p = await ctx.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message));
-  await p.goto(url); await p.waitForTimeout(800);
+  await p.goto(url); await noTitle(p); await p.waitForTimeout(800);
   ok(await p.evaluate(async () => { await document.fonts.ready; return document.fonts.check("20px 'VT323'") && [...document.fonts].some(f => f.family.includes('VT323') && f.status === 'loaded'); }), 'fonte VT323 embutida e carregada');
   await p.click('#msnd'); await p.waitForTimeout(1200);
   ok(await p.evaluate(() => A.mode === 'menu' && !!A.el && !A.el.paused), 'música toca sem rede');
@@ -180,7 +182,7 @@ async function entrega1(browser, url) {
   console.log('\n[entrega 1] computador');
   const ctx = await browser.newContext({ viewport: { width: 1366, height: 768 }, locale: 'pt-BR' });
   const p = await ctx.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message));
-  await p.goto(url); await p.waitForTimeout(400);
+  await p.goto(url); await noTitle(p); await p.waitForTimeout(400);
   await p.evaluate(() => { newCareer(); closeScene(); startDay(); S.level = 3; });
   // 3. estresse: largura muda no mesmo instante do erro
   ok(await p.evaluate(() => { fail(10, 'x', 'wrong'); return Math.abs(parseFloat($('stressHit').style.width) - S.stress) < .2 && parseFloat($('stress').style.width) < S.stress; }), 'estresse: camada clara mostra o valor novo no mesmo quadro; a principal vem atrás');
@@ -254,7 +256,7 @@ async function entrega1(browser, url) {
   await ctx.close();
   console.log('\n[entrega 1] celular');
   const m = await (await browser.newContext({ ...devices['iPhone 13'], locale: 'pt-BR' })).newPage(); const merr = []; m.on('pageerror', e => merr.push(e.message));
-  await m.goto(url); await m.waitForTimeout(300);
+  await m.goto(url); await noTitle(m); await m.waitForTimeout(300);
   await m.evaluate(() => { newCareer(); closeScene(); startDay(); setPaused(true); document.querySelector('[data-a=cfg]').click(); });
   await m.waitForTimeout(300); await m.tap('#editBadge'); await m.waitForTimeout(300);
   ok(await m.evaluate(() => !!document.querySelector('.badge-card .bg-photo canvas')), 'celular: crachá acessível pelas configurações');
@@ -270,7 +272,7 @@ async function entrega2(browser, url) {
   console.log('\n[entrega 2] computador');
   const ctx = await browser.newContext({ viewport: { width: 1366, height: 768 }, locale: 'pt-BR' });
   const p = await ctx.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message));
-  await p.goto(url); await p.waitForTimeout(400);
+  await p.goto(url); await noTitle(p); await p.waitForTimeout(400);
   const waitOpts = () => p.waitForFunction(() => document.querySelector('.vc-opts button:not(:disabled)'), null, { timeout: 20000 });
   // pausa durante o expediente: congela tudo, recusar não pune
   await p.evaluate(() => { P.decor = ['lamp']; newCareer(); closeScene(); startDay(); S.day = 3; S.level = 6; for (let i = 0; i < 3; i++) spawnTask(); S.restAt = 0; });
@@ -349,7 +351,7 @@ async function entrega2(browser, url) {
   await ctx.close();
   console.log('\n[entrega 2] celular');
   const m = await (await browser.newContext({ ...devices['iPhone 13'], locale: 'pt-BR' })).newPage(); const me = []; m.on('pageerror', e => me.push(e.message));
-  await m.goto(url); await m.waitForTimeout(300);
+  await m.goto(url); await noTitle(m); await m.waitForTimeout(300);
   await m.evaluate(() => { newCareer(); closeScene(); startDay(); S.day = 3; S.restAt = 0; });
   await m.waitForSelector('.vcall', { timeout: 5000 });
   ok(await m.evaluate(() => { const r = document.querySelector('.vc-win').getBoundingClientRect(); return r.left >= 0 && r.right <= innerWidth && S.paused; }), 'celular: chamada cabe na tela e congela o expediente');

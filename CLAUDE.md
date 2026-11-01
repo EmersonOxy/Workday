@@ -31,6 +31,13 @@ remover tags doctype/html/head/body e publicar no mesmo artifact).
 - `shared/56-gato.js`: gato (modelo único, 14 pelagens, cor dos olhos, estados/animações, catStill/catRows).
 - `shared/57-decor-art.js`: arte dos objetos (ART.*). `39-telefone.js`: telefone — REFERÊNCIA de qualidade/volume.
 - `design/balanceamento.md`, `tools/simulate.py`: economia e simulação.
+- MSworkN (mensageiro do WorkOS, camada social): `43-social-motor.js` (estado `SOC` por carreira/balanceamento, condições,
+  efeitos, agenda, presença, ganchos em endDay/promote/gameOver), `44-social-elenco.js` (textos da UI em `LANGS.*.ui.msn`,
+  fotos 16×16 `MSN_PICS`, gerador de bustos `bustRows`, `castAdd`), `45-social-conversas.js` (conversas/arcos em dados, memórias,
+  promessas), `46-mensageiro.js` (janela única `Msn`, avisos, selos), `47-social-chamadas.js` (chamadas com qualquer contato,
+  reaproveita `callSay`/`closeCall`/minigames; só fora do expediente ou no intervalo). CSS em `src/css/90-mensageiro.css`.
+  Personagem novo = `castAdd()` + conversas em `socThreads([...])`; texto sempre `L3(pt, en, es)`. Testes: `node tests/mensageiro.js`.
+  Regra entre carreiras: colegas (`scope: 'work'`) recomeçam; amigos de fora (`'life'`) continuam.
 
 ## Pendências (próximo passo)
 1. Refazer TODOS os objetos da mesa no padrão do telefone (vista 3/4 com faces próprias — tampo, frente, lateral — e
@@ -40,3 +47,6 @@ remover tags doctype/html/head/body e publicar no mesmo artifact).
    base do monitor e o orbe do Iniciar (mais detalhado).
 2. Bug não reproduzido: HUD do expediente aparecendo atrás da área de trabalho (há proteção via `:has` em 80-entrega3.css).
 3. Modo celular: minimizar o portal deixa a tela vazia (sem ícones/Iniciar).
+4. `tests/regression.js` está desatualizado (falhas anteriores ao MSworkN: linha de base de balanceamento, pausa com Espaço,
+   loja `.slot[data-id=foto]`, escolha de jogo na chamada do Duda). A tela de título agora é removida no teste; o resto falta atualizar.
+5. MSworkN: validar com o usuário tom das conversas, bustos (Bia, Otávio, Helena, Rafa, Lu) e ritmo das mensagens.

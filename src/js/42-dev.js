@@ -15,6 +15,10 @@ function devPanel() {
     ['Remover enfeites', () => { P.decor = []; persist(); OFFICE.key = ''; Office._slotKey = null; }],
     ['Liberar broches e personalizações', () => { SPECIAL.forEach(e => { QST.done[e.id] = QST.done[e.id] || { day: 0 }; if (!QST.pins.includes(e.pin)) QST.pins.push(e.pin); if (e.unlock && !QST.unlocks.includes(e.unlock)) QST.unlocks.push(e.unlock); }); qSave(); }],
     ['Zerar missões/conquistas', () => { Object.assign(QST, { done: {}, active: {}, seen: {}, pins: [], unlocks: [], ach: {}, maxRank: 0 }); qSave(); }],
+    ['MSworkN: liberar todos os contatos', () => { socSync(); CAST_ORDER.forEach(id => { const r = socRel(id); if (r.st !== 'known') { r.st = 'known'; r.since = socCtx().day; } }); socDirty(); }],
+    ['MSworkN: próxima mensagem agora', () => { SocRT.lastStart = SocRT.lastEval = SocRT.enterMenu = -1e9; for (const k in SOC.daily) delete SOC.daily[k]; for (const k in SocRT.due) SocRT.due[k] = 0; }],
+    ['MSworkN: zerar relacionamentos (carreira)', () => { SOC = socFresh(); socSync(); socFlush(); if (Msn.visible()) Msn.render(); }],
+    ['MSworkN: chamada recebida (Lu)', () => { if (!Call.el) socCall('lu', { incoming: true }); }],
     ['Gato: próximo estado', () => { const k = Object.keys(CatAI.STATES), i = (k.indexOf(OFFICE_CAT.state) + 1) % k.length; Object.assign(OFFICE_CAT, { state: k[i], t0: performance.now() / 1000, dur: 6 }); }],
   ];
   w.innerHTML = '<b>DEV · Ctrl+Shift+D fecha</b>';
