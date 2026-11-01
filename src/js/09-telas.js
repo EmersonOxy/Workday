@@ -331,7 +331,7 @@ function showArrival() {
   const sc = scene('sc-in');
   sc.innerHTML = `<div class="sc-col"><h2>${u.arrival}</h2><p class="sc-hint">${u.holdFinger}</p></div>`;
   const stg = Stage.mount(sc, 'hall', { eve: false });
-  const now = new Date(), dev = clockDevice(String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0'));
+  const dev = clockDevice(gameTime());   // hora do jogo (07:32 na chegada)
   const z = +Math.max(0.8, Math.min(1.4, (innerHeight - 330) / 330, (innerWidth - 32) / 330)).toFixed(2);
   dev.style.zoom = z; pxSnap(dev.querySelector('.pad canvas'), 5, z);
   sc.querySelector('.sc-col').append(dev);

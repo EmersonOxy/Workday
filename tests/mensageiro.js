@@ -133,9 +133,14 @@ async function settle(p, ms = 2500) { const t0 = Date.now(); while (Date.now() -
     // backup inclui o social
     ok(await p.evaluate(() => { socFlush(); return !!localStorage.getItem('expediente-social'); }), 'dados sociais entram no backup (chaves expediente-*)');
     // carreira seguinte: colegas recomeçam, amiga continua
-    await p.evaluate(() => { resumeCareer(); closeScene(); startDay(); gameOver('quit'); }); await p.waitForTimeout(300);
-    ok(await p.evaluate(() => SOC.c.lu.f['left:quit'] != null), 'fim de carreira chega para a amiga de fora');
-    await p.evaluate(() => { showMenu(); newCareer(); }); await p.waitForTimeout(400);
+    // atestado no lugar de demissão/esgotamento: a mesma run continua no dia seguinte e o calendário marca o dia
+    await p.evaluate(() => { resumeCareer(); closeScene(); startDay(); S.restAt = 999; window.__d = S.day; window.__w = P.wallet; S.dayScore = 1000; S.stress = 100; S.burnout = true; }); await p.waitForTimeout(600);
+    ok(await p.evaluate(() => !!document.querySelector('.over-card') && document.querySelector('.over-card h2').textContent === U().leave.title && !!load('carreira', null)), 'estresse no limite: atestado médico, sem fim de carreira');
+    ok(await p.evaluate(() => sickDays().includes(window.__d) && P.wallet > window.__w && S.stress === 0), 'atestado: dia marcado, salário com desconto pago, estresse zerado');
+    await p.evaluate(() => document.querySelector('#home').click()); await p.waitForTimeout(1500);
+    ok(await p.evaluate(() => $('scene') && $('scene').className.includes('sleep')), 'atestado: vai para casa dormir e o próximo dia segue');
+    ok(await p.evaluate(() => { const d = gameDateOf(1); return d.getDay() === 1 && d.getDate() === 5 && d.getMonth() === 0 && gameDateOf(6).getDate() === 12 && careerDayOf(new Date(2026, 0, 12)) === 6; }), 'calendário do jogo: dia 1 = segunda 05/01, fins de semana pulados');
+    await p.evaluate(() => { closeScene(); showMenu(); newCareer(); }); await p.waitForTimeout(400);
     ok(await p.evaluate(() => SOC.c.lu && SOC.c.lu.st === 'known' && (!SOC.c.helena || SOC.c.helena.st !== 'known') && (!SOC.c.bia || SOC.c.bia.st !== 'known')), 'nova carreira: colegas recomeçam, decisões da anterior não vazam');
     ok(errs.length === 0, 'sem erros de JavaScript' + (errs.length ? ': ' + errs.join(' | ') : ''));
     await ctx.close(); }

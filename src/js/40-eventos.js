@@ -214,7 +214,7 @@ function typeText(el, html, done) {
   tick(); return () => { stop = true; el.innerHTML = html; done && done(); };
 }
 function osCalendar() {
-  const u = U(), t = u.osApps, e = u.ev, now = new Date(), first = new Date(now); while (first.getDay() % 6 === 0) first.setDate(first.getDate() + 1);
+  const u = U(), t = u.osApps, e = u.ev, now = gameDateOf(Quests.today()), first = new Date(now);   // calendário do jogo (dia 1 = seg 05/01) while (first.getDay() % 6 === 0) first.setDate(first.getDate() + 1);
   let y = first.getFullYear(), mo = first.getMonth();   // abre no mês do próximo dia de expediente (fim de semana pula para segunda)
   const w = osWindow(t.calendar, `<div class="cal"><div class="cal-h"><button class="pxbtn" data-m="-1">◀</button><b></b><button class="pxbtn" data-m="1">▶</button></div><div class="cal-g"></div><p class="cal-note"></p></div>`, { icon: APP_ICO.cal, cls: 'cal-win' });
   Quests.check(); sfx('page');
@@ -259,7 +259,9 @@ function osCalendar() {
     g.innerHTML = t.week.map(d => `<i>${d}</i>`).join('') + '<span></span>'.repeat(first) +
       Array.from({ length: days }, (_, i) => `<span class="${y === now.getFullYear() && mo === now.getMonth() && i + 1 === now.getDate() ? 'today' : ''}">${i + 1}</span>`).join('');
     [...g.querySelectorAll('span')].slice(first).forEach((sp, i) => {
-      const d = careerDayOf(new Date(y, mo, i + 1), today, now), evs = evOf(d).filter(ev => Quests.win(ev, d).a === d || (d === today && known(ev, d))); if (!evs.length || d < today - 25) return;   // ícone no 1º dia do evento (e hoje, se ele estiver acontecendo)
+      const d = careerDayOf(new Date(y, mo, i + 1), today, now);
+      if (d && sickDays().includes(d)) { sp.classList.add('sick'); sp.title = U().leave.cal; }
+      const evs = evOf(d).filter(ev => Quests.win(ev, d).a === d || (d === today && known(ev, d))); if (!evs.length || d < today - 25) return;   // ícone no 1º dia do evento (e hoje, se ele estiver acontecendo)
       const ic = document.createElement('button'); ic.className = 'cal-ev' + (evs.some(ev => QST.done[ev.id]) ? ' done' : ''); ic.setAttribute('aria-label', e.hidden);
       const ev = evs[0]; ic.append(known(ev, d) ? pinEl(ev.pin, 2, true) : Pixel.el(CAL_Q, 2));
       if (known(ev, d) && today >= Quests.win(ev, d).a && today <= Quests.win(ev, d).b && !QST.done[ev.id]) ic.classList.add('now');
