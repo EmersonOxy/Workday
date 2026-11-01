@@ -143,6 +143,7 @@
       height: calc(var(--hudb, 74px) - 8px - max(8px, env(safe-area-inset-top, 0px))); box-sizing: border-box; padding: 4px 8px; align-items: center; font-size: 14px; line-height: 1.05; }
     body.mobile #toast > div { min-width: 0; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
     body.mobile #toast small { font-size: 12px; }
+    body.mobile #toast.notif { pointer-events: auto; touch-action: none; cursor: grab; animation: none; z-index: 40; opacity: 1; }
   }
   @media (orientation: landscape) and (max-height: 560px) {
     body.mobile .task.t-type.open { left: max(8px, env(safe-area-inset-left, 0px)); right: calc(var(--colw) + 16px); }

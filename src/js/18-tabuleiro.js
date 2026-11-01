@@ -86,10 +86,27 @@ function toast(from, text) {
   const env = Pixel.el(SPR2.envelope, document.body.classList.contains('mobile') ? 2 : 3); env.classList.add('env-ico'); el.append(env);
   el.insertAdjacentHTML('beforeend', `<div><small>${U().from}: ${from}</small>${text}</div>`);
   uiRoot().append(el);
+  // celular em pé: notificação de celular — desce do topo, fica sobre o cabeçalho e sobe; tocar ou arrastar para cima dispensa
+  if (document.body.classList.contains('mobile') && !matchMedia('(orientation: landscape) and (max-height: 560px)').matches) { phoneNotif(el); return; }
   const ent = Motion.enter(el, 'right');
   // o envelope "chacoalha" como algo vivo, depois que o cartão assenta
   const wob = async () => { for (let i = 0; i < 3 && env.isConnected; i++) { const a = Motion.play(env, [{ transform: 'rotate(0)' }, { transform: 'rotate(-10deg) translateY(-3px)' }, { transform: 'rotate(8deg)' }, { transform: 'rotate(0)' }], { duration: 300, easing: Motion.E.out, fill: 'none' }); if (!a) return; await a.finished.catch(() => {}); } };
   if (ent) ent.finished.then(wob, () => {}); else wob();
   setTimeout(() => { const a = Motion.leave(el, 'right'); if (a) a.onfinish = () => el.remove(); else el.remove(); }, 4300);
+}
+function phoneNotif(el) {
+  el.classList.add('notif');
+  const reduced = Motion.reduced.matches, out = 'translateY(calc(-100% - 24px))';
+  let y = 0, gone = false, drag = null;
+  const set = v => { y = v; el.style.transform = v ? `translateY(${Math.round(v)}px)` : ''; };
+  const dismiss = () => { if (gone) return; gone = true; clearTimeout(tm);
+    if (reduced) { el.remove(); return; }
+    const a = el.animate([{ transform: `translateY(${Math.round(y)}px)` }, { transform: out }], { duration: 220, easing: 'steps(6)' }); a.onfinish = () => el.remove(); };
+  if (!reduced) el.animate([{ transform: out }, { transform: 'translateY(4px)', offset: .75 }, { transform: 'none' }], { duration: 320, easing: 'steps(8)' });
+  const tm = setTimeout(dismiss, 4300);
+  el.addEventListener('pointerdown', e => { drag = { y0: e.clientY, moved: false }; el.setPointerCapture(e.pointerId); e.stopPropagation(); });
+  el.addEventListener('pointermove', e => { if (!drag) return; const dy = Math.min(0, e.clientY - drag.y0); if (dy < -4) drag.moved = true; set(dy); });
+  const up = () => { if (!drag) return; const d = drag; drag = null; if (!d.moved || y < -18) dismiss(); else set(0); };
+  el.addEventListener('pointerup', up); el.addEventListener('pointercancel', () => { drag = null; set(0); });
 }
 
