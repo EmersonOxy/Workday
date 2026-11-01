@@ -26,6 +26,7 @@ remover tags doctype/html/head/body e publicar no mesmo artifact).
 - `09-telas.js`: modal/janelas do WorkOS (osWindow, barra de tarefas, Iniciar), menu, configurações.
 - `30-personalizar.js`: Personalizar (abas), papéis de parede (WALLS), cores (OS_ACCENTS, OS_BARS, BADGE_COLORS).
 - `40-eventos.js`: calendário (mês real com ícones e balão), missões, broches, conquistas, Arquivo, promoções/Catálogo (priceOf).
+- `src/css/90-mobile-os.css`: WorkOS no celular (área de trabalho, barra, portal e apps em tela cheia). `osDesktop()` em 09-telas.js.
 - `41-arrumar.js`: modo "Arrumar a mesa" (arrastar, inverter, guardar). `CFG.desk`.
 - `shared/50-office.js`: cena do escritório (layout, bake, draw, luz). `shared/58-mesa.js`: zonas, portes P/M/G e desenho dos objetos da mesa.
 - `shared/56-gato.js`: gato (modelo único, 14 pelagens, cor dos olhos, estados/animações, catStill/catRows).
@@ -39,4 +40,5 @@ remover tags doctype/html/head/body e publicar no mesmo artifact).
    porta-canetas, papéis, pato, vasos, troféu, globo, luminária, caneca, webcam, quadros de parede), teclado, mouse,
    base do monitor e o orbe do Iniciar (mais detalhado).
 2. Bug não reproduzido: HUD do expediente aparecendo atrás da área de trabalho (há proteção via `:has` em 80-entrega3.css).
-3. Modo celular: minimizar o portal deixa a tela vazia (sem ícones/Iniciar).
+3. (Resolvido) Celular agora tem a mesma área de trabalho do WorkOS (ícones, Iniciar, barra) — ver `src/css/90-mobile-os.css`.
+   Ainda só no PC: Intervalo livre e apps pelo Iniciar durante o expediente (no celular o expediente não tem barra).

@@ -109,11 +109,13 @@ function osPicPicker(anchor, onPick) {
 }
 
 // Botão Iniciar do WorkOS (no menu principal): atalhos e "Desligar", que fecha o WorkOS com animação e volta ao menu
+// WorkOS (área de trabalho, Iniciar e barra) existe no computador e no celular; só a cena do escritório é exclusiva do PC
+function osDesktop() { const b = document.body.classList; return b.contains('office') || b.contains('mobile'); }
 function osStart(u) {
-  if (!document.body.classList.contains('office')) return;
+  if (!osDesktop()) return;
   const m = $('modal'); m.querySelectorAll('.os-start, .os-smenu').forEach(e => e.remove());
   m.insertAdjacentHTML('beforeend', `<button class="os-start" aria-haspopup="true"></button><div class="os-smenu hidden"><div class="os-sh"><span class="os-me"></span><b></b></div>
-    <button data-a="prof">${u.profile}</button><button data-a="pc">${u.customizePc || 'WorkOS'}</button><button data-a="arr">${u.arr.title}</button><button data-a="cfg">${u.settings}</button><i></i><button data-a="off">${u.shutdown}</button></div>`);
+    <button data-a="prof">${u.profile}</button><button data-a="pc">${u.customizePc || 'WorkOS'}</button>${document.body.classList.contains('office') ? `<button data-a="arr">${u.arr.title}</button>` : ''}<button data-a="cfg">${u.settings}</button><i></i><button data-a="off">${u.shutdown}</button></div>`);
   const b = m.querySelector('.os-start'), sm = m.querySelector('.os-smenu');
   b.append(Pixel.el(ORB_ICO, 3)); b.title = 'WorkOS';   // orbe grande, como o Iniciar do Windows 7
   const paintMe = () => sm.querySelector('.os-me').replaceChildren(osPicEl(40));
@@ -270,7 +272,7 @@ function osApp(id) {
 }
 function osIcons() {
   const m = $('modal'), t = U().osApps; m.querySelectorAll('.os-icons').forEach(e => e.remove());
-  if (!document.body.classList.contains('office')) return;
+  if (!osDesktop()) return;
   const g = document.createElement('div'); g.className = 'os-icons';
   for (const [id, rows, label, pal] of [...(S && S.onBreak ? [] : [['workday', SPR2.doc, 'PORTAL_RH.EXE', WD_SECTOR_RAMP.ti]]), ['cal', APP_ICO.cal, t.calendar], ['calc', APP_ICO.calc, t.calc], ['notes', APP_ICO.notes, t.notes], ['music', APP_ICO.music, t.music], ['paint', APP_ICO.paint, t.paint], ['prof', MENU_ICO.prof, U().profile], ['arq', APP_ICO.arq, U().ev.archive], ['shop', APP_ICO.shop, U().cat.app]]) {
     const d = document.createElement('button'); d.className = 'osicon'; d.append(Pixel.el(rows, 3, pal)); d.insertAdjacentHTML('beforeend', `<span>${label}</span>`);

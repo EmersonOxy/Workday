@@ -1,0 +1,27 @@
+
+  /* ===== WorkOS no celular: a mesma área de trabalho do computador, ocupando a tela inteira =====
+     Papel de parede, ícones, orbe do Iniciar, barra de tarefas com relógio e aviso legal acima da barra.
+     O que muda é só o tamanho: barra e botões com alvo de toque, janelas ocupando a área acima da barra. */
+  body.mobile.menu-mode #osdesk { display: block; position: absolute; inset: 0; z-index: 0; }
+  body.mobile.menu-mode #osdesk .icons { display: none; }
+  body.mobile.menu-mode #osdesk .start { visibility: hidden; }   /* o orbe ativo é o .os-start do #modal, como no PC */
+  body.mobile #osdesk .taskbar { height: 2.6em; }
+  body.mobile #modal { font: var(--fs) var(--pixel); }
+  body.mobile.menu-mode #modal { background: transparent; padding: 6px 6px 2.9em; }
+  body.mobile .os-off { position: fixed; }
+  /* ícones em grade, como a tela inicial de um telefone (a coluna única do PC não cabe em retrato) */
+  body.mobile .os-icons { left: .5em; right: .5em; top: .6em; bottom: 3.4em; display: grid; grid-template-columns: repeat(auto-fill, minmax(5.6em, 1fr)); grid-auto-rows: min-content; gap: .9em .2em; overflow-y: auto; }
+  body.mobile .osicon { width: auto; min-height: 44px; font-size: .8em; overflow-wrap: anywhere; }
+  body.mobile .os-smenu { min-width: min(15em, calc(100vw - 1em)); }
+  body.mobile .os-smenu button { min-height: 44px; }
+  /* aviso legal: mesma fonte e posição do PC (logo acima da barra), em várias linhas */
+  body.mobile .legalbar { position: fixed; bottom: calc(var(--fs) * 3); padding: 0 .8em 0 5.5em; background: none; color: rgba(255,248,236,.82);
+    font: .62em/1.35 var(--pixel); text-shadow: 0 2px 0 rgba(42,31,45,.5); pointer-events: none; }
+  body.mobile .legalbar b { color: #fff8ec; font-weight: normal; }
+  /* portal: janela cheia como os outros aplicativos, com o conteúdo rolando dentro */
+  body.mobile #modal .card.menu-card { display: flex; flex-direction: column; padding: 0; overflow: hidden; }
+  body.mobile #modal .menu-card .mw { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+  body.mobile #modal .menu-card .mw-in { flex: 1; min-height: 0; overflow: auto; }
+  body.mobile .os-tasks { right: 5.5em; }
+  /* aplicativos de largura fixa no PC ocupam a largura da janela no celular */
+  body.mobile .cal, body.mobile .calc, body.mobile .notes { width: 100%; box-sizing: border-box; }

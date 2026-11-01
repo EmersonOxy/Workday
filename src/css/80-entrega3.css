@@ -281,7 +281,7 @@
   .os-win.app-win .win-body, .os-win .card-in { padding: 0; }
 
   /* ===== Janelas no celular: ocupam a área disponível, botões grandes, sem arrastar ===== */
-  body.mobile .os-win, body.mobile #modal .card.oswin { position: fixed !important; left: 6px !important; right: 6px !important; top: 6px !important; bottom: 6px !important;
+  body.mobile .os-win, body.mobile #modal .card.oswin, body.mobile #modal .card.menu-card { position: fixed !important; left: 6px !important; right: 6px !important; top: 6px !important; bottom: 6px !important;
     width: auto !important; max-width: none !important; height: auto !important; max-height: none !important; translate: none !important; margin: 0 !important; }
   body.mobile .os-win .mw-in, body.mobile #modal .card.oswin > .win-body { flex: 1; overflow: auto; -webkit-overflow-scrolling: touch; }
   body.mobile .mw-b b { width: 40px !important; height: 36px !important; }
@@ -368,7 +368,7 @@
   body.office.menu-mode #modal, #modal.apps { padding-bottom: 2.7em !important; }
   body:not(.mobile) #modal .os-win:not(.maxi) { top: calc(50% - 1.3em) !important; max-height: calc(100% - 3.4em) !important; }
   /* no celular a janela ocupa a área livre acima da barra de tarefas */
-  body.mobile.menu-mode #modal .os-win, body.mobile.menu-mode #modal .card.oswin, body.mobile #modal.apps .os-win, body.mobile #modal.apps .card.oswin { bottom: calc(2.7em + 4px) !important; }
+  body.mobile.menu-mode #modal .os-win, body.mobile.menu-mode #modal .card.oswin, body.mobile.menu-mode #modal .card.menu-card, body.mobile #modal.apps .os-win, body.mobile #modal.apps .card.oswin { bottom: calc(2.7em + 4px) !important; }
 
   /* ===== Ticket do ponto ===== */
   .clockdev .paper { width: 300px !important; }

@@ -35,7 +35,7 @@ function officeLayout() {
   }
   const app = $('app');
   document.body.classList.toggle('mobile', !want);
-  if (!want) { OFFICE.cv.style.display = OFFICE.fx.style.display = 'none'; app.style.left = app.style.top = app.style.width = app.style.height = ''; return; }
+  if (!want) { OFFICE.cv.style.display = OFFICE.fx.style.display = 'none'; app.style.left = app.style.top = app.style.width = app.style.height = ''; sysClock(); return; }
   // Resolução escolhida: limita o tamanho do jogo; o escritório preenche o resto da janela
   let [tw, th] = CFG.res && CFG.res !== 'auto' ? CFG.res.split('x').map(Number) : [innerWidth, innerHeight];
   tw = Math.min(tw, innerWidth); th = Math.min(th, innerHeight);
@@ -104,9 +104,9 @@ function officeFrame(now) {
 // Hora e data reais do aparelho: na barra do WorkOS (menu) e no canto do cabeçalho durante o expediente
 function sysClock() {
   const d = new Date(), t = d.toLocaleTimeString(L.htmlLang, { hour: '2-digit', minute: '2-digit' }), dt = d.toLocaleDateString(L.htmlLang, { day: '2-digit', month: '2-digit', year: 'numeric' });
-  hudSet('osclock', 'text', t + ' · ' + dt); hudSet('sysclock', 'text', t + ' ' + dt.slice(0, 5));
+  hudSet('osclock', 'text', document.body.classList.contains('mobile') ? t : t + ' · ' + dt);   // celular: só a hora, para sobrar barra hudSet('sysclock', 'text', t + ' ' + dt.slice(0, 5));
 }
-setInterval(sysClock, 15000);
+setInterval(sysClock, 15000); sysClock();   // no celular não há o laço do escritório: o relógio da barra já nasce preenchido
 function onWindow(e) {
   if (!OFFICE.on || !OFFICE.L) return false;
   const w = Office.spots(OFFICE.L).win, x = e.clientX / OFFICE.M.k, y = e.clientY / OFFICE.M.k;
