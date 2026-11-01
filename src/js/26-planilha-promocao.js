@@ -27,7 +27,7 @@ function buildSheet(paused) {
     <div class="xl-tools"></div>
     <div class="xl-fx"><span class="ref">D7</span><b>fx</b><span>=SOMA(B2:G8)*SINERGIA</span></div>
     <div class="xl-grid"><table>${grid}</table><canvas class="xl-chart"></canvas></div>
-    <div class="xl-tabs">${paused ? `<button class="xl-tab on" data-a="resume">${u.resume}</button><button class="xl-tab" data-a="cfg">${u.settings}</button>${breakUnlocked() ? `<button class="xl-tab" data-a="brk"${S.breakDay === S.day ? ' disabled' : ''}>${u.breakStart}</button>` : ''}<button class="xl-tab" data-a="menu">${u.saveMenu}</button><button class="xl-tab" data-a="quit">${u.quit}</button>` : '<span class="xl-tab on">Plan1</span><span class="xl-tab">Plan2</span><span class="xl-tab">Plan3</span>'}</div>
+    <div class="xl-tabs">${paused ? `<button class="xl-tab on" data-a="resume">${u.resume}</button><button class="xl-tab" data-a="cfg">${u.settings}</button>${breakUnlocked() ? `<button class="xl-tab" data-a="brk"${S.breakDay === S.day ? ' disabled' : ''}>${u.breakStart}</button>` : ''}<button class="xl-tab" data-a="msn" data-msn-badge>${u.msn.app}</button><button class="xl-tab" data-a="menu">${u.saveMenu}</button><button class="xl-tab" data-a="quit">${u.quit}</button>` : '<span class="xl-tab on">Plan1</span><span class="xl-tab">Plan2</span><span class="xl-tab">Plan3</span>'}</div>
     <div class="xl-status"><span>${paused ? u.paused.toUpperCase() + ' · Esc' : 'Pronto'}</span><span>SOMA=${fmt(tot.reduce((a, b) => a + b, 0))}</span></div></div>`;
   box.querySelector('.xl-title .ic').append(Pixel.el(XL_ICON.sheet, 2));
   const tools = box.querySelector('.xl-tools');
@@ -44,11 +44,12 @@ function buildSheet(paused) {
     if (b.dataset.a === 'cfg') { const tabs = b.parentElement.querySelectorAll('.xl-tab'); tabs.forEach(x => x.classList.toggle('on', x === b)); showSettings(() => { closeModal(); tabs.forEach(x => x.classList.toggle('on', x.dataset.a === 'resume')); }); }
     if (b.dataset.a === 'brk') { S.paused = false; if (!startBreak()) { S.paused = true; sfx('err'); } }
     if (b.dataset.a === 'quit') showResign();
+    if (b.dataset.a === 'msn') workApp('msn');
     if (b.dataset.a === 'menu') { saveCareerMidday(); persist(); hideSheet(); S.paused = false; muffle(false); showMenu(); }
   });
 }
 function showSheet(paused) {
-  buildSheet(paused);
+  buildSheet(paused); if (typeof Msn !== 'undefined') Msn.badges();
   const box = $('boss'); box.classList.remove('hidden');
   Motion.play(box.firstElementChild, [{ transform: 'scale(.96)', opacity: .4 }, { transform: 'none', opacity: 1 }], { duration: 140, easing: Motion.E.out, fill: 'none' });
 }

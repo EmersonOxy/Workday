@@ -75,7 +75,7 @@ function officeFrame(now) {
   const icons = $('osdesk').querySelector('.icons');
   for (const [rows, label, pal] of [[SPR2.doc, 'WORKDAY.EXE', WD_SECTOR_RAMP.ti], [XL_ICON.sheet, 'ORCAMENTO.XLS'], [SPR2.envelope, 'E-MAIL'], [SPR2.virus, 'NAO_ABRA.EXE'], [SPR.trash, 'LIXEIRA']]) {
     const d = document.createElement('div'); d.className = 'osicon'; d.append(Pixel.el(rows, 3, pal)); d.insertAdjacentHTML('beforeend', `<span>${label}</span>`); icons.append(d); }
-  $('osdesk').querySelector('.start').append(Pixel.el(ORB_ICO, 3)); $('osdesk').querySelector('.start').title = 'WorkOS';
+  $('osdesk').querySelector('.start').append(Pixel.el(ORB_ICO, 3)); $('osdesk').querySelector('.start').title = 'WorkOS'; $('osdesk').querySelector('.start').dataset.msnBadge = '';
   // durante o expediente, o botão da barra abre a pausa (a planilha)
   // Durante o expediente o botão mostra o menu Iniciar por cima (sem pausar); fecha sozinho 2 s depois que o mouse sai.
   // Escolher um item é que pausa: Configurações abre por cima da pausa; Desligar salva e volta ao menu.
@@ -86,7 +86,7 @@ function officeFrame(now) {
       if (sm) return close();
       const u = U(); sfx('click'); st.classList.add('on');
       sm = document.createElement('div'); sm.className = 'os-smenu work';
-      sm.innerHTML = `<div class="os-sh"><span class="os-me"></span><b></b></div>${breakUnlocked() ? `<button data-a="brk"${breakAvailable() ? '' : ' disabled'}>${u.breakStart}${S.breakDay === S.day ? ' ✓' : ''}</button>` : ''}<button data-a="app:prof">${u.profile}</button><button data-a="app:paint">${u.osApps.paint}</button><button data-a="app:cal">${u.osApps.calendar}</button><button data-a="app:calc">${u.osApps.calc}</button><button data-a="app:notes">${u.osApps.notes}</button><button data-a="app:music">${u.osApps.music}</button><button data-a="cfg">${u.settings}</button><i></i><button data-a="off">${u.shutdown}</button>`;
+      sm.innerHTML = `<div class="os-sh"><span class="os-me"></span><b></b></div>${breakUnlocked() ? `<button data-a="brk"${breakAvailable() ? '' : ' disabled'}>${u.breakStart}${S.breakDay === S.day ? ' ✓' : ''}</button>` : ''}<button data-a="app:prof">${u.profile}</button><button data-a="app:paint">${u.osApps.paint}</button><button data-a="app:cal">${u.osApps.calendar}</button><button data-a="app:calc">${u.osApps.calc}</button><button data-a="app:notes">${u.osApps.notes}</button><button data-a="app:music">${u.osApps.music}</button><button data-a="app:msn" data-msn-badge>${u.msn.app}</button><button data-a="cfg">${u.settings}</button><i></i><button data-a="off">${u.shutdown}</button>`;
       sm.querySelector('.os-me').append(osPicEl(40)); sm.querySelector('b').textContent = profileName();
       sm.onpointerenter = () => clearTimeout(tmr); sm.onpointerleave = arm;
       sm.onclick = e => { const b = e.target.closest('button'); if (!b || b.disabled) return; close(); if (!S || S.phase !== 'day') return;
@@ -96,7 +96,7 @@ function officeFrame(now) {
         if (!S.paused) setPaused(true);
         if (b.dataset.a === 'cfg') showSettings(closeModal);
         else { saveCareerMidday(); persist(); hideSheet(); S.paused = false; muffle(false); osShutdown(); } };
-      od.append(sm); arm();
+      od.append(sm); arm(); if (typeof Msn !== 'undefined') Msn.badges();
     };
     st.onpointerenter = () => clearTimeout(tmr); st.onpointerleave = () => { if (sm) arm(); }; }
 })();

@@ -113,7 +113,7 @@ function osStart(u) {
   if (!document.body.classList.contains('office')) return;
   const m = $('modal'); m.querySelectorAll('.os-start, .os-smenu').forEach(e => e.remove());
   m.insertAdjacentHTML('beforeend', `<button class="os-start" aria-haspopup="true"></button><div class="os-smenu hidden"><div class="os-sh"><span class="os-me"></span><b></b></div>
-    <button data-a="prof">${u.profile}</button><button data-a="pc">${u.customizePc || 'WorkOS'}</button><button data-a="arr">${u.arr.title}</button><button data-a="cfg">${u.settings}</button><i></i><button data-a="off">${u.shutdown}</button></div>`);
+    <button data-a="prof">${u.profile}</button><button data-a="msn" data-msn-badge>${u.msn.app}</button><button data-a="pc">${u.customizePc || 'WorkOS'}</button><button data-a="arr">${u.arr.title}</button><button data-a="cfg">${u.settings}</button><i></i><button data-a="off">${u.shutdown}</button></div>`);
   const b = m.querySelector('.os-start'), sm = m.querySelector('.os-smenu');
   b.append(Pixel.el(ORB_ICO, 3)); b.title = 'WorkOS';   // orbe grande, como o Iniciar do Windows 7
   const paintMe = () => sm.querySelector('.os-me').replaceChildren(osPicEl(40));
@@ -121,7 +121,7 @@ function osStart(u) {
   sm.querySelector('.os-me').onclick = e => { e.stopPropagation(); const old = sm.querySelector('.os-pics'); if (old) old.remove(); else osPicPicker(sm.querySelector('.os-sh'), paintMe); };
   const brk = S && S.onBreak, home = brk ? breakHome : showMenu;
   if (brk) sm.querySelector('[data-a=off]').textContent = u.breakEnd;
-  const items = { prof: () => showBadge(home), pc: () => showCustomize(home), cfg: () => showSettings(home), arr: () => deskEditStart() };
+  const items = { msn: () => Msn.open(), prof: () => showBadge(home), pc: () => showCustomize(home), cfg: () => showSettings(home), arr: () => deskEditStart() };
   b.onclick = e => { e.stopPropagation(); sm.classList.toggle('hidden'); b.classList.toggle('on'); sfx(sm.classList.contains('hidden') ? 'click' : 'start'); };
   sm.onclick = e => { const a = e.target.closest('button'); if (!a) return; sm.classList.add('hidden'); b.classList.remove('on');
     if (a.dataset.a === 'off') return brk ? endBreak() : osShutdown(); sfx('click'); items[a.dataset.a](); };
@@ -258,6 +258,7 @@ function osApp(id) {
   if (id === 'arq') return osArchive();
   if (id === 'shop') return osCatalog();
   if (id === 'notes') return osNotes();
+  if (id === 'msn') return Msn.open();   // MSworkN: uma janela só (abrir de novo foca/restaura)
   if (id === 'paint' || id === 'prof') {   // a tela existente roda dentro de uma janela própria, sem tirar o portal do lugar
     const u = U(), w = osWindow(id === 'paint' ? u.osApps.paint : u.profile, '', { icon: id === 'paint' ? APP_ICO.paint : MENU_ICO.prof, cls: 'app-win', onClose: () => { if (modal.into && !modal.into.isConnected) modal.into = null; } });
     const body = w.querySelector('.mw-in'), route = () => { modal.into = body; };
@@ -272,13 +273,14 @@ function osIcons() {
   const m = $('modal'), t = U().osApps; m.querySelectorAll('.os-icons').forEach(e => e.remove());
   if (!document.body.classList.contains('office')) return;
   const g = document.createElement('div'); g.className = 'os-icons';
-  for (const [id, rows, label, pal] of [...(S && S.onBreak ? [] : [['workday', SPR2.doc, 'PORTAL_RH.EXE', WD_SECTOR_RAMP.ti]]), ['cal', APP_ICO.cal, t.calendar], ['calc', APP_ICO.calc, t.calc], ['notes', APP_ICO.notes, t.notes], ['music', APP_ICO.music, t.music], ['paint', APP_ICO.paint, t.paint], ['prof', MENU_ICO.prof, U().profile], ['arq', APP_ICO.arq, U().ev.archive], ['shop', APP_ICO.shop, U().cat.app]]) {
-    const d = document.createElement('button'); d.className = 'osicon'; d.append(Pixel.el(rows, 3, pal)); d.insertAdjacentHTML('beforeend', `<span>${label}</span>`);
+  for (const [id, rows, label, pal] of [...(S && S.onBreak ? [] : [['workday', SPR2.doc, 'PORTAL_RH.EXE', WD_SECTOR_RAMP.ti]]), ['cal', APP_ICO.cal, t.calendar], ['calc', APP_ICO.calc, t.calc], ['notes', APP_ICO.notes, t.notes], ['music', APP_ICO.music, t.music], ['paint', APP_ICO.paint, t.paint], ['prof', MENU_ICO.prof, U().profile], ['arq', APP_ICO.arq, U().ev.archive], ['shop', APP_ICO.shop, U().cat.app], ['msn', APP_ICO.msn, U().msn.exe]]) {
+    const d = document.createElement('button'); d.className = 'osicon'; d.dataset.app = id; if (id === 'msn') d.dataset.msnBadge = ''; d.append(Pixel.el(rows, 3, pal)); d.insertAdjacentHTML('beforeend', `<span>${label}</span>`);
     const open = () => { g.querySelectorAll('.osicon').forEach(x => x.classList.remove('sel')); sfx('pop'); osApp(id); };
     d.onclick = () => { const n = performance.now(); if (n - (osIcons.last || 0) < 700) return; osIcons.last = n; open(); };   // um clique abre; cliques repetidos não duplicam
     g.append(d);
   }
   m.append(g);
+  if (typeof Msn !== 'undefined') Msn.badges();
 }
 
 // Animações de janela em pixel art: nada de escala fracionada (borra a grade). Abrir: a janela se desenha do centro
@@ -385,6 +387,7 @@ function showMenu() {
       <div class="menu">
         ${saved ? `<button class="pxbtn main" id="cont">${ico('cont')}${u.cont(saved.day + 1)}</button>` : ''}
         <button class="pxbtn${saved ? '' : ' main'}" id="play">${ico('play')}${u.play}</button>
+        ${document.body.classList.contains('mobile') ? `<button class="pxbtn" id="msnb" data-msn-badge>${ico('msn')}${u.msn.app}</button>` : ''}
         <button class="pxbtn" id="how">${ico('how')}${u.how}</button>
         <button class="pxbtn" id="cfg">${ico('cfg')}${u.settings}</button>
         <button class="pxbtn" id="prof">${ico('prof')}${u.profile}</button>
@@ -393,7 +396,7 @@ function showMenu() {
       </div>
     </div></div>`);
   card.classList.add('menu-card');
-  card.querySelectorAll('.mico').forEach(i => { const n = i.dataset.i === 'snd' && !soundOn ? 'mute' : i.dataset.i; i.append(Pixel.el(MENU_ICO[n], 2)); });
+  card.querySelectorAll('.mico').forEach(i => { const n = i.dataset.i === 'snd' && !soundOn ? 'mute' : i.dataset.i; i.append(Pixel.el(n === 'msn' ? APP_ICO.msn : MENU_ICO[n], n === 'msn' ? 1 : 2)); });
   card.querySelectorAll('.mw-b b').forEach(b => b.append(Pixel.el(MENU_ICO[b.dataset.g], 2)));
   // o portal não fecha: minimizar (ou fechar) manda para a barra de tarefas; maximizar alterna o tamanho
   osTaskBtn(card, 'PORTAL_RH.EXE');
@@ -416,6 +419,8 @@ function showMenu() {
   card.querySelector('#how').onclick = () => { const c = modal(`<h2>${u.how}</h2>${u.howText}<div class="actions"><button class="pxbtn main" id="b">${u.back}</button></div>`); c.querySelector('#b').onclick = showMenu; };
   card.querySelector('#cfg').onclick = () => showSettings(showMenu);
   card.querySelector('#prof').onclick = showProfile;
+  if (card.querySelector('#msnb')) card.querySelector('#msnb').onclick = () => Msn.open();
+  if (typeof Msn !== 'undefined') Msn.badges();
   const arc = card.querySelector('#arc');
   if (arc) { arc.onclick = () => { closeModal(); startCall('arcade', showMenu); }; }
 }
@@ -429,6 +434,7 @@ function showProfile() {
     <div class="actions"><button class="pxbtn" id="eb">${u.editBadge}</button><button class="pxbtn main" id="b">${u.back}</button></div>`);
   card.querySelector('.statgrid').before(Object.assign(document.createElement('div'), { className: 'over-who' }));
   card.querySelector('.over-who').append(portrait(112), Object.assign(document.createElement('b'), { textContent: profileName() + ' · Nº ' + EMP_ID }));
+  if (typeof msnProfileLine === 'function') card.querySelector('.over-who').append(msnProfileLine());
   card.querySelector('#eb').onclick = () => showBadge(showProfile);
   card.querySelector('#b').onclick = showMenu;
 }
