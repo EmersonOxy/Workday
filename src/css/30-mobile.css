@@ -51,7 +51,8 @@
   body.mobile .file.urgent { animation: sway .7s ease-in-out infinite alternate, urgentdoc .35s steps(2) infinite; }
   body.mobile .file.dead { background: var(--dead-bg); box-shadow: 0 0 0 2px var(--muted), inset 0 .32em 0 var(--muted); animation: none; rotate: 0deg; }
   body.mobile .file.gone { animation: none; }
-  body.mobile #tip { font-size: .95em; left: 6px; right: 6px; top: 6px; }
+  /* dicas logo acima das colunas coloridas (perto de onde a ação acontece); toques atravessam até o tabuleiro */
+  body.mobile #tip { font-size: .95em; left: 6px; right: 6px; top: auto; bottom: 62px; pointer-events: none; }
   /* Retrato: só o cartão aberto aparece, logo acima da doca */
   body.mobile #tasks { flex: none; height: auto; max-height: 42dvh; overflow: auto; gap: 0; padding: 2px; }
   body.mobile .task { display: none; border: 0; border-radius: 0; background: var(--card); color: var(--ink); box-shadow: 0 0 0 2px var(--ink), 0 4px 0 rgba(42,31,45,.25); padding: 8px 10px 10px; animation: none; }
@@ -104,6 +105,7 @@
     body.mobile #inv { display: none; }
     body.mobile #board { grid-column: 1; grid-row: 2; min-height: 0; }
     body.mobile .tray { height: 42px; flex-direction: row; gap: 4px; }
+    body.mobile #tip { bottom: 50px; }
     body.mobile #tasks { grid-column: 2; grid-row: 2; max-height: none; height: auto; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding: 2px; margin-bottom: 54px; }
     body.mobile .task { display: flex; flex: none; padding: 6px 8px 8px; }
     body.mobile .task button { min-height: 34px; }
