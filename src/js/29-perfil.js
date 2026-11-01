@@ -39,7 +39,7 @@ function showBadge(back) {
   card.querySelector('#bgNoPhoto').onclick = () => { draft.photo = null; draft.data = null; paint(); };
   card.querySelector('#bgSave').onclick = () => {
     PROFILE.name = draft.name; PROFILE.av = draft.av;
-    if (draft.data === null || (!draft.photo && PROFILE.photo)) { try { localStorage.removeItem('expediente-perfil-foto'); } catch (e) {} PROFILE.photo = null; }
+    if (draft.data === null || (!draft.photo && PROFILE.photo)) { try { localStorage.removeItem(WD_NS + 'perfil-foto'); } catch (e) {} PROFILE.photo = null; }
     if (draft.data) { save('perfil-foto', { big: draft.data.big, mini: draft.data.mini }); PROFILE.photo = 'local'; }
     saveProfile(); loadPhoto(); sfx('ok'); closeBadge();
   };

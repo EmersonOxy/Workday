@@ -69,11 +69,22 @@ async function settle(p, ms = 2500) { const t0 = Date.now(); while (Date.now() -
   console.log('\n[MSworkN] carreira: contatos, eventos, expediente e chamadas');
   { const ctx = await browser.newContext({ viewport: { width: 1366, height: 768 }, locale: 'pt-BR' }); const { p, errs } = await boot(ctx);
     await settle(p, 1500);
+    // antes do 1º dia: e-mail do RH pede para adicionar o Duda e mandar um oi
+    await p.evaluate(() => { window.__go = 0; launchWorkday = launchWorkday; socOnboard(() => { window.__go = 1; }); }); await p.waitForTimeout(400);
+    ok(await p.evaluate(() => !!document.querySelector('.onb-win') && document.querySelector('#onbGo').disabled), 'e-mail do RH antes do 1º dia, com "Começar" travado');
+    ok(await p.evaluate(() => !socAddContact('otavio').ok && !socAddContact('helena').ok && !socAddContact('fulano').ok), 'adicionar pelo nome: quem a campanha ainda não liberou não é encontrado');
+    await p.click('#onbMsn'); await p.waitForTimeout(400);
+    await p.fill('.msn-addin', 'Duda'); await p.press('.msn-addin', 'Enter'); await p.waitForTimeout(300);
+    ok(await p.evaluate(() => SOC.c.duda.st === 'known' && document.querySelector('#onbGo').disabled), 'Duda adicionado pelo botão do MSworkN; ainda falta o oi');
+    await p.fill('.msn-in', 'oi duda'); await p.press('.msn-in', 'Enter'); await settle(p, 2500);
+    ok(await p.evaluate(() => !document.querySelector('#onbGo').disabled && SOC.done.duda_hello != null && SOC.c.duda.log.some(m => m.f === 'n')), 'o oi chega ao Duda, ele responde e o expediente é liberado');
+    await p.waitForTimeout(1900); await p.click('#onbGo'); await p.waitForTimeout(200);
+    ok(await p.evaluate(() => window.__go === 1 && !document.querySelector('.onb-win')), '"Começar o expediente" segue para o 1º dia');
     await p.evaluate(() => { newCareer(); closeScene(); startDay(); S.restAt = 999; });
-    await p.waitForTimeout(400);
-    const c = await p.evaluate(() => ({ cid: SOC.cid, lu: SOC.c.lu && SOC.c.lu.st, newJob: SOC.c.lu && SOC.c.lu.f.newJob, duda: SOC.c.duda && SOC.c.duda.st, bia: SOC.c.bia && SOC.c.bia.st }));
-    ok(c.lu === 'known' && c.newJob != null, 'carreira nova: amiga de fora continua e lembra do emprego novo');
-    ok(c.duda === 'known' && c.bia === 'req', 'Duda entra com a carreira; RH manda solicitação de contato no dia 1');
+    await p.waitForTimeout(600);
+    const c = await p.evaluate(() => ({ pre: SOC.pre, lu: SOC.c.lu && SOC.c.lu.st, newJob: SOC.c.lu && SOC.c.lu.f.newJob, duda: SOC.c.duda && SOC.c.duda.st, bia: SOC.c.bia && SOC.c.bia.st }));
+    ok(c.lu === 'known' && !c.pre, 'carreira começa com a amiga de fora já na lista');
+    ok(c.duda === 'known' && c.bia === 'req', 'Duda adicionado no e-mail continua; RH manda solicitação no dia 1');
     // durante o expediente: só conversas de trabalho, nunca durante o chefe
     await p.evaluate(() => { window.__toasts = 0; const t0 = Msn.toast; Msn.toast = (...a) => { window.__toasts++; return t0(...a); }; document.querySelectorAll('.msn-toast').forEach(e => e.remove()); window.__d0 = Object.keys(SOC.done).join(); window.__l0 = JSON.stringify(Object.values(SOC.c).map(r => r.log.length)); S.dayT = 30; S.boss = true; });
     await settle(p, 1500);
@@ -159,9 +170,24 @@ async function settle(p, ms = 2500) { const t0 = Date.now(); while (Date.now() -
       s('stats', { files: 10, emails: 2, calls: 1, typed: 0, prints: 0, viruses: 3, bosses: 1, videos: 0, days: 14, careers: 2, maxDay: 13 });
       s('carreira', { day: 12, score: 9000, rankIdx: 2, perks: [], today: [], inv: { cafe: 0, cha: 0 }, careerCauses: {}, stress: 10 }); } });
     await settle(p, 2500);
-    const s = await p.evaluate(() => ({ cid: SOC.cid, duda: SOC.c.duda && SOC.c.duda.st, bia: SOC.c.bia && SOC.c.bia.st, day: socCtx().day }));
-    ok(s.cid === 2 && s.duda === 'known' && s.bia === 'req' && s.day === 13, 'carreira antiga no meio: sistema social começa coerente (dia 13, apresentações pendentes)');
+    const s = await p.evaluate(() => ({ cid: SOC.cid, bia: SOC.c.bia && SOC.c.bia.st, day: socCtx().day, add: socAddContact('duda').ok }));
+    ok(s.cid === 2 && s.add && s.bia === 'req' && s.day === 13, 'carreira antiga no meio: sistema social começa coerente (dia 13, Duda pode ser adicionado, apresentações pendentes)');
     ok(await p.evaluate(() => validSave({ format: SAVE_FORMAT, version: SAVE_VERSION, data: { 'expediente-social': JSON.stringify(SOC) } })), 'formato aceito pelo importador de backup');
+    ok(errs.length === 0, 'sem erros de JavaScript' + (errs.length ? ': ' + errs.join(' | ') : ''));
+    await ctx.close(); }
+
+  console.log('\n[contas] nome de usuário na tela de título, um save por nome');
+  { const ctx = await browser.newContext({ viewport: { width: 1366, height: 768 }, locale: 'pt-BR' }); const p = await ctx.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message));
+    await p.goto(URL); await p.waitForTimeout(400);
+    await p.click('.tt-orb'); await p.waitForTimeout(200);
+    ok(await p.evaluate(() => !!$('titlescr') && document.querySelector('.tt-hint').textContent.length > 5), 'sem nome não entra');
+    await p.fill('.tt-name', 'Ana'); await p.press('.tt-name', 'Enter'); await p.waitForTimeout(1500);
+    ok(await p.evaluate(() => !$('titlescr') && PROFILE.name === 'Ana' && WD_NS === 'expediente-' && profileName() === 'Ana'), 'primeira conta entra com as chaves de antes e o nome vira o nome do jogador');
+    await p.evaluate(() => { P.wallet = 555; persist(); showTitle(); }); await p.waitForTimeout(200);
+    await p.fill('.tt-name', 'Beto'); await p.press('.tt-name', 'Enter'); await p.waitForLoadState('load'); await p.waitForTimeout(900);
+    ok(await p.evaluate(() => PROFILE.name === 'Beto' && P.wallet === 0 && WD_NS !== 'expediente-' && !$('titlescr')), 'outro nome: save novo e separado');
+    await p.evaluate(() => showTitle()); await p.fill('.tt-name', 'ana'); await p.press('.tt-name', 'Enter'); await p.waitForLoadState('load'); await p.waitForTimeout(900);
+    ok(await p.evaluate(() => PROFILE.name === 'Ana' && P.wallet === 555), 'voltar ao primeiro nome recupera o save dele');
     ok(errs.length === 0, 'sem erros de JavaScript' + (errs.length ? ': ' + errs.join(' | ') : ''));
     await ctx.close(); }
 
@@ -185,7 +211,7 @@ async function settle(p, ms = 2500) { const t0 = Date.now(); while (Date.now() -
     ok(lint.length === 0, 'conversas: destinos válidos e todo texto em PT/EN/ES' + (lint.length ? ': ' + lint.slice(0, 8).join(' | ') : ''));
     // simulação: o relógio narrativo é trocado por um falso (dia/faixa), escolhas automáticas variadas
     const runSim = mode => p.evaluate(async mode => {
-      newCareer(); closeScene(); S.running = false; S.phase = 'intro';
+      newCareer(); closeScene(); S.running = false; S.phase = 'intro'; socAddContact('duda');
       let fake = { day: 1, slot: 'am' };
       const real = socCtx;
       socCtx = () => { const c = real(); const min = { am: 60, lunch: 200, pm: 400, off: -1 }[fake.slot]; return Object.assign(c, { day: fake.day, cyc: Math.floor((fake.day - 1) / CYCLE), slot: fake.slot, min, inDay: fake.slot !== 'off', working: false, career: true, ev: SPECIAL.filter(e => Quests.on(e, fake.day)).map(e => e.id) }); };

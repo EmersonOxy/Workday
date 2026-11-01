@@ -53,7 +53,7 @@ const Msn = {
     root.classList.toggle('chatting', !!Msn.sel && Msn.mobileChat);
     root.innerHTML = `<aside class="msn-side">${Msn.meHTML(u)}<div class="msn-list" role="list">${Msn.listHTML(u, ctx)}</div></aside><section class="msn-chat">${Msn.chatHTML(u, ctx)}</section>`;
     // fotos
-    root.querySelector('.msn-mepic').append(osPicEl(48));
+    root.querySelector('.msn-mepic').append(osPicEl(56));   // mesma foto do Iniciar, em escala inteira
     root.querySelectorAll('[data-pic]').forEach(e => e.prepend(msnPicEl(e.dataset.pic, +e.dataset.sc || 2)));
     // eventos
     root.querySelector('.msn-st').onclick = e => { e.stopPropagation(); Msn.stMenu = !Msn.stMenu; Msn.render(); };
@@ -64,6 +64,16 @@ const Msn = {
     pin.onchange = pin.onblur = () => { const v = pin.value.trim().slice(0, 48); if (v !== SOCP.msg) { SOCP.msg = v; SOCP.msgDay = ctx.day; socpSave(); } };
     if (psmFocus) pin.focus();
     root.querySelectorAll('.msn-c').forEach(b => b.onclick = () => { sfx('click'); Msn.select(b.dataset.id); });
+    // adicionar contato pelo nome
+    const ab = root.querySelector('.msn-addbtn'); if (ab) ab.onclick = () => { Msn.addOpen = true; Msn.addMsg = ''; sfx('click'); Msn.render(); const i = Msn.win.querySelector('.msn-addin'); if (i) i.focus(); };
+    const af = root.querySelector('.msn-add');
+    if (af) { const ai = af.querySelector('.msn-addin'); ai.value = Msn.addVal || '';
+      ai.addEventListener('keydown', e => { e.stopPropagation(); if (e.key === 'Escape') { Msn.addOpen = false; Msn.render(); } });
+      ai.oninput = () => { Msn.addVal = ai.value; };
+      af.onsubmit = e => { e.preventDefault(); const res = socAddContact(ai.value); Msn.addMsg = res.msg;
+        if (res.ok) { sfx('msnReq'); Msn.addOpen = false; Msn.addVal = ''; Msn.select(res.id); return; }
+        sfx('click'); Motion.shake(ai, 3); Msn.render(); const i2 = Msn.win.querySelector('.msn-addin'); if (i2) i2.focus(); };
+      if (Msn._addFocus !== false && document.activeElement !== ai && Msn.addOpen && !document.body.classList.contains('touch')) { const was = document.activeElement; if (!was || !was.closest || !was.closest('.msn-chat, .msn-me')) ai.focus(); } }
     root.querySelectorAll('.msn-grp').forEach(h => h.onclick = () => { SOCP.col[h.dataset.g] = !SOCP.col[h.dataset.g]; socpSave(); Msn.render(); });
     const q = s => root.querySelector(s);
     if (q('.msn-back')) q('.msn-back').onclick = () => { Msn.mobileChat = false; Msn.render(); };
@@ -95,7 +105,9 @@ const Msn = {
     return `<div class="msn-me"><span class="msn-mepic"></span><div class="msn-mei"><b class="msn-mename">${esc(profileName())}</b>
       <button class="msn-st" aria-haspopup="true" aria-expanded="${Msn.stMenu}">${msnDot(st)}<span>${u.status[st]}</span> ▾</button>
       ${Msn.stMenu ? `<div class="msn-stm" role="menu">${MSN_ST.map(s => `<button role="menuitem" data-st="${s}"${s === st ? ' class="on"' : ''}>${msnDot(s)}${u.status[s]}</button>`).join('')}</div>` : ''}
-      <input class="msn-psm" type="text" maxlength="48" placeholder="${u.psmPh}" aria-label="${u.psmPh}" autocomplete="off"></div></div>`;
+      <input class="msn-psm" type="text" maxlength="48" placeholder="${u.psmPh}" aria-label="${u.psmPh}" autocomplete="off"></div></div>
+      <div class="msn-addbar">${Msn.addOpen ? `<form class="msn-add" autocomplete="off"><input class="msn-addin" type="text" maxlength="40" placeholder="${u.addPh}" aria-label="${u.add}"><button class="pxbtn main" type="submit">${u.addGo}</button></form>`
+        : `<button class="msn-addbtn">+ ${u.add}</button>`}${Msn.addMsg ? `<small class="msn-addmsg">${esc(Msn.addMsg)}</small>` : ''}</div>`;
   },
   listHTML(u, ctx) {
     const req = CAST_ORDER.filter(id => SOC.c[id] && SOC.c[id].st === 'req'), known = CAST_ORDER.filter(id => SOC.c[id] && SOC.c[id].st === 'known');
@@ -250,3 +262,6 @@ function msnProfileLine() {
   el.innerHTML = `${msnDot(SOCP.status)}<b>${u.status[SOCP.status]}</b>${SOCP.msg ? ` — <i>${esc(SOCP.msg)}</i>` : ''}`;
   return el;
 }
+
+// foto/nome do crachá mudou: o perfil do MSworkN acompanha
+{ const sp0 = saveProfile; saveProfile = () => { sp0(); if (Msn.visible()) Msn.render(); }; }

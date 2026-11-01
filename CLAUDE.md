@@ -38,6 +38,10 @@ remover tags doctype/html/head/body e publicar no mesmo artifact).
   reaproveita `callSay`/`closeCall`/minigames; só fora do expediente ou no intervalo). CSS em `src/css/90-mensageiro.css`.
   Personagem novo = `castAdd()` + conversas em `socThreads([...])`; texto sempre `L3(pt, en, es)`. Testes: `node tests/mensageiro.js`.
   Regra entre carreiras: colegas (`scope: 'work'`) recomeçam; amigos de fora (`'life'`) continuam.
+- Contas: a tela de título pede um nome de usuário; cada nome tem o próprio save (`WD_NS`, prefixo das chaves; ver
+  `00-cabecalho.js` e `wdLogin` em `09-telas.js`). A 1ª conta herda as chaves sem prefixo. Use sempre `load`/`save` (ou `WD_NS`).
+- Antes do 1º dia de cada carreira: e-mail da Bia (`48-social-inicio.js`) pede adicionar o Duda e mandar um oi; contatos
+  podem ser adicionados pelo nome (`SOC_ADD`), só quando a campanha libera.
 
 ## Pendências (próximo passo)
 1. Refazer TODOS os objetos da mesa no padrão do telefone (vista 3/4 com faces próprias — tampo, frente, lateral — e

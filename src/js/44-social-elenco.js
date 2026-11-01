@@ -174,9 +174,9 @@ const OUTFIT = {
 /* ---------- elenco ---------- */
 const L3 = (pt, en, es) => [pt, en, es];
 castAdd({
-  id: 'duda', name: 'Duda', role: L3('Suporte de TI', 'IT Support', 'Soporte de TI'), sector: 'ti', group: 'work', scope: 'work', start: 'career',
+  id: 'duda', name: 'Duda', role: L3('Suporte de TI', 'IT Support', 'Soporte de TI'), sector: 'ti', group: 'work', scope: 'work', firstMsg: 'duda_hello',
   likes: { joke: 1, tease: 1, gossip: 0, formal: -1, kind: 0, honest: 1, distant: -1, nudge: 1 }, open: 1.2, speed: 1.4, cam: 'on', dudaFace: true,
-  blocks: [[180, 235, 'busy', 'raid']], off: ctx => socHash('duda-off', ctx.day) < .65 ? 'online' : 'away',
+  blocks: [[180, 235, 'busy', 'raid']], off: ctx => SOC && SOC.pre ? 'online' : socHash('duda-off', ctx.day) < .65 ? 'online' : 'away',
   bio: L3('Cuida dos computadores, do servidor e de um servidor de jogos que oficialmente não existe. Ruivo, de óculos e headset, responde chamado com meme.',
     'Looks after the computers, the server and a game server that officially does not exist. Red hair, glasses, headset; answers tickets with memes.',
     'Cuida de las computadoras, del servidor y de un servidor de juegos que oficialmente no existe. Pelirrojo, con gafas y auriculares; responde tickets con memes.'),
@@ -208,7 +208,7 @@ castAdd({
 });
 castAdd({
   id: 'bia', name: 'Bia Torres', role: L3('Analista de RH', 'HR Analyst', 'Analista de RR. HH.'), sector: 'rh', group: 'work', scope: 'work',
-  unlock: { when: { career: true, day: 1 } }, reqNote: L3('Oi! Sou a Bia, do RH. Te adiciono pra você não se perder por aqui :)', 'Hi! I\'m Bia from HR. Adding you so you don\'t get lost around here :)', '¡Hola! Soy Bia, de RR. HH. Te agrego para que no te pierdas por aquí :)'),
+  unlock: { when: { career: true, day: 1, fn: () => !SOC.pre } }, reqNote: L3('Oi! Sou a Bia, do RH. Te adiciono pra você não se perder por aqui :)', 'Hi! I\'m Bia from HR. Adding you so you don\'t get lost around here :)', '¡Hola! Soy Bia, de RR. HH. Te agrego para que no te pierdas por aquí :)'),
   likes: { kind: 2, joke: 1, gossip: 1, honest: 1, formal: 0, tease: -1, distant: -2, nudge: 0, ambitious: 0 }, open: 1, speed: 1.3, meeting: true, cam: 'on',
   blocks: [[180, 240, 'away', 'lunch']], off: 'offline',
   bio: L3('Organiza a integração, os aniversários, o amigo secreto e a festa de fim de ciclo — quase sempre sem verba. Sabe de tudo que acontece no prédio, mas o que é sigilo do RH morre com ela.',

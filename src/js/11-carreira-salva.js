@@ -9,7 +9,7 @@ function saveCareerMidday() {
   save('carreira', { day: S.day - 1, score: S.score - (S.dayScore || 0), rankIdx: S.rankIdx, perks: [...S.perks], today: [...S.today], inv: S.inv,
                      careerCauses: S.careerCauses, stress: S.stress, promoDay: S.promoDay });   // promoDay: refazer o dia não dá outra promoção
 }
-function clearCareer() { try { localStorage.removeItem('expediente-' + balKey('carreira')); } catch (e) {} }
+function clearCareer() { try { localStorage.removeItem(WD_NS + balKey('carreira')); } catch (e) {} }
 function resumeCareer() {
   const c = load('carreira', null);
   if (!c) { newCareer(); return; }

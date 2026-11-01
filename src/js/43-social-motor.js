@@ -43,27 +43,30 @@ function socFlush() { if (!SOC || window.SKIP_PERSIST) return; const { _dirty, .
 addEventListener('pagehide', () => { if (SOC && SOC._dirty) socFlush(); });
 
 // Carreira nova: colegas recomeçam; amigos de fora ficam (com as datas da história ajustadas ao novo calendário)
+function socNewCareerState(cid) {
+  const old = SOC, now = 1, shift = now - (old.day || now), life = id => CAST[id] && CAST[id].scope === 'life';
+  SOC = socFresh(); SOC.cid = cid;
+  for (const [id, r] of Object.entries(old.c)) if (life(id)) { SOC.c[id] = r; if (old.c.duda || old.cid > 0) r.f.newJob = now; }
+  for (const [k, d] of Object.entries(old.done)) { const T = SOC_THREADS[k.split(/[#@]/)[0]]; if (T && life(T.npc)) SOC.done[k] = Math.max(0, d + shift); }
+  for (const [k, a] of Object.entries(old.arc)) if (life(k)) SOC.arc[k] = { s: a.s, d: a.d + shift };
+  for (const [id, th] of Object.entries(old.th)) if (life(id)) { SOC.th[id] = th; if (th.at != null) th.at += shift; }
+  SOC.day = now; socDirty();
+}
 function socSync() {
   if (!SOC) SOC = socLoad();
   const cid = Quests.cid();
-  if (SOC.cid !== cid) {
-    const old = SOC, now = Quests.today(), shift = now - (old.day || now), life = id => CAST[id] && CAST[id].scope === 'life';
-    SOC = socFresh();
-    for (const [id, r] of Object.entries(old.c)) if (life(id)) { SOC.c[id] = r; r.f.newJob = now; }
-    for (const [k, d] of Object.entries(old.done)) { const T = SOC_THREADS[k.split('#')[0]]; if (T && life(T.npc)) SOC.done[k] = d + shift; }
-    for (const [k, a] of Object.entries(old.arc)) if (life(k)) SOC.arc[k] = { s: a.s, d: a.d + shift };
-    for (const [id, th] of Object.entries(old.th)) if (life(id)) { SOC.th[id] = th; if (th.at != null) th.at += shift; }
-    SOC.day = now; socDirty();
-  }
+  if (SOC.pre && SOC.cid === cid) { delete SOC.pre; socDirty(); }               // a carreira preparada no e-mail do RH começou
+  else if (SOC.pre && SOC.cid === cid + 1) {}                                     // e-mail do 1º dia aberto: carreira nova já preparada
+  else if (SOC.cid !== cid) socNewCareerState(cid);
   const ctx = socCtx();
   for (const id of CAST_ORDER) { const d = CAST[id], r = SOC.c[id];
     if ((d.start === 'always' || (d.start === 'career' && ctx.career)) && (!r || r.st === 'none')) { const rr = socRel(id); rr.st = 'known'; rr.since = ctx.day; socDirty(); } }
 }
 
 /* ---------- contexto narrativo ---------- */
-function socCareer() { return !!S && S.phase !== 'over' || !!load('carreira', null); }
+function socCareer() { return !!S && S.phase !== 'over' || !!load('carreira', null) || !!(SOC && SOC.pre); }
 function socCtx() {
-  const career = socCareer(), day = career ? Quests.today() : (SOC && SOC.day) || 1;
+  const career = socCareer(), day = SOC && SOC.pre ? 1 : career ? Quests.today() : (SOC && SOC.day) || 1;
   const inDay = !!S && (S.phase === 'day' || !!S.onBreak), intro = !!S && S.phase === 'intro';
   const min = inDay ? Math.min(539, Math.floor((S.dayT || 0) / DAY_SECONDS * 540)) : intro ? 0 : -1;
   const slot = min < 0 ? 'off' : min < 180 ? 'am' : min < 270 ? 'lunch' : 'pm';
@@ -324,6 +327,10 @@ function socSay(npc, text) {
     if (i >= 0) { socChoose(npc, i, text); return 'choice'; }
     return 'hint';
   }
+  // primeira mensagem do jogador para esse contato: alguns respondem com uma conversa própria (ex.: o oi para o Duda)
+  const r0 = socRel(npc), first = r0.f.saidHi == null; if (first) { r0.f.saidHi = ctx.day; socDirty(); }
+  const fm = CAST[npc].firstMsg && SOC_THREADS[CAST[npc].firstMsg];
+  if (first && fm && !th && SOC.done[socKey(fm, ctx)] == null) { socStart(fm, ctx, text); return 'topic'; }
   if (!th) { const tops = socTopics(npc, ctx), i = socMatch(text, tops.map(T => ({ t: T.topic, kw: T.kw }))); if (i >= 0) { socTopic(npc, tops[i].id, text); return 'topic'; } }
   socLog(npc, { f: 'm', s: text }, ctx);
   socIntent(npc, socIntentOf(text), ctx);

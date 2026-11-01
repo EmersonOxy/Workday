@@ -102,7 +102,7 @@ function osPicPicker(anchor, onPick) {
   ['av', ...Object.keys(OS_PICS)].forEach(k => {
     const b = document.createElement('button'); b.className = 'os-pic' + ((CFG.osPic || 'av') === k ? ' on' : '');
     b.append(k === 'av' ? portrait(36) : Pixel.el(OS_PICS[k], 3));
-    b.onclick = e => { e.stopPropagation(); CFG.osPic = k === 'av' ? null : k; persist(); sfx('click'); g.remove(); onPick(); };
+    b.onclick = e => { e.stopPropagation(); CFG.osPic = k === 'av' ? null : k; persist(); sfx('click'); g.remove(); onPick(); if (typeof Msn !== 'undefined' && Msn.visible()) Msn.render(); };
     g.append(b);
   });
   anchor.after(g);
@@ -343,14 +343,43 @@ function showArrival() {
 }
 // Tela de título: nome do jogo e o botão Iniciar (orbe do WorkOS) no centro
 function showTitle() {
-  const t = document.createElement('div'); t.id = 'titlescr';
-  t.innerHTML = `<div class="tt-logo"></div><button class="tt-orb" aria-label="${U().diffStart}"></button><p class="tt-legal">${U().footer}</p>`;
+  const t = document.createElement('div'), a = U().acc; t.id = 'titlescr';
+  // nome de usuário obrigatório: cada nome tem o próprio save (ver WD_ACC em 00-cabecalho.js)
+  t.innerHTML = `<div class="tt-logo"></div><form class="tt-user" autocomplete="off"><label for="ttName">${a.label}</label>
+    <input id="ttName" class="tt-name" type="text" maxlength="18" placeholder="${a.ph}" list="ttUsers" autocomplete="off" spellcheck="false">
+    <datalist id="ttUsers">${WD_ACC.list.map(x => `<option value="${String(x.name).replace(/"/g, '&quot;')}">`).join('')}</datalist><span class="tt-hint" role="alert"></span></form>
+    <button class="tt-orb" aria-label="${U().diffStart}"></button><p class="tt-legal">${U().footer}</p>`;
   t.querySelector('.tt-logo').append(pxSize(logoCanvas(), 8));
   t.querySelector('.tt-orb').append(Pixel.el(MENU_ICO.app, 8));
   document.body.append(t);
-  const go = () => { removeEventListener('keydown', key); sfx('ok'); wipe(() => { t.remove(); showArrival(); }); };
-  const key = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } };
+  const inp = t.querySelector('.tt-name'), hint = t.querySelector('.tt-hint');
+  inp.value = WD_ACC.cur ? WD_ACC.cur.name : (PROFILE.name || '').trim();
+  inp.addEventListener('keydown', e => e.stopPropagation());
+  const go = () => {
+    const r = wdLogin(inp.value);
+    if (r === 'empty') { hint.textContent = a.need; Motion.shake(inp, 4); sfx('click'); inp.focus(); return; }
+    removeEventListener('keydown', key); sfx('ok');
+    if (r === 'reload') return;   // outra conta: recarrega já com o save dela
+    wipe(() => { t.remove(); showMenu(); showArrival(); });
+  };
+  const key = e => { if (e.key === 'Enter') { e.preventDefault(); go(); } };
+  t.querySelector('form').onsubmit = e => { e.preventDefault(); go(); };
   t.querySelector('.tt-orb').onclick = go; addEventListener('keydown', key);
+  if (!document.body.classList.contains('touch')) setTimeout(() => inp.focus(), 50);
+}
+// Entrar com um nome: cria a conta se for nova. Trocar de conta recarrega o jogo com o save daquela conta.
+function wdAccountId(name) { return String(name || '').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, ' '); }
+function wdLogin(name) {
+  name = String(name || '').trim().replace(/\s+/g, ' ').slice(0, 18); const id = wdAccountId(name); if (!id) return 'empty';
+  const list = WD_ACC.list.slice(); let acc = list.find(x => x.id === id);
+  if (!acc) { acc = { id, name, ns: list.length ? 'u' + Date.now().toString(36) : '' }; list.push(acc); }
+  try { localStorage.setItem('expediente-usuarios', JSON.stringify(list)); localStorage.setItem('expediente-usuario', id); } catch (e) {}
+  const same = WD_ACC.cur ? WD_ACC.cur.id === id : !acc.ns;
+  WD_ACC.list = list;
+  if (!same) { try { sessionStorage.setItem('wd-login', name); } catch (e) {} location.reload(); return 'reload'; }
+  WD_ACC.cur = acc;
+  if (!(PROFILE.name || '').trim()) { PROFILE.name = name; saveProfile(); }
+  return 'ok';
 }
 
 function logoCanvas() {

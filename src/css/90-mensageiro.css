@@ -5,9 +5,9 @@
   .msn button { font: inherit; color: inherit; }
 
   /* lateral: perfil e contatos */
-  .msn-side { display: flex; flex-direction: column; min-height: 0; background: #f3e6cc; box-shadow: inset -2px 0 0 #2a1f2d; }
+  .msn-side { display: flex; flex-direction: column; min-width: 0; min-height: 0; background: #f3e6cc; border-right: 2px solid #2a1f2d; overflow: hidden; }
   .msn-me { position: relative; display: flex; gap: .5em; padding: .5em; background: #c3d5ff; box-shadow: inset 0 -2px 0 #2a1f2d, inset 0 2px 0 #fff8ec; }
-  .msn-mepic { flex: none; display: grid; place-items: center; width: 52px; height: 52px; background: #fff8ec; box-shadow: 0 0 0 2px #2a1f2d, 3px 3px 0 #44609f; overflow: hidden; }
+  .msn-mepic { flex: none; align-self: flex-start; display: grid; place-items: center; padding: 2px; line-height: 0; background: #fff8ec; box-shadow: 0 0 0 2px #2a1f2d, 3px 3px 0 #44609f; }
   .msn-mei { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 2px; }
   .msn-mename { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: normal; font-size: 1.15em; line-height: 1; }
   .msn-st { align-self: flex-start; display: inline-flex; align-items: center; gap: .3em; border: 0; padding: 0 .3em; background: transparent; cursor: pointer; line-height: 1.1; }
@@ -117,9 +117,33 @@
   body.mobile .msn, .msn-win.narrow .msn { grid-template-columns: 1fr; }
   body.mobile .msn .msn-chat, body.mobile .msn.chatting .msn-side { display: none; }
   body.mobile .msn.chatting .msn-chat { display: flex; }
-  body.mobile .msn-side { box-shadow: none; }
+  body.mobile .msn-side { border-right: 0; }
   body.mobile .msn-back { display: inline-block; margin: 0 2px; padding: 0 .5em 3px; }
   body.mobile .msn-hp { display: none; }
   @media (max-width: 640px) { body:not(.mobile) .msn .msn-chat { display: none; } body:not(.mobile) .msn.chatting .msn-chat { display: flex; } body:not(.mobile) .msn.chatting .msn-side { display: none; } body:not(.mobile) .msn-back { display: inline-block; } }
   body.mobile .os-win.msn-win { height: auto; }
   @media (prefers-reduced-motion: reduce) { .msn-toast, .msn-quiet { animation: none; } }
+
+  /* adicionar contato */
+  .msn-addbar { padding: .35em .5em .2em; box-shadow: inset 0 -2px 0 #dcc6a0; }
+  .msn-addbtn { width: 100%; border: 0; padding: .2em .5em .3em; text-align: left; color: #44609f; background: #fff8ec; box-shadow: 0 0 0 2px #2a1f2d, inset 0 -3px 0 #dcc6a0; cursor: pointer; }
+  .msn-addbtn:hover { background: #c3d5ff; }
+  .msn-add { display: flex; gap: 6px; }
+  .msn-addin { flex: 1; min-width: 0; border: 0; padding: .15em .4em; font: 1em var(--pixel); background: #fff8ec; color: #2a1f2d; box-shadow: 0 0 0 2px #2a1f2d, inset 2px 2px 0 #dcc6a0; }
+  .msn-add .pxbtn { margin: 0 2px; padding-top: 0; padding-bottom: 3px; }
+  .msn-addmsg { display: block; margin-top: .3em; color: #a24a33; line-height: 1.1; }
+  /* e-mail do RH antes do 1º dia */
+  .os-win.onb-win { width: min(30em, 94vw); }
+  .onb-h { display: flex; gap: .6em; align-items: center; padding-bottom: .4em; box-shadow: inset 0 -2px 0 #dcc6a0; }
+  .onb-h > span { line-height: 0; box-shadow: 0 0 0 2px #2a1f2d; } .onb-h div { display: flex; flex-direction: column; line-height: 1.1; } .onb-h small { color: var(--muted); }
+  .onb-body p { margin: .45em 0; line-height: 1.15; }
+  .onb-ck { margin: .3em 0; padding: 0; list-style: none; }
+  .onb-ck li { display: flex; align-items: center; gap: .5em; padding: .15em 0; }
+  .onb-ck li i { flex: none; width: 12px; height: 12px; background: #fff8ec; box-shadow: 0 0 0 2px #2a1f2d; }
+  .onb-ck li.ok { color: #2f8a45; } .onb-ck li.ok i { background: #7ed98c; box-shadow: 0 0 0 2px #2a1f2d, inset 0 0 0 3px #fff8ec; }
+  /* nome de usuário na tela de título */
+  .tt-user { display: flex; flex-direction: column; align-items: center; gap: .3em; }
+  .tt-user label { color: #a9dccf; font-size: 1.2em; }
+  .tt-name { width: min(16em, 80vw); border: 0; padding: .2em .5em .3em; text-align: center; font: 1.6em var(--pixel); background: #fff8ec; color: #2a1f2d; box-shadow: 0 0 0 3px #2a1f2d, 0 0 0 6px #44609f; }
+  .tt-name:focus { outline: none; box-shadow: 0 0 0 3px #2a1f2d, 0 0 0 6px #6f93d9; }
+  .tt-hint { min-height: 1.2em; color: #ffd0b0; font-size: 1.1em; text-align: center; max-width: 90vw; }

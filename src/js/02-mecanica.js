@@ -20,7 +20,7 @@ const BALANCE = {
   longa:         { levelPts: L => 1 + Math.min(L - 1, 16) * .12, multCap: 3, comboStep: 10, ranks: [0, 1200, 4000, 9500, 19000, 34000, 56000], rankDays: [1, 1, 2, 3, 5, 7, 10], level: LEVEL_OLD,
                    dayBonus: () => 60, pay: (ds, d, r) => SALARY_LONG[r] + Math.min(30, Math.round(ds / 80)), severance: (ds, r) => 2 * SALARY_LONG[r], priceMul: 1 },
 };
-const BAL_KEY = (() => { try { const c = JSON.parse(localStorage.getItem('expediente-config') || '{}'); return BALANCE[c.balance] ? c.balance : 'original'; } catch (e) { return 'original'; } })();
+const BAL_KEY = (() => { try { const c = JSON.parse(localStorage.getItem(WD_NS + 'config') || '{}'); return BALANCE[c.balance] ? c.balance : 'original'; } catch (e) { return 'original'; } })();
 const BAL = BALANCE[BAL_KEY];
 const RANK_DAYS = BAL.rankDays;   // dia mínimo para alcançar cada cargo (Estagiário … CEO)
 // Dificuldade: multiplica o ritmo do expediente.
