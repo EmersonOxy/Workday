@@ -347,7 +347,8 @@
     body.touch #desk { min-height: 0; }
   }
   #kb { position: fixed; left: 0; bottom: 0; width: 1px; height: 1px; opacity: 0; font-size: 16px; border: 0; padding: 0; pointer-events: none; }
-  button, .pad, .ticket { touch-action: manipulation; }
+  button { touch-action: manipulation; }
+  .pad, .ticket { touch-action: none; }   /* segurar a digital e puxar o ticket: o navegador não pode tomar o gesto como rolagem (pointercancel travava o fim do dia no celular) */
   #board { touch-action: none; }
   /* ===== v7: ticket, entardecer, sono, mercado em tela cheia, caixa ===== */
   .perf { position: relative; }
