@@ -75,3 +75,15 @@ function sickLeave(reason) {
 }
 // estresse no limite e "Pedir atestado": atestado no lugar do fim de carreira (a vitória continua indo para gameOver)
 { const go0 = gameOver; gameOver = (reason = 'burnout') => { if ((reason === 'burnout' || reason === 'quit') && S && S.phase === 'day') return sickLeave(reason === 'quit' ? 'ask' : 'burnout'); go0(reason); }; }
+
+// Configurações → Excluir run: apaga a carreira atual (dias, atestados e relações com os colegas). Dinheiro, recorde,
+// estatísticas, enfeites e conquistas ficam (são do jogador, não da run). A amiga de fora continua.
+LANGS.pt.ui.delRun = { label: 'Excluir run', hint: 'Apaga a carreira atual e começa do dia 1. Dinheiro, recorde e conquistas ficam.', btn: 'Excluir', ask: 'Excluir a run atual? Os dias, atestados e conversas com os colegas desta carreira serão apagados.' };
+LANGS.en.ui.delRun = { label: 'Delete run', hint: 'Erases the current career and starts from day 1. Money, record and achievements stay.', btn: 'Delete', ask: 'Delete the current run? Days, sick notes and coworker chats from this career will be erased.' };
+LANGS.es.ui.delRun = { label: 'Borrar partida', hint: 'Borra la carrera actual y empieza en el día 1. Dinero, récord y logros se quedan.', btn: 'Borrar', ask: '¿Borrar la partida actual? Se borrarán los días, bajas médicas y chats con compañeros de esta carrera.' };
+function deleteRun() {
+  if (S) { S.running = false; S = null; }
+  clearCareer(); try { localStorage.removeItem(WD_NS + 'atestados'); } catch (e) {}
+  try { socSync(); const next = Quests.cid() + 1; socNewCareerState(next); SOC.cid = Quests.cid(); socFlush(); } catch (e) {}
+  sfx('trash'); closeScene(); showMenu();
+}

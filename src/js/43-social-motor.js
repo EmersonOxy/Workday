@@ -226,7 +226,7 @@ function msgText(m) { const t = m.r ? socResolve(m.r) : null; return socFill(t !
 const SOC_LOG_MAX = 140;
 function socLog(npc, m, ctx = socCtx()) {
   const r = socRel(npc);
-  m.d = ctx.day; m.tm = ctx.min;
+  m.d = ctx.day; m.tm = ctx.min; if (typeof gameTime === 'function') m.hm = gameTime();   // hora do jogo no momento da mensagem
   if (m.r && m.s == null) { const t = socResolve(m.r); m.s = t; }
   if (m.s && /\{/.test(m.s)) { const v = socVars(ctx), used = {}; m.s.replace(/\{(\w+)\}/g, (_, k) => { if (v[k] != null) used[k] = v[k]; }); if (Object.keys(used).length) m.v = used; }
   r.log.push(m); if (r.log.length > SOC_LOG_MAX) r.log.splice(0, r.log.length - SOC_LOG_MAX);

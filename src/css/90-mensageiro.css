@@ -151,3 +151,22 @@
   /* calendário: dia de atestado */
   .cal-g span.sick { background: #ffd0b0; color: #a24a33; box-shadow: inset 0 0 0 2px #c25f3b; }
   .cal-g span.sick::after { content: '+'; display: block; font-size: .8em; line-height: .8; color: #ef4b3f; }
+
+  /* ===== Celular deitado: cenas sem janela ===== */
+  @media (orientation: landscape) and (max-height: 560px) {
+    /* chegada e entrada: avisos à esquerda, relógio de ponto à direita (a digital cabe inteira) */
+    #scene.sc-in .sc-col { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-auto-rows: min-content; align-content: center; align-items: center; justify-items: center;
+      column-gap: 24px; row-gap: 8px; height: 100dvh; box-sizing: border-box; padding: 8px max(12px, env(safe-area-inset-right, 0px)) 8px max(12px, env(safe-area-inset-left, 0px)); }
+    #scene.sc-in .sc-col > *:not(.clockdev) { grid-column: 1; }
+    #scene.sc-in .sc-col > .clockdev { grid-column: 2; grid-row: 1 / span 4; align-self: center; }
+    /* mercado: topo compacto numa linha, para as prateleiras aparecerem */
+    #scene.sc-shop .mk-top { padding: 4px 10px 6px; gap: 4px 12px; }
+    #scene.sc-shop .mk-top h2 { font-size: 26px; flex-basis: auto; }
+    #scene.sc-shop .mk-top .money { font-size: 16px; }
+    #scene.sc-shop .mk-top .pxbtn { min-height: 36px; padding-top: 0; padding-bottom: 4px; }
+    #scene.sc-shop .mk-hint { display: none; }
+    #scene.sc-shop .mk-sign { height: 8px; margin-bottom: 4px; }
+    #scene.sc-shop .mk-tabs .pxbtn { min-height: 34px; padding-top: 0; padding-bottom: 4px; font-size: .9em; }
+  }
+
+  #modal .pxbtn.danger:not(:disabled) { background: #ffd0b0; color: #a24a33; }

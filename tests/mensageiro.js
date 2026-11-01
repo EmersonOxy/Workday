@@ -140,6 +140,10 @@ async function settle(p, ms = 2500) { const t0 = Date.now(); while (Date.now() -
     await p.evaluate(() => document.querySelector('#home').click()); await p.waitForTimeout(1500);
     ok(await p.evaluate(() => $('scene') && $('scene').className.includes('sleep')), 'atestado: vai para casa dormir e o próximo dia segue');
     ok(await p.evaluate(() => { const d = gameDateOf(1); return d.getDay() === 1 && d.getDate() === 5 && d.getMonth() === 0 && gameDateOf(6).getDate() === 12 && careerDayOf(new Date(2026, 0, 12)) === 6; }), 'calendário do jogo: dia 1 = segunda 05/01, fins de semana pulados');
+    ok(await p.evaluate(() => SOC.c.duda.log.every(m => !m.hm || /^\d\d:\d\d$/.test(m.hm)) && SOC.c.duda.log.some(m => m.hm)), 'mensagens marcam a hora do jogo (não "noite")');
+    await p.evaluate(() => { closeScene(); showMenu(); window.confirm = () => true; showSettings(showMenu); }); await p.waitForTimeout(300);
+    await p.evaluate(() => document.querySelector('#delRun').click()); await p.waitForTimeout(400);
+    ok(await p.evaluate(() => !load('carreira', null) && sickDays().length === 0 && (!SOC.c.duda || SOC.c.duda.st !== 'known') && SOC.c.lu.st === 'known' && P.wallet > 0), 'Configurações → Excluir run: carreira e colegas apagados; dinheiro e amiga de fora ficam');
     await p.evaluate(() => { closeScene(); showMenu(); newCareer(); }); await p.waitForTimeout(400);
     ok(await p.evaluate(() => SOC.c.lu && SOC.c.lu.st === 'known' && (!SOC.c.helena || SOC.c.helena.st !== 'known') && (!SOC.c.bia || SOC.c.bia.st !== 'known')), 'nova carreira: colegas recomeçam, decisões da anterior não vazam');
     ok(errs.length === 0, 'sem erros de JavaScript' + (errs.length ? ': ' + errs.join(' | ') : ''));

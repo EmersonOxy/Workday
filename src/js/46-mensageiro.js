@@ -146,7 +146,7 @@ const Msn = {
     const r = SOC.c[id], d = CAST[id]; let h = '', lastD = null, lastF = null;
     for (const m of r.log) {
       if (m.d !== lastD) { h += `<div class="msn-day">${u.dayN(m.d)}</div>`; lastD = m.d; lastF = null; }
-      const t = esc(msgText(m)), tm = socClock(m) || u.evening;
+      const t = esc(msgText(m)), tm = m.hm || socClock(m) || u.evening;
       if (m.f === 's') { h += `<div class="msn-sys">${t}</div>`; lastF = null; continue; }
       const who = m.f === 'm' ? esc(profileName()) : esc(castFirst(id)), same = lastF === m.f;
       h += `<div class="msn-m ${m.f === 'm' ? 'me' : 'np'}${same ? ' cont' : ''}">${same ? '' : `<span class="msn-mh"><b>${who}</b><time>${tm}</time></span>`}<p>${t}</p></div>`;

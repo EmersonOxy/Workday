@@ -332,9 +332,7 @@ function showArrival() {
   sc.innerHTML = `<div class="sc-col"><h2>${u.arrival}</h2><p class="sc-hint">${u.holdFinger}</p></div>`;
   const stg = Stage.mount(sc, 'hall', { eve: false });
   const dev = clockDevice(gameTime());   // hora do jogo (07:32 na chegada)
-  const z = +Math.max(0.8, Math.min(1.4, (innerHeight - 330) / 330, (innerWidth - 32) / 330)).toFixed(2);
-  dev.style.zoom = z; pxSnap(dev.querySelector('.pad canvas'), 5, z);
-  sc.querySelector('.sc-col').append(dev);
+  sc.querySelector('.sc-col').append(dev); fitClockDevice(dev);
   hallAttach(stg, dev);
   sceneIn(sc, 'h2, .sc-hint', 70, 380);
   fingerprint(dev, () => wipe(() => { closeScene(); ARRIVED = true; showMenu(); }));
@@ -487,6 +485,7 @@ function showSettings(onBack) {
     <h3 class="set-h">${u.setSec.desk}</h3><div class="setting"><span>${u.badgeTitle}</span><div class="seg"><button class="pxbtn" id="editBadge">${u.editBadge}</button><button class="pxbtn" id="custom">${u.customize}</button></div></div>
     <div class="setting"><span>${u.lights}</span>${seg('light', [['1', u.lightOn], ['0', u.lightOff]], lightState().lamp ? '1' : '0')}</div>
     <h3 class="set-h">${u.setSec.data}</h3><div class="setting"><span>${u.backup}</span><div class="seg" id="bkBox"><button class="pxbtn" id="bkOut">${u.exportSave}</button><button class="pxbtn" id="bkIn">${u.importSave}</button><input type="file" id="bkFile" accept=".json,application/json" hidden></div></div>
+    <div class="setting"><span>${u.delRun.label}<small>${u.delRun.hint}</small></span><div class="seg"><button class="pxbtn danger" id="delRun"${load('carreira', null) || (S && S.running) ? '' : ' disabled'}>${u.delRun.btn}</button></div></div>
     <div class="setting"><span>${u.experimental}</span><div class="seg"><button class="pxbtn" id="balBtn">${u.balTitle}: ${u.balNames[BAL_KEY]}</button></div></div>
     <div class="setting"><span>${u.tutorial}</span><div class="seg"><button class="pxbtn" id="tut">${u.tutorialReset}</button></div></div>
     <div class="setting"><span>${u.progress}</span><div class="seg" id="eraseBox"><button class="pxbtn" id="erase">${u.erase}</button></div></div>
@@ -519,6 +518,7 @@ function showSettings(onBack) {
   card.querySelector('#editBadge').onclick = () => showBadge(() => showSettings(onBack));
   card.querySelector('#custom').onclick = () => showCustomize(() => showSettings(onBack));
   card.querySelector('#bkOut').onclick = exportSave;
+  card.querySelector('#delRun').onclick = () => { if (!confirm(u.delRun.ask)) return; deleteRun(); };
   card.querySelector('#bkIn').onclick = () => card.querySelector('#bkFile').click();
   card.querySelector('#bkFile').onchange = e => { const f = e.target.files[0]; if (f) importSave(f, (msg, bad) => { const s = document.createElement('span'); s.textContent = msg; s.className = bad ? 'bad' : ''; card.querySelector('#bkBox').append(s); }); };
   card.querySelector('#balBtn').onclick = () => showBalance(() => showSettings(onBack));

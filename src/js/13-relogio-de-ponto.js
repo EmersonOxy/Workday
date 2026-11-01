@@ -45,6 +45,14 @@ function fingerprint(dev, onOk) {
   };
 }
 
+// Relógio de ponto do tamanho do espaço que sobra (largura e altura reais, depois do título e dos avisos):
+// a digital precisa caber inteira na tela, inclusive no celular deitado
+function fitClockDevice(dev) {
+  dev.style.zoom = 1; const r = dev.getBoundingClientRect();
+  if (!r.height) return;
+  const z = +Math.max(0.45, Math.min(1.4, (innerWidth - 24) / r.width, (innerHeight - r.top - 10) / r.height)).toFixed(2);
+  dev.style.zoom = z; pxSnap(dev.querySelector('.pad canvas'), 5, z);
+}
 function clockIn() {
   if (ARRIVED) { ARRIVED = false; startDay(); return; }   // o ponto já foi batido na chegada
   music('menu');
@@ -55,9 +63,7 @@ function clockIn() {
     <p class="sc-hint">${u.holdFinger}</p></div>`;
   const stg = Stage.mount(sc, 'hall', { eve: false });
   const dev = clockDevice('09:00');
-  const z = +Math.max(0.8, Math.min(1.4, (innerHeight - 330) / 330, (innerWidth - 32) / 330)).toFixed(2);
-  dev.style.zoom = z; pxSnap(dev.querySelector('.pad canvas'), 5, z);
-  sc.querySelector('.sc-col').append(dev);
+  sc.querySelector('.sc-col').append(dev); fitClockDevice(dev);
   hallAttach(stg, dev);
   sceneIn(sc, 'h2, .note, .sc-hint', 70, 380);
   fingerprint(dev, () => wipe(() => { closeScene(); startDay(); }));
