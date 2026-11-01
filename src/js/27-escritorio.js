@@ -104,7 +104,8 @@ function officeFrame(now) {
 // Hora e data reais do aparelho: na barra do WorkOS (menu) e no canto do cabeçalho durante o expediente
 function sysClock() {
   const d = new Date(), t = d.toLocaleTimeString(L.htmlLang, { hour: '2-digit', minute: '2-digit' }), dt = d.toLocaleDateString(L.htmlLang, { day: '2-digit', month: '2-digit', year: 'numeric' });
-  hudSet('osclock', 'text', document.body.classList.contains('mobile') ? t : t + ' · ' + dt);   // celular: só a hora, para sobrar barra hudSet('sysclock', 'text', t + ' ' + dt.slice(0, 5));
+  hudSet('osclock', 'text', document.body.classList.contains('mobile') ? t : t + ' · ' + dt);   // celular: só a hora, para sobrar barra
+  hudSet('sysclock', 'text', t + ' ' + dt.slice(0, 5));
 }
 setInterval(sysClock, 15000); sysClock();   // no celular não há o laço do escritório: o relógio da barra já nasce preenchido
 function onWindow(e) {
