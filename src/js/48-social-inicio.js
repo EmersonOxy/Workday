@@ -67,8 +67,8 @@ function socOnboard(go) {
   w.querySelector('.onb-pic').append(msnPicEl('bia', 2));
   let ready = false;
   const paint = () => { const d = socOnboardDone(), ok = d.add && d.hi; w.querySelectorAll('.onb-ck li').forEach(li => li.classList.toggle('ok', d[li.dataset.k])); w.querySelector('#onbGo').disabled = !ok;
-    // tudo feito: o e-mail volta para a frente com o botão em destaque
-    if (ok && !ready) { ready = true; setTimeout(() => { if (!w.isConnected) return; if (w.style.display === 'none') osRestore(w); else osFocus(w); Motion.punch(w.querySelector('#onbGo'), 1.15); sfx('notify'); }, 1600); } };
+    // tudo feito: só marca e libera o botão; o e-mail continua em segundo plano (o jogador volta a ele quando quiser)
+    if (ok && !ready) ready = true; };
   const iv = setInterval(() => { if (!w.isConnected) return clearInterval(iv); paint(); }, 400);
   w.querySelector('#onbMsn').onclick = () => { sfx('click'); const has = SOC.c.duda && SOC.c.duda.st === 'known'; if (!has) Msn.addOpen = true; Msn.open(has ? 'duda' : null); if (!has) Msn.render(); };
   w.querySelector('#onbGo').onclick = () => { const d = socOnboardDone(); if (!(d.add && d.hi)) return; clearInterval(iv); sfx('ok');

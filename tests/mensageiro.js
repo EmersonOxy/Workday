@@ -79,7 +79,8 @@ async function settle(p, ms = 2500) { const t0 = Date.now(); while (Date.now() -
     ok(await p.evaluate(() => socTopics('duda').length === 0 && !document.querySelector('.msn-opt.topic') && !socTopic('duda', 'duda_jogo') && !socCallCheck('duda').ok), 'antes da primeira conversa com o Duda: sem convite para jogar nem chamada');
     await p.fill('.msn-in', 'oi duda'); await p.press('.msn-in', 'Enter'); await settle(p, 2500);
     ok(await p.evaluate(() => !document.querySelector('#onbGo').disabled && SOC.done.duda_hello != null && SOC.c.duda.log.some(m => m.f === 'n')), 'o oi chega ao Duda, ele responde e o expediente é liberado');
-    await p.waitForTimeout(1900); await p.click('#onbGo'); await p.waitForTimeout(200);
+    ok(await p.evaluate(() => +getComputedStyle(document.querySelector('.msn-win')).zIndex > +getComputedStyle(document.querySelector('.onb-win')).zIndex), 'tarefas concluídas: o e-mail só marca e fica em segundo plano');
+    await p.evaluate(() => document.querySelector('#onbGo').click()); await p.waitForTimeout(200);
     ok(await p.evaluate(() => window.__go === 1 && !document.querySelector('.onb-win')), '"Começar o expediente" segue para o 1º dia');
     await p.evaluate(() => { newCareer(); closeScene(); startDay(); S.restAt = 999; });
     await p.waitForTimeout(600);
