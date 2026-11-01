@@ -15,7 +15,7 @@ function spawnTask() {
   const type = pick(types), u = U();
   tip(type);
   const el = document.createElement('div');
-  el.className = 'task';
+  el.className = 'task t-' + type;   // t-type: no celular a tarefa de escrita fica no topo (ver 30-mobile.css)
   const t = { type, el, life: 0, ttl: 0 };
   const speed = Math.max(0.55, 1 - Math.max(0, S.level - UNLOCK[type]) * 0.07) * (has('secretaria') ? 1.2 : 1) * (has('postit') ? 1.25 : 1) * DIFF().ttl;
   const body = document.createElement('div');
@@ -99,6 +99,7 @@ function openTask(t) {
   const prev = S.openTask;
   if (prev) { prev.el.classList.remove('open'); if (prev.chip) prev.chip.classList.remove('sel'); }
   S.openTask = t;
+  if (t && t.type === 'type' && typeof mobileHudPos === 'function') mobileHudPos();
   if (t) { t.el.classList.add('open'); t.chip.classList.add('sel'); Motion.enter(t.el, 'down'); sfx('click'); if (t.type === 'type' && TOUCH) focusKb(); }
   else if (document.activeElement === $('kb')) $('kb').blur();
   if (S.file && S.phase === 'day') requestAnimationFrame(placeFile);

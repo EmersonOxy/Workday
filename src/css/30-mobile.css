@@ -114,9 +114,13 @@
     body.mobile #pad .ctx.show { height: 44px; font-size: 18px; }
     body.mobile #chips { display: none; }
     /* Avisos ficam sobre o tabuleiro, nunca sobre a coluna de tarefas */
-    body.mobile #toast { top: 48px; left: max(12px, env(safe-area-inset-left, 0px)); right: calc(var(--colw) + 24px); width: auto; font-size: 15px; padding: 6px 8px; }
+    /* Recados no espaço livre do placar (canto superior direito): não cobrem tabuleiro nem tarefas */
+    body.mobile #toast, body.mobile:has(.task.t-type.open) #toast { top: max(8px, env(safe-area-inset-top, 0px)); left: auto; right: max(14px, env(safe-area-inset-right, 0px));
+      width: calc(100vw - 350px - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px)); max-width: 560px; font-size: 14px; padding: 3px 8px; gap: 8px; align-items: center; }
+    body.mobile #toast > div { min-width: 0; display: flex; flex-direction: column; overflow: hidden; }
+    body.mobile #toast > div, body.mobile #toast > div * { white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
     body.mobile #bossAlert { top: 48px; left: calc((100vw - var(--colw) - 8px) / 2); width: calc(100vw - var(--colw) - 40px); font-size: 16px; padding: 4px 10px; }
-    body.mobile #toast small { font-size: 13px; }
+    body.mobile #toast small { font-size: 12px; }
     body.mobile #video { width: 130px; right: calc(var(--colw) + 24px); top: 48px; }
     body.mobile #lane { height: 50dvh; top: 140px; right: calc(var(--colw) + 24px); }
   }
@@ -127,10 +131,22 @@
   body.touch .xl-tabs .xl-tab { min-height: 44px; padding-left: 12px; padding-right: 12px; }
   body.touch .popup .x { min-width: 44px; min-height: 40px; }
   body.touch .slot { min-height: 44px; }
-  body.mobile.kb-open #app { top: var(--vvt, 0px); bottom: auto; height: var(--vvh, 100dvh); padding-bottom: calc(var(--padh) + 6px); }
-  body.mobile.kb-open #pad { top: calc(var(--vvt, 0px) + var(--vvh, 100dvh) - var(--padh)); bottom: auto; }
-  body.mobile.kb-open #board { min-height: 90px; }
-  body.mobile.kb-open #tasks { max-height: 46%; }
+  /* Tarefa de escrita no celular: sempre no topo, sob o placar, por cima do alto do tabuleiro. As outras tarefas ficam
+     no lugar de sempre (acima da doca). Com o teclado aberto nada se move e a palavra continua visível. */
+  body.mobile .task.t-type.open { position: fixed; z-index: 12; left: max(8px, env(safe-area-inset-left, 0px)); right: max(8px, env(safe-area-inset-right, 0px));
+    top: var(--hudb, 96px); box-shadow: 0 0 0 2px var(--ink), 0 6px 0 rgba(42,31,45,.35); }
+  body.mobile .task.t-type .typed { letter-spacing: .08em; }
+  /* recados do RH nunca cobrem a palavra: descem para baixo do cartão de escrita */
+  /* Retrato: recados por cima do cabeçalho (alguns segundos), nunca sobre a palavra a digitar nem sobre o tabuleiro */
+  @media not ((orientation: landscape) and (max-height: 560px)) {
+    body.mobile #toast { top: max(8px, env(safe-area-inset-top, 0px)); left: max(8px, env(safe-area-inset-left, 0px)); right: max(8px, env(safe-area-inset-right, 0px));
+      height: calc(var(--hudb, 74px) - 8px - max(8px, env(safe-area-inset-top, 0px))); box-sizing: border-box; padding: 4px 8px; align-items: center; font-size: 14px; line-height: 1.05; }
+    body.mobile #toast > div { min-width: 0; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
+    body.mobile #toast small { font-size: 12px; }
+  }
+  @media (orientation: landscape) and (max-height: 560px) {
+    body.mobile .task.t-type.open { left: max(8px, env(safe-area-inset-left, 0px)); right: calc(var(--colw) + 16px); }
+  }
   /* Prazo estourando: mesmo selo "!" das fichas, no cartão aberto do celular e nos cartões do PC */
   body.mobile .task.late::after, body.office .task.late::after { content: '!'; position: absolute; right: 6px; top: 6px; width: 18px; height: 18px; display: grid; place-items: center;
     background: #ef4b3f; color: #fff8ec; font: 16px/1 var(--pixel); box-shadow: 0 0 0 2px #2a1f2d; z-index: 1; }

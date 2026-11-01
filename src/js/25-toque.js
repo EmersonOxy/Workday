@@ -21,14 +21,17 @@ document.addEventListener('contextmenu', e => { if (document.body.classList.cont
 document.addEventListener('selectstart', e => { if (e.target !== kb) e.preventDefault(); });
 kb.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); key('Enter'); } });
 
-// Teclado virtual aberto: o app ocupa só a área visível; o tabuleiro encolhe mas não some (regra do guia)
+// Teclado virtual: nada se reorganiza. O cartão de escrita fica no topo (sob o placar), onde o teclado nunca chega;
+// o resto da tela fica parado. O campo invisível também fica no topo, para o navegador não rolar a página ao focar;
+// se ainda assim o iOS deslocar a página, ela volta para o lugar.
 if (window.visualViewport) {
   const vv = visualViewport, fitVV = () => {
-    const kbOpen = innerHeight - vv.height > 120;
     document.documentElement.style.setProperty('--vvh', vv.height + 'px');
-    document.documentElement.style.setProperty('--vvt', vv.offsetTop + 'px');
-    document.body.classList.toggle('kb-open', kbOpen);
+    if (document.activeElement === kb && (scrollX || scrollY)) scrollTo(0, 0);
   };
   vv.addEventListener('resize', fitVV); vv.addEventListener('scroll', fitVV); fitVV();
 }
+// posição do cartão de escrita: logo abaixo do placar (o placar muda de altura com a fonte e a orientação)
+function mobileHudPos() { const h = document.querySelector('#app > header'); if (h && document.body.classList.contains('mobile')) document.documentElement.style.setProperty('--hudb', Math.round(h.getBoundingClientRect().bottom + 8) + 'px'); }
+addEventListener('resize', mobileHudPos); setInterval(mobileHudPos, 1000); mobileHudPos();
 

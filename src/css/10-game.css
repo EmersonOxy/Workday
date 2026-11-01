@@ -346,7 +346,7 @@
     body.touch #tasks:empty { display: none; }
     body.touch #desk { min-height: 0; }
   }
-  #kb { position: fixed; left: 0; bottom: 0; width: 1px; height: 1px; opacity: 0; font-size: 16px; border: 0; padding: 0; pointer-events: none; }
+  #kb { position: fixed; left: 0; top: 0; width: 1px; height: 1px; opacity: 0; font-size: 16px; border: 0; padding: 0; pointer-events: none; }
   button, .pad, .ticket { touch-action: manipulation; }
   #board { touch-action: none; }
   /* ===== v7: ticket, entardecer, sono, mercado em tela cheia, caixa ===== */

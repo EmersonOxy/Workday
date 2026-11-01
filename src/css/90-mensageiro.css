@@ -91,6 +91,7 @@
   .msn-toast { position: absolute; z-index: 30; right: 10px; bottom: 3.2em; display: flex; gap: .55em; align-items: center; max-width: min(21em, 86vw); border: 0; padding: .45em .7em .5em .5em;
     font: 1em var(--pixel); text-align: left; background: #fff8ec; color: #2a1f2d; cursor: pointer; box-shadow: 0 0 0 3px #2a1f2d, inset 0 4px 0 #6f93d9, 5px 5px 0 rgba(42,31,45,.4); }
   body.mobile .msn-toast, body:not(.office) .msn-toast { position: fixed; z-index: 60; bottom: 12px; }
+  body.mobile .msn-toast { top: var(--hudb, 90px); bottom: auto; left: max(8px, env(safe-area-inset-left, 0px)); right: max(8px, env(safe-area-inset-right, 0px)); max-width: none; }   /* longe da doca */
   .msn-tp { flex: none; line-height: 0; box-shadow: 0 0 0 2px #2a1f2d; }
   .msn-tt { min-width: 0; display: flex; flex-direction: column; line-height: 1.05; }
   .msn-tt small { color: #44609f; } .msn-tt b { font-weight: normal; }
@@ -100,7 +101,7 @@
     background: #fff8ec; color: #2a1f2d; box-shadow: 0 0 0 3px #2a1f2d, 4px 4px 0 rgba(42,31,45,.4); }
   .msn-profline { display: flex; align-items: center; gap: .35em; margin: .2em 0 0; } .msn-profline b { font-weight: normal; } .msn-profline i { color: #44609f; }
   [data-msn-badge] { position: relative; }
-  .osicon > .msn-badge, .start > .msn-badge { position: absolute; right: -2px; top: -4px; font-size: .8em; }
+  .osicon > .msn-badge, .start > .msn-badge, #padPause > .msn-badge { position: absolute; right: -2px; top: -4px; font-size: .8em; }
   .os-smenu > button > .msn-badge, .xl-tab > .msn-badge, .menu .pxbtn > .msn-badge { margin-left: .4em; font-size: .85em; }
 
   /* chamadas com outros contatos (mesmo visual da chamada do Duda) */

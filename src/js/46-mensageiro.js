@@ -193,6 +193,7 @@ const Msn = {
       if (S && S.phase === 'ending' && $('scene')) Msn.quietNote();
       return;
     }
+    if (document.body.classList.contains('mobile') && S && S.openTask && S.openTask.type === 'type') { sfx('msnIn'); return; }   // nunca por cima da palavra a digitar
     const now = performance.now(); if (now - Msn.lastToast < 3500) { sfx('msnIn'); return; }
     Msn.lastToast = now; sfx('msnIn'); Msn.toast(npc, CAST[npc].name, text);
   },
@@ -208,6 +209,8 @@ const Msn = {
     SocRT.presAt[id] = Msn.lastToast = now; sfx('msnOn'); Msn.toast(id, Msn.ui().online(CAST[id].name), socPsm(id, ctx), true);
   },
   toast(npc, title, text, small) {
+    // celular com o expediente rodando: nenhum balão por cima do jogo (só som e o selo no botão de pausa)
+    if (document.body.classList.contains('mobile') && S && S.phase === 'day' && !S.paused) { Msn.badges(); return; }
     document.querySelectorAll('.msn-toast').forEach(e => e.remove());
     const el = document.createElement('button'); el.className = 'msn-toast' + (small ? ' small' : '');
     el.innerHTML = `<span class="msn-tp"></span><span class="msn-tt"><small>${esc(Msn.ui().app)}</small><b>${esc(title)}</b>${text ? `<span>${esc(text)}</span>` : ''}</span>`;
