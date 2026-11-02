@@ -107,7 +107,7 @@ const LOCK_SPR = ['..kkk..', '.k...k.', '.k...k.', 'kkkkkkk', 'kYYYYYk', 'kYYkYY
 APP_ICO.arq = ['............', '.kkkk.......', 'kYYYYkkkkkk.', 'kYyyyyyyyYk.', 'kYkkkkkkkYk.', 'kYkWWWWWkYk.', 'kYkWkkkWkYk.', 'kYkWWWWWkYk.', 'kYkkkkkkkYk.', 'kYYYYYYYYzk.', 'kzzzzzzzzzk.', '.kkkkkkkkk..'];
 
 // Dias especiais: dia de início dentro do ciclo (j = variação sorteada por carreira), duração, passos e recompensas
-const CYCLE = 20;
+const CYCLE = 25;   // um ciclo do calendário = a carreira mínima (25 dias)
 const SPECIAL = [
   { id: 'integracao',    at: 2,  j: 0, len: 1, steps: [['files', 20], ['emails', 2]],      pin: 'novato' },
   { id: 'cafe',          at: 3,  j: 0, len: 1, steps: [['cafe', 2]],                         pin: 'xicara' },

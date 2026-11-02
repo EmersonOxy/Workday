@@ -6,13 +6,18 @@ const SECTORS = [{ id: 'fin', color: 'var(--fin)' }, { id: 'rh', color: 'var(--r
 // Os outros perfis existem para comparação (Configurações → Experimental) e guardam tudo à parte.
 const SALARY_STD = [42, 54, 68, 84, 102, 122, 145], SALARY_MID = [45, 58, 72, 88, 106, 126, 150], SALARY_LONG = [40, 50, 62, 76, 92, 110, 130];
 // nível do expediente: no padrão sobe 1,5 por dia e 1 a cada 40 s, então cada mecânica nova chega num dia diferente
+const SALARY_25 = [40, 52, 66, 82, 100, 120, 145];
+// carreira de 25 dias: nível sobe devagar com o dia e satura em 12 (velocidade da queda e intervalo entre tarefas)
+const LEVEL_25 = (d, t) => Math.min(12, 1 + Math.floor((d - 1) * .35) + Math.floor(t / 50));
 const LEVEL_OLD = (d, t) => 1 + (d - 1) * 2 + Math.floor(t / 30), LEVEL_STD = (d, t) => 1 + Math.floor((d - 1) * 1.5) + Math.floor(t / 40);
 const BALANCE = {
   // Padrão: dinheiro vem do salário do cargo + desempenho com teto (não dos pontos brutos, que crescem com o dia);
   // promoção pede pontos DO DIA e um dia mínimo, então Gerente, Diretor e CEO exigem constância
-  original:      { levelPts: L => 1 + Math.min(L - 1, 18) * .2, multCap: 4, comboStep: 8, ranks: [0, 900, 2700, 5300, 8900, 13300, 18500],
-                   rankDays: [1, 1, 3, 5, 8, 11, 14], level: LEVEL_STD,
-                   dayBonus: () => 80, pay: (ds, d, r) => SALARY_STD[r] + Math.min(35, Math.round(ds / 70)), severance: (ds, r) => 2 * SALARY_STD[r], priceMul: 1 },
+  // Padrão: carreira de 25 dias mínimos. Nível pesa pouco e satura (×1,8), combo até ×3; promoção pede pontos DO DIA e um
+  // dia mínimo (Assistente 3 · Analista 7 · Coordenador 11 · Gerente 16 · Diretor 21 · CEO 25). Ver tools/simulate.py.
+  original:      { levelPts: L => 1 + Math.min(L - 1, 8) * .1, multCap: 3, comboStep: 8, ranks: [0, 1800, 4100, 6700, 9500, 12500, 15600],
+                   rankDays: [1, 3, 7, 11, 16, 21, 25], level: LEVEL_25,
+                   dayBonus: () => 60, pay: (ds, d, r) => SALARY_25[r] + Math.min(30, Math.round(ds / 60)), severance: (ds, r) => 2 * SALARY_25[r], priceMul: 1 },
   classica:      { levelPts: L => L, multCap: 5, comboStep: 5, ranks: [0, 300, 1000, 2500, 5000, 9000, 15000], rankDays: [1, 1, 2, 3, 5, 7, 10], level: LEVEL_OLD,
                    dayBonus: d => 100 * d, pay: (ds, d) => Math.round(ds / 10) + 30 * d, severance: ds => Math.round(ds / 20), priceMul: 1, oldPrices: true },
   intermediaria: { levelPts: L => 1 + Math.min(L - 1, 20) * .25, multCap: 4, comboStep: 8, ranks: [0, 900, 2800, 6200, 11500, 19000, 30000], rankDays: [1, 1, 2, 3, 5, 7, 10], level: LEVEL_OLD,
@@ -41,14 +46,29 @@ const DIFF = (() => { let key = '', val = null;
 const RANK_POINTS = BAL.ranks;
 const UNLOCK = { button: 2, email: 3, type: 4, call: 5, printer: 6, video: 8 };
 const EVENTS = { boss: 3, shuffle: 5, freeze: 6, virus: 7 };
-// Dia em que cada mecânica aparece pela primeira vez (uma novidade por dia). No dia de estreia ela só surge depois
-// de FIRST_DELAY segundos de expediente; nos dias seguintes vale a regra de nível acima.
-const FIRST_DAY = { button: 1, email: 2, type: 3, call: 4, boss: 5, printer: 6, shuffle: 7, freeze: 8, virus: 9, video: 10 };
+// ===== Progressão da carreira por dia (independente da dificuldade e dos modificadores do dia) =====
+// DEBUT: dia de estreia de cada mecânica/variante. No dia de estreia ela surge obrigatoriamente depois de FIRST_DELAY s,
+// com dica; depois aparece ao acaso com frequência que cresce com os dias (FREQ). Nada antecipa uma estreia.
+const DEBUT = { button: 1, sector: 2, urgent: 3, dead: 4, email: 6, spam: 7, call: 8, call2: 9, printer: 10, type: 11, printer2: 11,
+  boss: 12, shuffle: 13, freeze: 14, virus: 16, it2: 17, video: 18, video2: 19, complex: 21, crisis: 23 };
 const FIRST_DELAY = 20;
-const firstOk = k => !!S && (S.day > FIRST_DAY[k] || (S.day === FIRST_DAY[k] && (S.dayT || 0) >= FIRST_DELAY));
+const WIN_DAY = 25;
+const debutOk = (k, d, t) => d > DEBUT[k] || (d === DEBUT[k] && (t || 0) >= FIRST_DELAY);
+const firstOk = k => !!S && debutOk(k, S.day, S.dayT);
+// chance de usar a variante/mecânica num sorteio: começa baixa na estreia e chega a 100% em ~5 dias
+const FREQ = k => !S || !firstOk(k) ? 0 : Math.min(1, .3 + .14 * (S.day - DEBUT[k]));
+// pressão do dia (0 no dia 1 → 1 no dia 25): intervalo entre tarefas, prazos e eventos
+const PRESS = d => Math.min(1, Math.max(0, (d - 1) / 24));
+const PROG = {
+  maxTasks: d => d <= 5 ? 1 : d <= 10 ? 2 : d <= 15 ? 3 : d <= 20 ? 4 : 5,
+  taskGap: d => 7.5 - 4 * PRESS(d),                      // segundos entre pendências (antes do sorteio ±30%)
+  ttl: d => 1.15 - .35 * PRESS(d),                        // multiplicador de prazo (mais curto com os dias, nunca abaixo de 0,8)
+  eventGap: d => 22 - 9 * PRESS(d),                       // segundos entre eventos (chefe, troca, travamento, vírus)
+  crisis: d => d >= 24 ? .35 : d >= DEBUT.crisis ? .2 : 0,  // chance de um segundo evento junto (crise)
+};
 const DAY_SECONDS = 150;
 const LEVEL_SECONDS = 30;
-const MAX_TASKS = 5;
+const MAX_TASKS = 5;   // teto absoluto; o do dia vem de PROG.maxTasks
 const RESOLUTIONS = ['auto', '1280x720', '1366x768', '1600x900', '1920x1080', '2560x1440'];
 const MODS = {
   first: {}, sexta: { speed: 0.85, w: { boss: 3 } }, fecha: { finUrgent: true }, home: { w: { boss: 0, shuffle: 0 }, video: 2 },

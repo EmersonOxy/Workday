@@ -66,7 +66,9 @@ document.addEventListener('keydown', e => {
   const key = e.key.length === 1 ? e.key.toUpperCase() : '';
   const printer = S.tasks.find(k => k.type === 'printer' && !k.dead && k.key === key);
   if (printer) {
-    printer.hits++; sfx('key'); renderPrinter(printer);
+    printer.hits++; sfx('key');
+    if (printer.keys) { printer.key = printer.keys[printer.hits % 2]; const kc = printer.el.querySelector('.keycap'); if (kc) kc.textContent = printer.key; }   // impressora complexa: teclas alternadas
+    renderPrinter(printer);
     if (printer.hits >= printer.need) { completeTask(printer, 4 + printer.need); stat('prints'); }
     return;
   }

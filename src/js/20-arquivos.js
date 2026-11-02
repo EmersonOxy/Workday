@@ -1,8 +1,8 @@
 /* ================= Arquivos ================= */
 function spawnFile() {
   const dest = pick(SECTORS), u = U();
-  let kind = S.day >= 3 && S.level >= 4 && Math.random() < 0.15 ? 'dead' : S.day >= 2 && S.level >= 3 && Math.random() < 0.2 ? 'urgent' : 'normal';
-  if (kind === 'normal' && mod().finUrgent && dest.id === 'fin' && Math.random() < 0.5) kind = 'urgent';
+  let kind = S.forceKind || (Math.random() < 0.15 * FREQ('dead') ? 'dead' : Math.random() < 0.2 * FREQ('urgent') ? 'urgent' : 'normal'); S.forceKind = null;
+  if (kind === 'normal' && firstOk('urgent') && mod().finUrgent && dest.id === 'fin' && Math.random() < 0.5) kind = 'urgent';
   tip(kind === 'normal' ? 'file' : kind);
   const el = document.createElement('div');
   el.className = 'file' + (kind === 'normal' ? '' : ' ' + kind);

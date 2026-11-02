@@ -65,18 +65,21 @@ def career(cfg, prof, rng, max_days=40):
 
             stress = max(0, stress - .8 * dt)
             # tarefas chegam, vencem ou são resolvidas
-            if L >= 2:
+            deb = cfg.get('debut')
+            unl = (lambda k: d >= deb[k]) if deb else (lambda k: L >= UNLOCK[k])
+            mx = cfg['max_tasks'](d) if deb else MAX_TASKS
+            if (L >= 2) if not deb else True:
                 next_task -= dt
                 if next_task <= 0:
-                    avail = [k for k, u in UNLOCK.items() if L >= u and not (k in ('type', 'call', 'video') and any(x[0] == k for x in tasks))]
-                    if avail and len(tasks) < MAX_TASKS:
-                        k = rng.choice(avail); speed = max(.55, 1 - max(0, L - UNLOCK[k]) * .07)
+                    avail = [k for k in UNLOCK if unl(k) and not (k in ('type', 'call', 'video') and any(x[0] == k for x in tasks))]
+                    if avail and len(tasks) < mx:
+                        k = rng.choice(avail); speed = cfg['ttl'](d) if deb else max(.55, 1 - max(0, L - UNLOCK[k]) * .07)
                         tasks.append([k, TASK[k][0] * speed, 0.0])
-                    next_task = max(1.4, 6.5 - L * .55) * rng.uniform(.7, 1.3)
+                    next_task = (cfg['task_gap'](d) if deb else max(1.4, 6.5 - L * .55)) * rng.uniform(.7, 1.3)
                 for x in tasks: x[2] += dt
                 for x in [x for x in tasks if x[2] >= x[1]]: tasks.remove(x); bad(12)
             # eventos (chefe, travamento, vírus, troca de setores)
-            if L >= 3:
+            if (L >= 3) if not deb else d >= deb['boss']:
                 next_event -= dt
                 if next_event <= 0:
                     if rng.random() < prof['event']: ok(20)
@@ -93,7 +96,7 @@ def career(cfg, prof, rng, max_days=40):
                 continue
             file_t -= dt
             if file_t <= 0:
-                kind = 'dead' if L >= 4 and rng.random() < .15 else 'urgent' if L >= 3 and rng.random() < .2 else 'normal'
+                kind = 'dead' if (d >= deb['dead'] if deb else L >= 4) and rng.random() < .15 else 'urgent' if (d >= deb['urgent'] if deb else L >= 3) and rng.random() < .2 else 'normal'
                 acc = max(.6, prof['acc'] - .004 * L)
                 if rng.random() < acc: ok(20 if kind == 'urgent' else 12 if kind == 'dead' else 10)
                 else: bad(26 if kind == 'urgent' else 12 if kind == 'dead' else 14)
@@ -146,6 +149,32 @@ STANDARD = dict(
     decor=[90, 120, 220, 380, 650, 1200],
 )
 
+# Carreira de 25 dias (aplicada): uma novidade por dia (PROG em 02-mecanica.js), pendências simultâneas por faixa de dias,
+# combo ×3, bônus de nível limitado e metas de promoção pelos pontos do dia.
+PRESS = lambda d: min(1, max(0, (d - 1) / 24))
+CAREER25 = dict(
+    name='carreira de 25 dias (aplicada)',
+    debut={'button': 1, 'email': 6, 'call': 8, 'printer': 10, 'type': 11, 'video': 18, 'urgent': 3, 'dead': 4, 'boss': 12},
+    max_tasks=lambda d: 1 if d <= 5 else 2 if d <= 10 else 3 if d <= 15 else 4 if d <= 20 else 5,
+    task_gap=lambda d: 7.5 - 4.0 * PRESS(d), ttl=lambda d: 1.15 - .35 * PRESS(d),
+    level=lambda d, t: min(12, 1 + int((d - 1) * .35) + int(t // 50)),
+    ranks=[0, 1800, 4100, 6700, 9500, 12500, 15600],   # metas do dia: 1800 · 2300 · 2600 · 2800 · 3000 · 3100
+    rank_days=[1, 3, 7, 11, 16, 21, 25],
+    level_pts=lambda L: 1 + min(L - 1, 8) * .1,
+    mult_cap=3, combo_step=8,
+    day_bonus=lambda d: 60,
+    pay=lambda dayScore, d, rank: [40, 52, 66, 82, 100, 120, 145][rank] + min(30, round(dayScore / 60)),
+    decor=[90, 120, 220, 380, 650, 1200],
+)
+
+def day_scores(cfg, runs=200):
+    rng = random.Random(7)
+    for pname, prof in PROFILES.items():
+        res = [career(cfg, prof, rng, max_days=30) for _ in range(runs)]
+        by = [statistics.median([r['score_by_day'][i] - (r['score_by_day'][i - 1] if i else 0) for r in res if len(r['score_by_day']) > i]) for i in (0, 4, 9, 14, 19, 24)]
+        print(f"  pontos do dia ({pname}): d1 {by[0]:.0f} · d5 {by[1]:.0f} · d10 {by[2]:.0f} · d15 {by[3]:.0f} · d20 {by[4]:.0f} · d25 {by[5]:.0f}")
+
 if __name__ == '__main__':
     runs = int(sys.argv[sys.argv.index('--runs') + 1]) if '--runs' in sys.argv else 400
-    summarize(CURRENT, runs); summarize(PROPOSED, runs); summarize(STANDARD, runs)
+    if '--all' in sys.argv: summarize(CURRENT, runs); summarize(PROPOSED, runs); summarize(STANDARD, runs)
+    summarize(CAREER25, runs); day_scores(CAREER25)

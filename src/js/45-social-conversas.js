@@ -340,8 +340,8 @@ socThreads([
     open: L3('Bora uma partida?', 'Up for a match?', '¿Una partida?'), n: {
     a: { say: [SLN(L3('SEMPRE. me liga pela câmera aí em cima. só fora do expediente, que o chefe tá rondando', 'ALWAYS. call me with the camera button up there. after hours only, the boss is lurking', 'SIEMPRE. llámame con el botón de cámara de arriba. solo fuera de horario, el jefe anda rondando'), 'happy')] } } },
 
-  // Dia 4 em diante: conversa opcional em que o Duda conta o truque do Esc (o chefe só começa a rondar no dia 5)
-  { id: 'duda_chefe', npc: 'duda', by: 'player', repeat: 1, when: { known: 'duda', day: 4 }, topic: L3('Perguntar sobre o chefe', 'Ask about the boss', 'Preguntar por el jefe'), kw: ['chefe', 'boss', 'jefe', 'esc'],
+  // Dia 11 em diante: conversa opcional em que o Duda conta o truque do Esc (o chefe estreia no dia 12)
+  { id: 'duda_chefe', npc: 'duda', by: 'player', repeat: 1, when: { known: 'duda', day: 11 }, topic: L3('Perguntar sobre o chefe', 'Ask about the boss', 'Preguntar por el jefe'), kw: ['chefe', 'boss', 'jefe', 'esc'],
     open: L3('Duda, o chefe costuma passar por aqui?', 'Duda, does the boss come around here?', 'Duda, ¿el jefe suele pasar por aquí?'), n: {
     a: { say: [L3('a partir de amanhã ele começa a rondar as mesas. confia', 'starting tomorrow he starts prowling the desks. trust me', 'a partir de mañana empieza a rondar las mesas. confía'),
       SLN(L3('dica do TI: quando aparecer o aviso, aperta <Esc>. a planilha de disfarce sobe na hora. no celular, toca no aviso', 'IT tip: when the warning shows up, hit <Esc>. the disguise spreadsheet pops up instantly. on mobile, tap the warning', 'consejo de TI: cuando salga el aviso, aprieta <Esc>. la planilla de disfraz sube al instante. en el celular, toca el aviso'), 'smug'),
