@@ -524,3 +524,4 @@
   .arr-chip { font-size: .8em !important; }
   .os-win.cal-win { width: max-content; }
   body:not(.mobile) #tip { top: 28%; }
+  .os-win.cal-win, .os-win.cal-win .mw-in { overflow: visible; max-height: none; }
