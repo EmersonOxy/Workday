@@ -20,7 +20,7 @@ function spawnFile() {
   Motion.play(el, [{ transform: 'translateY(-10px) scale(.9,1.14)', opacity: 0 }, { transform: 'scale(1.03,.97)', opacity: 1, offset: .6 }, { transform: 'none', opacity: 1 }], { duration: Motion.T.med, easing: Motion.E.out, fill: 'none' });
   S.dropNow = false;
   // cada documento cai do seu jeito: fase, ritmo e amplitude próprios do balanço, e um leve desvio dentro da coluna
-  S.file = { el, kind, dest: dest.id, lane: Math.floor(Math.random() * SECTORS.length), y: -60, ph: Math.random() * 6.28, sp: 2.2 + Math.random() * 1.4, amp: 3 + Math.random() * 4, off: Math.round((Math.random() - .5) * 8) };
+  S.file = { el, kind, dest: dest.id, lane: Math.floor(Math.random() * SECTORS.length), y: -60, ph: Math.random() * 6.28, sp: 2.2 + Math.random() * 1.4, amp: 1.5 + Math.random() * 2, off: Math.round((Math.random() - .5) * 8) };
   placeFile();
 }
 // A queda é desenhada com aceleração (velocidade sobe de 0,72× a 1,28× da média), mas o arquivo chega

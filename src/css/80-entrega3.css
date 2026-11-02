@@ -547,3 +547,8 @@
   @supports not selector(::-webkit-scrollbar) { * { scrollbar-color: #8f7d63 #e9dcc2; } :root[data-theme="dark"] * { scrollbar-color: #626875 #2a1f2d; } }
   /* com a barra do WorkOS na tela, o cabeçalho do expediente (barra de estresse em 12 segmentos) não aparece por trás dela */
   body.office:has(#modal:not(.hidden) .os-tasks) #app > header { visibility: hidden; }
+  /* avisos do RH embaixo, no mesmo canto dos avisos do MSworkN (a fila em 54-ajustes.js evita sobreposição) */
+  body.office:not(.mobile) #toast { top: auto; bottom: 3.2em; }
+  /* prévia do WorkOS maior, com mais papel de parede à mostra */
+  .pv-win { height: clamp(150px, 28vh, 260px); }
+  .pv-win .pv-body { margin: 16% 24% 8% 10%; flex: 1; }

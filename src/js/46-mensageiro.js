@@ -189,6 +189,8 @@ const Msn = {
   nudge(id) {
     if (!id || !socNudge(id)) { sfx('click'); return; }
     sfx('msnNudge'); if (!Motion.reduced.matches) Motion.shake(Msn.win, 6); Msn.render();
+    // reação visível: a foto do contato pula e treme no cabeçalho da conversa
+    const hp = Msn.win && Msn.win.querySelector('.msn-hp'); if (hp && !Motion.reduced.matches) { Motion.punch(hp, 1.25); setTimeout(() => hp.isConnected && Motion.shake(hp, 4), 180); }
   },
   call(id) { if (typeof socCall === 'function') socCall(id, {}); },
   // ---------- avisos ----------
