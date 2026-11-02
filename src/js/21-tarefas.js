@@ -8,51 +8,23 @@ function availableTypes() {
     && !(t === 'video' && S.video));
 }
 
-// variante de uma tarefa: sorteada pela frequência da estreia (FREQ); 'force' garante a variante no dia de estreia
-const variant = (k, force) => force === k || Math.random() < FREQ(k);
-function spawnTask(force) {
+function spawnTask() {
   const types = availableTypes();
-  const ft = force ? ({ sector: 'button', complex: 'button', spam: 'email', call2: 'call', printer2: 'printer', video2: 'video' }[force] || force) : null;
-  if (ft ? !types.includes(ft) : !types.length) return false;
-  if (S.tasks.length >= Math.min(MAX_TASKS, PROG.maxTasks(S.day))) return false;
-  const type = ft || pick(types), u = U();
+  if (!types.length || S.tasks.length >= MAX_TASKS) return;
+  const type = pick(types), u = U();
   tip(type);
   const el = document.createElement('div');
   el.className = 'task t-' + type;   // t-type: no celular a tarefa de escrita fica no topo (ver 30-mobile.css)
   const t = { type, el, life: 0, ttl: 0 };
-  const speed = PROG.ttl(S.day) * (has('secretaria') ? 1.2 : 1) * (has('postit') ? 1.25 : 1) * DIFF().ttl;
+  const speed = Math.max(0.55, 1 - Math.max(0, S.level - UNLOCK[type]) * 0.07) * (has('secretaria') ? 1.2 : 1) * (has('postit') ? 1.25 : 1) * DIFF().ttl;
   const body = document.createElement('div');
   body.className = 'body';
 
   sfx({ email: 'mail', call: 'ring', video: 'join' }[type] || 'task');
-  const P2 = U().prog;
-  if (type === 'button' && variant('complex', force)) {
-    // pendência complexa: três etapas na ordem certa (botões embaralhados)
-    tip('complex'); t.ttl = 12 * speed; t.step = 0;
-    const steps = P2.steps;
-    body.innerHTML = `<h3>${u.pending}</h3><div class="row"></div>`;
-    [0, 1, 2].sort(() => Math.random() - .5).forEach(i => { const b = document.createElement('button'); b.textContent = `${i + 1}. ${steps[i]}`;
-      b.onclick = () => { if (i !== t.step) { failTask(t, 8, P2.order, 'email'); return; } t.step++; b.disabled = true; sfx('click'); if (t.step === 3) completeTask(t, 35); };
-      body.querySelector('.row').append(b); });
-  } else if (type === 'button' && variant('sector', force)) {
-    // pendência de setor: o documento tem a cor de um setor; confirmar no setor certo
-    tip('sector'); t.ttl = 8 * speed;
-    const sec = pick(SECTORS);
-    body.innerHTML = `<h3>${u.pending}</h3><div style="margin-bottom:6px">${P2.which} <b style="color:${sec.color}">■</b> ${pick(L.buttons)}</div><div class="row"></div>`;
-    SECTORS.forEach(s => { const b = document.createElement('button'); b.textContent = sectorName(s.id); b.style.boxShadow = `inset 0 -3px 0 ${s.color}`;
-      b.onclick = () => s.id === sec.id ? completeTask(t, 20) : failTask(t, 8, P2.wrongSector, 'email');
-      body.querySelector('.row').append(b); });
-  } else if (type === 'button') {
+  if (type === 'button') {
     t.ttl = 7 * speed;
     body.innerHTML = `<h3>${u.pending}</h3><button>${pick(L.buttons)}</button>`;
     body.querySelector('button').onclick = () => completeTask(t, 15);
-  } else if (type === 'email' && variant('spam', force) && Math.random() < (force === 'spam' ? 1 : .4)) {
-    // e-mail suspeito: o certo é marcar como spam; encaminhar espalha o golpe
-    tip('spam'); t.ttl = 10 * speed;
-    el.append(sprite(SPR.mail, 3));
-    body.innerHTML = `<h3>${u.newEmail}</h3><div style="margin-bottom:6px">“${pick(P2.spamSubj)}” · <i>${pick(P2.spamFrom)}</i></div><div class="row"></div>`;
-    SECTORS.forEach(s => { const b = document.createElement('button'); b.textContent = sectorName(s.id); b.onclick = () => failTask(t, 12, P2.spamFwd, 'email'); body.querySelector('.row').append(b); });
-    const sp = document.createElement('button'); sp.textContent = P2.spam; sp.onclick = () => { completeTask(t, 30); stat('emails'); }; body.querySelector('.row').append(sp);
   } else if (type === 'email') {
     const subj = pick(Object.keys(L.emails));
     t.ttl = 11 * speed;
@@ -64,7 +36,6 @@ function spawnTask(force) {
       b.onclick = () => { if (s.id === L.emails[subj]) { completeTask(t, 25); stat('emails'); } else failTask(t, 10, u.fEmail, 'email'); };
       body.querySelector('.row').append(b);
     });
-    if (firstOk('spam')) { const sp = document.createElement('button'); sp.textContent = P2.spam; sp.onclick = () => failTask(t, 10, P2.notSpam, 'email'); body.querySelector('.row').append(sp); }   // depois do dia 7, todo e-mail pede a decisão
   } else if (type === 'type') {
     const pool = has('corretor') ? L.words.filter(w => w.length <= 8) : L.words;
     t.word = pick(pool); t.typed = '';
@@ -72,18 +43,15 @@ function spawnTask(force) {
     body.innerHTML = `<h3>${u.fill}</h3><div class="typed"></div><div class="hint">${u.typeHint}</div>`;
     el.onclick = () => { if (TOUCH) focusKb(); };
   } else if (type === 'call') {
-    const hard = variant('call2', force);   // ligação exigente: segurar mais tempo, e chega junto com outra pendência
-    t.need = rand(1.6, 3) * (hard ? 1.7 : 1) * (has('fone') ? 0.5 : 1); t.held = 0; t.holding = false;
-    t.ttl = (hard ? 12 : 9) * speed;
-    if (hard) { tip('call2'); setTimeout(() => { if (S.phase === 'day' && S.tasks.includes(t)) spawnTask('button'); }, 900); }
+    t.need = rand(1.6, 3) * (has('fone') ? 0.5 : 1); t.held = 0; t.holding = false;
+    t.ttl = 9 * speed;
     body.innerHTML = `<h3>${u.ringing}</h3><button class="phone"><span class="fill"></span>${pick(L.callers)} · ${u.hold}</button>`;
     el.prepend(sprite(SPR.phone, 3));
     const b = body.querySelector('button');
     b.onpointerdown = e => { t.holding = true; b.setPointerCapture(e.pointerId); sfx('click'); };
     b.onpointerup = b.onpointercancel = () => { t.holding = false; if (t.held < t.need) t.held = 0; };
   } else if (type === 'printer') {
-    if (variant('printer2', force)) { tip('printer2'); const ks = printerKeys(); t.keys = [pick(ks), pick(ks)]; while (t.keys[1] === t.keys[0] && ks.length > 1) t.keys[1] = pick(ks); }
-    t.key = t.keys ? t.keys[0] : pick(printerKeys()); t.need = 6 + Math.floor(Math.random() * 6); t.hits = 0;
+    t.key = pick(printerKeys()); t.need = 6 + Math.floor(Math.random() * 6); t.hits = 0;
     if (has('estagiario')) t.need = Math.ceil(t.need / 2);
     t.ttl = (4 + t.need * 0.45) * speed;
     el.append(sprite(SPR.printer, 3));
@@ -103,20 +71,6 @@ function spawnTask(force) {
   S.tasks.push(t);
   if (type === 'type') renderTyped(t);
   if (type === 'printer') renderPrinter(t);
-  return true;
-}
-// Estreias do dia (DEBUT): depois de FIRST_DELAY s, cada novidade do dia aparece pelo menos uma vez
-function debutTick() {
-  if (S.dayT < FIRST_DELAY) return;
-  for (const [k, d] of Object.entries(DEBUT)) {
-    if (d !== S.day || S.debutDone[k]) continue;
-    let ok = false;
-    if (k === 'urgent' || k === 'dead') { S.forceKind = k; ok = true; }
-    else if (['boss', 'shuffle', 'freeze', 'virus', 'it2'].includes(k)) { if (!S.bossAlert && !S.frozen && !S.virus && !(S.shuffleT > 0)) ok = !!startEvent(k === 'it2' ? pick(['freeze', 'virus']) : k); }
-    else if (k === 'crisis') { if (!S.bossAlert && !S.frozen && !S.virus) { tip('crisis'); startEvent(); setTimeout(() => { if (S.phase === 'day') startEvent(); }, 1200); ok = true; } }
-    else { if (k === 'video2' || k === 'video') ok = !S.video && spawnTask(k); else ok = spawnTask(k); }
-    if (ok) { S.debutDone[k] = true; return; }   // uma estreia por vez
-  }
 }
 
 function renderTyped(t) {

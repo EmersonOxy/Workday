@@ -83,13 +83,3 @@ Efeitos esperados:
 - A proposta mexe só em pontos, cargos e dinheiro. O estresse causado por cada erro não foi alterado, conforme pedido.
 
 Para reproduzir: `python3 tools/simulate.py --runs 250`.
-
-## Carreira de 25 dias (perfil padrão, aplicado)
-
-Configuração central em `src/js/02-mecanica.js` (`DEBUT`, `PROG`, `FREQ`, `WIN_DAY`, perfil `original`). Uma novidade por dia:
-pendência simples (1), setor (2), urgente (3), morto (4), e-mail (6), spam (7), ligação (8), ligação difícil (9), impressora (10),
-relatório + impressora alternada (11), chefe (12), troca de setores (13), travamento (14), vírus (16), TI intenso (17), vídeo (18),
-reunião longa (19), pendência em etapas (21), crises (23). Estreia obrigatória após 20 s com dica; depois frequência crescente.
-Pendências simultâneas: 1/2/3/4/5 por faixa de 5 dias. Combo até ×3, bônus de nível até ×1,8. Cargos nos dias 1·3·7·11·16·21·25,
-metas do dia 1.800 · 2.300 · 2.600 · 2.800 · 3.000 · 3.100. Vitória: terminar um expediente como CEO a partir do dia 25.
-Simulação (`python3 tools/simulate.py`): regular chega aos cargos nos dias mínimos (mediana); casual atrasa (Gerente ~20, sem CEO no 30).

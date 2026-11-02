@@ -171,7 +171,7 @@ function startDay() {
   Object.assign(S, { phase: 'day', paused: false, boss: false, bossAuto: 0, resting: false, restDone: false, restAt: rand(35, 95), dayT: 0, dayScore: 0, level: 1, lastLevel: 1,
     stress: Math.round(S.stress * 0.4), causes: {}, file: null, fast: false, tasks: [], nextTask: 5, nextEvent: 16,
     nextCoffee: rand(15, 25), order: [0, 1, 2, 3], slowT: 0, coffee: null, bossAlert: null, frozen: null, virus: false,
-    shuffleT: 0, video: null, burnout: false, openTask: null, tipQ: [], tipT: 0, tipDay: [], debutDone: {}, forceKind: null, last: performance.now() });
+    shuffleT: 0, video: null, burnout: false, openTask: null, tipQ: [], tipT: 0, last: performance.now() });
   buildBoard(); spawnFile(); hud(); renderDesk(); applyWallpaper();
   music('office');
 }

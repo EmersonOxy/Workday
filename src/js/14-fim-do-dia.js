@@ -13,7 +13,7 @@ function endDay() {
   hudFlag('vignette', 'on', false); $('boss').classList.add('hidden');
   thanos(); music(null);
   // vitória: terminar o 10º dia como CEO. A pontuação total (soma de todos os dias) vai para o relatório final
-  if (S.day >= (BAL_KEY === 'original' ? WIN_DAY : 10) && S.rankIdx === RANK_POINTS.length - 1) { setTimeout(() => gameOver('win'), 1600); return; }
+  if (S.day >= 10 && S.rankIdx === RANK_POINTS.length - 1) { setTimeout(() => gameOver('win'), 1600); return; }
   setTimeout(() => { music('menu'); clockOut(); }, 1600);
 }
 

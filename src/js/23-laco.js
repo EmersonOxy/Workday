@@ -31,10 +31,9 @@ function update(dt) {
   if (f.y >= board.clientHeight - S.trays[0].offsetHeight - f.el.offsetHeight) landFile(); else placeFile();
 
   S.nextTask -= sdt * (mod().taskRate || 1) * DIFF().tasks;
-  if (S.nextTask <= 0) { spawnTask(); S.nextTask = PROG.taskGap(S.day) * rand(0.7, 1.3); }
+  if (S.nextTask <= 0) { spawnTask(); S.nextTask = Math.max(1.4, 6.5 - S.level * 0.55) * rand(0.7, 1.3); }
   S.nextEvent -= sdt * DIFF().events;
-  if (S.nextEvent <= 0) { startEvent(); if (Math.random() < PROG.crisis(S.day)) setTimeout(() => { if (S.phase === 'day' && !S.paused) { tip('crisis'); startEvent(); } }, 1200); S.nextEvent = PROG.eventGap(S.day) * rand(0.7, 1.3); }
-  debutTick();
+  if (S.nextEvent <= 0) { startEvent(); S.nextEvent = Math.max(7, 20 - S.level) * rand(0.7, 1.3); }
   restTick();
 
   if (S.level >= 2) {
