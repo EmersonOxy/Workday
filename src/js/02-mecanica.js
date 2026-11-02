@@ -17,7 +17,7 @@ const BALANCE = {
   // dia mínimo (Assistente 3 · Analista 7 · Coordenador 11 · Gerente 16 · Diretor 21 · CEO 25). Ver tools/simulate.py.
   original:      { levelPts: L => 1 + Math.min(L - 1, 8) * .1, multCap: 3, comboStep: 8, ranks: [0, 1800, 4100, 6700, 9500, 12500, 15600],
                    rankDays: [1, 3, 7, 11, 16, 21, 25], level: LEVEL_25,
-                   dayBonus: () => 60, pay: (ds, d, r) => SALARY_25[r] + Math.min(30, Math.round(ds / 60)), severance: (ds, r) => 2 * SALARY_25[r], priceMul: 1.3 },   // carreira mais longa: preços 30% maiores
+                   dayBonus: () => 60, pay: (ds, d, r) => SALARY_25[r] + Math.min(30, Math.round(ds / 60)), severance: (ds, r) => 2 * SALARY_25[r], priceMul: 1 },
   classica:      { levelPts: L => L, multCap: 5, comboStep: 5, ranks: [0, 300, 1000, 2500, 5000, 9000, 15000], rankDays: [1, 1, 2, 3, 5, 7, 10], level: LEVEL_OLD,
                    dayBonus: d => 100 * d, pay: (ds, d) => Math.round(ds / 10) + 30 * d, severance: ds => Math.round(ds / 20), priceMul: 1, oldPrices: true },
   intermediaria: { levelPts: L => 1 + Math.min(L - 1, 20) * .25, multCap: 4, comboStep: 8, ranks: [0, 900, 2800, 6200, 11500, 19000, 30000], rankDays: [1, 1, 2, 3, 5, 7, 10], level: LEVEL_OLD,

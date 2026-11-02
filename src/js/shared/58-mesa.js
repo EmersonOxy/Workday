@@ -63,9 +63,9 @@ Object.assign(Office, {
     };
     // objetos arrumados à mão: { fx, fy, flip } (centro em fração da largura e profundidade entre o fundo e a borda da frente)
     const yBack = L.desk + 5, yFront = L.VH - 4, s0 = L.screen, glassB = s0.y + s0.h + 1;
-    for (const [id] of want) { const m = pick[id]; if (!m || typeof m !== 'object') continue; const o = DESK_OBJ[id], big = !!m.big && o[0] === 'P', w = o[1] * (big ? 2 : 1), h = o[2] * (big ? 2 : 1);
+    for (const [id] of want) { const m = pick[id]; if (!m || typeof m !== 'object') continue; const o = DESK_OBJ[id], w = o[1], h = o[2];
       let x = Math.round(m.fx * L.VW - w / 2), y = Math.round(yBack + m.fy * (yFront - yBack));
-      x = Math.max(-8, Math.min(L.VW - w + 8, x)); y = Math.max(yBack - 12, Math.min(yFront, y));
+      x = Math.max(-8, Math.min(L.VW - w + 8, x)); y = Math.max(yBack, Math.min(yFront, y));
       let back = y < yBack + 8;
       // na frente, não pode subir por cima do vidro da tela (ficaria escondido pelo jogo): desce ou vai para trás do monitor
       if (!back && x + w > s0.x && x < s0.x + s0.w && y - h < glassB) {
@@ -74,7 +74,7 @@ Object.assign(Office, {
         else if (s0.x + s0.w + w <= L.VW + 14) x = s0.x + s0.w; else { y = yBack; back = true; }   // pode sair um pouco pela borda da cena
       }
       const phR = Math.max(2, L.VW * .015 | 0) + 94; if (!back && x < phR && y > L.VH - 58) x = phR;   // o telefone fica por cima: não esconde nada embaixo dele
-      out[id] = { x, y, w, h, zone: 'livre', back, flip: !!m.flip, manual: true, big }; }
+      out[id] = { x, y, w, h, zone: 'livre', back, flip: !!m.flip, manual: true }; }
     for (const [id, zid] of want) {
       if (out[id]) continue;
       if (place(id, zid)) continue;
@@ -189,8 +189,6 @@ Object.assign(Office, {
 
   // Desenha um objeto da mesa na posição da zona. Devolve fontes de luz (para a iluminação com a persiana fechada)
   deskObj(x, id, q, st, t, dy = 0) {
-    // tamanho dobrado (escala inteira): desenha na metade e amplia a partir da base
-    if (q.big) { const by = q.y + dy, h = { ...q, big: false, w: q.w / 2, h: q.h / 2, x: q.x + q.w / 4 }; x.save(); x.translate(q.x + q.w / 2, by); x.scale(2, 2); x.translate(-(q.x + q.w / 2), -by); this.deskObj(x, id, h, st, t, dy); x.restore(); return; }
     if (q.flip && id !== 'lamp') { x.save(); x.translate(2 * q.x + q.w, 0); x.scale(-1, 1); const g = this.deskObj0(x, id, q, st, t, dy); x.restore();
       if (g) g[0] = 2 * q.x + q.w - g[0]; if (id === 'aquario' && this._aqua) this._aqua[0] = 2 * q.x + q.w - this._aqua[0] - 36; return g; }
     return this.deskObj0(x, id, q, st, t, dy);

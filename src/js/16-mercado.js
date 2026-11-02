@@ -1,10 +1,6 @@
 /* ================= Mercado ================= */
 const cartTotal = () => S.cart.reduce((a, id) => a + priceOf(id).price, 0);   // mesma regra de preço do catálogo
-// enfeites que pedem um cargo mínimo para aparecer à venda (0 Estagiário … 6 CEO)
-const DECOR_RANK = { diploma: 1, globo: 2, quadro: 2, radio: 2, caixas: 3, neon: 3, aquario: 3, monitor: 4, gato: 2, trofeu: 5 };
-const decorLocked = it => it.kind === 'decor' && (DECOR_RANK[it.id] || 0) > (S ? S.rankIdx : 0);
 function canAdd(it) {
-  if (decorLocked(it)) return false;
   if (it.kind === 'decor' && (P.decor.includes(it.id) || S.cart.includes(it.id))) return false;
   if (it.kind === 'day' && (S.today.has(it.id) || S.cart.includes(it.id))) return false;
   return true;
@@ -77,9 +73,7 @@ function shelfSlot(it, sc) {
   pxFit(spr, () => { const sh = el.parentElement; return sh ? [sh.clientWidth / Math.max(3, sh.children.length) * .8, sh.clientHeight * .62] : [80, 80]; });
   el.append(spr);
   el.insertAdjacentHTML('beforeend', `<span class="nm">${L.shop[it.id][0]}</span><span class="ds">${L.shop[it.id][1]}</span><span class="ptag">${priceTag(it.id)}</span>`);
-  if (decorLocked(it)) { el.classList.add('locked'); el.dataset.lock = U().rankNeed(L.ranks ? L.ranks[DECOR_RANK[it.id]] : DECOR_RANK[it.id]); el.title = el.dataset.lock; const i = Pixel.el(LOCK_SPR, 2); i.classList.add('lock-ic'); el.append(i); }
   el.onclick = () => {
-    if (decorLocked(it)) { sfx('err'); Motion.shake(el, 2); return; }
     if (!canAdd(it)) return;
     S.cart.push(it.id); sfx('pop');
     updateCart(sc);

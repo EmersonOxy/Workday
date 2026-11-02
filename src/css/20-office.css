@@ -9,7 +9,7 @@
   .file.gone { z-index: 1; }
   .task { position: relative; }
   .okstamp { position: absolute; right: .5em; top: .3em; color: var(--ok); border: 3px solid var(--ok); padding: 0 .3em; font: 1.3em var(--pixel); background: var(--card); transform: rotate(-8deg); z-index: 2; }
-  .popup-closing { position: fixed; z-index: 15; width: 230px; font: 20px/1.1 var(--pixel); background: var(--paper, #fbf3e2); color: var(--paper-ink, #2a1f2d); pointer-events: none; }
+  .popup-closing { position: fixed; z-index: 15; width: 230px; font: 20px/1.1 var(--pixel); background: #fbf3e2; color: #2a1f2d; pointer-events: none; }
   .popup-closing .title { background: #463462; color: #fff; display: flex; justify-content: space-between; padding: 2px 4px 2px 8px; }
   .popup-closing .x { display: none; }
   .popup-closing .content { display: flex; gap: 10px; padding: 10px; align-items: center; }
@@ -150,11 +150,11 @@
   .xl-menu span::first-letter { text-decoration: underline; }
   .xl-tools { display: flex; gap: .25em; align-items: center; padding: .2em .5em; box-shadow: inset 0 2px 0 #fff8ec, inset 0 -2px 0 #8f7d63; }
   .xl-btn { padding: .2em; box-shadow: inset 2px 2px 0 #fff8ec, inset -2px -2px 0 #8f7d63; background: #e9dcc2; }
-  .xl-font { margin-left: .8em; padding: 0 .5em; background: var(--paper, #fff8ec); box-shadow: inset 2px 2px 0 #8f7d63; }
+  .xl-font { margin-left: .8em; padding: 0 .5em; background: #fff8ec; box-shadow: inset 2px 2px 0 #8f7d63; }
   .xl-fx { display: flex; gap: .6em; align-items: center; padding: .15em .5em; }
-  .xl-fx .ref { background: var(--paper, #fff8ec); padding: 0 .6em; box-shadow: inset 2px 2px 0 #8f7d63; }
+  .xl-fx .ref { background: #fff8ec; padding: 0 .6em; box-shadow: inset 2px 2px 0 #8f7d63; }
   .xl-fx b { font-weight: normal; font-style: italic; color: #2f8a45; }
-  .xl-grid { position: relative; flex: 1; overflow: hidden; background: var(--paper, #fff8ec); margin: 0 .3em; box-shadow: inset 2px 2px 0 #8f7d63; }
+  .xl-grid { position: relative; flex: 1; overflow: hidden; background: #fff8ec; margin: 0 .3em; box-shadow: inset 2px 2px 0 #8f7d63; }
   .xl-grid table { border-collapse: collapse; width: 100%; table-layout: fixed; }
   .xl-grid th, .xl-grid td { height: 1.35em; padding: 0 .4em; border: 1px solid #dcc6a0; text-align: right; white-space: nowrap; overflow: hidden; font-weight: normal; }
   .xl-grid th { background: #e9dcc2; color: #6e3b26; text-align: center; box-shadow: inset 1px 1px 0 #fff8ec; width: 2.4em; }
@@ -170,12 +170,12 @@
   .xl-tab { font: inherit; border: 0; padding: .1em .9em .2em; background: #e9dcc2; color: #2a1f2d; box-shadow: inset 2px 0 0 #fff8ec, inset -2px -2px 0 #8f7d63; cursor: default; }
   button.xl-tab { cursor: pointer; }
   button.xl-tab:hover { background: #ffe7a3; }
-  .xl-tab.on { background: var(--paper, #fff8ec); transform: translateY(-2px); }
+  .xl-tab.on { background: #fff8ec; transform: translateY(-2px); }
   .xl-status { display: flex; justify-content: space-between; padding: .1em .6em; box-shadow: inset 0 2px 0 #fff8ec; color: #6e3b26; }
 
   /* ===== Promoção: certificado, assinatura e envelopes ===== */
   .promo-card { max-width: 40em !important; text-align: center; overflow: visible; }
-  .cert { background: var(--paper, #fff8ec); padding: .5em; box-shadow: 0 0 0 3px #2a1f2d, inset 0 0 0 4px #f4c15d, inset 0 0 0 6px #c98a2e; color: var(--paper-ink, #2a1f2d); }
+  .cert { background: #fff8ec; padding: .5em; box-shadow: 0 0 0 3px #2a1f2d, inset 0 0 0 4px #f4c15d, inset 0 0 0 6px #c98a2e; color: #2a1f2d; }
   .cert-in { position: relative; padding: 1em 1.2em .8em; box-shadow: inset 0 0 0 2px #c98a2e; background:
     linear-gradient(#c98a2e, #c98a2e) left 6px top 6px / 10px 2px no-repeat, linear-gradient(#c98a2e, #c98a2e) left 6px top 6px / 2px 10px no-repeat,
     linear-gradient(#c98a2e, #c98a2e) right 6px bottom 6px / 10px 2px no-repeat, linear-gradient(#c98a2e, #c98a2e) right 6px bottom 6px / 2px 10px no-repeat; }
@@ -196,7 +196,7 @@
   .promo-card .actions[hidden] { display: none; }
   .env > b { position: absolute; top: -.6em; right: -.4em; font: 1.4em var(--pixel); color: #2a1f2d; background: #f4c15d; padding: 0 .35em; box-shadow: 0 0 0 2px #2a1f2d; animation: bob .6s steps(2) infinite alternate; }
   .envs.chosen .env { cursor: default; }
-  .letter { position: absolute; left: 50%; bottom: 30%; width: 17em; padding: .6em .8em; background: var(--paper, #fff8ec); color: var(--paper-ink, #2a1f2d); font-family: var(--pixel); text-align: left;
+  .letter { position: absolute; left: 50%; bottom: 30%; width: 17em; padding: .6em .8em; background: #fff8ec; color: #2a1f2d; font-family: var(--pixel); text-align: left;
     box-shadow: 0 0 0 2px #2a1f2d, 0 6px 0 rgba(42,31,45,.25); display: flex; flex-direction: column; gap: .15em; z-index: 1; }
   .letter small { color: #8f7d63; text-transform: uppercase; letter-spacing: 1px; }
   .letter b { font-weight: normal; font-size: 1.4em; color: #2f8a45; }
