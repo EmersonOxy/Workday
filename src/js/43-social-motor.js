@@ -356,9 +356,9 @@ function socIntent(npc, it, ctx = socCtx(), opts = {}) {
   socDirty();
 }
 function socNudge(npc) {
-  const ctx = socCtx(), r = socRel(npc), k = 'nudge:' + ctx.day;
-  if (r.chat[k]) return false;
-  r.chat[k] = 1; socLog(npc, { f: 's', r: { sys: 'nudgeOut', a: [castFirst(npc)] } }, ctx);
+  const ctx = socCtx(), r = socRel(npc), now = performance.now();
+  if (now - (SocRT.nudgeAt || 0) < 8000) return false;   // cutucar de novo depois de alguns segundos
+  SocRT.nudgeAt = now; socLog(npc, { f: 's', r: { sys: 'nudgeOut', a: [castFirst(npc)] } }, ctx);
   socIntent(npc, 'nudge', ctx); return true;
 }
 

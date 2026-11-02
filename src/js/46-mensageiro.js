@@ -146,7 +146,7 @@ const Msn = {
     const r = SOC.c[id], d = CAST[id]; let h = '', lastD = null, lastF = null;
     for (const m of r.log) {
       if (m.d !== lastD) { h += `<div class="msn-day">${u.dayN(m.d)}</div>`; lastD = m.d; lastF = null; }
-      const t = esc(msgText(m)), tm = socClock(m) || u.evening;
+      const t = esc(msgText(m)), tm = socClock(m) || '';
       if (m.f === 's') { h += `<div class="msn-sys">${t}</div>`; lastF = null; continue; }
       const who = m.f === 'm' ? esc(profileName()) : esc(castFirst(id)), same = lastF === m.f;
       h += `<div class="msn-m ${m.f === 'm' ? 'me' : 'np'}${same ? ' cont' : ''}">${same ? '' : `<span class="msn-mh"><b>${who}</b><time>${tm}</time></span>`}<p>${t}</p></div>`;
@@ -161,6 +161,7 @@ const Msn = {
   },
   replyHTML(u, id, ctx) {
     const th = SOC.th[id];
+    if (!socAvail(socPresence(id, ctx))) return '<div class="msn-reply"></div>';   // mensagens prontas só com o contato ativo
     if (th && th.phase === 'choice') { const T = SOC_THREADS[th.id], vis = socVisibleChoices(id, T, th.node, ctx);
       return `<div class="msn-reply">${vis.map((o, i) => `<button class="msn-opt" data-ch="${i}">${esc(socFill(tx(o.c.t)))}</button>`).join('')}</div>`; }
     if (!th) { const tops = socTopics(id, ctx); if (tops.length) return `<div class="msn-reply topics"><small>${u.topics}:</small>${tops.map(T => `<button class="msn-opt topic" data-topic="${T.id}">${esc(tx(T.topic))}</button>`).join('')}</div>`; }
