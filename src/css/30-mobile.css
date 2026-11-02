@@ -71,12 +71,12 @@
     padding: 0 max(10px, env(safe-area-inset-right, 0px)) env(safe-area-inset-bottom, 0px) max(10px, env(safe-area-inset-left, 0px)); box-shadow: 0 -3px 0 #4a3a4e; }
   body.mobile #pad.hidden { display: none; }
   body.mobile #chips { flex: 1; display: flex; gap: 10px; align-items: center; overflow-x: auto; padding: 8px 2px; scrollbar-width: none; }
-  body.mobile #padPause { flex: none; width: 46px; height: 46px; font: 22px var(--pixel); padding: 0; border: 0; border-radius: 0; background: #fff8ec; color: #2a1f2d; box-shadow: 0 0 0 2px #2a1f2d, inset 0 -4px 0 #dcc6a0; }
+  body.mobile #padPause { flex: none; width: 46px; height: 46px; font: 22px var(--pixel); padding: 0; border: 0; border-radius: 0; background: var(--paper, #fff8ec); color: var(--paper-ink, #2a1f2d); box-shadow: 0 0 0 2px #2a1f2d, inset 0 -4px 0 #dcc6a0; }
   body.mobile #pad .ctx.show { flex: 1; height: 48px; font-size: 22px; }
   body.mobile #pad .ctx.show ~ #chips { display: none; }
   .tchip { position: relative; flex: none; width: 50px; height: 50px; padding: 4px; border: 0; cursor: pointer; touch-action: manipulation;
     --ring: #5fa79a; background: conic-gradient(var(--ring) calc(var(--p, 1) * 360deg), rgba(255,255,255,.14) 0); }
-  .tchip > span { display: grid; place-items: center; width: 100%; height: 100%; background: #fff8ec; box-shadow: 0 0 0 2px #2a1f2d, inset 0 -3px 0 #dcc6a0; }
+  .tchip > span { display: grid; place-items: center; width: 100%; height: 100%; background: var(--paper, #fff8ec); box-shadow: 0 0 0 2px #2a1f2d, inset 0 -3px 0 #dcc6a0; }
   .tchip.soon { --ring: #ffb938; }
   .tchip.late { --ring: #ef4b3f; animation: chipwig .9s infinite; }
   .tchip.late::after { content: '!'; position: absolute; right: -6px; top: -6px; width: 18px; height: 18px; display: grid; place-items: center; background: #ef4b3f; color: #fff; font: 16px var(--pixel); box-shadow: 0 0 0 2px #2a1f2d; }

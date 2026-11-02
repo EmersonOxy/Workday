@@ -130,7 +130,11 @@ const ACH = [
 
 const QST = Object.assign({ done: {}, active: {}, seen: {}, pins: [], unlocks: [], ach: {}, maxRank: 0 }, load('missoes', {}));
 const qSave = () => save('missoes', QST);
-const isUnlocked = key => !LOCKED[key] || QST.unlocks.includes(key);
+// Itens liberados por conquista (ACH_LOCK) além dos liberados por missão (LOCKED)
+const ACH_LOCK = { 'wall:espaco': 'd10', 'wall:aquario': 'f500', 'wall:neve': 'e100', 'wall:floresta': 'c50', 'wall:crepusculo': 'r4',
+  'accent:cereja': 'v25', 'accent:uva': 'b10', 'accent:petroleo': 'r1', 'bar:lavanda': 'q3', 'badge:roxo': 'r4', 'badge:preto': 'r6',
+  'cur:mira': 'b10', 'cur:cenoura': 'f500', 'cur:estrela': 'r6' };
+const isUnlocked = key => ACH_LOCK[key] ? !!QST.ach[ACH_LOCK[key]] : !LOCKED[key] || QST.unlocks.includes(key);
 
 const Quests = {
   cid: () => P.stats.careers || 0,
@@ -307,11 +311,13 @@ function osArchive() {
 // Personalizações bloqueadas: cadeado e dica (qual evento libera); o clique não aplica e mostra a dica
 const LOCK_SEL = { 'wall:confete': '.wall[data-w=confete]', 'wall:festa': '.wall[data-w=festa]', 'accent:ouro': '[data-hw=accent] [data-v=ouro]',
   'badge:coral': '[data-hw=badge] [data-v=coral], [data-hw=lanyard] [data-v=coral]', 'curc:ouro': '.cur-dot[data-c=ouro]' };
+for (const k of Object.keys(ACH_LOCK)) { const [t, v] = k.split(':');
+  LOCK_SEL[k] = t === 'wall' ? `.wall[data-w=${v}]` : t === 'cur' ? `.cur-btn[data-v=${v}]` : t === 'badge' ? `[data-hw=badge] [data-v=${v}], [data-hw=lanyard] [data-v=${v}]` : `[data-hw=${t}] [data-v=${v}]`; }
 function lockUI(root, note) {
   const e = U().ev;
   for (const [key, sel] of Object.entries(LOCK_SEL)) root.querySelectorAll(sel).forEach(b => {
     if (isUnlocked(key)) { b.removeAttribute('data-lock'); return; }
-    const hint = e.lockedHint(e.names[LOCKED[key]]); b.dataset.lock = hint; b.title = hint; b.setAttribute('aria-label', hint); b.setAttribute('aria-disabled', 'true');
+    const hint = ACH_LOCK[key] ? e.lockedHint(e.ach[ACH_LOCK[key]][0]) : e.lockedHint(e.names[LOCKED[key]]); b.dataset.lock = hint; b.title = hint; b.setAttribute('aria-label', hint); b.setAttribute('aria-disabled', 'true');
     if (!b.querySelector('.lock-ic')) { const i = Pixel.el(LOCK_SPR, 2); i.classList.add('lock-ic'); b.append(i); }
   });
   if (!root._lockHook) { root._lockHook = true;
