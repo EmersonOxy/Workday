@@ -1,7 +1,6 @@
 /* ================= Tarefas ================= */
 function unlocked(type) {
-  if (type === 'video' && mod().video) return S.level >= mod().video;
-  return S.level >= UNLOCK[type];
+  return firstOk(type);   // uma mecânica nova por dia (FIRST_DAY em 02-mecanica.js)
 }
 function availableTypes() {
   return Object.keys(UNLOCK).filter(t => unlocked(t)
