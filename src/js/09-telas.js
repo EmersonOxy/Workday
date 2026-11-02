@@ -297,7 +297,7 @@ function osWindow(title, html, { icon = MENU_ICO.app, cls = '', onClose } = {}) 
   w.querySelector('.mw-b .max').onclick = () => { sfx(w.classList.contains('maxi') ? 'winMin' : 'winMax'); w.classList.toggle('maxi'); };
   w.querySelector('.mw-b [data-g=x]').onclick = close; w.close = close;
   $('modal').append(w); sfx('winOpen'); osDrag(w, w.querySelector('.mw-bar')); osTaskBtn(w, title, icon); osFocus(w);
-  Motion.play(w, OS_OPEN, { duration: 300, easing: 'steps(10)' });
+  Motion.play(w, OS_OPEN, { duration: 300, easing: 'steps(10)', fill: 'none' });   // sem recorte depois de abrir (balões podem sair da janela)
   return w;
 }
 function pickDifficulty(back) {
