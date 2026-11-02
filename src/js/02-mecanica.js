@@ -66,7 +66,8 @@ const PROG = {
   eventGap: d => 22 - 9 * PRESS(d),                       // segundos entre eventos (chefe, troca, travamento, vírus)
   crisis: d => d >= 24 ? .35 : d >= DEBUT.crisis ? .2 : 0,  // chance de um segundo evento junto (crise)
 };
-const DAY_SECONDS = 150;
+const DAY_SECONDS = 240;   // expediente: 4 min de trabalho ativo (09h–18h)
+const LEVEL_DAY = 150;      // escala da curva de nível (dias de 150 s): mantém a dificuldade com o expediente mais longo
 const LEVEL_SECONDS = 30;
 const MAX_TASKS = 5;   // teto absoluto; o do dia vem de PROG.maxTasks
 const RESOLUTIONS = ['auto', '1280x720', '1366x768', '1600x900', '1920x1080', '2560x1440'];

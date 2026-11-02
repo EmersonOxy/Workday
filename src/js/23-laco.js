@@ -11,13 +11,14 @@ function loop(now) {
   requestAnimationFrame(loop);
 }
 
-// relógio do cabeçalho: hora simulada (relógio global) em passos de 10 min no trabalho, minuto a minuto no intervalo
-function clockText() { return GameClock.text(undefined, S && S.onBreak ? 1 : 10); }
+// relógio do cabeçalho: hora simulada (relógio global), minuto a minuto
+function clockText() { return GameClock.text(); }
 
 function update(dt) {
   S.dayT += dt;
   if (S.dayT >= DAY_SECONDS) { endDay(); return; }
-  S.level = BAL.level(S.day, S.dayT);
+  GameClock.workTick(); if (S.onBreak) return;
+  S.level = BAL.level(S.day, S.dayT * LEVEL_DAY / DAY_SECONDS);
   if (S.level > S.lastLevel) { S.lastLevel = S.level; toast(...pick(L.memos)); }
   const sdt = dt * slow(), u = U();
   if (S.slowT > 0) S.slowT -= dt;

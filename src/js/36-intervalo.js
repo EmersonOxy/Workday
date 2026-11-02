@@ -11,7 +11,7 @@ function breakAvailable() {
 function startBreak() {
   if (!breakAvailable()) return false;
   const u = U(), m = $('modal');
-  S.breakDay = S.day; GameClock.breakStart(); S.paused = true; S.resting = true; S.onBreak = true; S.fast = false;
+  GameClock.breakStart(); S.breakDay = S.day; S.paused = true; S.resting = true; S.onBreak = true; S.fast = false;
   muffle(true); hideSheet(); music('menu'); sfx('pop');
   document.body.classList.add('menu-mode', 'on-break');
   const card = m.querySelector('.card'); card.style.display = 'none';

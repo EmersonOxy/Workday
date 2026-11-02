@@ -11,11 +11,14 @@
 // Data: o dia N da carreira é o N-ésimo dia útil a partir da data inicial da carreira (padrão: seg 05/01/2026, guardada
 // por carreira em 'relogio'); avança um dia útil a cada expediente e nunca usa a data real.
 // Hora: chegada sorteada entre 07:00 e 07:59 (estável por carreira+dia, então sair e voltar não muda); o expediente vai
-// das 09:00 às 18:00 conforme S.dayT; intervalo só entre 11h e 14h, com o relógio andando 1 h a cada 7 min reais (máx. 14:00);
-// ao voltar, o restante do expediente é comprimido para terminar exatamente às 18:00. Fora do expediente o relógio fica parado.
+// das 09:00 às 18:00 em DAY_SECONDS (240 s) de trabalho ativo, minuto a minuto. Quem tem intervalo (Analista+) recebe um
+// horário sorteado entre 11h e 14h; o intervalo dura 45 s reais = 1 h simulada (13:34 → 14:34) e o trabalho fica parado.
+// Com intervalo previsto, o trabalho anda 480 min simulados em 240 s (2 min/s) desde as 09:00, então o relógio não muda de
+// ritmo ao voltar; se o intervalo atrasar/adiantar ou não acontecer, o restante é redistribuído proporcionalmente até 18:00.
+// Fora do expediente o relógio fica parado.
 const GAME_EPOCH = new Date(2026, 0, 5);   // segunda-feira (data inicial padrão; saves antigos usam esta)
 const GameClock = {
-  WORK_IN: 9 * 60, WORK_OUT: 18 * 60, BRK_A: 11 * 60, BRK_B: 14 * 60, BRK_REAL_PER_HOUR: 7 * 60,   // minutos / segundos reais
+  WORK_IN: 9 * 60, WORK_OUT: 18 * 60, BRK_A: 11 * 60, BRK_B: 14 * 60, BRK_LEN: 60, BRK_REAL: 45,   // minutos simulados / segundos reais
   // data inicial da carreira atual (preservada no save; carreira nova herda a padrão)
   start() {
     const cid = Quests.cid(), r = load('relogio', null);
@@ -35,26 +38,48 @@ const GameClock = {
     let n = 1; while (a < b) { a.setDate(a.getDate() + 1); if (a.getDay() % 6) n++; } return n;
   },
   arrival(day = Quests.today()) { return 7 * 60 + Math.floor(Office.rng(EMP_ID * 977 + Quests.cid() * 131 + day * 7)() * 60); },
-  // começo do expediente: o relógio liga às 09:00 e segue S.dayT até 18:00
-  beginDay() { S.clk = { m0: this.WORK_IN, t0: 0, brk: null }; },
-  // minuto simulado do momento atual do jogo
+  // começo do expediente: 09:00; plan = minuto sorteado do intervalo (só quem tem intervalo)
+  beginDay() {
+    const plan = typeof breakUnlocked === 'function' && breakUnlocked()
+      ? this.BRK_A + Math.floor(Office.rng(EMP_ID * 541 + Quests.cid() * 37 + S.day * 11)() * (this.BRK_B - this.BRK_A)) : null;
+    S.clk = { m0: this.WORK_IN, t0: 0, plan, brk: null, bt: 0 };
+  },
+  pending() { const c = S && S.clk; return !!c && c.plan != null && S.breakDay !== S.day; },
+  // minuto simulado do momento atual do jogo (contínuo; a tela mostra minuto a minuto)
   min() {
     if (!S) return this.arrival();
     const c = S.clk;
     if (S.phase === 'day' && c) {
-      if (S.onBreak && c.brk != null) return c.brk;
-      const left = DAY_SECONDS - c.t0;
-      return Math.min(this.WORK_OUT, c.m0 + (left > 0 ? ((S.dayT || 0) - c.t0) * (this.WORK_OUT - c.m0) / left : 0));
+      if (c.brk != null) return Math.min(c.brk + this.BRK_LEN, c.brk + c.bt * this.BRK_LEN / this.BRK_REAL);
+      const left = DAY_SECONDS - c.t0, end = this.WORK_OUT - (this.pending() ? this.BRK_LEN : 0);
+      return Math.min(this.WORK_OUT, c.m0 + (left > 0 ? Math.max(0, (S.dayT || 0) - c.t0) * (end - c.m0) / left : 0));
     }
     if (S.phase === 'ending' || S.phase === 'promo' || S.phase === 'over') return c ? this.WORK_OUT : this.arrival();
     return this.arrival();   // antes do expediente (menu, ponto, intro): parado na chegada do dia de hoje
   },
-  text(m = this.min(), step = 1) { m = Math.floor(m / step) * step; return String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0'); },
-  // intervalo: só entre 11h e 14h
+  text(m = this.min()) { m = Math.floor(m); return String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0'); },
+  // rebase: o restante do expediente passa a ser distribuído a partir de agora (sem salto: começa do minuto atual)
+  rebase() { const c = S.clk, m = this.min(); c.m0 = m; c.t0 = S.dayT || 0; },
+  // intervalo manual (botão) só entre 11h e 14h
   breakWindow() { const m = this.min(); return m >= this.BRK_A && m < this.BRK_B; },
-  breakStart() { if (S.clk) S.clk.brk = this.min(); },
-  breakTick(dt) { const c = S && S.clk; if (c && c.brk != null) c.brk = Math.min(this.BRK_B, c.brk + dt * 60 / this.BRK_REAL_PER_HOUR); },
-  breakEnd() { const c = S && S.clk; if (!c || c.brk == null) return; c.m0 = Math.max(this.min(), c.brk); c.t0 = S.dayT || 0; c.brk = null; },
+  // a cada quadro de trabalho: no horário sorteado, entra no intervalo assim que o jogo permitir; até 14h, senão desiste
+  workTick() {
+    if (!this.pending() || S.onBreak) return;
+    const m = this.min();
+    if (m >= this.BRK_B) { this.rebase(); S.clk.plan = null; return; }
+    if (m >= S.clk.plan && breakAvailable()) startBreak();
+  },
+  breakStart() { const c = S.clk; if (!c) return; const m = this.min(); c.brk = m; c.bt = 0; },
+  breakTick(dt) {
+    const c = S && S.clk; if (!c || c.brk == null) return;
+    c.bt = Math.min(this.BRK_REAL, c.bt + dt);
+    hudSet('clock', 'text', clockText());
+    if (c.bt >= this.BRK_REAL && S.onBreak && !Call.el) endBreak();   // 45 s: volta (com 3, 2, 1); numa chamada, espera ela acabar
+  },
+  breakEnd() {
+    const c = S && S.clk; if (!c || c.brk == null) return;
+    c.m0 = this.min(); c.t0 = S.dayT || 0; c.brk = null; c.bt = 0;   // continua do minuto em que o intervalo parou
+  },
   // carimbo de data (conquistas etc.): meia-noite da data da carreira, em ms — mesmo formato numérico dos saves antigos
   stamp(day = Quests.today()) { return this.date(day).getTime(); },
 };
@@ -65,7 +90,7 @@ function sysClock() {
   const t = gameTime(), dt = gameDateOf(Quests.today()).toLocaleDateString(L.htmlLang, { day: '2-digit', month: '2-digit', year: 'numeric' });
   hudSet('osclock', 'text', t + ' · ' + dt); hudSet('sysclock', 'text', t + ' ' + dt.slice(0, 5));
 }
-setInterval(() => sysClock(), 1000);
+setInterval(() => sysClock(), 250);   // < 0,75 s (1 min simulado no intervalo): nenhum minuto é pulado
 
 // dias de atestado da carreira atual (chave própria, ligada à carreira)
 const sickDays = () => { const a = load('atestados', null); return a && a.cid === Quests.cid() ? a.days : []; };

@@ -68,7 +68,7 @@ function socCareer() { return !!S && S.phase !== 'over' || !!load('carreira', nu
 function socCtx() {
   const career = socCareer(), day = SOC && SOC.pre ? 1 : career ? Quests.today() : (SOC && SOC.day) || 1;
   const inDay = !!S && (S.phase === 'day' || !!S.onBreak), intro = !!S && S.phase === 'intro';
-  const min = inDay ? Math.min(539, Math.floor((S.dayT || 0) / DAY_SECONDS * 540)) : intro ? 0 : -1;
+  const min = inDay ? Math.max(0, Math.min(539, Math.floor(GameClock.min() - GameClock.WORK_IN))) : intro ? 0 : -1;   // relógio global
   const slot = min < 0 ? 'off' : min < 180 ? 'am' : min < 270 ? 'lunch' : 'pm';
   const c = !S ? load('carreira', null) : null;
   return { day, cyc: Math.floor((day - 1) / CYCLE), min, slot, inDay, career,
