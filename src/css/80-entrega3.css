@@ -277,7 +277,8 @@
   .mg-vs b { font-weight: normal; color: #9aa0ab; }
   .mg-vs.ahead .me, .mg-vs.behind .du { color: #ffe7a3; }
   .mg-end.vs-win b:first-child { color: #2f8a45 !important; } .mg-end.vs-lose b:first-child { color: #a8262a !important; }
-  #modal.apps { background: rgba(31,74,82,.35) !important; }
+  /* aplicativos no expediente: sem escurecer a tela e com o Iniciar e a barra (que ficam atrás do #modal) clicáveis */
+  #modal.apps { background: none !important; pointer-events: none; } #modal.apps > * { pointer-events: auto; }
   .os-win.app-win .win-body, .os-win .card-in { padding: 0; }
 
   /* ===== Janelas no celular: ocupam a área disponível, botões grandes, sem arrastar ===== */
