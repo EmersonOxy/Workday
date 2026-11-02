@@ -9,6 +9,7 @@ function startEvent(force) {
   if (!opts.length) return;
   let r = Math.random() * opts.reduce((a, k) => a + w[k], 0), k = opts[0];
   for (const o of opts) { r -= w[o]; if (r <= 0) { k = o; break; } }
+  if (!force && k === 'boss' && Math.random() > FREQ('boss')) return false;   // chefe aparece cada vez mais com os dias
   tip(k);
   ({ boss: bossComing, shuffle: () => { S.shuffleT = 1.3; S.trays.forEach(t => t.classList.add('warn')); },
      freeze: freezePc, virus: startVirus })[k](); return true;
@@ -22,7 +23,7 @@ function bossComing() {
   el.onclick = () => { if (S.bossAlert && !S.paused) dodgeBoss(); };
   uiRoot().append(el);
   Motion.play(el, [{ transform: 'translate(-50%,-140%)' }, { transform: 'translate(-50%,10%)', offset: .7 }, { transform: 'translate(-50%,0)' }], { duration: 320, easing: Motion.E.out, fill: 'none' });
-  S.bossAlert = { el, t: has('relacoes') ? 3 : 2 };
+  S.bossAlert = { el, t: PROG.bossTime(S.day) + (has('relacoes') ? 1 : 0) };
   sfx('alarm');
 }
 function dodgeBoss() {

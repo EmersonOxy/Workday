@@ -9,7 +9,7 @@ Uso: python3 tools/simulate.py            (tabelas para os perfis casual/regular
 """
 import random, statistics, sys
 
-DAY_SECONDS, LEVEL_SECONDS, MAX_TASKS = 150, 30, 5
+DAY_SECONDS, LEVEL_SECONDS, MAX_TASKS = 240, 30, 5   # expediente de 240 s (nível escalado por 150 s, como no jogo)
 UNLOCK = {'button': 2, 'email': 3, 'type': 4, 'call': 5, 'printer': 6, 'video': 8}
 TASK = {  # prazo base (s), pontos base, tempo de execução relativo
     'button': (7, 15, .6), 'email': (11, 25, 1.0), 'type': (9, 20, 1.3), 'call': (9, 30, 1.2), 'printer': (8.5, 20, 1.1), 'video': (8, 25, 1.4)}
@@ -85,7 +85,7 @@ def career(cfg, prof, rng, max_days=40):
                     if rng.random() < prof['event']: ok(20)
                     else: bad(rng.choice([30, 12, 15, 10]))
                     busy += prof['task'] * .8
-                    next_event = max(7, 20 - L) * rng.uniform(.7, 1.3)
+                    next_event = ((22 - 9 * PRESS(d)) * 1.25 if deb else max(7, 20 - L)) * rng.uniform(.7, 1.3)
             # atenção do jogador: tarefa mais urgente primeiro, senão o arquivo
             if busy > 0: busy -= dt; continue
             if tasks:
@@ -154,16 +154,16 @@ STANDARD = dict(
 PRESS = lambda d: min(1, max(0, (d - 1) / 24))
 CAREER25 = dict(
     name='carreira de 25 dias (aplicada)',
-    debut={'button': 1, 'email': 6, 'call': 8, 'printer': 10, 'type': 11, 'video': 18, 'urgent': 3, 'dead': 4, 'boss': 12},
+    debut={'button': 1, 'email': 6, 'call': 8, 'printer': 10, 'type': 11, 'video': 18, 'urgent': 3, 'dead': 4, 'boss': 5},
     max_tasks=lambda d: 1 if d <= 5 else 2 if d <= 10 else 3 if d <= 15 else 4 if d <= 20 else 5,
-    task_gap=lambda d: 7.5 - 4.0 * PRESS(d), ttl=lambda d: 1.15 - .35 * PRESS(d),
-    level=lambda d, t: min(12, 1 + int((d - 1) * .35) + int(t // 50)),
-    ranks=[0, 1800, 4100, 6700, 9500, 12500, 15600],   # metas do dia: 1800 · 2300 · 2600 · 2800 · 3000 · 3100
+    task_gap=lambda d: (7.5 - 4.0 * PRESS(d)) * 1.25, ttl=lambda d: 1.15 - .35 * PRESS(d),
+    level=lambda d, t: min(12, 1 + int((d - 1) * .35) + int(t * 150 / 240 // 50)),
+    ranks=[0, 2800, 6300, 10300, 14700, 19400, 24300],   # metas do dia (240 s): 2800 · 3500 · 4000 · 4400 · 4700 · 4900
     rank_days=[1, 3, 7, 11, 16, 21, 25],
     level_pts=lambda L: 1 + min(L - 1, 8) * .1,
     mult_cap=3, combo_step=8,
     day_bonus=lambda d: 60,
-    pay=lambda dayScore, d, rank: [40, 52, 66, 82, 100, 120, 145][rank] + min(30, round(dayScore / 60)),
+    pay=lambda dayScore, d, rank: [40, 52, 66, 82, 100, 120, 145][rank] + min(30, round(dayScore / 90)),
     decor=[90, 120, 220, 380, 650, 1200],
 )
 

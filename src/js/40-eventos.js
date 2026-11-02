@@ -109,11 +109,11 @@ APP_ICO.arq = ['............', '.kkkk.......', 'kYYYYkkkkkk.', 'kYyyyyyyyYk.', '
 // Dias especiais: dia de início dentro do ciclo (j = variação sorteada por carreira), duração, passos e recompensas
 const CYCLE = 25;   // um ciclo do calendário = a carreira mínima (25 dias)
 const SPECIAL = [
-  { id: 'integracao',    at: 2,  j: 0, len: 1, steps: [['files', 20], ['emails', 2]],      pin: 'novato' },
+  { id: 'integracao',    at: 6,  j: 0, len: 1, steps: [['files', 20], ['emails', 2]],      pin: 'novato' },
   { id: 'cafe',          at: 3,  j: 0, len: 1, steps: [['cafe', 2]],                         pin: 'xicara' },
-  { id: 'chefe',         at: 4,  j: 2, len: 2, steps: [['sign', 1], ['bosses', 1]],          pin: 'bolo' },
-  { id: 'decoracao',     at: 6,  j: 2, len: 3, steps: [['decor', 3]],                        pin: 'pincel', unlock: 'wall:confete' },
-  { id: 'duda',          at: 9,  j: 2, len: 2, steps: [['duda', 1]],                         pin: 'controle', unlock: 'curc:ouro' },
+  { id: 'chefe',         at: 5,  j: 2, len: 3, steps: [['sign', 1], ['bosses', 1]],          pin: 'bolo' },
+  { id: 'decoracao',     at: 8,  j: 2, len: 3, steps: [['decor', 3]],                        pin: 'pincel', unlock: 'wall:confete' },
+  { id: 'duda',          at: 9,  j: 2, len: 3, steps: [['duda', 1]],                         pin: 'controle', unlock: 'curc:ouro' },
   { id: 'produtividade', at: 11, j: 1, len: 5, steps: [['files', 140], ['typed', 6]],        pin: 'relogio', unlock: 'accent:ouro' },
   { id: 'amigo',         at: 16, j: 1, len: 3, steps: [['buy', 1]],                          pin: 'laco', unlock: 'badge:coral' },
   { id: 'festa',         at: 20, j: 0, len: 1, steps: [['calm', 60]],                        pin: 'estrela', unlock: 'wall:festa' },

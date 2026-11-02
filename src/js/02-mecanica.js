@@ -15,9 +15,9 @@ const BALANCE = {
   // promoção pede pontos DO DIA e um dia mínimo, então Gerente, Diretor e CEO exigem constância
   // Padrão: carreira de 25 dias mínimos. Nível pesa pouco e satura (×1,8), combo até ×3; promoção pede pontos DO DIA e um
   // dia mínimo (Assistente 3 · Analista 7 · Coordenador 11 · Gerente 16 · Diretor 21 · CEO 25). Ver tools/simulate.py.
-  original:      { levelPts: L => 1 + Math.min(L - 1, 8) * .1, multCap: 3, comboStep: 8, ranks: [0, 1800, 4100, 6700, 9500, 12500, 15600],
+  original:      { levelPts: L => 1 + Math.min(L - 1, 8) * .1, multCap: 3, comboStep: 8, ranks: [0, 2800, 6300, 10300, 14700, 19400, 24300]   /* metas do dia para expedientes de 240 s */,
                    rankDays: [1, 3, 7, 11, 16, 21, 25], level: LEVEL_25,
-                   dayBonus: () => 60, pay: (ds, d, r) => SALARY_25[r] + Math.min(30, Math.round(ds / 60)), severance: (ds, r) => 2 * SALARY_25[r], priceMul: 1 },
+                   dayBonus: () => 60, pay: (ds, d, r) => SALARY_25[r] + Math.min(30, Math.round(ds / 90)), severance: (ds, r) => 2 * SALARY_25[r], priceMul: 1 },
   classica:      { levelPts: L => L, multCap: 5, comboStep: 5, ranks: [0, 300, 1000, 2500, 5000, 9000, 15000], rankDays: [1, 1, 2, 3, 5, 7, 10], level: LEVEL_OLD,
                    dayBonus: d => 100 * d, pay: (ds, d) => Math.round(ds / 10) + 30 * d, severance: ds => Math.round(ds / 20), priceMul: 1, oldPrices: true },
   intermediaria: { levelPts: L => 1 + Math.min(L - 1, 20) * .25, multCap: 4, comboStep: 8, ranks: [0, 900, 2800, 6200, 11500, 19000, 30000], rankDays: [1, 1, 2, 3, 5, 7, 10], level: LEVEL_OLD,
@@ -50,7 +50,7 @@ const EVENTS = { boss: 3, shuffle: 5, freeze: 6, virus: 7 };
 // DEBUT: dia de estreia de cada mecânica/variante. No dia de estreia ela surge obrigatoriamente depois de FIRST_DELAY s,
 // com dica; depois aparece ao acaso com frequência que cresce com os dias (FREQ). Nada antecipa uma estreia.
 const DEBUT = { button: 1, sector: 2, urgent: 3, dead: 4, email: 6, spam: 7, call: 8, call2: 9, printer: 10, type: 11, printer2: 11,
-  boss: 12, shuffle: 13, freeze: 14, virus: 16, it2: 17, video: 18, video2: 19, complex: 21, crisis: 23 };
+  boss: 5, shuffle: 13, freeze: 14, virus: 16, it2: 17, video: 18, video2: 19, complex: 21, crisis: 23 };
 const FIRST_DELAY = 20;
 const WIN_DAY = 25;
 const debutOk = (k, d, t) => d > DEBUT[k] || (d === DEBUT[k] && (t || 0) >= FIRST_DELAY);
@@ -61,9 +61,12 @@ const FREQ = k => !S || !firstOk(k) ? 0 : Math.min(1, .3 + .14 * (S.day - DEBUT[
 const PRESS = d => Math.min(1, Math.max(0, (d - 1) / 24));
 const PROG = {
   maxTasks: d => d <= 5 ? 1 : d <= 10 ? 2 : d <= 15 ? 3 : d <= 20 ? 4 : 5,
-  taskGap: d => 7.5 - 4 * PRESS(d),                      // segundos entre pendências (antes do sorteio ±30%)
+  // expediente de 240 s: intervalos 25% maiores que nos dias de 150 s (≈ +28% de tarefas por dia, não +60%)
+  taskGap: d => (7.5 - 4 * PRESS(d)) * 1.25,                      // segundos entre pendências (antes do sorteio ±30%)
   ttl: d => 1.15 - .35 * PRESS(d),                        // multiplicador de prazo (mais curto com os dias, nunca abaixo de 0,8)
-  eventGap: d => 22 - 9 * PRESS(d),                       // segundos entre eventos (chefe, troca, travamento, vírus)
+  eventGap: d => (22 - 9 * PRESS(d)) * 1.25,
+  // chefe: prazo para apertar Esc — generoso na estreia (dia 5) e encurtando aos poucos até 2 s
+  bossTime: d => d <= DEBUT.boss ? 4 : Math.max(2, 3.2 - (d - DEBUT.boss - 1) * .08),                       // segundos entre eventos (chefe, troca, travamento, vírus)
   crisis: d => d >= 24 ? .35 : d >= DEBUT.crisis ? .2 : 0,  // chance de um segundo evento junto (crise)
 };
 const DAY_SECONDS = 240;   // expediente: 4 min de trabalho ativo (09h–18h)

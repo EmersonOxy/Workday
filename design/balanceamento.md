@@ -91,5 +91,5 @@ pendência simples (1), setor (2), urgente (3), morto (4), e-mail (6), spam (7),
 relatório + impressora alternada (11), chefe (12), troca de setores (13), travamento (14), vírus (16), TI intenso (17), vídeo (18),
 reunião longa (19), pendência em etapas (21), crises (23). Estreia obrigatória após 20 s com dica; depois frequência crescente.
 Pendências simultâneas: 1/2/3/4/5 por faixa de 5 dias. Combo até ×3, bônus de nível até ×1,8. Cargos nos dias 1·3·7·11·16·21·25,
-metas do dia 1.800 · 2.300 · 2.600 · 2.800 · 3.000 · 3.100. Vitória: terminar um expediente como CEO a partir do dia 25.
+metas do dia (expediente de 240 s) 2.800 · 3.500 · 4.000 · 4.400 · 4.700 · 4.900; intervalos entre tarefas e eventos ×1,25. Chefe estreia no dia 5 (prazo 4 s, depois cai até 2 s; Duda avisa no dia 4). Vitória: terminar um expediente como CEO a partir do dia 25.
 Simulação (`python3 tools/simulate.py`): regular chega aos cargos nos dias mínimos (mediana); casual atrasa (Gerente ~20, sem CEO no 30).
