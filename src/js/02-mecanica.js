@@ -41,11 +41,6 @@ const DIFF = (() => { let key = '', val = null;
 const RANK_POINTS = BAL.ranks;
 const UNLOCK = { button: 2, email: 3, type: 4, call: 5, printer: 6, video: 8 };
 const EVENTS = { boss: 3, shuffle: 5, freeze: 6, virus: 7 };
-// Dia em que cada mecânica aparece pela primeira vez (uma novidade por dia). No dia de estreia ela só surge depois
-// de FIRST_DELAY segundos de expediente; nos dias seguintes vale a regra de nível acima.
-const FIRST_DAY = { button: 1, email: 2, type: 3, call: 4, boss: 5, printer: 6, shuffle: 7, freeze: 8, virus: 9, video: 10 };
-const FIRST_DELAY = 20;
-const firstOk = k => !!S && (S.day > FIRST_DAY[k] || (S.day === FIRST_DAY[k] && (S.dayT || 0) >= FIRST_DELAY));
 const DAY_SECONDS = 150;
 const LEVEL_SECONDS = 30;
 const MAX_TASKS = 5;

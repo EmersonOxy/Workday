@@ -2,7 +2,7 @@
 function startEvent() {
   const w = Object.assign({ boss: 1, shuffle: 1, freeze: 1, virus: 1 }, mod().w || {});
   const opts = Object.keys(EVENTS).filter(k => w[k] > 0
-    && firstOk(k)
+    && (S.level >= EVENTS[k] || (mod().earlyTech && (k === 'freeze' || k === 'virus') && S.level >= 2))
     && !(k === 'boss' && S.bossAlert) && !(k === 'freeze' && S.frozen) && !(k === 'virus' && S.virus) && !(k === 'shuffle' && S.shuffleT > 0));
   if (!opts.length) return;
   let r = Math.random() * opts.reduce((a, k) => a + w[k], 0), k = opts[0];

@@ -340,14 +340,6 @@ socThreads([
     open: L3('Bora uma partida?', 'Up for a match?', '¿Una partida?'), n: {
     a: { say: [SLN(L3('SEMPRE. me liga pela câmera aí em cima. só fora do expediente, que o chefe tá rondando', 'ALWAYS. call me with the camera button up there. after hours only, the boss is lurking', 'SIEMPRE. llámame con el botón de cámara de arriba. solo fuera de horario, el jefe anda rondando'), 'happy')] } } },
 
-  // Dia 4 em diante: conversa opcional em que o Duda conta o truque do Esc (o chefe só começa a rondar no dia 5)
-  { id: 'duda_chefe', npc: 'duda', by: 'player', repeat: 1, when: { known: 'duda', day: 4 }, topic: L3('Perguntar sobre o chefe', 'Ask about the boss', 'Preguntar por el jefe'), kw: ['chefe', 'boss', 'jefe', 'esc'],
-    open: L3('Duda, o chefe costuma passar por aqui?', 'Duda, does the boss come around here?', 'Duda, ¿el jefe suele pasar por aquí?'), n: {
-    a: { say: [L3('a partir de amanhã ele começa a rondar as mesas. confia', 'starting tomorrow he starts prowling the desks. trust me', 'a partir de mañana empieza a rondar las mesas. confía'),
-      SLN(L3('dica do TI: quando aparecer o aviso, aperta <Esc>. a planilha de disfarce sobe na hora. no celular, toca no aviso', 'IT tip: when the warning shows up, hit <Esc>. the disguise spreadsheet pops up instantly. on mobile, tap the warning', 'consejo de TI: cuando salga el aviso, aprieta <Esc>. la planilla de disfraz sube al instante. en el celular, toca el aviso'), 'smug'),
-      L3('não conta pra ninguém que fui eu que te ensinei', 'don\'t tell anyone I taught you', 'no le cuentes a nadie que te lo enseñé yo')], fx: { f: 'escTip' },
-      ch: [SCH(L3('Valeu pela dica!', 'Thanks for the tip!', '¡Gracias por el consejo!'), 'kind', null, { aff: 1 }), SCH(L3('Você usa muito isso, né?', 'You use that a lot, huh?', 'Lo usas mucho, ¿no?'), 'tease', null, null, { re: [L3('eu inventei isso. o atalho, não. a técnica', 'I invented it. not the shortcut. the technique', 'yo lo inventé. el atajo no. la técnica')] })] } } },
-
   /* ================= Bia: perguntas puxadas pelo jogador ================= */
   { id: 'bia_quem', npc: 'bia', by: 'player', repeat: 3, when: { known: 'bia' }, topic: L3('Perguntar quem é quem', 'Ask who\'s who', 'Preguntar quién es quién'), kw: ['quem', 'pessoas', 'colegas', 'who', 'people', 'quien', 'gente'],
     open: L3('Bia, me explica quem é quem por aqui?', 'Bia, can you explain who\'s who around here?', 'Bia, ¿me explicas quién es quién por aquí?'), n: {
@@ -414,7 +406,6 @@ socMem({
   'helena:showedFace': L3('Ela ligou a câmera para você. Uma vez.', 'She turned on her camera for you. Once.', 'Encendió la cámara para ti. Una vez.'),
   'duda:trustedMe': L3('Ele te contou o segredo do servidor.', 'He told you the server secret.', 'Te contó el secreto del servidor.'),
   'duda:betrayed': L3('Você contou o segredo dele para a Helena.', 'You told Helena his secret.', 'Le contaste su secreto a Helena.'),
-  'duda:escTip': L3('Ele te ensinou a fugir do chefe com o Esc.', 'He taught you to dodge the boss with Esc.', 'Te enseñó a esquivar al jefe con Esc.'),
   'duda:bday': L3('Você deu parabéns no aniversário dele.', 'You wished him happy birthday.', 'Lo felicitaste en su cumpleaños.'),
   'duda:sawInvisible': L3('Pegou você invisível.', 'Caught you invisible.', 'Te pilló invisible.'),
   'rafa:lostBet': L3('Perdeu a aposta do café para você.', 'Lost the coffee bet to you.', 'Perdió contra ti la apuesta del café.'),
