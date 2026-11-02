@@ -161,6 +161,8 @@ const Msn = {
   },
   replyHTML(u, id, ctx) {
     const th = SOC.th[id];
+    // respostas prontas e assuntos só com o contato disponível; a conversa fica guardada e as opções voltam quando ele voltar
+    if (!socAvail(socPresence(id, ctx))) return `<div class="msn-reply"><small class="msn-wait">${esc(u.waitHint(castFirst(id)))}</small></div>`;
     if (th && th.phase === 'choice') { const T = SOC_THREADS[th.id], vis = socVisibleChoices(id, T, th.node, ctx);
       return `<div class="msn-reply">${vis.map((o, i) => `<button class="msn-opt" data-ch="${i}">${esc(socFill(tx(o.c.t)))}</button>`).join('')}</div>`; }
     if (!th) { const tops = socTopics(id, ctx); if (tops.length) return `<div class="msn-reply topics"><small>${u.topics}:</small>${tops.map(T => `<button class="msn-opt topic" data-topic="${T.id}">${esc(tx(T.topic))}</button>`).join('')}</div>`; }
