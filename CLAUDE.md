@@ -2,8 +2,8 @@
 
 Jogo de navegador em pixel art (escritório + mini-SO "WorkOS"). © 2026 Émerson K. Boff, todos os direitos reservados.
 Responder em pt-BR, direto, sem bajulação. Repositório: https://github.com/EmersonOxy/Workday (branch `main`, push direto).
-Demo publicada: https://claude.ai/artifact/3nh9vz2gjUmGC3EngUTjAS (republicar após mudanças: gerar `dist/web/index.html`,
-remover tags doctype/html/head/body e publicar no mesmo artifact).
+Demo publicada: https://claude.ai/artifact/1XTVvPjUThX7zU8Ed3TTeB (republicar após mudanças: gerar `dist/web/index.html`,
+remover tags doctype/html/head/body com `re.sub(r"<!doctype[^>]*>|</?(html|head|body)\b[^>]*>", "", s, flags=re.I)` — sem o `\b` o padrão apaga também o `<header>` do HUD — e publicar no mesmo artifact).
 
 ## Regras do usuário (permanentes)
 - Testes de jogabilidade/visual: o usuário faz. Eu faço só verificações técnicas (sintaxe, paleta, capturas para conferir).
