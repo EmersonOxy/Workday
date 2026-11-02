@@ -109,7 +109,7 @@
 
   /* ===== Botão Iniciar do WorkOS ===== */
   body.office.menu-mode #osdesk .start { visibility: hidden; }
-  .os-start { position: absolute; left: .4em; bottom: .25em; z-index: 5; display: flex; align-items: center; gap: .4em; height: 1.6em; padding: 0 .6em; border: 0; cursor: pointer;
+  .os-start { position: absolute; left: .4em; bottom: .25em; z-index: 100000; display: flex; align-items: center; gap: .4em; height: 1.6em; padding: 0 .6em; border: 0; cursor: pointer;
     font: 1em var(--pixel); color: #2a1f2d; background: #e9dcc2; box-shadow: 0 0 0 2px #2a1f2d, inset 2px 2px 0 #fff8ec, inset -2px -3px 0 #8f7d63; }
   .os-start.on { box-shadow: 0 0 0 2px #2a1f2d, inset 2px 2px 0 #8f7d63, inset -2px -2px 0 #fff8ec; transform: translateY(1px); }
   .os-smenu { position: absolute; left: .4em; bottom: 2.3em; z-index: 6; min-width: 15em; display: flex; flex-direction: column; padding: 3px; font-family: var(--pixel);
@@ -228,7 +228,7 @@
   .osicon { display: flex; flex-direction: column; align-items: center; gap: .25em; width: 7.5em; padding: .3em; border: 0; background: none; cursor: pointer; font: .85em var(--pixel); color: #fff8ec; text-shadow: 0 2px 0 #2a1f2d; line-height: 1.1; }
   .osicon canvas { image-rendering: pixelated; }
   .osicon.sel span { background: #44609f; box-shadow: 0 0 0 1px #2a1f2d; }
-  .os-tasks { position: absolute; left: 8em; right: 12em; bottom: .25em; z-index: 5; display: flex; gap: .4em; overflow: hidden; }
+  .os-tasks { position: absolute; left: 8em; right: 12em; bottom: .25em; z-index: 100000; display: flex; gap: .4em; overflow: hidden; }
   .os-task { display: flex; align-items: center; gap: .3em; max-width: 13em; height: 1.6em; padding: 0 .6em; border: 0; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     font: .95em var(--pixel); color: #2a1f2d; background: #e9dcc2; box-shadow: 0 0 0 2px #2a1f2d, inset 2px 2px 0 #fff8ec, inset -2px -3px 0 #8f7d63; }
   #modal.allmin { background: transparent !important; }
@@ -525,3 +525,23 @@
   .os-win.cal-win { width: max-content; }
   body:not(.mobile) #tip { top: 28%; }
   .os-win.cal-win, .os-win.cal-win .mw-in { overflow: visible; max-height: none; }
+  /* barra do WorkOS e menu Iniciar sempre acima das janelas (o z das janelas cresce a cada foco) */
+  .os-smenu { z-index: 100001; }
+  /* janelas pequenas do WorkOS no tamanho do conteúdo (sem faixa vazia à direita) */
+  .os-win.calc-win, .os-win.notes-win, .os-win.diff-win, .os-win.load-win, .os-win.pl-win { width: max-content; max-width: 92vw; }
+  /* barras de rolagem pixeladas (XP/7), claro e escuro */
+  * { scrollbar-color: #8f7d63 #e9dcc2; }
+  ::-webkit-scrollbar { width: 14px; height: 14px; }
+  ::-webkit-scrollbar-track, ::-webkit-scrollbar-corner { background: #e9dcc2; box-shadow: inset 2px 0 0 #c7b595; }
+  ::-webkit-scrollbar-thumb, ::-webkit-scrollbar-button:single-button { background: #c7b595; border: 2px solid #2a1f2d; box-shadow: inset 2px 2px 0 #fff8ec, inset -2px -2px 0 #8f7d63; }
+  ::-webkit-scrollbar-button:single-button { display: block; width: 14px; height: 14px; }
+  ::-webkit-scrollbar-thumb:hover { background: #e9dcc2; }
+  :root[data-theme="dark"] * { scrollbar-color: #626875 #2a1f2d; }
+  :root[data-theme="dark"] ::-webkit-scrollbar-track, :root[data-theme="dark"] ::-webkit-scrollbar-corner { background: #2a1f2d; box-shadow: inset 2px 0 0 #2b2340; }
+  :root[data-theme="dark"] ::-webkit-scrollbar-thumb, :root[data-theme="dark"] ::-webkit-scrollbar-button:single-button { background: #4a3a4e; box-shadow: inset 2px 2px 0 #626875, inset -2px -2px 0 #2b2340; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme]) * { scrollbar-color: #626875 #2a1f2d; }
+    :root:not([data-theme]) ::-webkit-scrollbar-track, :root:not([data-theme]) ::-webkit-scrollbar-corner { background: #2a1f2d; box-shadow: inset 2px 0 0 #2b2340; }
+    :root:not([data-theme]) ::-webkit-scrollbar-thumb, :root:not([data-theme]) ::-webkit-scrollbar-button:single-button { background: #4a3a4e; box-shadow: inset 2px 2px 0 #626875, inset -2px -2px 0 #2b2340; }
+  }
+  .locked-row .walls, .locked-row .swatches { opacity: .45; filter: grayscale(1); } .cat-need { grid-column: 1 / -1; color: var(--muted); }
