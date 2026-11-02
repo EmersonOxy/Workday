@@ -68,8 +68,8 @@
   body.office .tray span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   /* Documento: papel com faixa do setor e símbolo */
   body.office .file { height: auto; min-height: 3.1em; border: 0 !important; border-radius: 0; background: var(--card); color: var(--ink); padding: .5em .45em .3em; gap: .45em; font-size: .92em;
-    box-shadow: 0 0 0 2px var(--ink), inset 0 .32em 0 var(--c, var(--line)), inset 0 -3px 0 rgba(42,31,45,.1), 0 .35em 0 rgba(42,31,45,.18); rotate: -1deg; animation: sway 1.4s ease-in-out infinite alternate; }
-  @keyframes sway { to { rotate: 1deg; } }
+    box-shadow: 0 0 0 2px var(--ink), inset 0 .32em 0 var(--c, var(--line)), inset 0 -3px 0 rgba(42,31,45,.1), 0 .35em 0 rgba(42,31,45,.18); rotate: -.7deg; animation: sway 1.4s ease-in-out infinite alternate alternate; }
+  @keyframes sway { from { rotate: -.7deg; } to { rotate: .7deg; } }
   body.office .file .tag { font-weight: normal; font-size: 1.1em; }
   body.office .file .sub { color: var(--muted); font-size: .95em; }
   body.office .file.urgent { animation: sway .7s ease-in-out infinite alternate, urgentdoc .35s steps(2) infinite; }
