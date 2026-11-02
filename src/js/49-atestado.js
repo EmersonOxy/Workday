@@ -3,7 +3,7 @@
 // O dia termina mais cedo com desconto (metade do salário e dos pontos do dia), o jogador vai para casa e a mesma run
 // continua no dia seguinte. O calendário marca o dia como atestado. Dificuldade e desbloqueios seguem a ordem dos dias.
 // Calendário do jogo: o dia 1 de toda run é segunda-feira, 05/01/2026; os dias seguintes são os próximos dias úteis.
-// A hora do jogo fica em 50-tempo.js.
+// O relógio do WorkOS mostra a hora do jogo: 07:32 na chegada, o expediente das 09h às 18h, e segue enquanto se joga.
 
 const GAME_EPOCH = new Date(2026, 0, 5);   // segunda-feira
 function gameDateOf(day) { const d = new Date(GAME_EPOCH); let n = Math.max(1, day | 0) - 1; while (n > 0) { d.setDate(d.getDate() + 1); if (d.getDay() % 6) n--; } return d; }
@@ -13,6 +13,21 @@ careerDayOf = function (date) {
   if (b < a || b.getDay() % 6 === 0) return 0;
   let n = 1; while (a < b) { a.setDate(a.getDate() + 1); if (a.getDay() % 6) n++; } return n;
 };
+// hora do jogo: expediente pelo relógio do dia; fim do dia 18:00; fora disso a manhã começa às 07:32 e anda 1 min por segundo
+let GAME_MORNING = performance.now();
+function gameTime() {
+  if (S && S.phase === 'day') return clockText();
+  if (S && S.phase === 'ending') return '18:00';
+  const m = Math.min(8 * 60 + 59, 7 * 60 + 32 + Math.floor((performance.now() - GAME_MORNING) / 1000));
+  return String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0');
+}
+sysClock = function () {
+  const t = gameTime(), dt = gameDateOf(Quests.today()).toLocaleDateString(L.htmlLang, { day: '2-digit', month: '2-digit', year: 'numeric' });
+  hudSet('osclock', 'text', t + ' · ' + dt); hudSet('sysclock', 'text', t + ' ' + dt.slice(0, 5));
+};
+setInterval(() => sysClock(), 1000);
+{ const sm0 = showMenu; showMenu = () => { if (!S || S.phase !== 'day') GAME_MORNING = performance.now(); sm0(); }; }
+
 // dias de atestado da carreira atual (chave própria, ligada à carreira)
 const sickDays = () => { const a = load('atestados', null); return a && a.cid === Quests.cid() ? a.days : []; };
 function markSick(day) { const days = sickDays(); if (!days.includes(day)) days.push(day); save('atestados', { cid: Quests.cid(), days }); }

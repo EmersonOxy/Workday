@@ -68,15 +68,14 @@ function socCareer() { return !!S && S.phase !== 'over' || !!load('carreira', nu
 function socCtx() {
   const career = socCareer(), day = SOC && SOC.pre ? 1 : career ? Quests.today() : (SOC && SOC.day) || 1;
   const inDay = !!S && (S.phase === 'day' || !!S.onBreak), intro = !!S && S.phase === 'intro';
-  const clock = gameMin();   // hora do relógio do jogo (50-tempo.js)
-  const min = inDay ? Math.max(0, Math.min(539, clock - 540)) : intro ? 0 : -1;
-  const slot = min < 0 ? 'off' : S && S.onBreak ? 'lunch' : min < 180 ? 'am' : min < 270 ? 'lunch' : 'pm';
+  const min = inDay ? Math.min(539, Math.floor((S.dayT || 0) / DAY_SECONDS * 540)) : intro ? 0 : -1;
+  const slot = min < 0 ? 'off' : min < 180 ? 'am' : min < 270 ? 'lunch' : 'pm';
   const c = !S ? load('carreira', null) : null;
-  return { day, cyc: Math.floor((day - 1) / CYCLE), min, clock, slot, inDay, career,
+  return { day, cyc: Math.floor((day - 1) / CYCLE), min, slot, inDay, career,
     working: inDay && !S.paused, rank: S && S.phase !== 'over' ? S.rankIdx : c ? c.rankIdx || 0 : 0,
     ev: career ? SPECIAL.filter(e => Quests.on(e, day)).map(e => e.id) : [] };
 }
-const socClock = m => m.at != null ? gameFmt(m.at) : m.tm < 0 ? null : String(9 + Math.floor(m.tm / 60)).padStart(2, '0') + ':' + String(m.tm % 60 - m.tm % 10).padStart(2, '0');
+const socClock = m => m.tm < 0 ? null : String(9 + Math.floor(m.tm / 60)).padStart(2, '0') + ':' + String(m.tm % 60 - m.tm % 10).padStart(2, '0');
 
 /* ---------- presença: rotina do expediente, reuniões, almoço, fora do horário e estados da história ---------- */
 // Cada personagem tem blocos em minutos desde as 09h ([início, fim, status, chave da mensagem]); o que não estiver em
@@ -227,7 +226,7 @@ function msgText(m) { const t = m.r ? socResolve(m.r) : null; return socFill(t !
 const SOC_LOG_MAX = 140;
 function socLog(npc, m, ctx = socCtx()) {
   const r = socRel(npc);
-  m.d = ctx.day; m.tm = ctx.min; m.at = ctx.clock;
+  m.d = ctx.day; m.tm = ctx.min;
   if (m.r && m.s == null) { const t = socResolve(m.r); m.s = t; }
   if (m.s && /\{/.test(m.s)) { const v = socVars(ctx), used = {}; m.s.replace(/\{(\w+)\}/g, (_, k) => { if (v[k] != null) used[k] = v[k]; }); if (Object.keys(used).length) m.v = used; }
   r.log.push(m); if (r.log.length > SOC_LOG_MAX) r.log.splice(0, r.log.length - SOC_LOG_MAX);

@@ -170,7 +170,7 @@ const Quests = {
         news.push([U().ev.doneToast(U().ev.names[ev.id]), ev.unlock ? U().ev.unlockToast(U().ev.unlocks[ev.unlock]) : U().ev.pins[ev.pin]]);
       } else if (d > a.b) delete QST.active[ev.id];
     }
-    for (const [id, ok] of ACH) if (!QST.ach[id] && ok()) { QST.ach[id] = Date.now(); (QST.achDay = QST.achDay || {})[id] = d || this.today(); news.push([U().ev.achToast(U().ev.ach[id][0]), U().ev.ach[id][1]]); }
+    for (const [id, ok] of ACH) if (!QST.ach[id] && ok()) { QST.ach[id] = Date.now(); news.push([U().ev.achToast(U().ev.ach[id][0]), U().ev.ach[id][1]]); }
     // missões de carreiras antigas não ficam penduradas
     for (const id of Object.keys(QST.active)) if (QST.active[id].cid !== this.cid()) delete QST.active[id];
     qSave();
@@ -296,7 +296,7 @@ function osArchive() {
       r.innerHTML = `<span class="arq-ic"></span><div><b>${e.unlocks[k]}</b><small>${own ? e.owned : e.lockedHint(e.names[q])}</small></div>`;
       r.querySelector('.arq-ic').append(own ? Pixel.el(APP_ICO.paint, 2) : Pixel.el(LOCK_SPR, 3)); body.append(r); }
     if (s === 'ach') for (const [id] of ACH) { const own = !!QST.ach[id], r = document.createElement('div'); r.className = 'arq-row' + (own ? ' ok' : '');
-      r.innerHTML = `<span class="arq-ic"></span><div><b>${e.ach[id][0]}</b><small>${e.ach[id][1]}</small></div><em>${own ? achDateText(id) : ''}</em>`;
+      r.innerHTML = `<span class="arq-ic"></span><div><b>${e.ach[id][0]}</b><small>${e.ach[id][1]}</small></div><em>${own ? new Date(QST.ach[id]).toLocaleDateString(L.htmlLang) : ''}</em>`;
       r.querySelector('.arq-ic').append(own ? Pixel.el(PIN_SPR.estrela, 2) : Pixel.el(LOCK_SPR, 3)); body.append(r); }
     const tot = { quests: [Object.keys(QST.done).length, SPECIAL.length], pins: [QST.pins.length, Object.keys(PIN_SPR).length], unlocks: [QST.unlocks.length, Object.keys(LOCKED).length], ach: [Object.keys(QST.ach).length, ACH.length] }[s];
     st.textContent = `${S0[s]}: ${tot[0]}/${tot[1]}`;
