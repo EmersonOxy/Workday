@@ -509,7 +509,7 @@
   .ctl-row em { font-style: normal; white-space: nowrap; text-align: right; }
   .ctl-spr { display: flex; justify-content: center; line-height: 0; }
   s + .promo, .ptag s, .ctl-row s { opacity: .6; }
-  .promo { color: var(--danger, #a8262a); }
+  .promo { color: var(--ok, #2f8a45); }
   /* a área de trabalho do WorkOS à vista (ícones na tela) nunca deixa o HUD do expediente aparecer por trás */
   body.office:has(#modal .os-icons) #app > header, body.office:has(#modal .os-icons) #inv, body.office:has(#modal .os-icons) #board, body.office:has(#modal .os-icons) #tasks { visibility: hidden; }
   /* ===== Arrumar a mesa ===== */
@@ -522,3 +522,5 @@
   .arr-row .pxbtn { margin: 0 !important; padding: 2px 10px 6px !important; font-size: .9em !important; }
   .arr-sel { flex: 1 1 8em; font-weight: bold; }
   .arr-chip { font-size: .8em !important; }
+  .os-win.cal-win { width: max-content; }
+  body:not(.mobile) #tip { top: 28%; }

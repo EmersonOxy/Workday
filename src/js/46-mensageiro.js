@@ -143,10 +143,10 @@ const Msn = {
       <p class="msn-hint">${esc(Msn.hint || (!socAvail(p) && !SOC.th[id] ? u.offHint : ''))}</p>`;
   },
   logHTML(u, id) {
-    const r = SOC.c[id], d = CAST[id]; let h = '', lastD = null, lastF = null;
+    const r = SOC.c[id], d = CAST[id], lastDay = r.log.length ? r.log[r.log.length - 1].d : null; let h = '', lastD = null, lastF = null;
     for (const m of r.log) {
-      if (m.d !== lastD) { h += `<div class="msn-day">${u.dayN(m.d)}</div>`; lastD = m.d; lastF = null; }
-      const t = esc(msgText(m)), tm = socClock(m) || u.evening;
+      if (m.d !== lastD) { h += `<div class="msn-day">${u.dayN(m.d === lastDay ? Math.max(m.d, Quests.today()) : m.d)}</div>`; lastD = m.d; lastF = null; }
+      const t = esc(msgText(m)), tm = socClock(m) || '';
       if (m.f === 's') { h += `<div class="msn-sys">${t}</div>`; lastF = null; continue; }
       const who = m.f === 'm' ? esc(profileName()) : esc(castFirst(id)), same = lastF === m.f;
       h += `<div class="msn-m ${m.f === 'm' ? 'me' : 'np'}${same ? ' cont' : ''}">${same ? '' : `<span class="msn-mh"><b>${who}</b><time>${tm}</time></span>`}<p>${t}</p></div>`;

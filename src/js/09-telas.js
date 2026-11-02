@@ -437,7 +437,6 @@ function showMenu() {
   // som: troca só o ícone e o texto do botão (sem redesenhar o portal inteiro)
   card.querySelector('#msnd').onclick = () => { setSound(!soundOn); const b = card.querySelector('#msnd'), i = b.querySelector('.mico');
     i.replaceChildren(Pixel.el(MENU_ICO[soundOn ? 'snd' : 'mute'], 2)); b.lastChild.textContent = u.soundLabel + ': ' + (soundOn ? u.soundOn : u.soundOff); Motion.press && Motion.press(b); };
-  $('modal').insertAdjacentHTML('beforeend', `<div class="legalbar"><p>${u.footer}</p></div>`);
   fitLegal();
   osStart(u); osIcons();
   osSyncMin();
