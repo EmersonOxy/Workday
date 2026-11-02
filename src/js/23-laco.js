@@ -7,18 +7,18 @@ function loop(now) {
     S.bossAuto -= dt;
     if (S.bossAuto <= 0) { hideSheet(); muffle(false); }
   } else if (S.phase === 'day' && !S.paused) update(dt);
+  else if (S.onBreak) GameClock.breakTick(dt);   // intervalo: trabalho parado, relógio andando devagar
   requestAnimationFrame(loop);
 }
 
-function clockText() {
-  const m = Math.min(540, Math.floor(((S && S.dayT) || 0) / DAY_SECONDS * 540)) + 540;
-  return String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(Math.floor(m % 60 / 10) * 10).padStart(2, '0');
-}
+// relógio do cabeçalho: hora simulada (relógio global), minuto a minuto
+function clockText() { return GameClock.text(); }
 
 function update(dt) {
   S.dayT += dt;
   if (S.dayT >= DAY_SECONDS) { endDay(); return; }
-  S.level = BAL.level(S.day, S.dayT);
+  GameClock.workTick(); if (S.onBreak) return;
+  S.level = BAL.level(S.day, S.dayT * LEVEL_DAY / DAY_SECONDS);
   if (S.level > S.lastLevel) { S.lastLevel = S.level; toast(...pick(L.memos)); }
   const sdt = dt * slow(), u = U();
   if (S.slowT > 0) S.slowT -= dt;

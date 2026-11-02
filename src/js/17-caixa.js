@@ -172,6 +172,7 @@ function startDay() {
     stress: Math.round(S.stress * 0.4), causes: {}, file: null, fast: false, tasks: [], nextTask: 5, nextEvent: 16,
     nextCoffee: rand(15, 25), order: [0, 1, 2, 3], slowT: 0, coffee: null, bossAlert: null, frozen: null, virus: false,
     shuffleT: 0, video: null, burnout: false, openTask: null, tipQ: [], tipT: 0, tipDay: [], debutDone: {}, forceKind: null, last: performance.now() });
+  GameClock.beginDay();
   buildBoard(); spawnFile(); hud(); renderDesk(); applyWallpaper();
   music('office');
 }
