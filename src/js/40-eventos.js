@@ -216,10 +216,11 @@ function typeText(el, html, done) {
 function osCalendar() {
   const u = U(), t = u.osApps, e = u.ev, now = gameDateOf(Quests.today()), first = new Date(now);   // calendário do jogo (dia 1 = seg 05/01) while (first.getDay() % 6 === 0) first.setDate(first.getDate() + 1);
   let y = first.getFullYear(), mo = first.getMonth();   // abre no mês do próximo dia de expediente (fim de semana pula para segunda)
-  const w = osWindow(t.calendar, `<div class="cal"><div class="cal-h"><button class="pxbtn" data-m="-1">◀</button><b></b><button class="pxbtn" data-m="1">▶</button></div><div class="cal-g"></div></div>`, { icon: APP_ICO.cal, cls: 'cal-win' });
+  const w = osWindow(t.calendar, `<div class="cal"><div class="cal-h"><button class="pxbtn" data-m="-1">◀</button><b></b><button class="pxbtn" data-m="1">▶</button></div><div class="cal-g"></div><p class="cal-note"></p></div>`, { icon: APP_ICO.cal, cls: 'cal-win' });
   Quests.check(); sfx('page');
   const today = Quests.today(), known = (ev, d) => { const w2 = Quests.win(ev, d); return today >= w2.a - 3 || QST.done[ev.id]; };
   const evOf = d => d < 1 ? [] : SPECIAL.filter(ev => Quests.on(ev, d));
+  w.querySelector('.cal-note').textContent = e.calNote;
   let bubble = null, skip = null;
   const closeBubble = () => { if (bubble) { bubble.remove(); bubble = null; } };
   const open = (cell, d) => {

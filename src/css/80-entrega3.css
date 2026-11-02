@@ -109,7 +109,7 @@
 
   /* ===== Botão Iniciar do WorkOS ===== */
   body.office.menu-mode #osdesk .start { visibility: hidden; }
-  .os-start { position: absolute; left: .4em; bottom: .25em; z-index: 100000; display: flex; align-items: center; gap: .4em; height: 1.6em; padding: 0 .6em; border: 0; cursor: pointer;
+  .os-start { position: absolute; left: .4em; bottom: .25em; z-index: 5; display: flex; align-items: center; gap: .4em; height: 1.6em; padding: 0 .6em; border: 0; cursor: pointer;
     font: 1em var(--pixel); color: #2a1f2d; background: #e9dcc2; box-shadow: 0 0 0 2px #2a1f2d, inset 2px 2px 0 #fff8ec, inset -2px -3px 0 #8f7d63; }
   .os-start.on { box-shadow: 0 0 0 2px #2a1f2d, inset 2px 2px 0 #8f7d63, inset -2px -2px 0 #fff8ec; transform: translateY(1px); }
   .os-smenu { position: absolute; left: .4em; bottom: 2.3em; z-index: 6; min-width: 15em; display: flex; flex-direction: column; padding: 3px; font-family: var(--pixel);
@@ -170,7 +170,7 @@
   @media (max-width: 600px) { .diff-list { grid-template-columns: 1fr; } }
 
   /* ===== Janelas flutuantes do WorkOS ===== */
-  .os-win { position: absolute; z-index: 7; top: 50%; left: calc(50% + 15.5em); transform-origin: 0 50%; translate: 0 -55%; width: max-content; min-width: min(16em, 92vw); max-width: min(48em, 92vw); font-family: var(--pixel); color: var(--ink);
+  .os-win { position: absolute; z-index: 7; top: 50%; left: calc(50% + 15.5em); transform-origin: 0 50%; translate: 0 -55%; width: min(26em, 92vw); font-family: var(--pixel); color: var(--ink);
     display: flex; flex-direction: column; gap: 4px; padding: 4px; background: #c7b595;
     box-shadow: 0 0 0 3px #2a1f2d, inset 3px 3px 0 #fff8ec, inset -3px -3px 0 #8f7d63, 8px 8px 0 rgba(42,31,45,.45); }
   .os-win .mw-bar { display: flex; justify-content: space-between; align-items: center; color: #fff8ec; }
@@ -228,7 +228,7 @@
   .osicon { display: flex; flex-direction: column; align-items: center; gap: .25em; width: 7.5em; padding: .3em; border: 0; background: none; cursor: pointer; font: .85em var(--pixel); color: #fff8ec; text-shadow: 0 2px 0 #2a1f2d; line-height: 1.1; }
   .osicon canvas { image-rendering: pixelated; }
   .osicon.sel span { background: #44609f; box-shadow: 0 0 0 1px #2a1f2d; }
-  .os-tasks { position: absolute; left: 8em; right: 12em; bottom: .25em; z-index: 100000; display: flex; gap: .4em; overflow: hidden; }
+  .os-tasks { position: absolute; left: 8em; right: 12em; bottom: .25em; z-index: 5; display: flex; gap: .4em; overflow: hidden; }
   .os-task { display: flex; align-items: center; gap: .3em; max-width: 13em; height: 1.6em; padding: 0 .6em; border: 0; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     font: .95em var(--pixel); color: #2a1f2d; background: #e9dcc2; box-shadow: 0 0 0 2px #2a1f2d, inset 2px 2px 0 #fff8ec, inset -2px -3px 0 #8f7d63; }
   #modal.allmin { background: transparent !important; }
@@ -509,7 +509,7 @@
   .ctl-row em { font-style: normal; white-space: nowrap; text-align: right; }
   .ctl-spr { display: flex; justify-content: center; line-height: 0; }
   s + .promo, .ptag s, .ctl-row s { opacity: .6; }
-  .promo { color: var(--ok, #2f8a45); }
+  .promo { color: var(--danger, #a8262a); }
   /* a área de trabalho do WorkOS à vista (ícones na tela) nunca deixa o HUD do expediente aparecer por trás */
   body.office:has(#modal .os-icons) #app > header, body.office:has(#modal .os-icons) #inv, body.office:has(#modal .os-icons) #board, body.office:has(#modal .os-icons) #tasks { visibility: hidden; }
   /* ===== Arrumar a mesa ===== */
@@ -522,23 +522,3 @@
   .arr-row .pxbtn { margin: 0 !important; padding: 2px 10px 6px !important; font-size: .9em !important; }
   .arr-sel { flex: 1 1 8em; font-weight: bold; }
   .arr-chip { font-size: .8em !important; }
-
-  /* barra do WorkOS e menu Iniciar sempre acima das janelas (o z das janelas cresce a cada foco) */
-  .os-smenu { z-index: 100001; }
-  /* janela se ajusta ao conteúdo (sem faixa vazia à direita); balões do calendário podem passar da borda da janela */
-  .cal { width: 17em; }
-  .os-win.cal-win .mw-in { overflow: visible; }
-  /* avisos (e-mails do RH) embaixo, no mesmo lugar dos avisos do MSworkN; dicas mais perto do meio */
-  body.office #toast { top: auto; bottom: 3.2em; }
-  body:not(.mobile) #tip { top: 28%; }
-  /* barra de rolagem quadrada, no estilo do WorkOS (inspirada no XP/Vista) */
-  * { scrollbar-width: auto; scrollbar-color: #8f7d63 #e9dcc2; }
-  ::-webkit-scrollbar { width: 14px; height: 14px; }
-  ::-webkit-scrollbar-track { background: #e9dcc2; box-shadow: inset 2px 0 0 #c7b595; }
-  ::-webkit-scrollbar-thumb { background: #c7b595; border: 2px solid #2a1f2d; box-shadow: inset 2px 2px 0 #fff8ec, inset -2px -2px 0 #8f7d63; }
-  ::-webkit-scrollbar-thumb:hover { background: #dcc6a0; }
-  ::-webkit-scrollbar-button:single-button { display: block; width: 14px; height: 14px; background: #c7b595; border: 2px solid #2a1f2d; box-shadow: inset 2px 2px 0 #fff8ec, inset -2px -2px 0 #8f7d63; }
-  ::-webkit-scrollbar-corner { background: #e9dcc2; }
-  :root[data-theme="dark"] *, :root[data-theme="dark"] { scrollbar-color: #6c4a7e #2a1f2d; }
-  :root[data-theme="dark"] ::-webkit-scrollbar-track, :root[data-theme="dark"] ::-webkit-scrollbar-corner { background: #2a1f2d; box-shadow: inset 2px 0 0 #1b1622; }
-  :root[data-theme="dark"] ::-webkit-scrollbar-thumb, :root[data-theme="dark"] ::-webkit-scrollbar-button:single-button { background: #4a4152; box-shadow: inset 2px 2px 0 #74747f, inset -2px -2px 0 #2b2340; }
