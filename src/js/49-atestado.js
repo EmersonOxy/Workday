@@ -1,32 +1,71 @@
-/* ================= Atestado médico e calendário do jogo ================= */
+/* ================= Atestado médico e relógio global do jogo ================= */
 // Ninguém é demitido nem pede demissão: estresse no limite (ou "Pedir atestado" na pausa) vira um atestado médico.
 // O dia termina mais cedo com desconto (metade do salário e dos pontos do dia), o jogador vai para casa e a mesma run
 // continua no dia seguinte. O calendário marca o dia como atestado. Dificuldade e desbloqueios seguem a ordem dos dias.
-// Calendário do jogo: o dia 1 de toda run é segunda-feira, 05/01/2026; os dias seguintes são os próximos dias úteis.
-// O relógio do WorkOS mostra a hora do jogo: 07:32 na chegada, o expediente das 09h às 18h, e segue enquanto se joga.
-
-const GAME_EPOCH = new Date(2026, 0, 5);   // segunda-feira
-function gameDateOf(day) { const d = new Date(GAME_EPOCH); let n = Math.max(1, day | 0) - 1; while (n > 0) { d.setDate(d.getDate() + 1); if (d.getDay() % 6) n--; } return d; }
-// dia da carreira de uma data do calendário do jogo (0 = fim de semana ou antes do dia 1)
-careerDayOf = function (date) {
-  const a = new Date(GAME_EPOCH), b = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-  if (b < a || b.getDay() % 6 === 0) return 0;
-  let n = 1; while (a < b) { a.setDate(a.getDate() + 1); if (a.getDay() % 6) n++; } return n;
+//
+// RELÓGIO GLOBAL (fonte única de data e hora simuladas — WorkOS, ponto, expediente, calendário, MSworkN, missões, conquistas).
+// Três tempos, nunca misturados:
+//   • tempo real ......... relógio do aparelho (Date): só para metadados (backup exportado, id de conta). Nunca aparece no jogo.
+//   • tempo de expediente  S.dayT, segundos de jogo efetivo (0..DAY_SECONDS); para em pausas, janelas e no intervalo.
+//   • tempo simulado ..... data da carreira + minuto do dia (GameClock.min()), derivado dos dois acima e do estado do dia.
+// Data: o dia N da carreira é o N-ésimo dia útil a partir da data inicial da carreira (padrão: seg 05/01/2026, guardada
+// por carreira em 'relogio'); avança um dia útil a cada expediente e nunca usa a data real.
+// Hora: chegada sorteada entre 07:00 e 07:59 (estável por carreira+dia, então sair e voltar não muda); o expediente vai
+// das 09:00 às 18:00 conforme S.dayT; intervalo só entre 11h e 14h, com o relógio andando 1 h a cada 7 min reais (máx. 14:00);
+// ao voltar, o restante do expediente é comprimido para terminar exatamente às 18:00. Fora do expediente o relógio fica parado.
+const GAME_EPOCH = new Date(2026, 0, 5);   // segunda-feira (data inicial padrão; saves antigos usam esta)
+const GameClock = {
+  WORK_IN: 9 * 60, WORK_OUT: 18 * 60, BRK_A: 11 * 60, BRK_B: 14 * 60, BRK_REAL_PER_HOUR: 7 * 60,   // minutos / segundos reais
+  // data inicial da carreira atual (preservada no save; carreira nova herda a padrão)
+  start() {
+    const cid = Quests.cid(), r = load('relogio', null);
+    if (r && r.cid === cid && Array.isArray(r.start)) return new Date(r.start[0], r.start[1], r.start[2]);
+    const d = r && Array.isArray(r.next) ? new Date(r.next[0], r.next[1], r.next[2]) : new Date(GAME_EPOCH);
+    while (d.getDay() % 6 === 0) d.setDate(d.getDate() + 1);   // começa sempre num dia útil
+    save('relogio', { cid, start: [d.getFullYear(), d.getMonth(), d.getDate()], next: r && r.next });
+    return d;
+  },
+  // define a data inicial das PRÓXIMAS carreiras (a atual mantém a sua)
+  setStart(d) { const r = load('relogio', null) || {}; r.next = [d.getFullYear(), d.getMonth(), d.getDate()]; save('relogio', r); },
+  date(day = Quests.today()) { const d = this.start(); let n = Math.max(1, day | 0) - 1; while (n > 0) { d.setDate(d.getDate() + 1); if (d.getDay() % 6) n--; } return d; },
+  // dia da carreira de uma data (0 = fim de semana ou antes do dia 1)
+  dayOf(date) {
+    const a = this.start(), b = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    if (b < a || b.getDay() % 6 === 0) return 0;
+    let n = 1; while (a < b) { a.setDate(a.getDate() + 1); if (a.getDay() % 6) n++; } return n;
+  },
+  arrival(day = Quests.today()) { return 7 * 60 + Math.floor(Office.rng(EMP_ID * 977 + Quests.cid() * 131 + day * 7)() * 60); },
+  // começo do expediente: o relógio liga às 09:00 e segue S.dayT até 18:00
+  beginDay() { S.clk = { m0: this.WORK_IN, t0: 0, brk: null }; },
+  // minuto simulado do momento atual do jogo
+  min() {
+    if (!S) return this.arrival();
+    const c = S.clk;
+    if (S.phase === 'day' && c) {
+      if (S.onBreak && c.brk != null) return c.brk;
+      const left = DAY_SECONDS - c.t0;
+      return Math.min(this.WORK_OUT, c.m0 + (left > 0 ? ((S.dayT || 0) - c.t0) * (this.WORK_OUT - c.m0) / left : 0));
+    }
+    if (S.phase === 'ending' || S.phase === 'promo' || S.phase === 'over') return c ? this.WORK_OUT : this.arrival();
+    return this.arrival();   // antes do expediente (menu, ponto, intro): parado na chegada do dia de hoje
+  },
+  text(m = this.min(), step = 1) { m = Math.floor(m / step) * step; return String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0'); },
+  // intervalo: só entre 11h e 14h
+  breakWindow() { const m = this.min(); return m >= this.BRK_A && m < this.BRK_B; },
+  breakStart() { if (S.clk) S.clk.brk = this.min(); },
+  breakTick(dt) { const c = S && S.clk; if (c && c.brk != null) c.brk = Math.min(this.BRK_B, c.brk + dt * 60 / this.BRK_REAL_PER_HOUR); },
+  breakEnd() { const c = S && S.clk; if (!c || c.brk == null) return; c.m0 = Math.max(this.min(), c.brk); c.t0 = S.dayT || 0; c.brk = null; },
+  // carimbo de data (conquistas etc.): meia-noite da data da carreira, em ms — mesmo formato numérico dos saves antigos
+  stamp(day = Quests.today()) { return this.date(day).getTime(); },
 };
-// hora do jogo: expediente pelo relógio do dia; fim do dia 18:00; fora disso a manhã começa às 07:32 e anda 1 min por segundo
-let GAME_MORNING = performance.now();
-function gameTime() {
-  if (S && S.phase === 'day') return clockText();
-  if (S && S.phase === 'ending') return '18:00';
-  const m = Math.min(8 * 60 + 59, 7 * 60 + 32 + Math.floor((performance.now() - GAME_MORNING) / 1000));
-  return String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0');
-}
-sysClock = function () {
+function gameDateOf(day) { return GameClock.date(day); }
+function careerDayOf(date) { return GameClock.dayOf(date); }
+function gameTime() { return GameClock.text(); }
+function sysClock() {
   const t = gameTime(), dt = gameDateOf(Quests.today()).toLocaleDateString(L.htmlLang, { day: '2-digit', month: '2-digit', year: 'numeric' });
   hudSet('osclock', 'text', t + ' · ' + dt); hudSet('sysclock', 'text', t + ' ' + dt.slice(0, 5));
-};
+}
 setInterval(() => sysClock(), 1000);
-{ const sm0 = showMenu; showMenu = () => { if (!S || S.phase !== 'day') GAME_MORNING = performance.now(); sm0(); }; }
 
 // dias de atestado da carreira atual (chave própria, ligada à carreira)
 const sickDays = () => { const a = load('atestados', null); return a && a.cid === Quests.cid() ? a.days : []; };

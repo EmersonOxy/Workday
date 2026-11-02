@@ -101,12 +101,6 @@ function officeFrame(now) {
     st.onpointerenter = () => clearTimeout(tmr); st.onpointerleave = () => { if (sm) arm(); }; }
 })();
 // Clicar na janela abre ou fecha a persiana
-// Hora e data reais do aparelho: na barra do WorkOS (menu) e no canto do cabeçalho durante o expediente
-function sysClock() {
-  const d = new Date(), t = d.toLocaleTimeString(L.htmlLang, { hour: '2-digit', minute: '2-digit' }), dt = d.toLocaleDateString(L.htmlLang, { day: '2-digit', month: '2-digit', year: 'numeric' });
-  hudSet('osclock', 'text', t + ' · ' + dt); hudSet('sysclock', 'text', t + ' ' + dt.slice(0, 5));
-}
-setInterval(sysClock, 15000);
 function onWindow(e) {
   if (!OFFICE.on || !OFFICE.L) return false;
   const w = Office.spots(OFFICE.L).win, x = e.clientX / OFFICE.M.k, y = e.clientY / OFFICE.M.k;

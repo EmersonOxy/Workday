@@ -170,7 +170,7 @@ const Quests = {
         news.push([U().ev.doneToast(U().ev.names[ev.id]), ev.unlock ? U().ev.unlockToast(U().ev.unlocks[ev.unlock]) : U().ev.pins[ev.pin]]);
       } else if (d > a.b) delete QST.active[ev.id];
     }
-    for (const [id, ok] of ACH) if (!QST.ach[id] && ok()) { QST.ach[id] = Date.now(); news.push([U().ev.achToast(U().ev.ach[id][0]), U().ev.ach[id][1]]); }
+    for (const [id, ok] of ACH) if (!QST.ach[id] && ok()) { QST.ach[id] = GameClock.stamp(d); news.push([U().ev.achToast(U().ev.ach[id][0]), U().ev.ach[id][1]]); }
     // missões de carreiras antigas não ficam penduradas
     for (const id of Object.keys(QST.active)) if (QST.active[id].cid !== this.cid()) delete QST.active[id];
     qSave();
@@ -192,17 +192,10 @@ function pinEl(id, scale = 3, owned = true) {
   return Pixel.el(PIN_SPR[id].map(r => r.replace(/[^.]/g, 'K')), scale);
 }
 
-// ===== Calendário do WorkOS: o mês real do aparelho, com ícones nos dias que têm evento da empresa =====
+// ===== Calendário do WorkOS: o mês da data da carreira, com ícones nos dias que têm evento da empresa =====
 // O dia de trabalho "de agora" cai na data de hoje; os dias seguintes de expediente são os próximos dias úteis
 // (sábado e domingo não têm expediente). Clicar num ícone abre um balão que vai escrevendo o que é e o que fazer.
-function careerDayOf(date, today = Quests.today(), base = new Date()) {
-  const wd = d => d.getDay() % 6 !== 0; if (!wd(date)) return 0;
-  const a = new Date(base.getFullYear(), base.getMonth(), base.getDate()), b = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-  let n = 0, step = b > a ? 1 : -1; const c = new Date(a);
-  while (c.getTime() !== b.getTime()) { c.setDate(c.getDate() + step); if (wd(c)) n += step; }
-  if (!wd(a) && step > 0) n -= 1;   // hoje é fim de semana: o próximo dia útil é o dia de trabalho "de agora"
-  return today + n;
-}
+// careerDayOf/gameDateOf: relógio global (49-atestado.js), a partir da data inicial da carreira
 function typeText(el, html, done) {
   // escreve o texto aos poucos (o HTML de cada trecho entra inteiro); com movimento reduzido aparece de uma vez
   const parts = html.split(/(<[^>]+>)/).filter(Boolean); el.innerHTML = '';

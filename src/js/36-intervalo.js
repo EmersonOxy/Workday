@@ -6,12 +6,12 @@ const BREAK_RANK = 2;
 function breakUnlocked() { return !!S && S.rankIdx >= BREAK_RANK; }
 function breakAvailable() {
   return !!S && S.phase === 'day' && breakUnlocked() && S.breakDay !== S.day && !S.resting && !S.boss && !S.bossAlert && S.bossAuto <= 0
-    && !S.frozen && !S.virus && !S.video && !Call.el && document.body.classList.contains('office');
+    && !S.frozen && !S.virus && !S.video && !Call.el && GameClock.breakWindow() && document.body.classList.contains('office');
 }
 function startBreak() {
   if (!breakAvailable()) return false;
   const u = U(), m = $('modal');
-  S.breakDay = S.day; S.paused = true; S.resting = true; S.onBreak = true; S.fast = false;
+  S.breakDay = S.day; GameClock.breakStart(); S.paused = true; S.resting = true; S.onBreak = true; S.fast = false;
   muffle(true); hideSheet(); music('menu'); sfx('pop');
   document.body.classList.add('menu-mode', 'on-break');
   const card = m.querySelector('.card'); card.style.display = 'none';
@@ -30,7 +30,7 @@ function endBreak() {
   modal.into = null;
   m.querySelector('.card').style.display = ''; m.classList.add('hidden'); m.classList.remove('allmin');
   document.body.classList.remove('menu-mode', 'on-break');
-  S.onBreak = false; sfx('click');
+  GameClock.breakEnd(); S.onBreak = false; sfx('click');
   countdown(() => { S.resting = false; S.paused = false; S.last = performance.now(); muffle(false); if (S.phase === 'day') music('office'); });
 }
 

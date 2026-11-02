@@ -30,6 +30,9 @@ remover tags doctype/html/head/body com `re.sub(r"<!doctype[^>]*>|</?(html|head|
 - `shared/50-office.js`: cena do escritório (layout, bake, draw, luz). `shared/58-mesa.js`: zonas, portes P/M/G e desenho dos objetos da mesa.
 - `shared/56-gato.js`: gato (modelo único, 14 pelagens, cor dos olhos, estados/animações, catStill/catRows).
 - `shared/57-decor-art.js`: arte dos objetos (ART.*). `39-telefone.js`: telefone — REFERÊNCIA de qualidade/volume.
+- Relógio global (`GameClock`, `49-atestado.js`): fonte única de data/hora simuladas. Tempo real (Date) só para metadados;
+  expediente = `S.dayT`; simulado = data da carreira (dia útil N desde a data inicial salva em 'relogio') + `GameClock.min()`.
+  Chegada 07h–08h estável por dia, intervalo só 11h–14h (1 h = 7 min reais). Testes: `node tests/relogio.js`.
 - `design/balanceamento.md`, `tools/simulate.py`: economia e simulação.
 - MSworkN (mensageiro do WorkOS, camada social): `43-social-motor.js` (estado `SOC` por carreira/balanceamento, condições,
   efeitos, agenda, presença, ganchos em endDay/promote/gameOver), `44-social-elenco.js` (textos da UI em `LANGS.*.ui.msn`,

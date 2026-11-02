@@ -47,7 +47,7 @@ function clockOut() {
   const sc = scene('sc-out');
   sc.innerHTML = `<p class="sc-hint">${U().holdFinger}</p>`;
   const stg = Stage.mount(sc, 'hall', { eve: true });
-  const dev = clockDevice('18:00');
+  const dev = clockDevice(GameClock.text(GameClock.WORK_OUT));
   dev.classList.add('slide-in');
   // Grande enquanto lê a digital; depois encolhe para baixo e abre espaço para o ticket sair por cima
   const wrap = document.createElement('div');

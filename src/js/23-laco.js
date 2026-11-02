@@ -7,13 +7,12 @@ function loop(now) {
     S.bossAuto -= dt;
     if (S.bossAuto <= 0) { hideSheet(); muffle(false); }
   } else if (S.phase === 'day' && !S.paused) update(dt);
+  else if (S.onBreak) GameClock.breakTick(dt);   // intervalo: trabalho parado, relógio andando devagar
   requestAnimationFrame(loop);
 }
 
-function clockText() {
-  const m = Math.min(540, Math.floor(((S && S.dayT) || 0) / DAY_SECONDS * 540)) + 540;
-  return String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(Math.floor(m % 60 / 10) * 10).padStart(2, '0');
-}
+// relógio do cabeçalho: hora simulada (relógio global) em passos de 10 min no trabalho, minuto a minuto no intervalo
+function clockText() { return GameClock.text(undefined, S && S.onBreak ? 1 : 10); }
 
 function update(dt) {
   S.dayT += dt;
