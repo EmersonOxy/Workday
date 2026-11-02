@@ -34,7 +34,7 @@ function placeFile() {
   // o deslocamento é arredondado para pixels físicos inteiros (nítido) e acompanha cada quadro (suave)
   const dpr = window.devicePixelRatio || 1, damp = 1 - u * .65, t = performance.now() / 1000;
   const sx = red ? 0 : ((f.off || 0) + Math.sin(t * (f.sp || 2.6) + (f.ph || 0)) * (f.amp || 4) * damp), sy = red ? 0 : Math.abs(Math.cos(t * (f.sp || 2.6) + (f.ph || 0))) * 1.5 * damp;
-  f.el.style.rotate = ''; f.el.style.translate = red ? '' : `${Math.round(sx * dpr) / dpr}px ${Math.round(-sy * dpr) / dpr}px`;
+  f.el.style.rotate = red ? '' : `${(Math.sin(t * (f.sp || 2.6) + (f.ph || 0) + 1.2) * .8 * damp).toFixed(2)}deg`;   // inclina para um lado e para o outro, junto do balanço f.el.style.translate = red ? '' : `${Math.round(sx * dpr) / dpr}px ${Math.round(-sy * dpr) / dpr}px`;
 }
 // O documento que saiu de jogo continua na tela só para terminar a animação
 function retireFile(el, how) {
