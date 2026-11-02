@@ -22,7 +22,7 @@ remover tags doctype/html/head/body e publicar no mesmo artifact).
 - Ferramentas de teste no jogo: Ctrl+Shift+D ou `?dev` (src/js/42-dev.js).
 
 ## Mapa do código (principais)
-- `02-mecanica.js`: balanceamento central (BALANCE, DIFFS, EASE_IN, PRICES). Chave `original` = perfil padrão (saves).
+- `02-mecanica.js`: balanceamento central (BALANCE, DIFFS, EASE_IN, PRICES) e progressão de 25 dias (DEBUT, PROG, FREQ, WIN_DAY). Chave `original` = perfil padrão (saves). Tempo do jogo: `50-tempo.js`; fila de avisos: `51-fila.js`.
 - `09-telas.js`: modal/janelas do WorkOS (osWindow, barra de tarefas, Iniciar), menu, configurações.
 - `30-personalizar.js`: Personalizar (abas), papéis de parede (WALLS), cores (OS_ACCENTS, OS_BARS, BADGE_COLORS).
 - `40-eventos.js`: calendário (mês real com ícones e balão), missões, broches, conquistas, Arquivo, promoções/Catálogo (priceOf).

@@ -65,12 +65,13 @@ function renderTrays() {
   });
 }
 
-function tip(key) { if (!P.seen.includes(key) && !S.tipQ.includes(key)) S.tipQ.push(key); }
+// dica: uma vez por perfil; na estreia de uma mecânica (DEBUT) aparece de novo em toda carreira
+function tip(key) { const deb = S.day === DEBUT[key] && !(S.tipDay || []).includes(key); if ((deb || !P.seen.includes(key)) && !S.tipQ.includes(key)) { S.tipQ.push(key); if (deb) (S.tipDay = S.tipDay || []).push(key); } }
 function showNextTip(dt) {
   if (S.tipT > 0) { S.tipT -= dt; if (S.tipT <= 0) { const t = $('tip'); if (t) t.remove(); } return; }
   const key = S.tipQ.shift();
   if (!key) return;
-  P.seen.push(key); persist();
+  if (!P.seen.includes(key)) { P.seen.push(key); persist(); }
   const el = document.createElement('div');
   el.id = 'tip'; el.className = 'px';
   el.innerHTML = `<span>${(document.body.classList.contains('touch') && L.tipsTouch[key]) || L.tips[key]}</span>`;

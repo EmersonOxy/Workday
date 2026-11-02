@@ -1,15 +1,17 @@
 /* ================= Eventos ================= */
-function startEvent() {
+function startEvent(force) {
   const w = Object.assign({ boss: 1, shuffle: 1, freeze: 1, virus: 1 }, mod().w || {});
+  if (firstOk('it2')) { w.freeze *= 2; w.virus *= 2; }   // problemas de TI mais frequentes a partir do dia 17
   const opts = Object.keys(EVENTS).filter(k => w[k] > 0
     && firstOk(k)
     && !(k === 'boss' && S.bossAlert) && !(k === 'freeze' && S.frozen) && !(k === 'virus' && S.virus) && !(k === 'shuffle' && S.shuffleT > 0));
+  if (force) { if (!firstOk(force) || (force === 'boss' && S.bossAlert) || (force === 'freeze' && S.frozen) || (force === 'virus' && S.virus)) return false; opts.length = 0; opts.push(force); w[force] = w[force] || 1; }
   if (!opts.length) return;
   let r = Math.random() * opts.reduce((a, k) => a + w[k], 0), k = opts[0];
   for (const o of opts) { r -= w[o]; if (r <= 0) { k = o; break; } }
   tip(k);
   ({ boss: bossComing, shuffle: () => { S.shuffleT = 1.3; S.trays.forEach(t => t.classList.add('warn')); },
-     freeze: freezePc, virus: startVirus })[k]();
+     freeze: freezePc, virus: startVirus })[k](); return true;
 }
 
 function bossComing() {
@@ -46,7 +48,7 @@ function freezePc() {
   box.insertAdjacentHTML('beforeend', `<div>${U().notResponding}</div><div style="font-size:20px">${U().shake}</div><div class="bar"><i></i></div>`);
   el.append(box);
   board.append(el);
-  const need = 12 + Math.min(10, Math.max(0, S.level - 6));
+  const need = 12 + (firstOk('it2') ? Math.min(10, 2 * (S.day - DEBUT.it2 + 1)) : 0);   // TI mais intenso a partir do dia 17
   sfx('freeze');
   S.frozen = { el, rev: 0, need: has('mouse') ? Math.ceil(need / 2) : need, dir: 0, x: null };
 }
@@ -66,7 +68,7 @@ document.addEventListener('pointermove', e => {
 
 function startVirus() {
   S.virus = true;
-  let n = 5 + Math.min(5, Math.max(0, S.level - 7));
+  let n = 5 + (firstOk('it2') ? Math.min(5, S.day - DEBUT.it2 + 1) : 0);
   if (has('antivirus')) n = Math.ceil(n / 2);
   for (let i = 0; i < n; i++) setTimeout(() => S && S.phase === 'day' && spawnPopup(), i * 90);
 }
@@ -108,7 +110,7 @@ function startVideo() {
   lane.id = 'lane';
   uiRoot().append(lane, win);
   Motion.enter(win, 'up');
-  S.video = { win, lane, faces: [a, b], mouth: 0, mouthT: 0, left: 7 + Math.min(6, Math.max(0, S.level - 8)), next: 0.4, bubbles: [] };
+  S.video = { win, lane, faces: [a, b], mouth: 0, mouthT: 0, left: 7 + (firstOk('video2') ? Math.min(6, S.day - DEBUT.video2 + 2) : 0), next: 0.4, bubbles: [] };
 }
 function endVideo() { S.video.win.remove(); S.video.lane.remove(); S.video = null; success(25); stat('videos'); }
 
