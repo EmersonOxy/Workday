@@ -39,7 +39,7 @@ function spawnTask(force) {
     tip('sector'); t.ttl = 8 * speed;
     const sec = pick(SECTORS);
     body.innerHTML = `<h3>${u.pending}</h3><div style="margin-bottom:6px">${P2.which} <b style="color:${sec.color}">■</b> ${pick(L.buttons)}</div><div class="row"></div>`;
-    SECTORS.forEach(s => { const b = document.createElement('button'); b.textContent = sectorName(s.id); b.style.boxShadow = `inset 0 -3px 0 ${s.color}`;
+    SECTORS.forEach(s => { const b = document.createElement('button'); b.textContent = sectorName(s.id);   // mesmo botão do e-mail; a cor fica só no documento
       b.onclick = () => s.id === sec.id ? completeTask(t, 20) : failTask(t, 8, P2.wrongSector, 'email');
       body.querySelector('.row').append(b); });
   } else if (type === 'button') {
