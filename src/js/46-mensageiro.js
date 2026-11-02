@@ -129,14 +129,14 @@ const Msn = {
     if (!d || !r || r.st === 'none') return `<div class="msn-pick"><span data-pic="unknown" data-sc="4"></span><b>${u.app}</b><small>${u.tagline}</small><p>${u.pick}</p></div>`;
     const back = `<button class="msn-back pxbtn" aria-label="${u.back}">◂ ${u.back}</button>`;
     if (r.st === 'req') {
-      return `<header class="msn-ch">${back}</header><div class="msn-req"><span data-pic="${id}" data-sc="5"></span><h3>${u.reqTitle(esc(d.name))}</h3><small>${esc(socRole(id))}</small>
+      return `<div class="msn-ch">${back}</div><div class="msn-req"><span data-pic="${id}" data-sc="5"></span><h3>${u.reqTitle(esc(d.name))}</h3><small>${esc(socRole(id))}</small>
         <blockquote>${esc(tx(d.reqNote) || '')}</blockquote>${r.reqBy ? `<p class="msn-by">${u.reqBy(esc(CAST[r.reqBy].name))}</p>` : ''}
         <div class="actions"><button class="pxbtn main" data-req="ok">${u.accept}</button><button class="pxbtn" data-req="no">${u.decline}</button></div></div>`;
     }
     const p = socPresence(id, ctx), s = p.s === 'invisible' ? 'offline' : p.s, ps = socPsm(id, ctx);
-    const head = `<header class="msn-ch">${back}<span class="msn-hp" data-pic="${id}" data-sc="3"></span><div class="msn-hn"><b>${esc(d.name)}</b><small>${esc(socRole(id))}</small>
+    const head = `<div class="msn-ch">${back}<span class="msn-hp" data-pic="${id}" data-sc="3"></span><div class="msn-hn"><b>${esc(d.name)}</b><small>${esc(socRole(id))}</small>
       <span class="msn-hs">${msnDot(s)}${msnStatusName(s)}${p.m ? ' · ' + (u.pmsg[p.m] || '') : ''}${ps ? ' — <i>' + esc(ps) + '</i>' : ''}</span></div>
-      <div class="msn-acts"><button class="msn-a" data-act="call" title="${u.call}" aria-label="${u.call}">${Msn.ico('cam')}</button><button class="msn-a" data-act="nudge" title="${u.nudge}" aria-label="${u.nudge}">${Msn.ico('nudge')}</button><button class="msn-a${Msn.info ? ' on' : ''}" data-act="info" title="${u.info}" aria-label="${u.info}">${Msn.ico('info')}</button></div></header>`;
+      <div class="msn-acts"><button class="msn-a" data-act="call" title="${u.call}" aria-label="${u.call}">${Msn.ico('cam')}</button><button class="msn-a" data-act="nudge" title="${u.nudge}" aria-label="${u.nudge}">${Msn.ico('nudge')}</button><button class="msn-a${Msn.info ? ' on' : ''}" data-act="info" title="${u.info}" aria-label="${u.info}">${Msn.ico('info')}</button></div></div>`;
     if (Msn.info) return head + Msn.infoHTML(u, id);
     return head + `<div class="msn-log" role="log" aria-live="polite">${Msn.logHTML(u, id)}</div><p class="msn-typing">${Msn.typingText(id, ctx)}</p>${Msn.replyHTML(u, id, ctx)}
       <form class="msn-compose" autocomplete="off"><input class="msn-in" type="text" maxlength="140" placeholder="${u.composePh}" aria-label="${u.composePh}"><button class="pxbtn main" type="submit">${u.send}</button></form>
