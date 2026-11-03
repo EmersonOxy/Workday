@@ -227,10 +227,10 @@ const Office = {
     const x = c.getContext('2d'), P = WD_PAL, R = this.rng(7), Z = this.spots(L), D = new Set(st.decor || []);
     const F = (col, a, b, w, h) => { x.fillStyle = col; x.fillRect(a, b, w, h); };
     const lit = this.light(st.hour), M = L.mon, s = L.screen;
-    // Parede: papel listrado, rodameio
-    F(P.A, 0, 0, L.VW, L.desk);
-    for (let i = 0; i < L.VW; i += 12) { F(P.a, i, 0, 1, L.desk); Pixel.dither(x, i + 1, 0, 1, L.desk, P.a, 1); }
-    F(P.b, 0, L.back - 22, L.VW, 1); F(P.B, 0, L.back - 21, L.VW, 21); F(P.b, 0, L.back - 20, L.VW, 1);
+    // Parede configuravel; janela, estante, calendario e monitor continuam desenhados acima.
+    // O tile usa repeticao em pixels de arte (sem resize), preservando a escala do Workday.
+    RoomWall.paint(x, L.VW, L.desk, (st.hw || {}).roomWall || 'classic');
+    RoomWall.trim(x, L.VW, L.back, (st.hw || {}).roomTrim || 'original');
     // Janela alta: moldura de madeira, céu em pontilhado, prédios, persiana recolhida, peitoril
     const W = Z.win;
     // moldura de madeira em relevo (luz de cima à esquerda), batente interno escuro e peitoril com espessura e sombra
