@@ -1,0 +1,31 @@
+name: Testar retratos dos NPCs
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  retratos:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Sintaxe e compilação offline
+        run: |
+          node --check src/js/shared/52-npc-portraits.js
+          node --check src/js/44-social-elenco.js
+          node --check src/js/31-chamada.js
+          node --check tests/npc-portraits.js
+          python tools/build.py
+      - name: Preparar navegador
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+      - name: Executar regressão de retratos
+        run: node tests/npc-portraits.js
