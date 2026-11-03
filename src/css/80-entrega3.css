@@ -457,7 +457,7 @@
   .pv-face { box-shadow: 0 0 0 2px #2a1f2d; line-height: 0; }
   .pv-cat { width: 126px; height: 162px; image-rendering: pixelated; cursor: pointer; }
   .os-win:has(.hw-layout) { width: min(62em, 96vw) !important; }
-  @media (max-width: 700px) { .hw-layout { grid-template-columns: 1fr; } .hw-side { position: static; order: -1; } .pv-cat { width: 112px; height: 96px; } }
+  @media (max-width: 700px) { .hw-layout { grid-template-columns: 1fr; } .hw-side { position: static; order: -1; } .pv-cat { width: 98px; height: 126px; } }
   .hw-layout .setting { grid-template-columns: 7.5em 1fr !important; margin-bottom: .45em !important; }
   .hw-layout .sw-btn { width: 26px; height: 26px; padding: 2px; }
   /* janela de decisão obrigatória (fim de carreira): sem minimizar, maximizar ou fechar */
