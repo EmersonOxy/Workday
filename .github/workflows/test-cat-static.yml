@@ -1,0 +1,34 @@
+name: Testar gatos estáticos e mesa
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  sprites:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verificar JavaScript e gerar builds
+        run: |
+          node --check src/js/shared/57-cat-static-art.js
+          node --check src/js/shared/56-gato.js
+          node --check src/js/shared/58-mesa.js
+          node --check src/js/30-personalizar.js
+          node --check tests/gatos-estaticos.js
+          python tools/build.py
+      - name: Instalar navegador para testes
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+      - name: Testar sprites e responsividade
+        run: node tests/gatos-estaticos.js
+      - name: Regressão da mesa
+        run: node tests/mesa.js

@@ -195,9 +195,8 @@ function showCustomize(back) {
     <div class="setting"><span>${u.curColorLabel}</span><div class="swatches cur-colors"></div></div>
     <div class="setting"><span>${u.theme}<small></small></span><div class="seg" id="hwTheme">${[['system', u.themeSystem], ['light', u.themeLight], ['dark', u.themeDark]].map(([v, l]) => `<button class="pxbtn${(CFG.theme || 'system') === v ? ' on' : ''}" data-t="${v}">${l}</button>`).join('')}</div></div>
     <div class="setting"><span>${dm.title}</span><div class="walls">${DeskMaterial.ids.map(v => `<button class="pxbtn wall desk-material-opt${cur.deskMaterial === v ? ' on' : ''}" data-desk-material="${v}"><canvas data-desk-material="${v}" width="64" height="36"></canvas><small>${dm[v]}</small></button>`).join('')}</div></div>
-    <div class="setting"><span>${u.catLabel}</span><div class="walls cats">${CAT_COATS.map(c2 => `<button class="pxbtn wall cat${cur.cat === c2 ? ' on' : ''}" data-c="${c2}"><span class="cimg"></span><small>${u.coats[c2]}</small></button>`).join('')}</div></div>
-    <div class="setting"><span>${u.catEyeLabel}<small></small></span><div class="swatches" data-hw="catEye" data-names='${JSON.stringify(u.catEyes)}'>${Object.entries(CAT_EYES).map(([k2, e2]) => { const cc = !e2 ? null : Array.isArray(e2[0]) ? [WD_PAL[e2[0][0]], WD_PAL[e2[1][0]]] : [WD_PAL[e2[0]], WD_PAL[e2[1]]];
-      return `<button class="sw-btn${(cur.catEye || 'auto') === k2 ? ' on' : ''}" data-v="${k2}" title="${u.catEyes[k2]}" aria-label="${u.catEyes[k2]}"><i style="background:${cc ? `linear-gradient(90deg, ${cc[0]} 0 50%, ${cc[1]} 50% 100%)` : 'repeating-conic-gradient(#dcc6a0 0 25%, #fff8ec 0 50%) 0 0 / 8px 8px'}"></i></button>`; }).join('')}</div></div>
+    <div class="setting"><span>${u.catLabel}</span><div class="walls cats">${CAT_COATS.map(c2 => `<button class="pxbtn wall cat${CatStatic.id(cur.cat) === c2 ? ' on' : ''}" data-c="${c2}"><span class="cimg"></span><small>${u.coats[c2]}</small></button>`).join('')}</div></div>
+    <div class="setting"><span>${u.catEyeLabel}</span><small class="hint cat-eyes-note">${u.catFixedNote}</small></div>
     <div class="setting"><span>${rw.title}</span><div class="walls">${RoomWall.ids.map(w => `<button class="pxbtn wall room-wall-opt${cur.roomWall === w ? ' on' : ''}" data-room-wall="${w}"><canvas data-room-wall="${w}" width="64" height="36"></canvas><small>${rw[w]}</small></button>`).join('')}</div></div>
     <div class="setting"><span>${rw.trim}</span><div class="seg room-trim">${['original', 'wood', 'light'].map(v => `<button class="pxbtn room-trim-opt${cur.roomTrim === v ? ' on' : ''}" data-room-trim="${v}">${rw[v]}</button>`).join('')}</div></div>
     <div class="setting"><span>${u.wallLabel}</span><div class="walls">${workosWallNames().map(w => `<button class="pxbtn wall${cur.wall === w ? ' on' : ''}" data-w="${w}"><canvas width="64" height="36"></canvas><small>${workosWallTitle(w, u.walls)}</small></button>`).join('')}</div></div>
@@ -211,7 +210,7 @@ function showCustomize(back) {
     lay.innerHTML = `<div class="hw-main"><div class="hw-tabs">${['pc', 'os', 'badge', 'desk', 'ptr'].map(k => `<button class="pxbtn hw-tab" data-t="${k}">${u.hwTabs[k]}</button>`).join('')}</div><div class="hw-opts"></div></div>
       <aside class="hw-side"><div class="hw-pv hw-pv-pc"></div><div class="hw-pv hw-pv-os"><div class="pv-win"><i class="pv-bar"><b></b><b></b><b class="x"></b></i><div class="pv-body"></div></div><i class="pv-task"><i class="pv-orb"></i></i></div>
         <div class="hw-pv hw-pv-badge"><div class="pv-badge"><i class="pv-lan"></i><div class="pv-card"><i class="pv-head"></i><span class="pv-face"></span><b></b></div></div></div>
-        <div class="hw-pv hw-pv-desk"><canvas class="pv-cat" width="56" height="48"></canvas></div><p class="hint hw-note"></p></aside>`;
+        <div class="hw-pv hw-pv-desk"><canvas class="pv-cat" width="56" height="72"></canvas></div><p class="hint hw-note"></p></aside>`;
     const opts = lay.querySelector('.hw-opts'); rows.forEach((r, i) => { r.dataset.cat = CAT[i] || 'os'; opts.append(r); });
     card.querySelector('.hw-prev').remove(); const pcBox = lay.querySelector('.hw-pv-pc'); pcBox.innerHTML = '<canvas class="hw-scene" width="120" height="44"></canvas>';
     card.querySelector('.hint').remove(); card.querySelector('h2').after(lay);
@@ -221,9 +220,11 @@ function showCustomize(back) {
       lay.querySelector('.hw-note').textContent = u.hwTabNotes[k]; try { sessionStorage.setItem('hwTab', k); } catch (e) {} };
     lay.querySelectorAll('.hw-tab').forEach(b => b.onclick = () => { sfx('click'); tab(b.dataset.t); });
     let t0 = 'pc'; try { t0 = sessionStorage.getItem('hwTab') || 'pc'; } catch (e) {} tab(t0);
-    // gato da prévia animado com a mesma lógica da mesa
-    const pc = lay.querySelector('.pv-cat'), ai = CatAI.make(); const anim = () => { if (!pc.isConnected) return; const t = performance.now() / 1000; CatAI.step(ai, t); const x = pc.getContext('2d'); x.clearRect(0, 0, 56, 48); catDraw(x, 0, 47, hw().cat + '|' + (hw().catEye || 'auto'), ai, t, 1.3); requestAnimationFrame(anim); };
-    pc.onclick = () => CatAI.poke(ai, performance.now() / 1000); requestAnimationFrame(anim); }
+    // A prévia usa o mesmo sprite da mesa, sem animações ou redesenho contínuo.
+    const pc = lay.querySelector('.pv-cat');
+    pc.paintCat = () => { if (!pc.isConnected) return; const x=pc.getContext('2d');x.clearRect(0,0,pc.width,pc.height);
+      const size=CatStatic.sizes(1.3);catDraw(x,(pc.width-size[0])/2,pc.height,hw().cat||'tricolor',CatAI.make(),0,1.3); };
+    pc.onclick = () => sfx('cat'); requestAnimationFrame(pc.paintCat); }
   const prev = card.querySelector('.hw-scene');
   const draw = () => {
     const h = hw();
@@ -261,8 +262,9 @@ function showCustomize(back) {
     DeskMaterial.preview(c, b.dataset.deskMaterial); pxFit(c, () => [80, 45]);
     b.onclick = () => { setHw({ deskMaterial: b.dataset.deskMaterial }); draw(); sfx('click'); };
   });
-  card.querySelectorAll('.cat').forEach(b => { const st0 = catStill(b.dataset.c, .85), cv = document.createElement('canvas'); cv.width = st0.width; cv.height = st0.height; cv.getContext('2d').drawImage(st0, 0, 0); b.querySelector('.cimg').append(pxSize(cv, 2));   // mesmo gato da mesa   // mesmo modelo do gato da mesa
-    b.onclick = () => { setHw({ cat: b.dataset.c }); card.querySelectorAll('.cat').forEach(x => x.classList.toggle('on', x === b)); sfx('pop'); }; });
+  card.querySelectorAll('.cat').forEach(b => { b.querySelector('.cimg').append(pxSize(catStill(b.dataset.c,.85),2));
+    b.onclick = () => { setHw({ cat: b.dataset.c }); card.querySelectorAll('.cat').forEach(x => x.classList.toggle('on', x === b));
+      const pc=card.querySelector('.pv-cat'); if(pc && pc.paintCat) pc.paintCat(); sfx('pop'); }; });
   // ponteiros: prévia na cor escolhida; passar o mouse sobre um ponteiro que aceita cor mostra as cores dele
   const curPaint = () => card.querySelectorAll('.cur-btn').forEach(b => { const c = CURSORS[b.dataset.v]; b.replaceChildren(); if (c) { const im = new Image(); im.src = cursorURL(c, 2, curRows(b.dataset.v)); b.append(im); } else b.textContent = '↖'; });
   curPaint();

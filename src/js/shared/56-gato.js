@@ -65,6 +65,9 @@ function catPose(c, t) {
 // Devolve a altura usada. x0, by: canto esquerdo e base (onde as patas tocam)
 const CAT_FRAMES = new Map();
 function catDraw(x, x0, by, coat, c, t, k = CAT_K) {
+  // Imagens aprovadas têm prioridade; o modelo procedural fica como fallback.
+  const staticH = window.WorkdayCatStatic && window.WorkdayCatStatic.draw(x,x0,by,coat,k);
+  if (staticH) return staticH;
   const pz = catPose(c, t), key = coat + '|' + k + '|' + JSON.stringify(pz, (n, v) => n === 'hearts' ? (v < 0 ? -1 : Math.round(v * 8)) : n === 'z' ? (v ? Math.round((t * .45) % 1 * 8) : 0) : v);
   let fr = CAT_FRAMES.get(key);
   if (!fr) { const [w, h] = catSize(k), cv = document.createElement('canvas'); cv.width = w; cv.height = h + Math.ceil(12 * k); const hh = catDrawRaw(cv.getContext('2d'), 0, cv.height, coat, c, t, k);
@@ -228,7 +231,9 @@ const catSize = k => [Math.ceil(42 * k), Math.ceil(35 * k)];
 const CAT_STILL = new Map();
 function catStill(coat, k) {
   const key = coat + ':' + k; if (CAT_STILL.has(key)) return CAT_STILL.get(key);
-  const [w, h] = catSize(k), cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+  const staticArt = window.WorkdayCatStatic;
+  const [w,h] = staticArt && staticArt.ready(coat) ? staticArt.sizes(k) : catSize(k);
+  const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
   catDraw(cv.getContext('2d'), 0, h, coat, { state: 'idle', t0: -99, dur: 99, pet: -99, prev: 'idle', tp: -99 }, 2.5, k);
   CAT_STILL.set(key, cv); return cv;
 }
@@ -237,7 +242,12 @@ function catRows(coat, k) {
   const cv = catStill(coat, k), d = cv.getContext('2d').getImageData(0, 0, cv.width, cv.height).data, rev = {};
   for (const [ch, hex] of Object.entries(WD_PAL)) rev[hex.toLowerCase()] = ch;
   const rows = []; for (let j = 0; j < cv.height; j++) { let r = ''; for (let i = 0; i < cv.width; i++) { const n = (j * cv.width + i) * 4;
-    if (d[n + 3] < 128) { r += '.'; continue; } const hx = '#' + [d[n], d[n + 1], d[n + 2]].map(v => v.toString(16).padStart(2, '0')).join(''); r += rev[hx] || 'k'; } rows.push(r); }
+    if (d[n + 3] < 128) { r += '.'; continue; } const hx = '#' + [d[n], d[n + 1], d[n + 2]].map(v => v.toString(16).padStart(2, '0')).join('');
+    if(rev[hx]) r += rev[hx]; else { let best='k',dist=Infinity;
+      for(const [ch,hex] of Object.entries(WD_PAL)){if(!/^#[0-9a-f]{6}$/i.test(hex))continue;
+        const dr=d[n]-parseInt(hex.slice(1,3),16),dg=d[n+1]-parseInt(hex.slice(3,5),16),db=d[n+2]-parseInt(hex.slice(5,7),16);
+        const dd=dr*dr+dg*dg+db*db;if(dd<dist){best=ch;dist=dd;}}
+      r+=best; } } rows.push(r); }
   return rows;
 }
 

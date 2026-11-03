@@ -7,7 +7,7 @@
 
 // id → [porte, largura que ocupa na mesa, altura visual]
 const DESK_OBJ = {
-  gato: ['G', 86, 70], lamp: ['G', 78, 92], aquario: ['G', 62, 42],
+  gato: ['G', 86, 100], lamp: ['G', 78, 92], aquario: ['G', 62, 42],
   mug: ['M', 34, 34], globo: ['M', 30, 38], trofeu: ['M', 30, 38], foto: ['M', 24, 28], planta: ['M', 28, 32], radio: ['M', 34, 24],
   badge: ['P', 16, 26], pens: ['P', 17, 21], papersL: ['P', 33, 12], papersR: ['P', 33, 12], pato: ['P', 18, 16], livros: ['P', 31, 22],
   caixaL: ['P', 13, 22], caixaR: ['P', 13, 22], cacto: ['P', 18, 26],
@@ -195,8 +195,12 @@ Object.assign(Office, {
   },
   deskObj0(x, id, q, st, t, dy = 0) {
     const P = WD_PAL, y = q.y + dy;
-    if (id === 'gato') { const k = 2, cw = catSize(k)[0] - 8, cxx = q.x + ((q.w - cw) >> 1);
-      CatAI.step(OFFICE_CAT, t); catDraw(x, cxx - 4, y + 1, st.cat || 'laranja', OFFICE_CAT, t, k); return; }
+    if (id === 'gato') { const k = 2;
+      const art = window.WorkdayCatStatic;
+      const cw = art && art.ready(st.cat) ? art.sizes(k)[0] : catSize(k)[0];
+      const cxx = q.x + ((q.w - cw) >> 1);
+      // Sem animação por enquanto; o carinho continua com interação sonora.
+      catDraw(x, cxx, y + 1, st.cat || 'laranja', OFFICE_CAT, t, k); return; }
     if (id === 'lamp') { const flip = (q.zone === 'esqFundo') !== !!q.flip, on = (st.lampLv !== undefined ? st.lampLv : 1) > .5, bx = flip ? q.x + 26 : q.x + q.w - 26; const h = this.lampBig(x, bx, y, t, on, flip); this._lampCone = { cx: h.x, y0: h.y, y1: y + 1 }; return; }
     if (id === 'aquario') { this._aqua = [q.x, y - q.h - 2]; ART.aquarium(x, q.x, y, t, Object.assign({}, st, { W: q.w - 2, H: q.h - 4 })); return [q.x + (q.w >> 1), y - q.h / 2, q.w * .7, q.h * .6, '120,200,220', .45]; }
     if (id === 'mug') { this.mugBig(x, q.x + 1, y, t, st.rank >= 1, st.hour < 16 || st.clutter < 2); return; }
