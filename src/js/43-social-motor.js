@@ -34,7 +34,7 @@ function socLoad() {
   for (const r of Object.values(s.c)) Object.assign(r, Object.assign(socRelBase(), r));
   return s;
 }
-const socRelBase = () => ({ st: 'none', aff: 0, trust: 0, fam: 0, riv: 0, f: {}, ch: {}, log: [], un: 0, chat: {} });
+const socRelBase = () => ({ st: 'none', aff: 0, trust: 0, fam: 0, riv: 0, f: {}, ch: {}, log: [], un: 0, chat: {}, talk: {} });
 let SOC = null;
 const SocRT = { due: {}, lastStart: -1e9, lastEval: -1e9, lastToast: -1e9, pres: {}, presAt: {}, savedAt: 0, quietN: 0, enterMenu: -1e9, listeners: [] };
 function socRel(id) { return SOC.c[id] || (SOC.c[id] = socRelBase()); }
@@ -275,10 +275,11 @@ function socStart(T, ctx = socCtx(), opener) {
 function socReplyDelay(npc, ctx) { const p = socPresence(npc, ctx); return (p.s === 'busy' ? 7000 : 1800) + Math.random() * 1400; }
 function socTypeMs(npc, text) { return clampN(700 + (text || '').length * 38 / (CAST[npc].speed || 1), 900, 4200); }
 // Jogador escolheu uma resposta
-function socChoose(npc, idx, typed) {
+function socChoose(npc, idx) {
   const ctx = socCtx(), th = SOC.th[npc]; if (!th || th.phase !== 'choice') return false;
   const T = SOC_THREADS[th.id], node = T.n[th.node], vis = socVisibleChoices(npc, T, th.node, ctx), o = vis[idx]; if (!o) return false;
-  socLog(npc, typed ? { f: 'm', s: typed } : { f: 'm', r: { t: T.id, n: th.node, c: o.i } }, ctx);
+  // A mensagem enviada é sempre a fala roteirizada. Efeitos só acontecem ao enviar, nunca ao selecionar o balão.
+  socLog(npc, { f: 'm', r: { t: T.id, n: th.node, c: o.i } }, ctx);
   const v = socFx(npc, o.c.fx, o.c.tone, ctx);
   socRel(npc).ch[T.id] = o.c.k || String(o.i);
   th.chose = true; th.lastV = v;
@@ -314,6 +315,26 @@ const SOC_INTENTS = [
 ];
 const SOC_INTENT_FALLBACK = {};
 function socIntentOf(text) { const t = socNorm(text).trim(); for (const [k, re] of SOC_INTENTS) if (re.test(t)) return k; return 'unknown'; }
+
+// Memória curta por contato: o assunto e a tonalidade sobrevivem a recargas e ficam isolados por NPC.
+// Não inventa fatos nem altera arcos: somente contextualiza mensagens livres de acompanhamento.
+const SOC_CHAT_FOLLOWUP = /^(?:(?:sim|nao|talvez|claro|pois e|entendi|verdade|acho que sim|acho que nao|e voce|e vc|por que|porque|isso|ok|yes|no|maybe|sure|right|and you|why|si|quizas|vale)(?:[\s!?.,]+|$)){1,5}$/;
+function socChatIntent(npc, text, ctx = socCtx()) {
+  const r = socRel(npc), normal = socNorm(text).trim();
+  const raw = socIntentOf(text), old = r.talk || {};
+  let intent = raw;
+  if (raw === 'unknown' && old.intent && old.intent !== 'unknown'
+      && ctx.day - old.day >= 0 && ctx.day - old.day <= 1
+      && normal.length <= 65 && SOC_CHAT_FOLLOWUP.test(normal)) intent = old.intent;
+  // O nome de um colega fica como assunto, mas não dá automaticamente ao NPC conhecimento sobre ele.
+  const named = CAST_ORDER.find(id => id !== npc && new RegExp('\\b' + socNorm(castFirst(id)) + '\\b').test(normal));
+  const mood = /\b(cansad|exaust|trist|ansios|preocup|estress|sad|tired|worried|stressed|agotad|triste)\w*/.test(normal) ? 'low'
+    : /\b(feliz|animad|contente|happy|excited|alegr)\w*/.test(normal) ? 'high' : 'neutral';
+  r.talk = { intent, subject: named || (ctx.day - old.day <= 1 ? old.subject || null : null), mood, day: ctx.day };
+  socDirty();
+  return intent;
+}
+
 const socWords = s => socNorm(s).split(/[^a-z0-9]+/).filter(w => w.length >= 3);
 function socMatch(text, list) {
   const words = new Set(socWords(text)); let best = -1, score = 0, tie = false;
@@ -325,18 +346,15 @@ function socMatch(text, list) {
 function socSay(npc, text) {
   text = String(text || '').trim().slice(0, 140); if (!text) return null;
   const ctx = socCtx(), th = SOC.th[npc];
-  if (th && th.phase === 'choice') {
-    const T = SOC_THREADS[th.id], vis = socVisibleChoices(npc, T, th.node, ctx), i = socMatch(text, vis.map(o => o.c));
-    if (i >= 0) { socChoose(npc, i, text); return 'choice'; }
-    return 'hint';
-  }
+  // Enquanto uma decisão narrativa está aberta, nenhuma mensagem livre pode substituí-la.
+  if (th && th.phase === 'choice') return 'hint';
   // primeira mensagem do jogador para esse contato: alguns respondem com uma conversa própria (ex.: o oi para o Duda)
   const r0 = socRel(npc), first = r0.f.saidHi == null; if (first) { r0.f.saidHi = ctx.day; socDirty(); }
   const fm = CAST[npc].firstMsg && SOC_THREADS[CAST[npc].firstMsg];
   if (first && fm && !th && SOC.done[socKey(fm, ctx)] == null) { socStart(fm, ctx, text); return 'topic'; }
   if (!th) { const tops = socTopics(npc, ctx), i = socMatch(text, tops.map(T => ({ t: T.topic, kw: T.kw }))); if (i >= 0) { socTopic(npc, tops[i].id, text); return 'topic'; } }
   socLog(npc, { f: 'm', s: text }, ctx);
-  socIntent(npc, socIntentOf(text), ctx);
+  socIntent(npc, socChatIntent(npc, text, ctx), ctx);
   return 'intent';
 }
 function socIntent(npc, it, ctx = socCtx(), opts = {}) {
