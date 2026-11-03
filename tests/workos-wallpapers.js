@@ -75,10 +75,18 @@ const ok = (cond, msg) => {
       });
       ok(mobile.isMobile && mobile.chosen === 'planeta-aneis'
         && mobile.appBackground.includes(mode === 'web' ? 'planeta-aneis.png' : 'data:image/png')
-        && mobile.size.includes('100%'), mode+': papel escolhido aparece na tela inicial mobile sem zoom');
+        && mobile.size === 'cover', mode+': wallpaper aparece no mobile com proporção original, sem deformação');
+      // O mesmo comportamento deve funcionar com os vinte fundos procedurais antigos.
+      await page.evaluate(() => setHw({wall:'cidade'}));
+      ok(await page.evaluate(() => {
+        const style = getComputedStyle(document.getElementById('app'));
+        return style.backgroundSize === 'cover' && style.backgroundImage.includes('data:image/png');
+      }), mode+': fundos clássicos também preservam proporção na tela vertical');
       await page.evaluate(() => setHw({wall:'teal'}));
-      ok(await page.evaluate(() => getComputedStyle(document.getElementById('app')).backgroundImage.includes('repeating-conic-gradient')),
-        mode+': tema original mantém quadriculado mobile');
+      ok(await page.evaluate(() => {
+        const style = getComputedStyle(document.getElementById('app'));
+        return style.backgroundImage.includes('repeating-conic-gradient') && style.backgroundSize === '18px 18px';
+      }), mode+': quadriculado original mantém tiles pequenos, sem zoom');
       ok(errors.length===0,mode+': nenhum erro no navegador'+(errors.length?' ('+errors.join('; ')+')':''));
       await page.close();
     }
