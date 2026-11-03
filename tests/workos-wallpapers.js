@@ -58,6 +58,27 @@ const ok = (cond, msg) => {
         mode+': imagem inteira sem crop/zoom no monitor');
       await page.reload();
       ok(await page.evaluate(()=>hw().wall==='planeta-aneis'),mode+': seleção preservada após recarregar');
+      // No celular, #osdesk fica oculto: o wallpaper precisa ser pintado em #app.
+      await page.setViewportSize({ width:390, height:844 });
+      await page.evaluate(() => {
+        officeLayout();
+        const title = document.getElementById('titlescr'); if (title) title.remove();
+        closeScene(); ARRIVED = true; showMenu(); applyWallpaper();
+      });
+      const mobile = await page.evaluate(() => {
+        const app = getComputedStyle(document.getElementById('app'));
+        const chosen = hw().wall;
+        const isMobile = document.body.classList.contains('mobile') && document.body.classList.contains('menu-mode');
+        return { chosen, isMobile, appBackground:app.backgroundImage,
+          wallpaper:getComputedStyle(document.documentElement).getPropertyValue('--wall').trim(),
+          size:app.backgroundSize };
+      });
+      ok(mobile.isMobile && mobile.chosen === 'planeta-aneis'
+        && mobile.appBackground.includes(mode === 'web' ? 'planeta-aneis.png' : 'data:image/png')
+        && mobile.size.includes('100%'), mode+': papel escolhido aparece na tela inicial mobile sem zoom');
+      await page.evaluate(() => setHw({wall:'teal'}));
+      ok(await page.evaluate(() => getComputedStyle(document.getElementById('app')).backgroundImage.includes('repeating-conic-gradient')),
+        mode+': tema original mantém quadriculado mobile');
       ok(errors.length===0,mode+': nenhum erro no navegador'+(errors.length?' ('+errors.join('; ')+')':''));
       await page.close();
     }
