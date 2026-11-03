@@ -49,6 +49,14 @@ const ok = (value, label) => { if (value) { passed++; console.log('  ✓ ' + lab
     ok(await page.evaluate(()=>document.querySelectorAll('.desk-material-opt').length===2
       && !document.querySelector('.desk-material-opt').hidden),
       'duas opcoes de material exibidas na aba Mesa');
+    ok(await page.evaluate(() => {
+      const opts = document.querySelector('.hw-opts');
+      const firstVisible = [...opts.querySelectorAll(':scope > .setting')]
+        .find(row => getComputedStyle(row).display !== 'none');
+      const materialRow = document.querySelector('.desk-material-opt')?.closest('.setting');
+      return firstVisible === materialRow && materialRow?.dataset.cat === 'desk'
+        && materialRow.getBoundingClientRect().top >= opts.getBoundingClientRect().top - 5;
+    }), 'material da mesa aparece como primeira opcao da aba, sem rolar 12 paredes');
     await page.click('.desk-material-opt[data-desk-material="original"]');
     await page.click('.desk-material-opt[data-desk-material="walnut"]');
     const saved=await page.evaluate(()=>({
