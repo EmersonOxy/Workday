@@ -157,7 +157,8 @@ function applyWallpaper() {
   const url = extra ? `url("${extra.src}")` : WALLS[name] ? `url(${wallCanvas(name).toDataURL()})` : '';
   if (!url) {
     d.style.backgroundImage = ''; d.style.backgroundSize = '';
-    root.style.removeProperty('--wall'); root.style.removeProperty('--wallsz'); return;
+    root.style.removeProperty('--wall'); root.style.removeProperty('--wallsz');
+    root.style.removeProperty('--wall-mobile-size'); return;
   }
   // Mesmo quadro 16:9 no monitor e na miniatura. Evita "zoom" e cortes do cover anterior.
   // A interpolação da imagem nunca deve suavizar os pixels.
@@ -166,6 +167,9 @@ function applyWallpaper() {
   d.style.backgroundRepeat = 'no-repeat'; d.style.backgroundPosition = 'center';
   d.style.imageRendering = 'pixelated';
   root.style.setProperty('--wall', url); root.style.setProperty('--wallsz', size);
+  // O desktop virtual é 16:9, mas o celular pode ser retrato. Não distorcer a imagem.
+  // 'cover' conserva as proporções e centraliza o corte; o desktop mantém o quadro completo.
+  root.style.setProperty('--wall-mobile-size', 'cover');
 }
 addEventListener('resize', applyWallpaper);
 
