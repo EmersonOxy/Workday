@@ -54,7 +54,7 @@ const ok = (cond, msg) => {
       }));
       ok(selection.wall==='planeta-aneis'&&selection.stored==='planeta-aneis'&&selection.active,
         mode+': escolha de planeta salva na galeria');
-      ok(selection.size==='100% 100%'&&selection.img.includes('planeta-aneis.png'||'data:image'),
+      ok(selection.size==='100% 100%'&&(selection.img.includes('planeta-aneis.png')||selection.img.includes('data:image/png;base64,')),
         mode+': imagem inteira sem crop/zoom no monitor');
       await page.reload();
       ok(await page.evaluate(()=>hw().wall==='planeta-aneis'),mode+': seleção preservada após recarregar');
