@@ -33,6 +33,7 @@ const CatStatic = {
   },
   refresh() {
     CAT_STILL.clear();CAT_FRAMES.clear();
+    try { SPR2.cat = catRows('laranja',.8); } catch (e) {}
     if(typeof OFFICE!=='undefined'){OFFICE.last=0;OFFICE.key='';}
     for(const b of document.querySelectorAll('.hw-card .cat[data-c]')){
       const el=b.querySelector('.cimg');
@@ -51,4 +52,5 @@ const CatStatic = {
     }
   }
 };
+window.WorkdayCatStatic=CatStatic;
 CatStatic.init();
