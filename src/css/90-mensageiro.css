@@ -66,6 +66,12 @@
   .msn-in { flex: 1; min-width: 0; border: 0; padding: .2em .45em; font: 1em var(--pixel); background: #fff8ec; color: #2a1f2d; box-shadow: 0 0 0 2px #2a1f2d, inset 2px 2px 0 #dcc6a0; }
   .msn-in:focus { outline: 2px solid #44609f; outline-offset: 2px; }
   .msn-compose .pxbtn { margin: 0 2px; }
+  .msn-compose-script .msn-in { background: #fff5dd; }
+  .msn-compose-script .msn-in:focus { outline-color: #44609f; }
+  .msn-compose-script .pxbtn:disabled { opacity: .45; cursor: not-allowed; }
+  .msn-compose-locked { color: #8f7d63; min-height: 2.5em; align-items: center; font-style: italic; }
+  .msn-reply.scripted { align-items: center; }
+  .msn-reply.scripted small { width: auto; margin-right: auto; }
   .msn-hint { margin: 0; padding: 0 .7em .25em; min-height: 0; color: #a24a33; background: #f3e6cc; }
   .msn-hint:empty { display: none; }
 
