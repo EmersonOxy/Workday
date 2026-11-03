@@ -42,7 +42,7 @@ Referências de direção: *Emily Is Away* (conversas pessoais e passagem do tem
 
 ## Organização de conteúdo futuro
 
-Separar a **bília do universo**, os **arcos dos personagens** e a **cronologia de eventos** dos arquivos de execução. A IA pode implementar, sugerir e redigir versões para revisão, mas o direcionamento e a canonização da lore são decisões do criador.
+Separar a **bíblia do universo**, os **arcos dos personagens** e a **cronologia de eventos** dos arquivos de execução. A IA pode implementar, sugerir e redigir versões para revisão, mas o direcionamento e a canonização da lore são decisões do criador.
 
 ## Implementação inicial
 
