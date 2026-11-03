@@ -1,0 +1,33 @@
+name: Testar mesa personalizável
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  mesa:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verificar JavaScript e compilar
+        run: |
+          node --check src/js/shared/52-desk-material.js
+          node --check src/js/shared/50-office.js
+          node --check src/js/30-personalizar.js
+          node --check tests/mesa.js
+          python tools/build.py
+      - name: Instalar Chromium
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+      - name: Testar material Nogueira e saves
+        run: node tests/mesa.js
