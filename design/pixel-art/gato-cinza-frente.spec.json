@@ -1,0 +1,226 @@
+{
+  "schema_version": 1,
+  "asset_id": "gato-cinza-frente",
+  "status": "visual_reference_approved; resized_png_awaiting_binary_validation; runtime_unchanged",
+  "source": {
+    "approved_by": "criador do Workday",
+    "approval_date": "2026-11-03",
+    "description": "Gato doméstico cinza tigrado, sentado, vista frontal, olhando para jogador",
+    "canonical_image_filename": "gato-cinza-frente-base-264x241.png",
+    "canonical_image_repo_path": "assets/pixel-art/gato/gato-cinza-frente-base-264x241.png",
+    "canonical_image_in_repository": false,
+    "dimensions_reported_by_creator": {
+      "width": 264,
+      "height": 241,
+      "unit": "pixels"
+    },
+    "image_sha256": null,
+    "verified_file_mode": null,
+    "verified_color_count": null,
+    "verified_alpha_values": null,
+    "verified_visible_bbox": null,
+    "note": "O PNG 264x241 foi mostrado na conversa, mas os bytes exatos não ficaram disponíveis para análise/commit. Não calcular dados usando o PNG original."
+  },
+  "historical_reference": {
+    "filename": "a_clean_pixel_art_16_bit_style_sprite_on_a_plain.png",
+    "dimensions": {
+      "width": 1312,
+      "height": 1199
+    },
+    "sha256": "b8e8ebd3f353bb24adf8062498911863564186a36d48471b89d2a53dc21730ec",
+    "note": "Versão anterior; não usar como sprite final nem atribuir este hash ao arquivo 264x241."
+  },
+  "visual_contract": {
+    "species": "gato doméstico",
+    "coat": "cinza tigrado, peito/queixo/patas claros",
+    "view": "front",
+    "orientation": "olhando diretamente para o jogador",
+    "pose": "sentado ereto; duas patas dianteiras juntas",
+    "head": "larga, redonda, bochechas cheias",
+    "eyes": "grandes e expressivos, verde-oliva no conceito, pupilas escuras e pequenos reflexos",
+    "ears": "grandes e triangulares, interior rosa",
+    "nose": "rosa pequeno",
+    "mouth": "curta, expressão tranquila",
+    "tail": "grossa, enrolada à direita da imagem",
+    "stripes": "testa, bochechas, corpo, patas e cauda",
+    "lighting": "superior esquerda",
+    "silhouette_must_remain": true
+  },
+  "production": {
+    "target_logical_canvas": null,
+    "pivot": null,
+    "ground_contact_y": null,
+    "pending_approval": true,
+    "palette_source": "src/js/shared/10-palette.js",
+    "palette_tokens": {
+      "outline": [
+        "k",
+        "K"
+      ],
+      "fur": [
+        "m",
+        "M",
+        "j",
+        "J"
+      ],
+      "light_parts": [
+        "W",
+        "w",
+        "p"
+      ],
+      "nose_ears": [
+        "r",
+        "O"
+      ],
+      "eyes": [
+        "d",
+        "D"
+      ],
+      "eye_reflection": [
+        "+"
+      ]
+    },
+    "raster_requirements": [
+      "pixels alinhados a grade regular",
+      "sem interpolação bilinear",
+      "sem halo nas bordas",
+      "alpha final 0 ou 255 salvo exceções explícitas",
+      "posições e escalas inteiras",
+      "pivot e canvas consistentes em cada frame"
+    ]
+  },
+  "animation_plan": [
+    {
+      "id": "idle_front",
+      "frames_proposal": [
+        3,
+        4
+      ],
+      "ms_per_frame": [
+        250,
+        400
+      ],
+      "loop": true
+    },
+    {
+      "id": "blink_front",
+      "frames_proposal": [
+        3,
+        3
+      ],
+      "ms_per_frame": [
+        80,
+        160
+      ],
+      "loop": false
+    },
+    {
+      "id": "look_front_left",
+      "frames_proposal": [
+        2,
+        3
+      ],
+      "ms_per_frame": [
+        150,
+        250
+      ],
+      "loop": false
+    },
+    {
+      "id": "look_front_right",
+      "frames_proposal": [
+        2,
+        3
+      ],
+      "ms_per_frame": [
+        150,
+        250
+      ],
+      "loop": false
+    },
+    {
+      "id": "tail_sway_front",
+      "frames_proposal": [
+        4,
+        6
+      ],
+      "ms_per_frame": [
+        100,
+        180
+      ],
+      "loop": true
+    },
+    {
+      "id": "groom_front",
+      "frames_proposal": [
+        5,
+        8
+      ],
+      "ms_per_frame": [
+        120,
+        200
+      ],
+      "loop": false
+    },
+    {
+      "id": "yawn_front",
+      "frames_proposal": [
+        4,
+        6
+      ],
+      "ms_per_frame": [
+        120,
+        220
+      ],
+      "loop": false
+    },
+    {
+      "id": "sleep_enter",
+      "frames_proposal": [
+        5,
+        8
+      ],
+      "ms_per_frame": [
+        150,
+        250
+      ],
+      "loop": false
+    },
+    {
+      "id": "sleep_loop",
+      "frames_proposal": [
+        2,
+        3
+      ],
+      "ms_per_frame": [
+        450,
+        650
+      ],
+      "loop": true
+    },
+    {
+      "id": "pet_happy_front",
+      "frames_proposal": [
+        3,
+        5
+      ],
+      "ms_per_frame": [
+        120,
+        250
+      ],
+      "loop": false
+    }
+  ],
+  "existing_code": {
+    "model": "src/js/shared/56-gato.js",
+    "desk": "src/js/shared/58-mesa.js",
+    "runtime_replaced": false,
+    "coat_count": 14
+  },
+  "references": [
+    "design/pixel-art/GATO-CINZA-FRENTE.md",
+    "design/pixel-art/GUIA-DE-SPRITES.md",
+    ".claude/skills/pixel-art/SKILL.md",
+    ".claude/skills/pixel-art-professional/SKILL.md"
+  ]
+}
