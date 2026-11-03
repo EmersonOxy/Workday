@@ -38,7 +38,7 @@ async function settle(p, ms = 2500) { const t0 = Date.now(); while (Date.now() -
     const aff0 = await p.evaluate(() => SOC.c.lu.aff);
     const initialLog = await p.evaluate(() => SOC.c.lu.log.length);
     await p.click('.msn-opt[data-ch="0"]');
-    ok(await p.evaluate(() => !!document.querySelector('.msn-script') && SOC.c.lu.ch.lu_pre == null && SOC.c.lu.log.length === initialLog && socSay('lu', 'qualquer coisa') === 'hint'),
+    ok(await p.evaluate(n => !!document.querySelector('.msn-script') && SOC.c.lu.ch.lu_pre == null && SOC.c.lu.log.length === n && socSay('lu', 'qualquer coisa') === 'hint', initialLog),
       'escolher o balão bloqueia texto livre e não aplica efeitos antes do envio');
     await p.type('.msn-script', 'a');
     const p1 = await p.evaluate(() => document.querySelector('.msn-script').value);
