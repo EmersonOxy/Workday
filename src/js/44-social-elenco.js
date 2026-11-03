@@ -77,7 +77,17 @@ const MSN_PICS = {
   unknown: { rows: ['mmmmmmmmmmmmmmmm', 'mmmmmmmmmmmmmmmm', 'mmmmmmkkkkmmmmmm', 'mmmmmkMMMMkmmmmm', 'mmmmkMMMMMMkmmmm', 'mmmmkMMMMMMkmmmm', 'mmmmkMMMMMMkmmmm', 'mmmmmkMMMMkmmmmm',
     'mmmmmmkMMkmmmmmm', 'mmmmkkkMMkkkmmmm', 'mmmkMMMMMMMMkmmm', 'mmkMMMMMMMMMMkmm', 'mmkMMMMMMMMMMkmm', 'mkMMMMMMMMMMMMkm', 'mkMMMMMMMMMMMMkm', 'mkMMMMMMMMMMMMkm'] },
 };
-function msnPicEl(id, scale = 2) { const p = MSN_PICS[id] || MSN_PICS.unknown; return Pixel.el(p.rows, scale, p.pal); }
+function msnPicEl(id, scale = 2) {
+  // Retratos aprovados podem substituir fotos antigas sem reescrever os demais NPCs.
+  const img = typeof npcStaticImg === 'function' ? npcStaticImg(id, 'icon') : null;
+  if (img) {
+    img.width = 16 * scale; img.height = 16 * scale;
+    img.style.width = img.width + 'px'; img.style.height = img.height + 'px';
+    return img;
+  }
+  const p = MSN_PICS[id] || MSN_PICS.unknown;
+  return Pixel.el(p.rows, scale, p.pal);
+}
 
 /* ---------- busto para a câmera (24×26): gerado em camadas, com expressões, piscadas, boca e gestos ---------- */
 // Regras de pixel art do projeto: escala inteira, luz de cima à esquerda (rampas de 4 tons), contorno seletivo
@@ -177,9 +187,9 @@ castAdd({
   id: 'duda', name: 'Duda', role: L3('Suporte de TI', 'IT Support', 'Soporte de TI'), sector: 'ti', group: 'work', scope: 'work', firstMsg: 'duda_hello',
   likes: { joke: 1, tease: 1, gossip: 0, formal: -1, kind: 0, honest: 1, distant: -1, nudge: 1 }, open: 1.2, speed: 1.4, cam: 'on', dudaFace: true,
   blocks: [[180, 235, 'busy', 'raid']], off: ctx => SOC && SOC.pre ? 'online' : socHash('duda-off', ctx.day) < .65 ? 'online' : 'away',
-  bio: L3('Cuida dos computadores, do servidor e de um servidor de jogos que oficialmente não existe. Ruivo, de óculos e headset, responde chamado com meme.',
-    'Looks after the computers, the server and a game server that officially does not exist. Red hair, glasses, headset; answers tickets with memes.',
-    'Cuida de las computadoras, del servidor y de un servidor de juegos que oficialmente no existe. Pelirrojo, con gafas y auriculares; responde tickets con memes.'),
+  bio: L3('Cuida dos computadores, do servidor e de um servidor de jogos que oficialmente não existe. Loiro, de headset, responde chamado com meme.',
+    'Looks after the computers, the server and a game server that officially does not exist. Blond hair and headset; answers tickets with memes.',
+    'Cuida de las computadoras, del servidor y de un servidor de juegos que oficialmente no existe. Rubio, con auriculares; responde tickets con memes.'),
   interests: L3('jogos antigos · recordes · cabos bem organizados · pizza fria', 'retro games · high scores · tidy cables · cold pizza', 'juegos retro · récords · cables ordenados · pizza fría'),
   psm: [{ t: L3('reiniciou? tenta reiniciar.', 'did you try turning it off and on?', '¿probaste reiniciar?') },
     { when: { fn: () => Rival.total().w + Rival.total().l > 0 }, t: L3('placar oficial: ver com o TI', 'official scoreboard: ask IT', 'marcador oficial: preguntar a TI') },

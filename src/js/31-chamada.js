@@ -11,7 +11,7 @@ function nextGame() { const last = load('ultimo-minigame', null), g = last === '
 const gameName = k => k === 'rhythm' ? U().mgRhythm : U().mgShooter;
 function arcadeUnlocked() { return (PROFILE.name || '').trim().toUpperCase() === SECRET_NAME; }
 
-// Duda, da TI: rosto próprio (cabelo ruivo curto, óculos, headset com microfone)
+// Duda, da TI: sprite legado preservado para futura reanimação; retrato estático agora é oficial
 const DUDA_PAL = { h: '#c25f3b', H: '#a24a33', n: '#5fa79a', N: '#2f6f78' };
 function dudaRows(mouth = 'shut', eyes = 'open') {
   const E = { open: '.ksJlkJsJlkJsSk.', blink: '.ksJJJJsJJJJsSk.', happy: '.ksJkkJsJkkJsSk.' }[eyes];
@@ -33,21 +33,18 @@ function callLater(fn, ms) { const t = setTimeout(fn, ms); Call.timers.push(t); 
 function callClear() { Call.timers.forEach(clearTimeout); Call.timers = []; }
 
 // Avatar falante: boca abre/fecha enquanto o texto aparece; pisca de vez em quando; expressões nas reações
+// Duda usa seu retrato oficial estático até existirem quadros aprovados de animação.
+// Mantemos a API set/talk para preservar chamadas, diálogos e minigames já existentes.
 function dudaFace(host) {
-  const st = { mouth: 'shut', eyes: 'open', talking: false };
-  const size = () => { const stg = host.closest('.vc-stage'); return Math.max(4, Math.min(14, Math.floor((stg ? stg.clientHeight : 200) * .5 / 18))); };
-  const draw = () => { const c = Pixel.el(dudaRows(st.talking && (performance.now() / 120 | 0) % 2 ? 'talk' : st.mouth, st.eyes), size(), DUDA_PAL); host.replaceChildren(c); };
-  let last = '', blinkAt = performance.now() + 2500;
-  const loop = () => {
-    if (!host.isConnected) return;
-    const now = performance.now();
-    if (now > blinkAt) { st.eyes = st.eyes === 'blink' ? st.base || 'open' : 'blink'; blinkAt = now + (st.eyes === 'blink' ? 120 : 2200 + Math.random() * 2000); }
-    const key = st.talking + st.mouth + st.eyes + ((now / 120 | 0) % 2);
-    if (key !== last) { last = key; draw(); }
-    requestAnimationFrame(loop);
-  };
-  draw(); requestAnimationFrame(loop);
-  return { set(m, e) { st.mouth = m; st.base = e || 'open'; st.eyes = st.base; }, talk(on) { st.talking = on; } };
+  const image = npcStaticImg('duda', 'portrait');
+  const stage = host.closest('.vc-stage');
+  const size = Math.max(96, Math.min(260, Math.round((stage ? stage.clientHeight : 220) * .92)));
+  image.style.width = size + 'px';
+  image.style.height = size + 'px';
+  image.style.maxWidth = '100%';
+  image.style.imageRendering = 'pixelated';
+  host.replaceChildren(image);
+  return { set() {}, talk() {} };
 }
 
 // Fala: o texto aparece letra a letra (com bipes discretos) e depois mostra as opções
