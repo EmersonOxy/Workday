@@ -37,11 +37,11 @@ const CatStatic = {
     if(typeof OFFICE!=='undefined'){OFFICE.last=0;OFFICE.key='';}
     for(const b of document.querySelectorAll('.hw-card .cat[data-c]')){
       const el=b.querySelector('.cimg');
-      if(el && typeof pxSize==='function') el.replaceChildren(pxSize(catStill(b.dataset.c,.85),2));
+      if(el && typeof pxSize==='function') el.replaceChildren(pxSize(catStill(b.dataset.c,.65),2));
     }
     const pc=document.querySelector('.hw-card .pv-cat');
     if(pc){const ctx=pc.getContext('2d');ctx.clearRect(0,0,pc.width,pc.height);
-      catDraw(ctx,(pc.width-this.sizes(1.3)[0])/2,pc.height,hw().cat||'tricolor',CatAI.make(),0,1.3);}
+      catDraw(ctx,(pc.width-this.sizes(1.12)[0])/2,pc.height,hw().cat||'tricolor',CatAI.make(),0,1.12);}
   },
   init() {
     for(const id of CAT_STATIC_IDS){
