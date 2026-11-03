@@ -42,7 +42,7 @@ def inline_wallpapers(html):
         filename = m.group(1)
         data = base64.b64encode((directory / filename).read_bytes()).decode('ascii')
         return "'data:image/png;base64," + data + "'"
-    return re.sub(r"'wallpapers/([\\w-]+\\.png)'", sub, html)
+    return re.sub(r"'wallpapers/([\w-]+\.png)'", sub, html)
 
 def main():
     css = ''.join(p.read_text(encoding='utf-8') for p in sorted((src / 'css').glob('*.css')))
