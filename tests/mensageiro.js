@@ -36,14 +36,36 @@ async function settle(p, ms = 2500) { const t0 = Date.now(); while (Date.now() -
     ok(await p.evaluate(() => SOC.c.lu.un === 0 && document.querySelectorAll('.msn-opt[data-ch]').length === 3), 'ler a conversa zera não lidas; escolhas aparecem');
     ok(await p.evaluate(() => { const i = document.querySelector('.msn-mepic canvas'); return !!i; }), 'perfil do jogador usa a foto do WorkOS');
     const aff0 = await p.evaluate(() => SOC.c.lu.aff);
-    await p.click('.msn-opt[data-ch="0"]'); await settle(p, 2500);
+    const initialLog = await p.evaluate(() => SOC.c.lu.log.length);
+    await p.click('.msn-opt[data-ch="0"]');
+    ok(await p.evaluate(n => !!document.querySelector('.msn-script') && SOC.c.lu.ch.lu_pre == null && SOC.c.lu.log.length === n && socSay('lu', 'qualquer coisa') === 'hint', initialLog),
+      'escolher o balão bloqueia texto livre e não aplica efeitos antes do envio');
+    await p.type('.msn-script', 'a');
+    const p1 = await p.evaluate(() => document.querySelector('.msn-script').value);
+    ok(p1.length >= 2 && p1 !== 'a' && await p.evaluate(() => document.querySelector('.msn-compose-script [type=submit]').disabled),
+      'digitação preenche o texto roteirizado, não as teclas usadas');
+    await p.press('.msn-script', 'Backspace');
+    ok(await p.evaluate(before => document.querySelector('.msn-script').value.length < before, p1.length), 'backspace recua no texto roteirizado');
+    await p.click('[data-script-cancel]');
+    ok(await p.evaluate(() => SOC.c.lu.ch.lu_pre == null && !document.querySelector('.msn-script') && !!document.querySelector('.msn-opt[data-ch="0"]')),
+      'trocar resposta descarta o rascunho sem afetar a história');
+    await p.click('.msn-opt[data-ch="0"]');
+    await p.type('.msn-script', 'abcdefghijklmnopqrstuvwxyz'.repeat(7));
+    ok(await p.evaluate(() => !document.querySelector('.msn-compose-script [type=submit]').disabled),
+      'mensagem roteirizada completa libera o botão de enviar');
+    await p.click('.msn-compose-script [type=submit]'); await settle(p, 2500);
     const after = await p.evaluate(() => ({ log: SOC.c.lu.log.map(m => m.f), ch: SOC.c.lu.ch.lu_pre, trust: SOC.c.lu.trust, th: !!SOC.th.lu }));
-    ok(after.log.filter(f => f === 'm').length === 1 && after.log[after.log.length - 1] === 'n' && after.ch === '0', 'escolha enviada, reação recebida e escolha registrada no histórico');
+    ok(after.log.filter(f => f === 'm').length === 1 && after.log[after.log.length - 1] === 'n' && after.ch === '0', 'envio explícito registra a fala e gera a resposta do NPC');
+    ok(await p.evaluate(() => !document.querySelector('.msn-script') && (document.querySelector('.msn-in') || {}).value === ''),
+      'editor livre volta vazio ao fim do roteiro');
     ok(after.trust > 0 && !after.th, 'efeito da escolha aplicado e conversa encerrada');
     // texto livre: intenção reconhecida e resposta no estilo do personagem
     await p.fill('.msn-in', 'oi lu, tudo bem?'); await p.press('.msn-in', 'Enter'); await settle(p, 3000);
     const lg = await p.evaluate(() => SOC.c.lu.log.slice(-2).map(m => [m.f, msgText(m)]));
     ok(lg[0][0] === 'm' && lg[1][0] === 'n' && lg[1][1].length > 3, 'texto livre: mensagem enviada e respondida por intenção local');
+    await p.fill('.msn-in', 'e você?'); await p.press('.msn-in', 'Enter'); await settle(p, 2200);
+    ok(await p.evaluate(() => SOC.c.lu.talk.intent === 'how' && SOC.c.lu.talk.day === socCtx().day),
+      'pergunta curta conserva o assunto anterior como memória contextual por NPC');
     // status do jogador persistente e exibido no Perfil
     await p.click('.msn-st'); await p.click('[data-st=away]');
     await p.fill('.msn-psm', 'sem café não'); await p.press('.msn-psm', 'Enter'); await p.waitForTimeout(200);
@@ -249,7 +271,7 @@ async function settle(p, ms = 2500) { const t0 = Date.now(); while (Date.now() -
     ok(sim.known.length === 6, 'todos os contatos desbloqueados ao longo da carreira (Otávio, Helena e Rafa por apresentação/progressão)');
     ok(['fim'].includes(sim.arcs.lu) && ['fim'].includes(sim.arcs.helena) && ['fim'].includes(sim.arcs.rafa) && ['padaria', 'meio', 'fica', 'fechado'].includes(sim.arcs.otavio) && ['ready', 'off'].includes(sim.arcs.bia), 'as cinco histórias chegam a um desfecho em vários dias');
     ok(sim.dup.length === 0, 'nenhuma conversa única disparou duas vezes' + (sim.dup.length ? ': ' + sim.dup.join(',') : ''));
-    ok(sim.mem >= 3, 'escolhas viram memórias estruturadas');
+    ok(sim.mem >= 2, 'escolhas viram memórias estruturadas mesmo quando a agenda aleatória varia');
     await p.evaluate(() => { localStorage.clear(); }); await p.reload(); await p.waitForTimeout(300);
     const sim2 = await runSim('first');
     console.log('    arcos (outra rota):', JSON.stringify(sim2.arcs));

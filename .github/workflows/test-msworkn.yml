@@ -1,0 +1,41 @@
+name: Testar MSworkN
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  mensageiro:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Obter código
+        uses: actions/checkout@v4
+
+      - name: Preparar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Preparar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Verificar sintaxe e compilar
+        run: |
+          node --check src/js/43-social-motor.js
+          node --check src/js/46-mensageiro.js
+          node --check tests/mensageiro.js
+          python tools/build.py
+
+      - name: Instalar Playwright e Chromium
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+
+      - name: Executar testes do mensageiro
+        run: node tests/mensageiro.js

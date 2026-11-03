@@ -16,7 +16,7 @@ const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&am
 const msnStatusName = s => U().msn.status[s === 'invisible' ? 'offline' : s] || s;   // contato invisível aparece offline
 
 const Msn = {
-  win: null, sel: null, info: false, stMenu: false, hint: '', lastToast: -1e9, quiet: 0, tick: 0,
+  win: null, sel: null, info: false, stMenu: false, hint: '', lastToast: -1e9, quiet: 0, tick: 0, draft: null,
   ui() { return U().msn; },
   open(npc) {
     socSync();
@@ -25,7 +25,7 @@ const Msn = {
       if (npc) Msn.select(npc); return Msn.win;
     }
     const u = Msn.ui();
-    const w = osWindow(u.app, '<div class="msn"></div>', { icon: APP_ICO.msn, cls: 'msn-win', onClose: () => { Msn.win = null; clearInterval(Msn.tick); } });
+    const w = osWindow(u.app, '<div class="msn"></div>', { icon: APP_ICO.msn, cls: 'msn-win', onClose: () => { Msn.win = null; Msn.draft = null; clearInterval(Msn.tick); } });
     Msn.win = w; Msn.info = false; Msn.stMenu = false;
     if (npc) Msn.sel = npc;
     if (!document.body.classList.contains('mobile') && !Msn.sel) Msn.sel = CAST_ORDER.find(id => SOC.c[id] && SOC.c[id].st === 'known' && SOC.c[id].un) || null;
@@ -38,15 +38,23 @@ const Msn = {
   visible() { return !!(Msn.win && Msn.win.isConnected && Msn.win.style.display !== 'none'); },
   reading(npc) { return Msn.visible() && Msn.sel === npc && (!document.body.classList.contains('mobile') || Msn.mobileChat) && document.visibilityState !== 'hidden'; },
   select(id) {
-    Msn.sel = id; Msn.info = false; Msn.hint = ''; Msn.mobileChat = true;
+    Msn.sel = id; Msn.info = false; Msn.hint = ''; Msn.draft = null; Msn.mobileChat = true;
     const r = SOC.c[id]; if (r) { r.un = 0; socDirty(); }
     Msn.render(true);
     const inp = Msn.win && Msn.win.querySelector('.msn-in'); if (inp && !document.body.classList.contains('touch')) inp.focus();
+  },
+  // Rascunho da fala roteirizada existe só na interface: nunca altera o save ou aplica efeitos.
+  scriptDraft(id, ctx = socCtx()) {
+    const d = Msn.draft, th = id && SOC.th[id];
+    if (!d || d.npc !== id || !th || th.phase !== 'choice' || th.id !== d.thread || th.node !== d.node) return null;
+    const T = SOC_THREADS[th.id], o = T && socVisibleChoices(id, T, th.node, ctx)[d.idx];
+    return o ? { text: socFill(tx(o.c.t)), draft: d } : null;
   },
   // ---------- desenho ----------
   render(full) {
     if (!Msn.visible() && !(Msn.win && Msn.win.isConnected)) return Msn.badges();
     const root = Msn.win.querySelector('.msn'), u = Msn.ui(), ctx = socCtx();
+    if (Msn.draft && !Msn.scriptDraft(Msn.sel, ctx)) Msn.draft = null;
     const inp = root.querySelector('.msn-in'), keep = inp ? inp.value : '', hadFocus = inp && document.activeElement === inp;
     const psm = root.querySelector('.msn-psm'), psmFocus = psm && document.activeElement === psm, psmVal = psm ? psm.value : null;
     const log = root.querySelector('.msn-log'), nearEnd = !log || log.scrollHeight - log.scrollTop - log.clientHeight < 40, top0 = log ? log.scrollTop : 0;
@@ -82,16 +90,59 @@ const Msn = {
     if (q('[data-act=info]')) q('[data-act=info]').onclick = () => { Msn.info = !Msn.info; sfx('click'); Msn.render(); };
     if (q('[data-req=ok]')) q('[data-req=ok]').onclick = () => { socAccept(Msn.sel); sfx('msnReq'); Msn.render(); };
     if (q('[data-req=no]')) q('[data-req=no]').onclick = () => { socDecline(Msn.sel); sfx('click'); Msn.sel = null; Msn.mobileChat = false; Msn.render(); };
-    root.querySelectorAll('[data-ch]').forEach(b => b.onclick = () => { if (socChoose(Msn.sel, +b.dataset.ch)) { sfx('click'); Msn.hint = ''; Msn.render(); } });
+    root.querySelectorAll('[data-ch]').forEach(b => b.onclick = () => {
+      const th = SOC.th[Msn.sel]; if (!th || th.phase !== 'choice') return;
+      Msn.draft = { npc: Msn.sel, thread: th.id, node: th.node, idx: +b.dataset.ch, pos: 0 };
+      sfx('click'); Msn.hint = ''; Msn.render();
+      const fi = Msn.win && Msn.win.querySelector('.msn-script'); if (fi) fi.focus();
+    });
+    const cancelScript = q('[data-script-cancel]');
+    if (cancelScript) cancelScript.onclick = () => { Msn.draft = null; sfx('click'); Msn.render(); };
     root.querySelectorAll('[data-topic]').forEach(b => b.onclick = () => { if (socTopic(Msn.sel, b.dataset.topic)) { sfx('click'); Msn.render(); } });
     const form = q('.msn-compose');
     if (form) {
-      const fi = form.querySelector('.msn-in'); fi.value = keep;
-      fi.addEventListener('keydown', e => e.stopPropagation());
-      form.onsubmit = e => { e.preventDefault(); const t = fi.value.trim(); if (!t) return; const r = socSay(Msn.sel, t);
-        if (r === 'hint') { Msn.hint = u.composeOff; Motion.shake(fi, 3); sfx('click'); Msn.render(); return; }
-        fi.value = ''; Msn.hint = ''; sfx('pop'); Msn.render(); const f2 = Msn.win.querySelector('.msn-in'); if (f2) f2.focus(); };
-      if (hadFocus) fi.focus();
+      const fi = form.querySelector('.msn-in'), script = Msn.scriptDraft(Msn.sel, ctx);
+      if (script && fi.classList.contains('msn-script')) {
+        const send = form.querySelector('[type=submit]');
+        const advance = delta => {
+          // Algumas teclas avançam uma palavra curta, evitando obrigar centenas de pressões.
+          script.draft.pos = clampN(script.draft.pos + delta, 0, script.text.length);
+          fi.value = script.text.slice(0, script.draft.pos);
+          fi.setSelectionRange(fi.value.length, fi.value.length);
+          send.disabled = script.draft.pos < script.text.length || !socAvail(socPresence(Msn.sel, socCtx()));
+        };
+        fi.addEventListener('keydown', e => {
+          e.stopPropagation();
+          if (e.key === 'Escape') { e.preventDefault(); Msn.draft = null; Msn.render(); return; }
+          if (e.key === 'Enter' && script.draft.pos < script.text.length) e.preventDefault();
+        });
+        fi.addEventListener('beforeinput', e => {
+          if (!/^insert|^delete/.test(e.inputType)) { e.preventDefault(); return; }
+          e.preventDefault();
+          advance(e.inputType.startsWith('delete') ? -3 : Math.max(3, (e.data || 'a').length * 3));
+        });
+        // Compatibilidade com teclados móveis sem beforeinput cancelável.
+        fi.addEventListener('input', () => {
+          const delta = fi.value.length - script.draft.pos;
+          advance(delta < 0 ? -3 : delta > 0 ? Math.max(3, delta * 3) : 0);
+        });
+        form.onsubmit = e => {
+          e.preventDefault();
+          if (script.draft.pos < script.text.length || !socAvail(socPresence(Msn.sel))) return;
+          if (socChoose(Msn.sel, script.draft.idx)) {
+            fi.value = ''; Msn.draft = null; Msn.hint = ''; sfx('pop'); Msn.render();
+            const next = Msn.win && Msn.win.querySelector('.msn-in'); if (next) next.focus();
+          }
+        };
+        if (hadFocus) fi.focus();
+      } else if (!SOC.th[Msn.sel] || SOC.th[Msn.sel].phase !== 'choice') {
+        fi.value = keep;
+        fi.addEventListener('keydown', e => e.stopPropagation());
+        form.onsubmit = e => { e.preventDefault(); const t = fi.value.trim(); if (!t) return; const r = socSay(Msn.sel, t);
+          if (r === 'hint') { Msn.hint = u.composeOff; Motion.shake(fi, 3); sfx('click'); Msn.render(); return; }
+          fi.value = ''; Msn.hint = ''; sfx('pop'); Msn.render(); const f2 = Msn.win.querySelector('.msn-in'); if (f2) f2.focus(); };
+        if (hadFocus) fi.focus();
+      }
     }
     // rolagem: segue a conversa se já estava no fim; ao trocar de contato, vai para o fim
     const lg = q('.msn-log');
@@ -138,9 +189,15 @@ const Msn = {
       <span class="msn-hs">${msnDot(s)}${msnStatusName(s)}${p.m ? ' · ' + (u.pmsg[p.m] || '') : ''}${ps ? ' — <i>' + esc(ps) + '</i>' : ''}</span></div>
       <div class="msn-acts"><button class="msn-a" data-act="call" title="${u.call}" aria-label="${u.call}">${Msn.ico('cam')}</button><button class="msn-a" data-act="nudge" title="${u.nudge}" aria-label="${u.nudge}">${Msn.ico('nudge')}</button><button class="msn-a${Msn.info ? ' on' : ''}" data-act="info" title="${u.info}" aria-label="${u.info}">${Msn.ico('info')}</button></div></div>`;
     if (Msn.info) return head + Msn.infoHTML(u, id);
+    const waitingChoice = SOC.th[id] && SOC.th[id].phase === 'choice';
+    const script = waitingChoice && Msn.scriptDraft(id, ctx), online = socAvail(p);
+    const compose = waitingChoice ? (script
+      ? `<form class="msn-compose msn-compose-script" autocomplete="off"><input class="msn-in msn-script" type="text" value="${esc(script.text.slice(0, script.draft.pos))}" aria-label="${esc(tx(L3('Digite para escrever a resposta', 'Type to write your reply', 'Escribe para redactar tu respuesta')))}" placeholder="${esc(tx(L3('Digite para responder…', 'Type to reply…', 'Escribe para responder…')))}"${online ? '' : ' disabled'}><button class="pxbtn main" type="submit"${script.draft.pos < script.text.length || !online ? ' disabled' : ''}>${u.send}</button></form>`
+      : `<div class="msn-compose msn-compose-locked"><span>${esc(tx(L3('Escolha uma resposta acima para continuar.', 'Choose a reply above to continue.', 'Elige una respuesta arriba para continuar.')))}</span></div>`)
+      : `<form class="msn-compose" autocomplete="off"><input class="msn-in" type="text" maxlength="140" placeholder="${u.composePh}" aria-label="${u.composePh}"><button class="pxbtn main" type="submit">${u.send}</button></form>`;
     return head + `<div class="msn-log" role="log" aria-live="polite">${Msn.logHTML(u, id)}</div><p class="msn-typing">${Msn.typingText(id, ctx)}</p>${Msn.replyHTML(u, id, ctx)}
-      <form class="msn-compose" autocomplete="off"><input class="msn-in" type="text" maxlength="140" placeholder="${u.composePh}" aria-label="${u.composePh}"><button class="pxbtn main" type="submit">${u.send}</button></form>
-      <p class="msn-hint">${esc(Msn.hint || (!socAvail(p) && !SOC.th[id] ? u.offHint : ''))}</p>`;
+      ${compose}
+      <p class="msn-hint">${esc(Msn.hint || (!online && !SOC.th[id] ? u.offHint : ''))}</p>`;
   },
   logHTML(u, id) {
     const r = SOC.c[id], d = CAST[id], lastDay = r.log.length ? r.log[r.log.length - 1].d : null; let h = '', lastD = null, lastF = null;
@@ -163,8 +220,12 @@ const Msn = {
     const th = SOC.th[id];
     // respostas prontas e assuntos só com o contato disponível; a conversa fica guardada e as opções voltam quando ele voltar
     if (!socAvail(socPresence(id, ctx))) return `<div class="msn-reply"><small class="msn-wait">${esc(u.waitHint(castFirst(id)))}</small></div>`;
-    if (th && th.phase === 'choice') { const T = SOC_THREADS[th.id], vis = socVisibleChoices(id, T, th.node, ctx);
-      return `<div class="msn-reply">${vis.map((o, i) => `<button class="msn-opt" data-ch="${i}">${esc(socFill(tx(o.c.t)))}</button>`).join('')}</div>`; }
+    if (th && th.phase === 'choice') {
+      const script = Msn.scriptDraft(id, ctx);
+      if (script) return `<div class="msn-reply scripted"><small>${esc(tx(L3('Sua resposta', 'Your reply', 'Tu respuesta')))}:</small><button class="msn-opt topic" type="button" data-script-cancel>${esc(tx(L3('Trocar resposta', 'Change reply', 'Cambiar respuesta')))}</button></div>`;
+      const T = SOC_THREADS[th.id], vis = socVisibleChoices(id, T, th.node, ctx);
+      return `<div class="msn-reply">${vis.map((o, i) => `<button class="msn-opt" data-ch="${i}">${esc(socFill(tx(o.c.t)))}</button>`).join('')}</div>`;
+    }
     if (!th) { const tops = socTopics(id, ctx); if (tops.length) return `<div class="msn-reply topics"><small>${u.topics}:</small>${tops.map(T => `<button class="msn-opt topic" data-topic="${T.id}">${esc(tx(T.topic))}</button>`).join('')}</div>`; }
     return '<div class="msn-reply"></div>';
   },

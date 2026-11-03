@@ -2,8 +2,7 @@
 
 Jogo de navegador em pixel art (escritório + mini-SO "WorkOS"). © 2026 Émerson K. Boff, todos os direitos reservados.
 Responder em pt-BR, direto, sem bajulação. Repositório: https://github.com/EmersonOxy/Workday (branch `main`, push direto).
-Demo publicada: https://claude.ai/artifact/1XTVvPjUThX7zU8Ed3TTeB (republicar após mudanças: gerar `dist/web/index.html`,
-remover tags doctype/html/head/body com `re.sub(r"<!doctype[^>]*>|</?(html|head|body)\b[^>]*>", "", s, flags=re.I)` — sem o `\b` o padrão apaga também o `<header>` do HUD — e publicar no mesmo artifact).
+Demo oficial: https://emersonoxy.github.io/Workday/ (GitHub Pages). O fluxo `.github/workflows/deploy-pages.yml` compila e publica automaticamente após push na `main`. Artifacts antigos do Claude não são a versão oficial.
 
 ## Regras do usuário (permanentes)
 - Testes de jogabilidade/visual: o usuário faz. Eu faço só verificações técnicas (sintaxe, paleta, capturas para conferir).
@@ -13,6 +12,10 @@ remover tags doctype/html/head/body com `re.sub(r"<!doctype[^>]*>|</?(html|head|
 - Não gerar imagens em serviços externos; usar as skills `pixel-art` e `pixel-art-professional` (.claude/skills).
 - Corrigir causas, não empilhar remendos de CSS (`!important`). Preservar saves, PT/EN/ES, offline, movimento reduzido.
 - Nada de contorno amarelo de seleção.
+- **Ler `docs/DIALOGOS-E-LORE.md` antes de modificar o MSworkN, e-mails, calendário ou roteiros.** A lore é opcional e avança com os dias, independentemente da leitura. O usuário define o canon: não inventar biografias, segredos, romances, reviravoltas ou finais sem aprovação.
+- Em interações livres, preservar contexto por NPC sem provocar decisões irreversíveis por palavra-chave; em nós importantes, respostas por balões e digitação simulada. Efeitos **somente no envio**.
+- Regressão de diálogos: `python3 tools/build.py && node tests/mensageiro.js`. Manter textos em PT/EN/ES.
+
 
 ## Build e verificação
 - `python3 tools/build.py` → `dist/web/index.html`, `dist/workday.html`. Concatena `src/css/*.css` e `src/js/shared/*.js` + `src/js/*.js` (ordem alfabética).
