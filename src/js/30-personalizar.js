@@ -223,7 +223,7 @@ function showCustomize(back) {
     // A prévia usa o mesmo sprite da mesa, sem animações ou redesenho contínuo.
     const pc = lay.querySelector('.pv-cat');
     pc.paintCat = () => { if (!pc.isConnected) return; const x=pc.getContext('2d');x.clearRect(0,0,pc.width,pc.height);
-      const size=CatStatic.sizes(1.3);catDraw(x,(pc.width-size[0])/2,pc.height,hw().cat||'tricolor',CatAI.make(),0,1.3); };
+      const scale=1.12, size=CatStatic.sizes(scale);catDraw(x,(pc.width-size[0])/2,pc.height,hw().cat||'tricolor',CatAI.make(),0,scale); };
     pc.onclick = () => sfx('cat'); requestAnimationFrame(pc.paintCat); }
   const prev = card.querySelector('.hw-scene');
   const draw = () => {
@@ -262,7 +262,7 @@ function showCustomize(back) {
     DeskMaterial.preview(c, b.dataset.deskMaterial); pxFit(c, () => [80, 45]);
     b.onclick = () => { setHw({ deskMaterial: b.dataset.deskMaterial }); draw(); sfx('click'); };
   });
-  card.querySelectorAll('.cat').forEach(b => { b.querySelector('.cimg').append(pxSize(catStill(b.dataset.c,.85),2));
+  card.querySelectorAll('.cat').forEach(b => { b.querySelector('.cimg').append(pxSize(catStill(b.dataset.c,.65),2));
     b.onclick = () => { setHw({ cat: b.dataset.c }); card.querySelectorAll('.cat').forEach(x => x.classList.toggle('on', x === b));
       const pc=card.querySelector('.pv-cat'); if(pc && pc.paintCat) pc.paintCat(); sfx('pop'); }; });
   // ponteiros: prévia na cor escolhida; passar o mouse sobre um ponteiro que aceita cor mostra as cores dele
