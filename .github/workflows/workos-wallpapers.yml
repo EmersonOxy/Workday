@@ -1,0 +1,53 @@
+name: Testar WorkOS e exportar wallpapers originais
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+    paths:
+      - 'src/js/30-personalizar.js'
+      - 'src/js/shared/53-workos-wallpapers.js'
+      - 'assets/workos/**'
+      - 'tools/build.py'
+      - 'tools/export-workos-originais.js'
+      - 'tests/workos-wallpapers.js'
+      - '.github/workflows/workos-wallpapers.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  workos:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verificar JS e compilar
+        run: |
+          node --check src/js/30-personalizar.js
+          node --check src/js/shared/53-workos-wallpapers.js
+          node --check tools/export-workos-originais.js
+          node --check tests/workos-wallpapers.js
+          python tools/build.py
+      - name: Instalar Playwright Chromium
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+      - name: Testar galeria e renderização
+        run: node tests/workos-wallpapers.js
+      - name: Exportar vinte wallpapers originais
+        if: always()
+        run: node tools/export-workos-originais.js
+      - name: Disponibilizar PNGs originais
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: workos-wallpapers-originais
+          path: dist/workos-originais/
+          retention-days: 90
