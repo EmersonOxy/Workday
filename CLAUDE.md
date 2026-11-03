@@ -12,6 +12,7 @@ Demo oficial: https://emersonoxy.github.io/Workday/ (GitHub Pages). O fluxo `.gi
 - Não gerar imagens em serviços externos; usar as skills `pixel-art` e `pixel-art-professional` (.claude/skills).
 - Corrigir causas, não empilhar remendos de CSS (`!important`). Preservar saves, PT/EN/ES, offline, movimento reduzido.
 - Nada de contorno amarelo de seleção.
+- **Gato**: antes de modificar `src/js/shared/56-gato.js`, leia `design/pixel-art/GATO-CINZA-FRENTE.md`, `design/pixel-art/GUIA-DE-SPRITES.md` e `design/pixel-art/gato-cinza-frente.spec.json`. A nova base visual do criador é um gato cinza tigrado **sentado e frontal**, PNG 264×241 redimensionado pelo próprio criador. Não reutilizar a silhueta antiga 3/4 nem criar novas poses sem validar o quadro base. O PNG exato ainda precisa ser arquivado e auditado; não confundir as dimensões 264×241 do arquivo com a grade lógica já homologada (ainda indefinida).
 - **Ler `docs/DIALOGOS-E-LORE.md` antes de modificar o MSworkN, e-mails, calendário ou roteiros.** A lore é opcional e avança com os dias, independentemente da leitura. O usuário define o canon: não inventar biografias, segredos, romances, reviravoltas ou finais sem aprovação.
 - Em interações livres, preservar contexto por NPC sem provocar decisões irreversíveis por palavra-chave; em nós importantes, respostas por balões e digitação simulada. Efeitos **somente no envio**.
 - Regressão de diálogos: `python3 tools/build.py && node tests/mensageiro.js`. Manter textos em PT/EN/ES.
