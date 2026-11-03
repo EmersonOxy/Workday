@@ -559,7 +559,8 @@
   body.mobile.menu-mode #app {
     background-color: var(--os-bg);
     background-image: var(--wall, repeating-conic-gradient(rgba(255,255,255,.03) 0 25%, transparent 0 50%));
-    background-size: var(--wallsz, 18px 18px);
+    /* 16:9 em telas verticais: crop central, nunca esticar os pixels na altura. */
+    background-size: var(--wall-mobile-size, var(--wallsz, 18px 18px));
     background-position: center;
     background-repeat: repeat;
     image-rendering: pixelated;
