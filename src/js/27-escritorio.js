@@ -5,13 +5,18 @@ const OFFICE = { on: false, M: null, L: null, baked: null, key: '', last: 0, cv:
 OFFICE.ctx = OFFICE.cv.getContext('2d');
 OFFICE.fx = $('officeFx'); OFFICE.fxCtx = OFFICE.fx.getContext('2d'); OFFICE.keys = new Map(); OFFICE.mouse = { btn: [0, 1, 2].map(() => ({ down: false, up: -1 })) };
 function officeWanted() { return !document.body.classList.contains('touch') && innerWidth >= 900 && innerHeight >= 500; }
+// Tricolor de demonstração: visível sobre a mesa sem conceder a compra das outras pelagens.
+function deskEffectiveDecor() {
+  const owned=P.decor||[];
+  return !owned.includes('gato') && (hw().cat||'tricolor')==='tricolor' ? [...owned,'gato'] : owned;
+}
 function officeState() {
   const day = S && S.phase === 'day';
   const hour = day ? GameClock.min() / 60 : S && (S.phase === 'ending' || S.phase === 'report') ? 18 : 9.5;
   const stress = S ? S.stress : 0;
   const clutter = day ? Math.min(3, Math.floor(stress / 30) + (S.level >= 8 ? 1 : 0)) : 0;
   const ringing = (day && S.tasks.some(t => t.type === 'call')) || !!OFFICE.call;
-  return { hour, stress, clutter, decor: P.decor, rank: S ? S.rankIdx : 0, blind: OFFICE.blind, day: S ? S.day : 0, ringing, press: OFFICE.press, click: OFFICE.click, bigPhone: true, phoneHeld: !!(S && S.tasks && S.tasks.some(k => k.type === 'call' && !k.dead && k.holding)), hw: Object.assign(hw(), { badgeColor: (BADGE_COLORS[hw().badge] || [])[0], lanyardColor: (BADGE_COLORS[hw().lanyard] || [])[0] }), badge: badgeInfo(), lights: lightState(), weather: Office.weather(S ? S.day : 1), cat: hw().cat + '|' + (hw().catEye || 'auto'), sound: soundOn };
+  return { hour, stress, clutter, decor: deskEffectiveDecor(), rank: S ? S.rankIdx : 0, blind: OFFICE.blind, day: S ? S.day : 0, ringing, press: OFFICE.press, click: OFFICE.click, bigPhone: true, phoneHeld: !!(S && S.tasks && S.tasks.some(k => k.type === 'call' && !k.dead && k.holding)), hw: Object.assign(hw(), { badgeColor: (BADGE_COLORS[hw().badge] || [])[0], lanyardColor: (BADGE_COLORS[hw().lanyard] || [])[0] }), badge: badgeInfo(), lights: lightState(), weather: Office.weather(S ? S.day : 1), cat: hw().cat + '|' + (hw().catEye || 'auto'), sound: soundOn };
 }
 // Crachá da mesa: cores do avatar ou miniatura 4×5 da foto
 function badgeInfo() {
