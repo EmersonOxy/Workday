@@ -47,13 +47,26 @@ design/pixel-art/
   GATO-CINZA-FRENTE.md           # ficha visual e técnica
   gato-cinza-frente.spec.json    # dados de referência para ferramentas
 assets/pixel-art/gato/          # destino planejado quando os arquivos estiverem prontos
-  gato-cinza-frente-conceito-v1.png   # conceito de referência, NÃO sprite runtime
+  gato-cinza-frente-base-264x241.png  # base visual atual do criador, pendente de upload/validação
+  gato-cinza-frente-conceito-v1.png   # geração anterior (histórico), não é a base atual
   gato-base.aseprite                  # fonte editável (futuro)
   gato-sheet.png                      # export runtime (futuro)
   gato-sheet.json                     # tags, frames, durações, slices e pivot (futuro)
 ```
 
 **Importante:** caminhos em `assets/pixel-art/gato/` são o **destino planejado**, não declaração de que esses binários já existem no repositório.
+
+## Diferença entre resolução do PNG e grade lógica
+
+Para o gato cinza frontal, o criador forneceu uma nova referência redimensionada para **264 × 241 pixels** (03/11/2026). Esse número documenta o tamanho do arquivo aprovado na conversa — não a escala final que deve ser aplicada no canvas do jogo.
+
+**Regras:**
+- Não inventar uma resolução menor nem voltar a utilizar o arquivo original 1312 × 1199 como fonte visual principal sem autorização.
+- Obter o PNG exato da versão 264 × 241 e inspecionar modo de cor, alpha, contagem de cores, retângulo visível e regularidade da grade.
+- **Redimensionar em um site de pixel art pode produzir pixels visuais mais nítidos, mas a validação do arquivo continua necessária**; não declarar a imagem tecnicamente pixel-perfect sem examiná-la.
+- Evitar reduzí-la arbitrariamente para caber na antiga caixa do gato no código. Se a escala de exibição necessária não for inteira, produzir uma versão lógica específica e revisada.
+- Preservar o arquivo-fonte intacto; qualquer limpeza técnica deve gerar uma nova versão com checksum próprio.
+- A referência só será usada como quadro animável definitivo quando a aparência e o encaixe no Workday forem aprovados.
 
 ## Processo de trabalho
 
