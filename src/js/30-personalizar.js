@@ -153,12 +153,18 @@ function wallCanvas(name, w = 160, h = 90) { const c = document.createElement('c
 function applyWallpaper() {
   const d = $('osdesk'), name = hw().wall, root = document.documentElement;
   if (!d) return;
-  if (!WALLS[name]) { d.style.backgroundImage = ''; root.style.removeProperty('--wall'); return; }
-  const a = $('app').getBoundingClientRect(), r = d.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
-  const W = Math.max(r.width, a.width), H = Math.max(r.height, a.height);
-  const n = Math.max(1, Math.ceil(Math.max(W / 160, H / 90) * dpr)), k = n / dpr;   // cobre a tela em escala inteira
-  const url = `url(${wallCanvas(name).toDataURL()})`, size = `${160 * k}px ${90 * k}px`;
-  d.style.backgroundImage = url; d.style.backgroundSize = size; d.style.backgroundPosition = 'center'; d.style.imageRendering = 'pixelated';
+  const extra = WORKOS_EXTRA_WALLS[name];
+  const url = extra ? `url("${extra.src}")` : WALLS[name] ? `url(${wallCanvas(name).toDataURL()})` : '';
+  if (!url) {
+    d.style.backgroundImage = ''; d.style.backgroundSize = '';
+    root.style.removeProperty('--wall'); root.style.removeProperty('--wallsz'); return;
+  }
+  // Mesmo quadro 16:9 no monitor e na miniatura. Evita "zoom" e cortes do cover anterior.
+  // A interpolação da imagem nunca deve suavizar os pixels.
+  const size = '100% 100%';
+  d.style.backgroundImage = url; d.style.backgroundSize = size;
+  d.style.backgroundRepeat = 'no-repeat'; d.style.backgroundPosition = 'center';
+  d.style.imageRendering = 'pixelated';
   root.style.setProperty('--wall', url); root.style.setProperty('--wallsz', size);
 }
 addEventListener('resize', applyWallpaper);
@@ -189,7 +195,7 @@ function showCustomize(back) {
       return `<button class="sw-btn${(cur.catEye || 'auto') === k2 ? ' on' : ''}" data-v="${k2}" title="${u.catEyes[k2]}" aria-label="${u.catEyes[k2]}"><i style="background:${cc ? `linear-gradient(90deg, ${cc[0]} 0 50%, ${cc[1]} 50% 100%)` : 'repeating-conic-gradient(#dcc6a0 0 25%, #fff8ec 0 50%) 0 0 / 8px 8px'}"></i></button>`; }).join('')}</div></div>
     <div class="setting"><span>${rw.title}</span><div class="walls">${RoomWall.ids.map(w => `<button class="pxbtn wall room-wall-opt${cur.roomWall === w ? ' on' : ''}" data-room-wall="${w}"><canvas data-room-wall="${w}" width="64" height="36"></canvas><small>${rw[w]}</small></button>`).join('')}</div></div>
     <div class="setting"><span>${rw.trim}</span><div class="seg room-trim">${['original', 'wood', 'light'].map(v => `<button class="pxbtn room-trim-opt${cur.roomTrim === v ? ' on' : ''}" data-room-trim="${v}">${rw[v]}</button>`).join('')}</div></div>
-    <div class="setting"><span>${u.wallLabel}</span><div class="walls">${Object.keys(WALLS).map(w => `<button class="pxbtn wall${cur.wall === w ? ' on' : ''}" data-w="${w}"><canvas width="64" height="36"></canvas><small>${u.walls[w]}</small></button>`).join('')}</div></div>
+    <div class="setting"><span>${u.wallLabel}</span><div class="walls">${workosWallNames().map(w => `<button class="pxbtn wall${cur.wall === w ? ' on' : ''}" data-w="${w}"><canvas width="64" height="36"></canvas><small>${workosWallTitle(w, u.walls)}</small></button>`).join('')}</div></div>
     <div class="setting"><span>${u.arr.title}</span><div class="seg"><button class="pxbtn" id="hwArr">${u.arr.title}…</button><button class="pxbtn" id="hwArrReset">${u.arr.reset}</button></div></div>
     <div class="actions"><button class="pxbtn main" id="hwOk">${u.resume}</button></div>`);
   card.classList.add('hw-card');
@@ -225,8 +231,12 @@ function showCustomize(back) {
   };
   pxFit(prev, () => { const sd = card.querySelector('.hw-side'); const w = Math.max(120, (sd ? sd.clientWidth : 300) - 24); return [w, innerWidth < 700 ? 130 : Math.min(260, Math.round(w * .66))]; });
   requestAnimationFrame(() => { if (prev.isConnected) pxRefit(prev); });   // a coluna lateral só tem largura real depois do layout
-  card.querySelectorAll('.wall[data-w]').forEach(b => { const c = b.querySelector('canvas'); if (WALLS[b.dataset.w]) WALLS[b.dataset.w](c.getContext('2d'), 64, 36); else { const x = c.getContext('2d'); x.fillStyle = WD_PAL.X; x.fillRect(0, 0, 64, 36); }   // miniatura desenhada já pequena
-    pxFit(c, () => [80, 45]); b.onclick = () => { setHw({ wall: b.dataset.w }); draw(); }; });
+  card.querySelectorAll('.wall[data-w]').forEach(b => {
+    const c = b.querySelector('canvas');
+    workosWallPreview(c, b.dataset.w);
+    pxFit(c, () => [80, 45]);
+    b.onclick = () => { setHw({ wall: b.dataset.w }); draw(); sfx('click'); };
+  });
   // Ambiente (parede fisica) e o wallpaper do WorkOS sao duas personalizacoes diferentes.
   card.querySelectorAll('.room-wall-opt').forEach(b => {
     const c = b.querySelector('canvas');
