@@ -295,10 +295,8 @@ const Office = {
       // as hitboxes e o posicionamento dos objetos permanecem inalterados.
       const walnut = DeskMaterial.paint(x, L.VW, top, L.VH - top, (st.hw || {}).deskMaterial || 'original');
       if (walnut) {
-        // Sombra de contato e borda frontal da mesma madeira, sem redesenhar os
-        // veios artificiais da mesa original sobre a textura enviada pelo criador.
-        F('#391a13', 0, top, L.VW, 1);
-        for (let j = 1; j < 4; j++) Pixel.dither(x, 0, top + j, L.VW, 1, '#4c2117', j);
+        // Os objetos e o monitor já desenham suas próprias sombras de contato.
+        // Evitar faixa horizontal escura uniforme sobre o material de nogueira.
         for (let j = L.VH - 6; j < L.VH; j++) Pixel.dither(x, 0, j, L.VW, 1, '#8c492d', j + 1);
       } else {
         // Desenho original intocado para saves antigos e fallback de carregamento.
