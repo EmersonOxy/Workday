@@ -130,7 +130,7 @@ const Msn = {
           e.preventDefault();
           if (script.draft.pos < script.text.length || !socAvail(socPresence(Msn.sel))) return;
           if (socChoose(Msn.sel, script.draft.idx)) {
-            Msn.draft = null; Msn.hint = ''; sfx('pop'); Msn.render();
+            fi.value = ''; Msn.draft = null; Msn.hint = ''; sfx('pop'); Msn.render();
             const next = Msn.win && Msn.win.querySelector('.msn-in'); if (next) next.focus();
           }
         };
