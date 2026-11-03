@@ -35,6 +35,15 @@ def inline_audio(html, audio_dir):
         return "'data:audio/mpeg;base64," + base64.b64encode(f.read_bytes()).decode() + "'"
     return re.sub(r"'audio/([\w.-]+\.mp3)'", sub, html)
 
+def inline_wallpapers(html):
+    """No arquivo offline, cada src de wallpaper vira um data URI PNG."""
+    directory = root / 'assets' / 'workos'
+    def sub(m):
+        filename = m.group(1)
+        data = base64.b64encode((directory / filename).read_bytes()).decode('ascii')
+        return "'data:image/png;base64," + data + "'"
+    return re.sub(r"'wallpapers/([\\w-]+\\.png)'", sub, html)
+
 def main():
     css = ''.join(p.read_text(encoding='utf-8') for p in sorted((src / 'css').glob('*.css')))
     # Módulos compartilhados (paleta, pixel, sprites, animação, cena) vêm antes do jogo
@@ -45,8 +54,13 @@ def main():
     (web / 'audio').mkdir(parents=True)
     (web / 'index.html').write_text(page, encoding='utf-8')
     for f in (root / 'audio').glob('*.mp3'): shutil.copy(f, web / 'audio' / f.name)
+    wallpapers = root / 'assets' / 'workos'
+    if wallpapers.is_dir():
+        (web / 'wallpapers').mkdir()
+        for f in wallpapers.glob('*.png'):
+            shutil.copy(f, web / 'wallpapers' / f.name)
     (web / '.nojekyll').write_text('')   # GitHub Pages: servir os arquivos como estão
-    (dist / 'workday.html').write_text(inline_audio(page, root / 'audio'), encoding='utf-8')
+    (dist / 'workday.html').write_text(inline_wallpapers(inline_audio(page, root / 'audio')), encoding='utf-8')
     guide = root / 'design' / 'style-guide.html'
     if guide.exists():
         g = guide.read_text(encoding='utf-8')
