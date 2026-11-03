@@ -291,17 +291,29 @@ const Office = {
     // Tampo em perspectiva: do fundo (encostado na parede, atrás do monitor) até a frente, onde você está sentado.
     // Tábuas e veios convergem para um ponto de fuga no centro; o fundo fica um pouco mais escuro que a frente.
     { const top = L.back, vpx = L.VW / 2, vpy = top - Math.max(120, L.VH * .55), cx2 = L.VW / 2;
-      F(P[2], 0, top, L.VW, L.VH - top);
-      for (let j = top; j < Math.min(L.VH, top + 8); j++) Pixel.dither(x, 0, j, L.VW, 1, P[3], j);          // fundo mais escuro
-      const at = (x0, y) => vpx + (x0 - vpx) * (y - vpy) / (top - vpy);                                      // x de uma linha de fuga na altura y
-      const plank = 14;
-      for (let n = -Math.ceil(L.VW / plank) * 3; n <= Math.ceil(L.VW / plank) * 3; n++) {
-        const x0 = cx2 + n * plank * .55;
-        for (let y = top + 1; y < L.VH; y++) { const xx = Math.round(at(x0, y)); if (xx < -2 || xx > L.VW + 2) continue; if (n % 3 === 0) F(P[4], xx, y, 1, 1); else if ((y * 7 + n * 13) % 11 < 4) F(P[3], xx, y, 1, 1); }
+      // Usa a textura apenas no material alternativo. A geometria, os encaixes,
+      // as hitboxes e o posicionamento dos objetos permanecem inalterados.
+      const walnut = DeskMaterial.paint(x, L.VW, top, L.VH - top, (st.hw || {}).deskMaterial || 'original');
+      if (walnut) {
+        // Sombra de contato e borda frontal da mesma madeira, sem redesenhar os
+        // veios artificiais da mesa original sobre a textura enviada pelo criador.
+        F('#391a13', 0, top, L.VW, 1);
+        for (let j = 1; j < 4; j++) Pixel.dither(x, 0, top + j, L.VW, 1, '#4c2117', j);
+        for (let j = L.VH - 6; j < L.VH; j++) Pixel.dither(x, 0, j, L.VW, 1, '#8c492d', j + 1);
+      } else {
+        // Desenho original intocado para saves antigos e fallback de carregamento.
+        F(P[2], 0, top, L.VW, L.VH - top);
+        for (let j = top; j < Math.min(L.VH, top + 8); j++) Pixel.dither(x, 0, j, L.VW, 1, P[3], j);
+        const at = (x0, y) => vpx + (x0 - vpx) * (y - vpy) / (top - vpy);
+        const plank = 14;
+        for (let n = -Math.ceil(L.VW / plank) * 3; n <= Math.ceil(L.VW / plank) * 3; n++) {
+          const x0 = cx2 + n * plank * .55;
+          for (let y = top + 1; y < L.VH; y++) { const xx = Math.round(at(x0, y)); if (xx < -2 || xx > L.VW + 2) continue; if (n % 3 === 0) F(P[4], xx, y, 1, 1); else if ((y * 7 + n * 13) % 11 < 4) F(P[3], xx, y, 1, 1); }
+        }
+        for (let n = 0; n < L.VW / 7; n++) { const y = top + 4 + R() * (L.VH - top - 6) | 0, x0 = R() * L.VW | 0, len = 4 + R() * 10 | 0; for (let k = 0; k < len; k++) { const xx = Math.round(at(x0 + (x0 - vpx) * k * .02, y + k)); if (y + k < L.VH) F(P[3], xx, y + k, 1, 1); } }
+        F(P.k, 0, top, L.VW, 1); for (let j = 1; j < 4; j++) Pixel.dither(x, 0, top + j, L.VW, 1, P[4], j);
+        for (let j = L.VH - 6; j < L.VH; j++) Pixel.dither(x, 0, j, L.VW, 1, P[1], j + 1);
       }
-      for (let n = 0; n < L.VW / 7; n++) { const y = top + 4 + R() * (L.VH - top - 6) | 0, x0 = R() * L.VW | 0, len = 4 + R() * 10 | 0; for (let k = 0; k < len; k++) { const xx = Math.round(at(x0 + (x0 - vpx) * k * .02, y + k)); if (y + k < L.VH) F(P[3], xx, y + k, 1, 1); } }   // veios seguindo a perspectiva
-      F(P.k, 0, top, L.VW, 1); for (let j = 1; j < 4; j++) Pixel.dither(x, 0, top + j, L.VW, 1, P[4], j);   // sombra de contato com a parede
-      for (let j = L.VH - 6; j < L.VH; j++) Pixel.dither(x, 0, j, L.VW, 1, P[1], j + 1);                      // borda da frente iluminada
       // Laterais: a mesa termina antes das bordas da tela. As quinas abrem um pouco em direção a quem está sentado;
       // fora do tampo aparece o chão (carpete escuro), e a espessura do tampo fica visível como uma faixa mais escura.
       const eb = Math.max(6, L.VW * .03 | 0), ef = Math.max(2, L.VW * .015 | 0), H0 = L.VH - top;
@@ -309,9 +321,9 @@ const Office = {
         const k = (y - top) / H0, xl = Math.round(eb + (ef - eb) * k), xr = L.VW - xl;
         x.fillStyle = P.B; x.fillRect(0, y, xl - 3, 1); x.fillRect(xr + 3, y, L.VW - xr - 3, 1);
         if ((y + (y >> 1)) % 3 === 0) { x.fillStyle = P.b; x.fillRect((y * 7) % Math.max(1, xl - 3), y, 1, 1); x.fillRect(xr + 3 + (y * 5) % Math.max(1, L.VW - xr - 3), y, 1, 1); }
-        x.fillStyle = P[4]; x.fillRect(xl - 3, y, 3, 1); x.fillRect(xr, y, 3, 1);        // espessura do tampo
+        x.fillStyle = walnut ? '#4c2117' : P[4]; x.fillRect(xl - 3, y, 3, 1); x.fillRect(xr, y, 3, 1);
         x.fillStyle = P.k; x.fillRect(xl - 4, y, 1, 1); x.fillRect(xr + 3, y, 1, 1); x.fillRect(xl - 1, y, 1, 1); x.fillRect(xr, y, 1, 1);
-        x.fillStyle = P[1]; x.fillRect(xl, y, 1, 1); x.fillRect(xr - 1, y, 1, 1);            // quina iluminada
+        x.fillStyle = walnut ? '#a05935' : P[1]; x.fillRect(xl, y, 1, 1); x.fillRect(xr - 1, y, 1, 1);
       }
       // sombra da parede no chão, junto ao fundo
       x.fillStyle = P.k; x.fillRect(0, top, eb - 3, 1); x.fillRect(L.VW - eb + 3, top, eb - 3, 1);
