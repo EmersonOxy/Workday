@@ -5,6 +5,7 @@ on:
   push:
     branches: [main]
     paths:
+      - 'src/css/80-entrega3.css'
       - 'src/js/30-personalizar.js'
       - 'src/js/shared/53-workos-wallpapers.js'
       - 'assets/workos/**'
