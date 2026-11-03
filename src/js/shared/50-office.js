@@ -293,11 +293,11 @@ const Office = {
     { const top = L.back, vpx = L.VW / 2, vpy = top - Math.max(120, L.VH * .55), cx2 = L.VW / 2;
       // Usa a textura apenas no material alternativo. A geometria, os encaixes,
       // as hitboxes e o posicionamento dos objetos permanecem inalterados.
-      const walnut = DeskMaterial.paint(x, L.VW, top, L.VH - top, (st.hw || {}).deskMaterial || 'original');
-      if (walnut) {
-        // Os objetos e o monitor já desenham suas próprias sombras de contato.
-        // Evitar faixa horizontal escura uniforme sobre o material de nogueira.
-        for (let j = L.VH - 6; j < L.VH; j++) Pixel.dither(x, 0, j, L.VW, 1, '#8c492d', j + 1);
+      const material = (st.hw || {}).deskMaterial || 'original';
+      const textured = DeskMaterial.paint(x, L.VW, top, L.VH - top, material);
+      if (textured) {
+        // Sem faixa de brilho na borda frontal: ela parecia uma linha clara
+        // atravessando a textura. Sombras individuais seguem nos objetos.
       } else {
         // Desenho original intocado para saves antigos e fallback de carregamento.
         F(P[2], 0, top, L.VW, L.VH - top);
@@ -319,9 +319,9 @@ const Office = {
         const k = (y - top) / H0, xl = Math.round(eb + (ef - eb) * k), xr = L.VW - xl;
         x.fillStyle = P.B; x.fillRect(0, y, xl - 3, 1); x.fillRect(xr + 3, y, L.VW - xr - 3, 1);
         if ((y + (y >> 1)) % 3 === 0) { x.fillStyle = P.b; x.fillRect((y * 7) % Math.max(1, xl - 3), y, 1, 1); x.fillRect(xr + 3 + (y * 5) % Math.max(1, L.VW - xr - 3), y, 1, 1); }
-        x.fillStyle = walnut ? '#4c2117' : P[4]; x.fillRect(xl - 3, y, 3, 1); x.fillRect(xr, y, 3, 1);
+        x.fillStyle = textured ? DeskMaterial.edge(material)[0] : P[4]; x.fillRect(xl - 3, y, 3, 1); x.fillRect(xr, y, 3, 1);
         x.fillStyle = P.k; x.fillRect(xl - 4, y, 1, 1); x.fillRect(xr + 3, y, 1, 1); x.fillRect(xl - 1, y, 1, 1); x.fillRect(xr, y, 1, 1);
-        x.fillStyle = walnut ? '#a05935' : P[1]; x.fillRect(xl, y, 1, 1); x.fillRect(xr - 1, y, 1, 1);
+        x.fillStyle = textured ? DeskMaterial.edge(material)[1] : P[1]; x.fillRect(xl, y, 1, 1); x.fillRect(xr - 1, y, 1, 1);
       }
       // sombra da parede no chão, junto ao fundo
       x.fillStyle = P.k; x.fillRect(0, top, eb - 3, 1); x.fillRect(L.VW - eb + 3, top, eb - 3, 1);
@@ -536,16 +536,17 @@ const Office = {
     ctx.save(); ctx.beginPath(); ctx.rect(0, 0, L.VW, L.VH); ctx.rect(M.x - 2, M.y - 2, M.w + 4, L.desk - M.y + 6); ctx.rect(W.x, W.y, W.w, W.h); ctx.clip('evenodd');
     const open = 1 - (st.blind || 0) * .9, slope = .45 + lit.k * .45, sill = W.y + W.h, H2 = Math.max(1, L.VH - sill);
     ctx.fillStyle = lit.beam;
-    for (let j = W.y; j < L.VH; j++) {
+    for (let j = W.y; j < L.back; j++) {
       const d = Math.max(0, j - W.y), a = W.x + d * slope | 0, w = (W.vis || W.w) + d * .35 | 0, fade = j < sill ? .35 : 1 - (j - sill) / H2 * .75;
-      ctx.globalAlpha = open * .42 * fade; ctx.fillRect(a, j, w, 1);
+      const edgeFade = Math.max(0,Math.min(1,(L.back-j)/24));
+      ctx.globalAlpha = open * .32 * fade * edgeFade; ctx.fillRect(a,j,w,1);
     }
     ctx.globalAlpha = (st.blind || 0) > .3 ? 0 : open * .7; ctx.fillStyle = 'rgba(255,248,220,.8)';   // poeira só com a persiana aberta
     for (let n = 0; n < 10; n++) { const ph = (t * .05 + n * .137) % 1, j = W.y + 20 + ph * (L.desk - W.y - 30) | 0, a = W.x + (j - W.y) * slope + ((n * 13 + Math.sin(t + n) * 3) | 0) % Math.max(4, W.vis || W.w); ctx.fillRect(a | 0, j, 1, 1); }
     ctx.globalAlpha = 1;
     // a cor do céu entra pela janela e banha o ambiente, mais forte perto dela (some com a persiana fechada)
     { const b = lit.beamRGB, a = b[3] * .55 * open, span = L.VW * .75, N = 6;   // faixas verticais em degraus, sem degradê suave
-      for (let n = 0; n < N; n++) { ctx.fillStyle = `rgba(${b[0] | 0},${b[1] | 0},${b[2] | 0},${(a * (1 - n / N)).toFixed(3)})`; ctx.fillRect(n === 0 ? 0 : Math.round(W.x + span * n / N), 0, Math.round(n === 0 ? W.x + span / N : span / N), L.VH); } }
+      for (let n = 0; n < N; n++) { ctx.fillStyle = `rgba(${b[0] | 0},${b[1] | 0},${b[2] | 0},${(a * (1 - n / N)).toFixed(3)})`; ctx.fillRect(n === 0 ? 0 : Math.round(W.x + span * n / N), 0, Math.round(n === 0 ? W.x + span / N : span / N), L.back); } }
     // Cortina fechada: a sala escurece de verdade e o que tem luz própria ganha destaque (tela do monitor, luminária, aquário)
     if (st.blind) { const b = st.blind;
       // escurece com um tom roxo-azulado (sombra com matiz frio), sem virar preto
