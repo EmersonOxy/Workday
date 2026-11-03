@@ -552,3 +552,15 @@
   /* prévia do WorkOS maior, com mais papel de parede à mostra */
   .pv-win { height: clamp(150px, 28vh, 260px); }
   .pv-win .pv-body { margin: 16% 24% 8% 10%; flex: 1; }
+
+  /* No celular a área de trabalho é o próprio #app; #osdesk está oculto.
+     Compartilhar a mesma imagem do WorkOS e manter o quadriculado quando
+     o jogador seleciona o tema padrão (teal). */
+  body.mobile.menu-mode #app {
+    background-color: var(--os-bg);
+    background-image: var(--wall, repeating-conic-gradient(rgba(255,255,255,.03) 0 25%, transparent 0 50%));
+    background-size: var(--wallsz, 18px 18px);
+    background-position: center;
+    background-repeat: repeat;
+    image-rendering: pixelated;
+  }
