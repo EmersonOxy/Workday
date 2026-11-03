@@ -565,3 +565,29 @@
     background-repeat: repeat;
     image-rendering: pixelated;
   }
+
+
+  /* Galeria de gatos: os thumbnails precisam reservar altura real para o sprite,
+     mesmo quando o WorkOS está em uma janela pequena. */
+  .hw-card .walls.cats { grid-template-columns: repeat(auto-fit, minmax(6.5em, 1fr)); gap: .55em; }
+  .hw-card .cats .cat { min-width: 0; min-height: 102px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 5px; }
+  .hw-card .cats .cat .cimg { height: 73px; min-height: 73px; width: 100%; display: flex; justify-content: center; align-items: flex-end; overflow: hidden; }
+  .hw-card .cats .cat small { display: block; width: 100%; white-space: normal; overflow-wrap: anywhere; line-height: 1.15; min-height: 2.2em; }
+  .hw-card .cats .cat.cat-locked { opacity: .55; filter: grayscale(.7); cursor: not-allowed; }
+  .hw-card .cats .cat.cat-free { opacity: 1; filter: none; }
+  .hw-card .cat-need { grid-column: 1 / -1; }
+  /* Tamanho da janela de jogo não corresponde necessariamente ao viewport.
+     A grade responde ao espaço interno da própria aba. */
+  .hw-main { container-type: inline-size; min-width: 0; }
+  .hw-layout .setting > .walls { min-width: 0; }
+  @container (max-width: 390px) {
+    .hw-layout .setting { grid-template-columns: minmax(0, 1fr) !important; }
+    .hw-card .walls.cats { grid-template-columns: repeat(auto-fit, minmax(6.5em, 1fr)); }
+    .hw-layout .setting > span { margin-bottom: 2px; }
+  }
+  /* Quando o próprio modal é estreito, manter um preview funcional. */
+  @media (max-width: 700px) {
+    .hw-layout { grid-template-columns: minmax(0, 1fr); }
+    .hw-layout .setting { grid-template-columns: minmax(0, 1fr) !important; }
+    .hw-opts, .hw-main { min-width: 0; }
+  }
