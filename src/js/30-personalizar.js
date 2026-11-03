@@ -1,7 +1,7 @@
 /* ================= Personalização do computador ================= */
 // Aparência física do equipamento na mesa (independente do tema claro/escuro da interface) e papel de parede do WorkOS.
 // Salvo em CFG.hw (localStorage "expediente-config"); saves antigos sem essa chave usam o padrão.
-const HW_DEFAULT = { phone: 'graphite', mon: 'cream', kb: 'cream', mouse: 'cream', wall: 'teal', roomWall: 'classic', roomTrim: 'original', cat: 'tricolor', accent: 'azul', bar: 'bege', badge: 'azul', lanyard: 'azul' };
+const HW_DEFAULT = { phone: 'graphite', mon: 'cream', kb: 'cream', mouse: 'cream', wall: 'teal', roomWall: 'classic', roomTrim: 'original', deskMaterial: 'original', cat: 'tricolor', accent: 'azul', bar: 'bege', badge: 'azul', lanyard: 'azul' };
 // Cores do WorkOS (barra de título das janelas e barra de tarefas) e do crachá (cordão e faixa do cartão)
 const OS_ACCENTS = { azul: ['#44609f', '#6f93d9'], verde: ['#2f8a45', '#6fbf73'], uva: ['#7656a8', '#a983d6'], tijolo: ['#a24a33', '#d9714a'], petroleo: ['#2f6f78', '#5fa79a'], grafite: ['#3b3f48', '#626875'], cereja: ['#a8262a', '#ef4b3f'], laranja: ['#c25f3b', '#f0915f'], noite: ['#2b2340', '#463462'], ouro: ['#8a5420', '#c98a2e'] };   // ouro: libera na Semana da produtividade
 const OS_BARS = { bege: ['#c7b595', '#fff8ec', '#8f7d63', '#e9dcc2'], cinza: ['#9aa0ab', '#d7d9de', '#626875', '#d7d9de'], noite: ['#2b2340', '#4a3a4e', '#2a1f2d', '#463462'], menta: ['#5fa79a', '#a9dccf', '#2f6f78', '#a9dccf'], creme: ['#e9dcc2', '#fbf3e2', '#c7b595', '#fbf3e2'], lavanda: ['#a983d6', '#e0cff7', '#7656a8', '#e0cff7'], pessego: ['#f2a27a', '#ffd0b0', '#d9714a', '#ffd0b0'], madeira: ['#a8623a', '#d48a4f', '#6e3b26', '#f0b778'] };
@@ -174,7 +174,7 @@ function applyWallpaper() {
 addEventListener('resize', applyWallpaper);
 
 function showCustomize(back) {
-  const u = U(), cur = hw(), rw = RoomWall.names();
+  const u = U(), cur = hw(), rw = RoomWall.names(), dm = DeskMaterial.names();
   const HWK = Object.keys(Office.HW), nm = o => (u.hwNames && u.hwNames[o]) || u[o] || o;
   const sw = o => { const r = Office.HW[o]; return `<i style="background:${r.base};box-shadow:inset 3px 3px 0 ${r.hi},inset -3px -3px 0 ${r.sh}"></i>`; };
   // amostras quadradas (o nome da cor aparece no rótulo da linha e na dica)
@@ -199,13 +199,14 @@ function showCustomize(back) {
       return `<button class="sw-btn${(cur.catEye || 'auto') === k2 ? ' on' : ''}" data-v="${k2}" title="${u.catEyes[k2]}" aria-label="${u.catEyes[k2]}"><i style="background:${cc ? `linear-gradient(90deg, ${cc[0]} 0 50%, ${cc[1]} 50% 100%)` : 'repeating-conic-gradient(#dcc6a0 0 25%, #fff8ec 0 50%) 0 0 / 8px 8px'}"></i></button>`; }).join('')}</div></div>
     <div class="setting"><span>${rw.title}</span><div class="walls">${RoomWall.ids.map(w => `<button class="pxbtn wall room-wall-opt${cur.roomWall === w ? ' on' : ''}" data-room-wall="${w}"><canvas data-room-wall="${w}" width="64" height="36"></canvas><small>${rw[w]}</small></button>`).join('')}</div></div>
     <div class="setting"><span>${rw.trim}</span><div class="seg room-trim">${['original', 'wood', 'light'].map(v => `<button class="pxbtn room-trim-opt${cur.roomTrim === v ? ' on' : ''}" data-room-trim="${v}">${rw[v]}</button>`).join('')}</div></div>
+    <div class="setting"><span>${dm.title}</span><div class="walls">${DeskMaterial.ids.map(v => `<button class="pxbtn wall desk-material-opt${cur.deskMaterial === v ? ' on' : ''}" data-desk-material="${v}"><canvas data-desk-material="${v}" width="64" height="36"></canvas><small>${dm[v]}</small></button>`).join('')}</div></div>
     <div class="setting"><span>${u.wallLabel}</span><div class="walls">${workosWallNames().map(w => `<button class="pxbtn wall${cur.wall === w ? ' on' : ''}" data-w="${w}"><canvas width="64" height="36"></canvas><small>${workosWallTitle(w, u.walls)}</small></button>`).join('')}</div></div>
     <div class="setting"><span>${u.arr.title}</span><div class="seg"><button class="pxbtn" id="hwArr">${u.arr.title}…</button><button class="pxbtn" id="hwArrReset">${u.arr.reset}</button></div></div>
     <div class="actions"><button class="pxbtn main" id="hwOk">${u.resume}</button></div>`);
   card.classList.add('hw-card');
   // Layout de aplicativo: abas por categoria à esquerda e prévia grande à direita (computador, janela do WorkOS,
   // crachá e gato), tudo atualizado em tempo real. As linhas existentes são só redistribuídas (nenhuma opção some).
-  { const rows = [...card.querySelectorAll(':scope .setting')], CAT = ['pc', 'pc', 'pc', 'pc', 'os', 'os', 'badge', 'badge', 'pc', 'ptr', 'ptr', 'os', 'desk', 'desk', 'desk', 'desk', 'os', 'desk'];
+  { const rows = [...card.querySelectorAll(':scope .setting')], CAT = ['pc', 'pc', 'pc', 'pc', 'os', 'os', 'badge', 'badge', 'pc', 'ptr', 'ptr', 'os', 'desk', 'desk', 'desk', 'desk', 'desk', 'os', 'desk'];
     const lay = document.createElement('div'); lay.className = 'hw-layout';
     lay.innerHTML = `<div class="hw-main"><div class="hw-tabs">${['pc', 'os', 'badge', 'desk', 'ptr'].map(k => `<button class="pxbtn hw-tab" data-t="${k}">${u.hwTabs[k]}</button>`).join('')}</div><div class="hw-opts"></div></div>
       <aside class="hw-side"><div class="hw-pv hw-pv-pc"></div><div class="hw-pv hw-pv-os"><div class="pv-win"><i class="pv-bar"><b></b><b></b><b class="x"></b></i><div class="pv-body"></div></div><i class="pv-task"><i class="pv-orb"></i></i></div>
@@ -231,6 +232,7 @@ function showCustomize(back) {
     card.querySelectorAll('.wall[data-w]').forEach(b => b.classList.toggle('on', b.dataset.w === h.wall));
     card.querySelectorAll('.room-wall-opt').forEach(b => b.classList.toggle('on', b.dataset.roomWall === h.roomWall));
     card.querySelectorAll('.room-trim-opt').forEach(b => b.classList.toggle('on', b.dataset.roomTrim === h.roomTrim));
+    card.querySelectorAll('.desk-material-opt').forEach(b => b.classList.toggle('on', b.dataset.deskMaterial === h.deskMaterial));
     Office.hwPreview(prev, h);
   };
   pxFit(prev, () => { const sd = card.querySelector('.hw-side'); const w = Math.max(120, (sd ? sd.clientWidth : 300) - 24); return [w, innerWidth < 700 ? 130 : Math.min(260, Math.round(w * .66))]; });
@@ -253,6 +255,11 @@ function showCustomize(back) {
       card.querySelectorAll('.room-wall-opt canvas').forEach(c => RoomWall.preview(c, c.dataset.roomWall, hw().roomTrim));
       draw(); sfx('click');
     };
+  });
+  card.querySelectorAll('.desk-material-opt').forEach(b => {
+    const c = b.querySelector('canvas');
+    DeskMaterial.preview(c, b.dataset.deskMaterial); pxFit(c, () => [80, 45]);
+    b.onclick = () => { setHw({ deskMaterial: b.dataset.deskMaterial }); draw(); sfx('click'); };
   });
   card.querySelectorAll('.cat').forEach(b => { const st0 = catStill(b.dataset.c, .85), cv = document.createElement('canvas'); cv.width = st0.width; cv.height = st0.height; cv.getContext('2d').drawImage(st0, 0, 0); b.querySelector('.cimg').append(pxSize(cv, 2));   // mesmo gato da mesa   // mesmo modelo do gato da mesa
     b.onclick = () => { setHw({ cat: b.dataset.c }); card.querySelectorAll('.cat').forEach(x => x.classList.toggle('on', x === b)); sfx('pop'); }; });
