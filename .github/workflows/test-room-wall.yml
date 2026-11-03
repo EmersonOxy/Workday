@@ -1,0 +1,36 @@
+name: Testar parede personalizável
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  parede:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Obter código
+        uses: actions/checkout@v4
+      - name: Preparar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Preparar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verificar sintaxe e compilar
+        run: |
+          node --check src/js/shared/50-office.js
+          node --check src/js/shared/51-room-wall.js
+          node --check src/js/30-personalizar.js
+          node --check tests/parede.js
+          python tools/build.py
+      - name: Instalar Playwright
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+      - name: Testar comportamento no navegador
+        run: node tests/parede.js
