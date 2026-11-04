@@ -262,7 +262,7 @@ function showCustomize(back) {
     DeskMaterial.preview(c, b.dataset.deskMaterial); pxFit(c, () => [80, 45]);
     b.onclick = () => { setHw({ deskMaterial: b.dataset.deskMaterial }); draw(); sfx('click'); };
   });
-  card.querySelectorAll('.cat').forEach(b => { b.querySelector('.cimg').append(pxSize(catStill(b.dataset.c,.65),2));
+  card.querySelectorAll('.cat').forEach(b => { b.querySelector('.cimg').append(CatStatic.thumbnail(b.dataset.c));
     b.onclick = () => { setHw({ cat: b.dataset.c }); card.querySelectorAll('.cat').forEach(x => x.classList.toggle('on', x === b));
       const pc=card.querySelector('.pv-cat'); if(pc && pc.paintCat) pc.paintCat(); sfx('pop'); }; });
   // ponteiros: prévia na cor escolhida; passar o mouse sobre um ponteiro que aceita cor mostra as cores dele
