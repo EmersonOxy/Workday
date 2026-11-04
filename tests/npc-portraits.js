@@ -43,6 +43,32 @@ function ok(v, s) { if (v) { passed++; console.log('  ✓ ' + s); } else { faile
       ok(r.pic && r.portrait, label + ': retrato e ícone do Duda decodificados em PNG transparente');
       ok(r.stable && r.calls, label + ': expressão e fala não animam o retrato, mas mantêm a API da chamada');
       ok(r.legacy && r.bio, label + ': demais NPCs e descrição do Duda preservados');
+      const lib = await p.evaluate(async () => {
+        const ids = Object.keys(NPC_PORTRAIT_RESERVE);
+        const images = ids.map(id => npcReservedPortrait(id,128));
+        const decoded = await Promise.all(images.map(img => img.decode().then(() => true, () => false)));
+        const canvas = document.createElement('canvas'); canvas.width = canvas.height = 128;
+        const ctx = canvas.getContext('2d'); ctx.drawImage(images[0],0,0);
+        const rgba = ctx.getImageData(0,0,128,128).data;
+        let clear = 0, filled = 0;
+        for (let i=3;i<rgba.length;i+=4) { if (!rgba[i]) clear++; if (rgba[i]===255) filled++; }
+        return {
+          count: ids.length, first: ids[0], last: ids.at(-1),
+          decoded: decoded.every(Boolean),
+          dims: images.every(img=>img.naturalWidth===128 && img.naturalHeight===128),
+          pixelated: images.every(img=>img.style.imageRendering==='pixelated'),
+          transparent: clear>100 && filled>1000,
+          unknown: npcReservedPortrait('personagem-999')===null,
+          cast: ['duda','bia','otavio','helena','rafa','lu'].every(id=>!!CAST[id])
+            && !!NPC_STATIC_ART.duda && msnPicEl('bia',2).tagName==='CANVAS'
+        };
+      });
+      ok(lib.count===19 && lib.first==='personagem-01' && lib.last==='personagem-19' && lib.unknown,
+        label+': galeria de 19 retratos, IDs provisórios e busca segura');
+      ok(lib.decoded && lib.dims && lib.transparent,
+        label+': todos os PNGs 128x128 decodificados com transparência');
+      ok(lib.pixelated && lib.cast,
+        label+': pixel art e personagens existentes preservados');
       ok(!errors.length, label + ': página abre sem erros de JavaScript' + (errors.length ? ' (' + errors.join('|') + ')' : ''));
       await p.close();
     }

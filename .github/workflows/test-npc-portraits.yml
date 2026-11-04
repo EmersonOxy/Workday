@@ -19,6 +19,7 @@ jobs:
       - name: Sintaxe e compilação offline
         run: |
           node --check src/js/shared/52-npc-portraits.js
+          node --check src/js/shared/52a-npc-portrait-reserve.js
           node --check src/js/44-social-elenco.js
           node --check src/js/31-chamada.js
           node --check tests/npc-portraits.js
