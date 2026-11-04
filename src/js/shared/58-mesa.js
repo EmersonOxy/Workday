@@ -211,7 +211,7 @@ Object.assign(Office, {
   },
   deskObj0(x, id, q, st, t, dy = 0) {
     const P = WD_PAL, y = q.y + dy;
-    if (id === 'gato') { const k = 2; // 80x120 na mesa: tricolor nativo 1:1, demais pelagens em pixels 2x2
+    if (id === 'gato') { const k = 2; // Todos os gatos em 80x120 nativos, renderização 1:1 na mesa
       const art = window.WorkdayCatStatic;
       const cw = art && art.ready(st.cat) ? art.sizes(k)[0] : catSize(k)[0];
       const cxx = q.x + ((q.w - cw) >> 1);
