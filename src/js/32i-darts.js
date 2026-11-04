@@ -75,9 +75,15 @@ function mgDarts(host,done,opts={}) {
       aim.x=clip(p.x,5,123);aim.y=clip(p.y,20,124);
     }
   };
-  st.cv.onpointerup=st.cv.onpointercancel=e=>{
+  st.cv.onpointerup=e=>{
     if(e.pointerId===joyId){joyId=null;joystick={x:0,y:0};}
     if(e.pointerId===pointerId){pointerId=null;release();}
+  };
+  // Interrupções do navegador (troca de aba, gesto do sistema, captura perdida)
+  // cancelam o arremesso em andamento; não contam como soltura intencional.
+  st.cv.onpointercancel=e=>{
+    if(e.pointerId===joyId){joyId=null;joystick={x:0,y:0};}
+    if(e.pointerId===pointerId){pointerId=null;hold=false;charge=0;}
   };
   function resolve() {
     const scored=dartPoints(flight.x,flight.y);

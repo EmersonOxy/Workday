@@ -9,24 +9,51 @@ function arcadeClock() {
   };
 }
 function arcadeEmployee(ctx, x, y, kind = 'player', scale = 1) {
-  // Trabalhador em miniatura com silhueta, camisa, gravata, braços e pernas.
+  // Sprite modular de 16×20 px. Cada quadrado é um pixel lógico; nunca há
+  // antialias ou escala fracionária, mesmo quando o ator se desloca no campo.
+  scale = Math.max(1, Math.round(scale));
   const boss = kind === 'boss', keeper = kind === 'keeper';
-  const hair = boss ? '#626875' : keeper ? '#a8683e' : '#87502c';
-  const hairLight = boss ? '#9aa0ab' : keeper ? '#c98f30' : '#a8683e';
-  const shirt = boss ? '#3b3f48' : keeper ? '#f4c15d' : '#c3d5ff';
-  const shade = boss ? '#2b2340' : keeper ? '#c98a2e' : '#44609f';
-  const tie = boss ? '#ef4b3f' : keeper ? '#2f6f78' : '#a8262a';
-  const fill = (c, a, b, w, h) => { ctx.fillStyle = c; ctx.fillRect((x + a * scale)|0, (y + b * scale)|0, Math.max(1,w*scale), Math.max(1,h*scale)); };
-  fill('#2a1f2d',1,0,9,8);
-  fill(hair,2,1,7,2);fill(hairLight,3,1,3,1);
-  fill('#f2c4a0',2,3,7,5);fill('#d99a76',8,4,1,3);
-  fill('#2a1f2d',3,5,1,1);fill('#2a1f2d',7,5,1,1);
-  if(boss){fill('#2a1f2d',2,4,3,1);fill('#2a1f2d',6,4,3,1);fill('#a8684c',4,7,3,1);}
-  else fill('#a8684c',4,7,3,1);
-  fill('#2a1f2d',1,8,9,4);fill(shirt,2,8,7,4);
-  fill(shade,1,9,1,2);fill(shade,9,9,1,2);
-  fill(tie,5,8,1,4);fill('#fff8ec',4,8,1,1);
-  fill('#2a1f2d',2,12,3,2);fill('#2a1f2d',6,12,3,2);
+  const shirt = boss ? ['J','M','j'] : keeper ? ['Y','z','%'] : ['L','7','6'];
+  const hair = boss ? ['j','M'] : keeper ? ['8','O'] : ['4','T'];
+  const tie = boss ? 'R' : keeper ? 'x' : 'q';
+  const rows = [
+    '.....kkkkkk.....',
+    '....kHHHHHHk....',
+    '...kHHHHHHHHk...',
+    '..kHHHHHHHHHHk..',
+    '..kHSSSSSSSSSk..',
+    '..kHSESSSSESSk..',
+    '..kHSkSSSSkSSk..',
+    '..kHSSSSSSSSSk..',
+    '...kHSSS5SSSk...',
+    '....kSSSSSSk....',
+    '...kkSSSSSSkk...',
+    '..kBBBBBBBBBBk..',
+    '.kBBbBBWWBBbBBk.',
+    '.kBBbBBWWBBbBBk.',
+    '.kBBBBBTBBBBBBk.',
+    '.kBBBBBBBBBBBBk.',
+    '..kBBBBBBBBBBk..',
+    '...kkBBBBBBkk...',
+    '...kKK...KKk....',
+    '..kkKK...KKkk...'
+  ];
+  const colors = { k: WD_PAL.k, K: WD_PAL.K, S: WD_PAL.s, E: WD_PAL.S, 5: WD_PAL[5],
+    W: WD_PAL.W, B: WD_PAL[shirt[0]], b: WD_PAL[shirt[1]], T: WD_PAL[tie], H: WD_PAL[hair[0]],
+    h: WD_PAL[hair[1]] };
+  // Cabelo e tecido recebem pequenos highlights separados para volume legível.
+  const pixels = rows;
+  const ox = Math.round(x / scale) * scale, oy = Math.round(y / scale) * scale;
+  for (let py = 0; py < pixels.length; py++) for (let px = 0; px < pixels[py].length; px++) {
+    let id = pixels[py][px];
+    if (id !== '.' && colors[id]) {
+      ctx.fillStyle = colors[id];
+      ctx.fillRect(ox + px * scale, oy + py * scale, scale, scale);
+    }
+  }
+  // Penteado e camisa são variantes de setor, sem alterar a silhueta/base.
+  ctx.fillStyle = WD_PAL[hair[1]]; ctx.fillRect(ox+5*scale,oy+2*scale,3*scale,scale);
+  ctx.fillStyle = WD_PAL[shirt[2]]; ctx.fillRect(ox+2*scale,oy+15*scale,2*scale,scale);
 }
 function arcadeDoneOnce(done) {
   let completed = false;

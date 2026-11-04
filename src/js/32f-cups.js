@@ -8,21 +8,26 @@ function mgCups(host,done,opts={}) {
   let pair=[0,1],control;
   const at=(id)=>cups.find(c=>c.id===id);
   const shapeCup=(cup)=>{
-    const xx=cup.x|0,yy=(cup.y||0)|0,edge=xx-15;
-    // Cup with rim, pattern, highlight, shade and cast shadow.
-    ctx.fillStyle=P.k;ctx.fillRect(edge-1,87+yy,31,3);
-    ctx.fillStyle=P.J;ctx.fillRect(edge+1,84+yy,27,2);
-    ctx.fillStyle=P.k;ctx.fillRect(edge,57+yy,28,29);
-    ctx.fillStyle=P.W;ctx.fillRect(edge+2,58+yy,23,25);
-    ctx.fillStyle=P.p;ctx.fillRect(edge+18,60+yy,7,23);
-    ctx.fillStyle=P.R;ctx.fillRect(edge+4,60+yy,5,20);
-    ctx.fillStyle=P.y;ctx.fillRect(edge+10,63+yy,5,18);
-    ctx.fillStyle=P.R;ctx.fillRect(edge+16,67+yy,4,14);
-    ctx.fillStyle=P.W;ctx.fillRect(edge+2,57+yy,24,4);
-    ctx.fillStyle=P.k;ctx.fillRect(edge-2,54+yy,32,4);
-    ctx.fillStyle=P.w;ctx.fillRect(edge+1,55+yy,26,2);
-    ctx.fillStyle=P.K;ctx.fillRect(edge+10,71+yy,7,7);
-    Pixel.text(ctx,String(cup.id+1),edge+12,73+yy,P.W);
+    const xx=cup.x|0,yy=(cup.y||0)|0,top=57+yy;
+    // Silhueta cônica em degraus, com filete próprio para cada copo.
+    ctx.fillStyle=P.k;ctx.fillRect(xx-16,88+yy,32,2);
+    ctx.fillStyle=P.K;ctx.fillRect(xx-13,86+yy,26,2);
+    ctx.fillStyle=P.k;ctx.fillRect(xx-12,59+yy,24,27);
+    const widths=[20,20,18,18,16,16,14,14,12,12,10,10,8,8,6,6,4,4,2];
+    for(let i=0;i<widths.length;i++){
+      const w=widths[i],left=xx-(w>>1),row=top+3+i;
+      ctx.fillStyle=P.W;ctx.fillRect(left,row,Math.max(1,w-3),1);
+      ctx.fillStyle=P.w;ctx.fillRect(left+w-3,row,2,1);
+      ctx.fillStyle=P.p;ctx.fillRect(left+w-1,row,1,1);
+    }
+    const bands=[P.R,P.Y,P.L];
+    ctx.fillStyle=bands[cup.id];ctx.fillRect(xx-7,66+yy,14,3);
+    ctx.fillStyle=P.k;ctx.fillRect(xx-14,56+yy,28,4);
+    ctx.fillStyle=P.W;ctx.fillRect(xx-12,56+yy,22,1);
+    ctx.fillStyle=P.w;ctx.fillRect(xx-10,55+yy,20,1);
+    ctx.fillStyle=P.k;ctx.fillRect(xx-8,73+yy,16,11);
+    ctx.fillStyle=P.J;ctx.fillRect(xx-7,74+yy,14,9);
+    Pixel.text(ctx,String(cup.id+1),xx-2,78+yy,bands[cup.id]);
   };
   function draw() {
     ctx.fillStyle=P[0];ctx.fillRect(0,0,128,160);
