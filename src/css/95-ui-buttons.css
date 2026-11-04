@@ -1,0 +1,72 @@
+/* Workday UI spritesheet — autoria: imagem fornecida pelo criador.
+   Grade original: 6 colunas x 4 linhas. Atlas logico 132x72 px;
+   cada celula 22x18 px, ampliada apenas em 2x (44x36).
+   O recorte inclui margem transparente, evitando vazar icones vizinhos.
+   Sem suavizacao ou escala fracionaria. As acoes continuam sendo botoes reais. */
+
+:root { --wd-button-atlas: url('ui-buttons/buttons.png'); }
+
+.vcall .vc-call i,
+.vcall .vc-ctrl .vc-call i {
+  width: 44px;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  clip-path: none;
+  animation: none;
+  line-height: 0;
+}
+.vcall .vc-call i > canvas,
+.vcall .vc-call i > img { display: none; }
+.vcall .vc-call i::before {
+  content: '';
+  display: block;
+  width: 44px;
+  height: 36px;
+  background-image: var(--wd-button-atlas);
+  background-repeat: no-repeat;
+  background-size: 264px 144px;
+  image-rendering: pixelated;
+}
+.vcall .vc-call.accept i::before { background-position: 0 0; }
+.vcall .vc-call.decline i::before { background-position: -44px 0; }
+.vcall .vc-call:hover i { filter: none; }
+.vcall .vc-call:hover i::before { filter: brightness(1.08); }
+.vcall .vc-call:active i { transform: translateY(2px); }
+.vcall .vc-ringbtns { align-items: start; }
+.vcall .vc-ctrl .vc-call i { min-height: 36px; }
+
+.msn [data-req="ok"],
+.msn [data-req="no"],
+.msn .msn-back { display: inline-flex; align-items: center; gap: 4px; }
+.msn [data-req="ok"]::before,
+.msn [data-req="no"]::before,
+.msn .msn-back::before,
+.msn-a[data-act="info"]::before {
+  content: '';
+  display: block;
+  flex: none;
+  width: 22px;
+  height: 18px;
+  background-image: var(--wd-button-atlas);
+  background-repeat: no-repeat;
+  background-size: 132px 72px;
+  image-rendering: pixelated;
+}
+.msn [data-req="ok"]::before { background-position: -44px 0; }
+.msn [data-req="no"]::before { background-position: -66px 0; }
+.msn .msn-back::before { background-position: -66px -18px; }
+.msn-a[data-act="info"] {
+  background: #e9dcc2;
+  box-shadow: 0 0 0 2px #2a1f2d, inset 0 2px 0 #fff8ec, inset 0 -2px 0 #8f7d63;
+}
+.msn-a[data-act="info"] > * { display: none; }
+.msn-a[data-act="info"]::before { background-position: -22px -18px; }
+.msn-a[data-act="info"]:hover { background: #f3e6cc; }
+.msn-a[data-act="info"].on { background: #dcc6a0; }
+
+@media (prefers-reduced-motion: reduce) {
+  .vcall .vc-call i, .vcall .vc-call i::before { animation: none; transition: none; }
+}
