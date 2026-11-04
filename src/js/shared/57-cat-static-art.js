@@ -21,7 +21,11 @@ const CAT_STATIC_ALIAS = {
   bicolor:'branco', vaquinha:'frajola'
 };
 const CatStatic = {
-  images:{}, loaded:new Set(), sizes(k){return [Math.ceil(34*k),Math.ceil(50*k)]},
+  images:{}, loaded:new Set(),
+  // A fonte de TODAS as pelagens e 40x60. Usar suas dimensoes reais evita
+  // esticar 40x60 para 68x100 (fatores 1,70x/1,67x, pixels irregulares).
+  // Na mesa, k=2 produz 80x120 com cada pixel original em um bloco 2x2.
+  sizes(k){return [Math.ceil(40*k),Math.ceil(60*k)]},
   id(c){const key=String(c||'laranja').split('|')[0];return CAT_STATIC_ALIAS[key]||key},
   ready(c){return this.loaded.has(this.id(c))},
   draw(ctx,x,by,c,k=1) {
