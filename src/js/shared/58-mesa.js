@@ -7,7 +7,7 @@
 
 // id → [porte, largura que ocupa na mesa, altura visual]
 const DESK_OBJ = {
-  gato: ['G', 86, 100], lamp: ['G', 78, 92], aquario: ['G', 62, 42],
+  gato: ['G', 86, 120], lamp: ['G', 78, 92], aquario: ['G', 62, 42],
   mug: ['M', 40, 40], globo: ['M', 30, 38], trofeu: ['M', 30, 38], foto: ['M', 24, 28], planta: ['M', 28, 32], radio: ['M', 34, 24],
   badge: ['P', 16, 26], pens: ['P', 17, 21], papersL: ['P', 33, 12], papersR: ['P', 33, 12], pato: ['P', 18, 16], livros: ['P', 31, 22],
   caixaL: ['P', 13, 22], caixaR: ['P', 13, 22], cacto: ['P', 18, 26],
@@ -211,7 +211,7 @@ Object.assign(Office, {
   },
   deskObj0(x, id, q, st, t, dy = 0) {
     const P = WD_PAL, y = q.y + dy;
-    if (id === 'gato') { const k = 2;
+    if (id === 'gato') { const k = 2; // 40x60 -> 80x120: pixels 2x2 sem escala fracionária
       const art = window.WorkdayCatStatic;
       const cw = art && art.ready(st.cat) ? art.sizes(k)[0] : catSize(k)[0];
       const cxx = q.x + ((q.w - cw) >> 1);
