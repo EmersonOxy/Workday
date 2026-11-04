@@ -60,4 +60,10 @@ const url = 'file://' + path.resolve(__dirname,'..','dist','workday.html');
     }
   } finally {await browser.close();}
   console.log('[Arcade] OK');
-})().catch(e=>{console.error(e);process.exitCode=1;});
+})().then(()=>{
+  // Rodar também as regressões do V4 após o conjunto anterior, no mesmo job de CI.
+  const cp=require('node:child_process');
+  const result=cp.spawnSync(process.execPath,[require('node:path').resolve(__dirname,'arcade-v4.js')],{stdio:'inherit',timeout:120000});
+  if(result.error)throw result.error;
+  if(result.status!==0)process.exitCode=1;
+}).catch(e=>{console.error(e);process.exitCode=1;});
