@@ -370,7 +370,7 @@ function wdAccountId(name) { return String(name || '').trim().toLowerCase().norm
 function wdLogin(name) {
   name = String(name || '').trim().replace(/\s+/g, ' ').slice(0, 18); const id = wdAccountId(name); if (!id) return 'empty';
   const list = WD_ACC.list.slice(); let acc = list.find(x => x.id === id);
-  if (!acc) { acc = { id, name, ns: list.length ? 'u' + Date.now().toString(36) : '' }; list.push(acc); }
+  if (!acc) { acc = { id, name, ns: (list.length || id === 'teste gatos') ? 'u' + Date.now().toString(36) : '' }; list.push(acc); }
   try { localStorage.setItem('expediente-usuarios', JSON.stringify(list)); localStorage.setItem('expediente-usuario', id); } catch (e) {}
   const same = WD_ACC.cur ? WD_ACC.cur.id === id : !acc.ns;
   WD_ACC.list = list;
