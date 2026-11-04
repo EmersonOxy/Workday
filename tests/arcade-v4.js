@@ -36,7 +36,7 @@ const url='file://'+path.resolve(__dirname,'..','dist','workday.html');
       const pre=await page.evaluate(()=>{
         const h=document.getElementById('arc-v4');
         const v=h.querySelector('.mg-wager input');
-        v.value='20';h.querySelector('.mg-wager button').click();
+        v.value='20';h.querySelector('.mg-wager-row button').click();
         return {wallet:P.wallet,stake:h._cups.stake,phase:h._cups.phase};
       });
       assert.equal(pre.wallet,100,'aposta é debitada imediatamente');
@@ -94,8 +94,7 @@ const url='file://'+path.resolve(__dirname,'..','dist','workday.html');
       await start('darts');
       const stake=await page.evaluate(()=>{
         const h=document.getElementById('arc-v4');
-        h.querySelector('.mg-wager input').value='0';
-        h.querySelector('.mg-wager button').click();
+        h.querySelector('.mg-play-free').click();
         h._darts.press();
         return {wallet:P.wallet,phase:h._darts.phase};
       });
