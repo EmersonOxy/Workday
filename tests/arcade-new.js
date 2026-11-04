@@ -1,4 +1,4 @@
-/* Regressão dos minigames do Workday.
+/* Regressão dos minigames do Workday, incluindo modos sem aposta do Arcade V4.
    Uso: python tools/build.py && node tests/arcade-new.js */
 const { chromium } = require('playwright');
 const path = require('path');
