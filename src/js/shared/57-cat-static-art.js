@@ -54,6 +54,38 @@ const CatStatic = {
         if(best>=0){const b=best*4,a=n*4;p[a]=p[b];p[a+1]=p[b+1];p[a+2]=p[b+2];p[a+3]=255;}
       }
     }
+    // Os PNGs pretos possuem frestas conectadas ao exterior, sobretudo entre
+    // pescoço, patas e cauda. O preenchimento por flood-fill não alcança essas frestas.
+    // Fechar apenas fendas curtas do miolo, usando pelagem escura vizinha.
+    const bodyPixel=(x,y)=>x>=12&&x<=65&&y>=43&&y<=117;
+    const dark=(i)=>p[i*4+3]>=160&&Math.max(p[i*4],p[i*4+1],p[i*4+2])<125;
+    const paint=(x,y,ref)=>{const i=(y*w+x)*4,j=ref*4;
+      p[i]=p[j];p[i+1]=p[j+1];p[i+2]=p[j+2];p[i+3]=255;};
+    for(let pass=0;pass<2;pass++){
+      for(let y=43;y<Math.min(h,118);y++)for(let x=13;x<Math.min(w-10,65);x++){
+        if(!bodyPixel(x,y)||at(x,y)>150)continue;
+        // Duas extremidades escuras próximas, na horizontal ou vertical.
+        for(const [dx,dy] of [[1,0],[0,1]]){
+          let a=-1,b=-1;
+          for(let k=1;k<=7;k++){
+            const xx=x-dx*k,yy=y-dy*k;if(!bodyPixel(xx,yy))break;
+            const idx=yy*w+xx;if(dark(idx)){a=idx;break;}
+            if(at(xx,yy)>150)break;
+          }
+          for(let k=1;k<=7;k++){
+            const xx=x+dx*k,yy=y+dy*k;if(!bodyPixel(xx,yy))break;
+            const idx=yy*w+xx;if(dark(idx)){b=idx;break;}
+            if(at(xx,yy)>150)break;
+          }
+          if(a>=0&&b>=0){paint(x,y,a);break;}
+        }
+      }
+    }
+    // Pixel art nativa: não deixar semitransparência atravessar a pelagem do corpo.
+    for(let y=43;y<Math.min(h,118);y++)for(let x=12;x<Math.min(w,66);x++){
+      const n=(y*w+x)*4,a=p[n+3];
+      if(a>96&&a<255)p[n+3]=255;
+    }
     ctx.putImageData(source,0,0);return cv;
   },
   // Miniatura direta do sprite nativo, sem passar pelo conversor de paleta 40x60.
