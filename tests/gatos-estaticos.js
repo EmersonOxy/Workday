@@ -24,6 +24,39 @@ function ok(value,name){if(value){passed++;console.log('  ✓ '+name);}else{fail
        return{size:CatStatic.images[id].naturalWidth===40 && CatStatic.images[id].naturalHeight===60,corner,center,data:c.toDataURL()};
      });
      const body=CatStatic.sizes(2);
+     // Compara todos os canais: cada pixel da fonte 40x60 deve virar um bloco
+     // 2x2 identico na mesa, mesmo com imageSmoothingEnabled antes do desenho.
+     const pixelPerfect=ids.every(id=>{
+       const src=document.createElement('canvas');src.width=40;src.height=60;
+       const sc=src.getContext('2d');sc.drawImage(CatStatic.images[id],0,0);
+       const raw=sc.getImageData(0,0,40,60).data;
+       const dest=document.createElement('canvas');dest.width=80;dest.height=120;
+       const dc=dest.getContext('2d');dc.imageSmoothingEnabled=true;
+       CatStatic.draw(dc,0,120,id,2);
+       const painted=dc.getImageData(0,0,80,120).data;
+       for(let y=0;y<60;y++)for(let x=0;x<40;x++)for(let yy=0;yy<2;yy++)for(let xx=0;xx<2;xx++){
+         const a=(y*40+x)*4,b=((y*2+yy)*80+(x*2+xx))*4;
+         for(let ch=0;ch<4;ch++)if(raw[a+ch]!==painted[b+ch])return false;
+       }
+       return true;
+     });
+     // A inversao horizontal da arrumacao deve manter o grid.
+     const mirror=document.createElement('canvas');mirror.width=80;mirror.height=120;
+     const mc=mirror.getContext('2d');mc.translate(80,0);mc.scale(-1,1);
+     CatStatic.draw(mc,0,120,'tricolor',2);
+     const mirrored=mc.getImageData(0,0,80,120).data;
+     const original=document.createElement('canvas');original.width=80;original.height=120;
+     CatStatic.draw(original.getContext('2d'),0,120,'tricolor',2);
+     const normal=original.getContext('2d').getImageData(0,0,80,120).data;
+     let mirrorMatches=true;
+     for(let y=0;y<120&&mirrorMatches;y++)for(let x=0;x<80&&mirrorMatches;x++){
+       const a=(y*80+x)*4,b=(y*80+(79-x))*4;
+       for(let ch=0;ch<4;ch++)if(normal[a+ch]!==mirrored[b+ch]){mirrorMatches=false;break;}
+     }
+     const q=Office.deskSlots(Office.layout(640,360),['gato']).gato;
+     const deskFit=!!q&&!q.off&&q.w>=80&&q.h===120&&
+       Math.round(q.x+(q.w-80)/2)+80<=640&&q.y-q.h>=0;
+     const previewFits=CatStatic.sizes(1.12)[0]<=56&&CatStatic.sizes(1.12)[1]<=72;
      const c=document.createElement('canvas');c.width=150;c.height=140;
      const ctx=c.getContext('2d');
      const state=CatAI.make();state.state='sleep';state.pet=0;
@@ -40,14 +73,18 @@ function ok(value,name){if(value){passed++;console.log('  ✓ '+name);}else{fail
        count:ids.length,ready:CatStatic.loaded.size,
        sizeOk:masks.every(m=>m.size),transparent:masks.every(m=>m.corner===0 && m.center===255),
        unique:new Set(masks.map(m=>m.data)).size,
-       static: first===second,size:body,still:[still.width,still.height],oldAlias
+       static: first===second,size:body,still:[still.width,still.height],oldAlias,pixelPerfect,mirrorMatches,deskFit,previewFits
      };
    });
    const mobile=viewport.width<600?'Mobile':'Desktop';
    ok(r.count===10&&r.ready===10,mobile+': dez PNGs integrados e carregados');
    ok(r.sizeOk&&r.transparent,mobile+': todos os sprites 40x60 têm fundo transparente');
    ok(r.unique===10,mobile+': dez artes diferentes preservadas');
-   ok(r.static&&r.size[0]>=60&&r.size[1]>=90,mobile+': gato grande na mesa e sem animação');
+   ok(r.static&&r.size[0]===80&&r.size[1]===120,mobile+': gato 80x120 sem animacao');
+   ok(r.pixelPerfect,mobile+': pixels 2x2 perfeitos nas dez pelagens');
+   ok(r.mirrorMatches,mobile+': espelhamento sem distorcer os pixels');
+   ok(r.deskFit,mobile+': espaço na mesa e hitbox ajustados');
+   ok(r.previewFits,mobile+': previsualizacao respeita o quadro');
    ok(r.still[0]>20&&r.still[1]>35&&r.oldAlias,mobile+': miniaturas e saves antigos compatíveis');
    await page.evaluate(()=>{
      document.getElementById('titlescr')?.remove();
