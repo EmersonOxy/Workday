@@ -28,7 +28,7 @@ function ok(value,name){if(value){passed++;console.log('  ✓ '+name);}else{fail
      // Todos os gatos: 80x120 nativos na mesa, em escala 1:1.
      // Validar todos os canais, mesmo quando suavizacao foi ativada.
      const pixelPerfect=ids.every(id=>{
-       const img=CatStatic.images[id],w=img.naturalWidth,h=img.naturalHeight;
+       const img=CatStatic.renderImages[id]||CatStatic.images[id],w=img.naturalWidth||img.width,h=img.naturalHeight||img.height;
        const sx=80/w,sy=120/h;
        if(!Number.isInteger(sx)||sx!==sy)return false;
        const src=document.createElement('canvas');src.width=w;src.height=h;
@@ -113,6 +113,7 @@ function ok(value,name){if(value){passed++;console.log('  ✓ '+name);}else{fail
        mobile+': tricolor livre na mesa, demais pelagens exigem Mercado');
      ok(demo.notWashed&&demo.noOverlap,mobile+': miniaturas sem filtro global e nome abaixo do gato');
    }
+   ok(await page.evaluate(()=>[...document.querySelectorAll('.hw-card .cat .cimg')].length===10 && [...document.querySelectorAll('.hw-card .cat .cimg')].every(el=>el.firstElementChild?.tagName==='IMG' && el.firstElementChild.naturalWidth===80)),mobile+': miniaturas mostram diretamente PNGs nativos');
    const selectable=await page.evaluate(()=>document.querySelector('.hw-card .cat[data-c="preto-verde"]')?.disabled===false);
    if(selectable){
      await page.click('.hw-card .cat[data-c="preto-verde"]');

@@ -23,14 +23,57 @@ const CAT_STATIC_ALIAS = {
   bicolor:'branco', vaquinha:'frajola'
 };
 const CatStatic = {
-  images:{}, loaded:new Set(),
+  images:{}, renderImages:{}, previewUrls:{}, loaded:new Set(),
+  // Repara somente falhas de alfa internas aos dois sprites pretos.
+  // A borda e os vazios externos continuam transparentes; os PNGs originais não são regravados.
+  repairBlack(id, image) {
+    if (id !== 'preto' && id !== 'preto-verde') return image;
+    const cv=document.createElement('canvas');cv.width=image.naturalWidth;cv.height=image.naturalHeight;
+    const ctx=cv.getContext('2d',{willReadFrequently:true});ctx.drawImage(image,0,0);
+    const source=ctx.getImageData(0,0,cv.width,cv.height), p=source.data, w=cv.width,h=cv.height;
+    const at=(x,y)=>p[(y*w+x)*4+3];
+    // Buracos realmente cercados de pixels opacos, nunca o fundo junto às orelhas/cauda.
+    const visited=new Uint8Array(w*h), dirs=[[1,0],[-1,0],[0,1],[0,-1]];
+    for(let y=0;y<h;y++)for(let x=0;x<w;x++){
+      const idx=y*w+x;if(visited[idx]||at(x,y)>32)continue;
+      const group=[],stack=[idx];visited[idx]=1;let outside=false;
+      while(stack.length){const n=stack.pop(),cx=n%w,cy=(n/w)|0;group.push(n);
+        if(cx===0||cy===0||cx===w-1||cy===h-1)outside=true;
+        for(const [dx,dy] of dirs){const xx=cx+dx,yy=cy+dy;if(xx<0||yy<0||xx>=w||yy>=h)continue;
+          const j=yy*w+xx;if(!visited[j]&&p[j*4+3]<=32){visited[j]=1;stack.push(j);}
+        }
+      }
+      if(outside)continue;
+      // Somente pixels internos: preserva olhos, contorno, bigodes e paleta original.
+      for(const n of group){const cx=n%w,cy=(n/w)|0;let best=-1,dmin=Infinity;
+        for(let yy=Math.max(0,cy-8);yy<Math.min(h,cy+9);yy++)
+          for(let xx=Math.max(0,cx-8);xx<Math.min(w,cx+9);xx++){
+            const j=yy*w+xx,d=(xx-cx)**2+(yy-cy)**2;
+            if(p[j*4+3]===255&&d<dmin){best=j;dmin=d;}
+          }
+        if(best>=0){const b=best*4,a=n*4;p[a]=p[b];p[a+1]=p[b+1];p[a+2]=p[b+2];p[a+3]=255;}
+      }
+    }
+    ctx.putImageData(source,0,0);return cv;
+  },
+  // Miniatura direta do sprite nativo, sem passar pelo conversor de paleta 40x60.
+  preview(id) {
+    const key=this.id(id), image=this.renderImages[key]||this.images[key];
+    if(!image||!this.loaded.has(key))return pxSize(catStill(id,.65),2);
+    const out=document.createElement('img');
+    out.src=this.previewUrls[key]||(this.previewUrls[key]=image.toDataURL ? image.toDataURL('image/png') : image.src);
+    out.alt='';out.width=52;out.height=78;
+    out.style.cssText='display:block;width:52px;height:78px;object-fit:contain;image-rendering:pixelated;margin:auto';
+    return out;
+  },
+
   // Tamanho LOGICO da silhueta: 40x60. Na mesa k=2 desenha 80x120.
   // Todos os gatos são desenhados 1:1 na mesa a partir dos PNGs nativos 80x120.
   sizes(k){return [Math.ceil(40*k),Math.ceil(60*k)]},
   id(c){const key=String(c||'laranja').split('|')[0];return CAT_STATIC_ALIAS[key]||key},
   ready(c){return this.loaded.has(this.id(c))},
   draw(ctx,x,by,c,k=1) {
-    const id=this.id(c), img=this.images[id]; if(!img||!this.loaded.has(id)) return false;
+    const id=this.id(c), img=this.renderImages[id]||this.images[id]; if(!img||!this.loaded.has(id)) return false;
     const [w,h]=this.sizes(k);
     ctx.save();ctx.imageSmoothingEnabled=false;
     ctx.drawImage(img,Math.round(x),Math.round(by-h),w,h);ctx.restore();
@@ -42,7 +85,7 @@ const CatStatic = {
     if(typeof OFFICE!=='undefined'){OFFICE.last=0;OFFICE.key='';}
     for(const b of document.querySelectorAll('.hw-card .cat[data-c]')){
       const el=b.querySelector('.cimg');
-      if(el && typeof pxSize==='function') el.replaceChildren(pxSize(catStill(b.dataset.c,.65),2));
+      if(el) el.replaceChildren(this.preview(b.dataset.c));
     }
     const pc=document.querySelector('.hw-card .pv-cat');
     if(pc){const ctx=pc.getContext('2d');ctx.clearRect(0,0,pc.width,pc.height);
@@ -53,7 +96,7 @@ const CatStatic = {
       const im=new Image();this.images[id]=im;
       im.onload=()=>{const w=80,h=120;
         if(im.naturalWidth!==w||im.naturalHeight!==h){console.warn('Dimensoes invalidas do gato: '+id);return;}
-        this.loaded.add(id);this.refresh();};
+        this.renderImages[id]=this.repairBlack(id,im);this.loaded.add(id);this.refresh();};
       im.onerror=()=>{console.warn('Falha ao carregar sprite do gato: '+id);};
       im.src='data:image/png;base64,'+CAT_STATIC_PNG[id];
     }
