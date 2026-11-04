@@ -19,14 +19,15 @@
   .mw-bar { gap: .5em; padding: 0 .3em 0 .4em !important; background: #44609f url('ui-workos/titlebar-active.png') repeat-x left top !important; box-shadow: none !important; text-shadow: 1px 1px 0 #2b2340; min-height: 40px; }
   .mw-bar .mw-ttl { display: flex; align-items: center; gap: .4em; white-space: nowrap; }
   .mw-bar .mw-stripes { display: none; }
-  .mw-b b { display: grid !important; place-items: center; width: 31px !important; height: 31px; background-color: transparent !important; background-repeat: no-repeat; background-position: center; background-size: 31px 31px; line-height: 0 !important; box-shadow: none !important; }
+  .mw-b b { display: grid !important; place-items: center; width: 31px !important; height: 31px; flex: 0 0 31px; padding: 0; border: 0; background-color: transparent !important; background-repeat: no-repeat; background-position: center; background-size: 31px 31px; line-height: 0 !important; box-shadow: none !important; }
   .mw-b b[data-g="min"] { background-image: url('ui-workos/control-min.png') !important; }
   .mw-b b[data-g="max"] { background-image: url('ui-workos/control-max.png') !important; }
   .mw-b b[data-g="x"] { background-image: url('ui-workos/control-close.png') !important; }
-  .inactive .mw-b b[data-g="min"] { background-image: url('ui-workos/control-min-inactive.png') !important; }
-  .inactive .mw-b b[data-g="max"] { background-image: url('ui-workos/control-max-inactive.png') !important; }
-  .inactive .mw-b b[data-g="x"] { background-image: url('ui-workos/control-close-inactive.png') !important; }
-  .inactive .mw-bar, .inactive > .win-bar { background-image: url('ui-workos/titlebar-inactive.png') !important; }
+  .inactive > .mw-bar .mw-b b[data-g="min"] { background-image: url('ui-workos/control-min.png') !important; }
+  .inactive > .mw-bar .mw-b b[data-g="max"] { background-image: url('ui-workos/control-max.png') !important; }
+  .inactive > .mw-bar .mw-b b[data-g="x"] { background-image: url('ui-workos/control-close.png') !important; }
+  .inactive > .mw-bar .mw-bar, .inactive > .win-bar { background-image: url('ui-workos/titlebar-inactive.png') !important; }
+  .inactive > .mw-bar .mw-b b { opacity: .65; }
   .mw-b b canvas { display: none; }
   .mw-in { border: 22px solid transparent; border-image: url('ui-workos/window-panel.png') 22 fill / 22px / 0 stretch; background: #fbf3e2; box-shadow: none; padding: .8em; }
   .menu-card .menu { gap: 8px; }
@@ -231,9 +232,8 @@
   .osicon canvas { image-rendering: pixelated; }
   .osicon.sel span { background: #44609f; box-shadow: 0 0 0 1px #2a1f2d; }
   .os-tasks { position: absolute; left: 8em; right: 12em; bottom: .25em; z-index: 100000; display: flex; gap: .4em; overflow: hidden; }
-  .os-task { display: flex; align-items: center; gap: .3em; max-width: 13em; height: 40px; padding: 0 .6em; border: 0; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    font: .95em var(--pixel); color: #fff8ec; background: #44609f url('ui-workos/titlebar-active.png') repeat-x left top; box-shadow: none; }
-  .os-task:not(.on) { color: #2a1f2d; background-image: url('ui-workos/titlebar-inactive.png'); }
+  .os-task { display: flex; align-items: center; gap: .3em; max-width: 13em; height: 1.6em; padding: 0 .6em; border: 0; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    font: .95em var(--pixel); color: #2a1f2d; background: #e9dcc2; box-shadow: 0 0 0 2px #2a1f2d, inset 2px 2px 0 #fff8ec, inset -2px -3px 0 #8f7d63; }
   #modal.allmin { background: transparent !important; }
   body:not(.menu-mode) #modal.allmin { pointer-events: none; } body:not(.menu-mode) #modal.allmin .os-tasks { pointer-events: auto; }
   .calc { display: flex; flex-direction: column; gap: 6px; width: 15em; }
@@ -262,7 +262,7 @@
   .os-off.done { clip-path: none !important; background: #2a1f2d !important; color: transparent; }
   .os-off.done::after { content: ''; position: absolute; left: 0; right: 0; top: calc(50% - 1px); height: 2px; background: #c3d5ff; animation: offline .5s steps(5) forwards; }
   @keyframes offline { to { left: 50%; right: 50%; opacity: 0; } }
-  .os-task.on { box-shadow: none; background-color: #44609f; background-image: url('ui-workos/titlebar-active.png'); background-repeat: repeat-x; color: #fff8ec; }
+  .os-task.on { box-shadow: 0 0 0 2px #2a1f2d, inset 2px 2px 0 #8f7d63, inset -2px -2px 0 #fff8ec; background: #fff8ec; }
   .app-win { width: min(40em, 94vw); max-height: 88%; }
   .app-win .mw-in { overflow: auto; background: var(--card); }
 
@@ -319,13 +319,14 @@
   .pl-now { margin: 0 0 .5em; color: #2f8a45; }
 
   /* ===== Temas do WorkOS e do crachá (variáveis definidas em applyOsTheme) ===== */
-  .mw-bar, .os-win .mw-bar, .oswin > .win-bar, .os-sh, .popup .title { background-color: var(--os-ac, #44609f) !important; box-shadow: none !important; }
+  .mw-bar, .os-win .mw-bar, .oswin > .win-bar, .os-sh, .popup .title { background-color: var(--os-ac, #44609f) !important; background-size: auto 100% !important; background-blend-mode: luminosity; box-shadow: none !important; flex-shrink: 0; }
   .mw-bar .mw-stripes { background: repeating-linear-gradient(var(--os-ac-hi, #6f93d9) 0 2px, transparent 2px 4px) !important; }
   .os-smenu button:hover, .osicon.sel span, .ld-bar i.on { background: var(--os-ac, #44609f) !important; }
   #osdesk .taskbar { background: var(--os-bar, #c7b595) !important; box-shadow: inset 0 3px 0 var(--os-bar-hi, #fff8ec), inset 0 -3px 0 var(--os-bar-sh, #8f7d63) !important; color: var(--os-bar-ink, #2a1f2d); }
   #osdesk .start, .os-start { background: var(--os-btn, #e9dcc2) !important; color: var(--os-bar-ink, #2a1f2d) !important; }
-  .os-task { background-color: var(--os-btn, #e9dcc2) !important; color: var(--os-bar-ink, #2a1f2d) !important; }
-  .os-task.on { color: #fff8ec !important; }
+  .os-task { display: flex; align-items: center; gap: .3em; max-width: 13em; height: 1.6em; padding: 0 .6em; border: 0; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    font: .95em var(--pixel); color: #2a1f2d; background: #e9dcc2; box-shadow: 0 0 0 2px #2a1f2d, inset 2px 2px 0 #fff8ec, inset -2px -3px 0 #8f7d63; }
+  .os-task.on { box-shadow: 0 0 0 2px #2a1f2d, inset 2px 2px 0 #8f7d63, inset -2px -2px 0 #fff8ec; background: #fff8ec; }
   .bg-head { background: var(--badge, #6f93d9) !important; box-shadow: inset 0 -3px 0 var(--badge-sh, #44609f) !important; }
 
   /* ===== Janelas de aplicativo: margens e grade de opções ===== */
