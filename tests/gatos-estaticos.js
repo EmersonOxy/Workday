@@ -1,4 +1,4 @@
-// Regressão dos dez gatos estáticos aprovados pelo criador.
+// Regressão dos dez gatos nativos 80x120 aprovados pelo criador.
 // Uso: python tools/build.py && node tests/gatos-estaticos.js
 const { chromium } = require('playwright');
 const path = require('path');
@@ -22,10 +22,10 @@ function ok(value,name){if(value){passed++;console.log('  ✓ '+name);}else{fail
        const p=ctx.getImageData(0,0,w,h).data;
        const col=(x,y)=>p[(y*w+x)*4+3];
        const center=col(Math.floor(w/2),Math.round(h*.57)),corner=col(0,0);
-       return{size:id==='tricolor'?w===80&&h===120:w===40&&h===60,corner,center,data:c.toDataURL()};
+       return{size:w===80&&h===120,corner,center,data:c.toDataURL()};
      });
      const body=CatStatic.sizes(2);
-     // Tricolor 80x120: pixels nativos 1:1. Outras pelagens: pixels 2x2.
+     // Todos os gatos: 80x120 nativos na mesa, em escala 1:1.
      // Validar todos os canais, mesmo quando suavizacao foi ativada.
      const pixelPerfect=ids.every(id=>{
        const img=CatStatic.images[id],w=img.naturalWidth,h=img.naturalHeight;
@@ -82,10 +82,10 @@ function ok(value,name){if(value){passed++;console.log('  ✓ '+name);}else{fail
    });
    const mobile=viewport.width<600?'Mobile':'Desktop';
    ok(r.count===10&&r.ready===10,mobile+': dez PNGs integrados e carregados');
-   ok(r.sizeOk&&r.transparent,mobile+': tricolor nativo 80x120 e nove 40x60 transparentes');
+   ok(r.sizeOk&&r.transparent,mobile+': dez gatos nativos 80x120 transparentes');
    ok(r.unique===10,mobile+': dez artes diferentes preservadas');
    ok(r.static&&r.size[0]===80&&r.size[1]===120,mobile+': gato 80x120 sem animacao');
-   ok(r.pixelPerfect,mobile+': tricolor 1:1 e demais pelagens 2x sem distorcao');
+   ok(r.pixelPerfect,mobile+': dez gatos nativos sem reamostragem ou distorcao');
    ok(r.mirrorMatches,mobile+': espelhamento sem distorcer os pixels');
    ok(r.deskFit,mobile+': espaço na mesa e hitbox ajustados');
    ok(r.previewFits,mobile+': previsualizacao respeita o quadro');

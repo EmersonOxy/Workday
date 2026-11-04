@@ -1,5 +1,5 @@
 /* Workday: dez gatos estáticos a partir das imagens aprovadas pelo criador.
-   Tricolor: 80x120 nativo. Outros: 40x60. PNGs transparentes, embutidos offline.
+   Todos os sprites são 80x120 nativos, incluindo os nove atualizados. PNGs transparentes, embutidos offline.
    Sem animar ou gerar quadros inexistentes. */
 const CAT_STATIC_PNG = {
 branco:'iVBORw0KGgoAAAANSUhEUgAAACgAAAA8CAMAAAAjZwjSAAAAwFBMVEX88vAAAADk09Q1JSP05uQKCAeYkJPihnray8xALi27p6hWQkRyXmD9tKubZGO6xLKvgH7ok4ilSkerVE/mjIH7rqVzxuTyo5pCiqicR0SXv06q0V2x2mladC1asNVvjDhisNSe3/K9Z1+zamSrz1ynyW695nyy7/3Jb2gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACTamiiAAAAQHRSTlP/AP///////////////////////////////////////////////////wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAcuCDIQAAAyVJREFUeNp1lod66ywMhmUxzLBNkzTt2f8e93+FRwMwpDk8fWJqv/40kJTAssQYl1+s4REsBgC255wHsOYEUwIw5olchpBCPMF1vQKkD6SxYP9fVzOC6w3Au492/1zX1w4aJJA188yRPzd68IrmBPf9vt8eIiLu+r7fL+sM7vt7EtLIWlwG+Hyn26QYJ9Pv+80CRINoOTBKmb3uF7K82hG8sCZJAiLIJ11u++W+P/jI4O3qGygcHJ/fyfK62hNkJ68iJaRl67xeLvf7il1xYcnraZbA+gYkchKHhOP6l4VuF849kxOIAaph/rBtQ8vjADJZ3WrP64bud05ATgw4Wo1E/Y9WmUC+Ez7xMztw32Vv5sJFdARCJVG2vznWHwuXOeveXJdE2f7tLGf1LDM5iQm0sv3qRAH6yQSJBf4j8ofTBLkvzn37R26X4WT0dN0fb2+/O43affn67V+nWR98tJxHWlIM5nXVN/WOHYJZYkLJbU22hZ5t6sK8jGAYuAYKOYOLKbZJRsM93gRxaGIGHRgWhWmRXPGwTGCW88YRFQepW3ACNZ9JQlU3Sc4bnPq8i5vtOFIJslLxx+PkaKDxmEqpYCgFy/YLsHvY2yw+A2NtmBO2Q3XPYOuHFs6DZAPn7GiBPQW1vqpm4D/7THHjksLRR3E5PoKqFwK2rsYiV/McZL8kILR1vAiYc+zVQ/dLr8FemwU555vVWSxFQQpeNQtTSfXorKJwQoLOf3qIddjoS3xBStAGJyiTwidsUxQ14Z5HV86cUKQWa2C1PTSP6G6LkgzGTR75Puh0Z/mLkMORlGCufd0lO+it3M50uieoI1uEX2osoVoQ2zPoW9iHXEfQdpBf8rbqKlj4hATk7wkBtaltmMADpSTtFiVZWYe9nFs41NUelFjSk6HooXWLxRcYnPNaHkeWMhVF6ZcX6s9jAo+DXjw0Qi5MArO6ZbMMvsNLV7DJIx3VLQWNVS2tyk0UUcZwDjLnMNcy0zhD1H6pBZcgQeaBUIJvhRsj0puJfr1Q/XrRsslTmZlt2/LYCvL7gL7+E6bgD7FWfzM8GVKNNx8QXT8B4Sccq9q27WoAAAAASUVORK5CYII=',
@@ -13,6 +13,8 @@ laranja:'iVBORw0KGgoAAAANSUhEUgAAACgAAAA8CAMAAAAjZwjSAAAAwFBMVEX4iikAAADNZhk6Ihd
 'preto-verde':'iVBORw0KGgoAAAANSUhEUgAAACgAAAA8CAMAAAAjZwjSAAAAwFBMVEUAAAAQDAwiGhsYEhMxJic/MjNVOTWFVkxvRz+rn3fU1obEx3m3unKOklWjpmXNzoLO0XoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADz9Oa9AAAAQHRSTlMA/////////////////////wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgtOa0gAAAsBJREFUeNp1lomW8iAMhclCF51/ef+nndybUEErx/FY+MiedFprZta+LDOZHrr3L6T2+cRE9JY07SIzuG23ZGiSY1vBTeyDtK4SJzbZu203MovbDnuZuO37ccjqEbl932fQAO67UaZgkTPZP8BY+yEaZMQjlkpXlWPHwbaAcXOLSBixCKtHoCW3Fxuhmzo1pKqrGkCofnN7P0JeCBRTruDMAz2O3ec4IuImHkfBBoc7ri7QvoAC+9QtHIVQaHU1J7lKxEkso20hNCwwbkD2XCOQ5yGEEiFTBRs0xhcQm3QbbpTP3NQFpBo5BR/jygfKfONM/nyAByzqfQHDsufPpTs1P5+IkveJQ/Ds8XgDH/8FIXN9gQqj5fFQ+1tgSI+LiMUENuQEUh7/nmEWYmjHkxxUT10oWQWWiiNtTE6KthkM8iSXJdHtKgzRbeYaUqtn2BP1wA+Wx204s3acnJBwsnKUdXnCWn/vTG8y6aZieqXNF+5s1VQXmW6BOm4myGgGcNmLt0vGeS3/BsZAmtFoyHsyOj5tE/4hnvckQSuZSq/mCptHnOZxNSLJm6GpxeUnU6R3gziyHxNnpA/dlcr9XqTIFfD8dePQAGmgVo5iuOnHXNeqiEpgPUbL6Px2sasUKur5hGaISTy9Q9AzI8kTiErrsHRYEDWbhyOBo4SifJHZ0d3y8pgJtAGy0KeIYsaotLJrKM5QYkzGwwBxkC7NmrN3WCJsW4QQZX+5U+BIJ8FuV2ya2JQUY0MSZr8XSKVtyV4GtAovQCHIjcub9KHiaVWfACWj0hyeYp+jJNuXZzGbCL7iPCaQ2NjAL1dy4XZttwvMuyWBQZGroQHaClbfsvgzhcZXwAzWjkhHVVz/WRhfAF5jX/jNHaq111sptsNNb3XIS7FjPipqGqXYbh/fORCWoQurFtAY2i/Dyl6+fx7+AmCpEdZtw64nAAAAAElFTkSuQmCC',
 'cinza-azul':'iVBORw0KGgoAAAANSUhEUgAAACgAAAA8CAMAAAAjZwjSAAAAwFBMVEUAAACIg4UpJSa8tbU8Ojx5dXealJWBfH0CAgHqnJJsZ2j8xL3739xLTlU2xPntopjNu7r8yMEXbL041P4Uc7wxvvpA0P3PiH7cop7cpKDyi4H4u7IAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACPmgmpAAAAQHRSTlMA////////////////////////////////////AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAYAQtvQAAAwNJREFUeNp1loma6iAMhU1KgGIZZ7v7+7/nPTlgBVuZb2yFv2QhOfVyuajq5cWYllRSOie1ShIdn7J0tqkWTA8Luq6KB/VgVZLe1tsEripyAC3VX770cBHfbgcS/mnFyrr7r3K7Xq8fbmjyT0K6flzXVR7g+gHyqsmUkSkvSarPTuANBgA6if8QPFYxrVe3PO3otkGaSJASgl+kattwAt02NhESAJ1FcP9msIUNn55B0clyA8EZl0mFRN7z/QQiN8HHHXQOQQnICdRqQtMFf7Xgpkob8zm0OCKG3EeKy9LR6VSdyxg7ueALH59qhTP5cyD5VE5PO6q7nr8BbjnfOdx+ZuZpCMYjzF9v3GXY8C0zdh04t/yzg4gi7iDTpKOHIN9A/siyYEj+6tzkJX0kCXZZ//xeFr//QkX6Ec0+ohGZcjDr3wzrSKUks9FHkNu2uY3NzS6Bn8vmD2JhyiOLBZPL8v4ANzkkHF5usZgbxongH5Ej9Jq29NRxW0HPyfa+DCNuUqtuB1Wo2DTGgYtx82Y7kkUTqid2CrVkJ9vdJaiYMQJzLXqlcFAkRsMi80t4QSrXHelOvpLCEB4Qb15sqRKqjNlJQfTcsIwcfT0Fg/febjrKkiSc2WYFyeCja9AJiD70irIGeqsW/3YCNrEpbU8YbrVd9ekVAsOtIVoJ+dGwxAgqHu0kFKpoJ8XD8IsfjRtXeqN7boqyQRriH4VWJtBrEUrcAmdN9DY1tI1q9GxE7ampZr0Z24Z+V1oqdW9u3iXTXcq65hk008PRkNi11DIJKMG7ODelUgt0CbGOIJ6ntsRg5jrpLkoHXS8JNlE2mEAHECRpXaNalO1KrVCKbgN5Ezro+p4IWoJ6mMYRVOMI/rLz8POlz3h+KOMWRjC5Q+13gKadJNHAUvqc8j3CBtI2oUmHHUv1XxA8neZhAxNLRF3ofEe4XDgTmOy9gtX6ybNujXLWOq2fv+YH6PMdp1YVVG9ctL29BzVx1YmOSwPfUcKYU32SFm0jcpGxFz1AR/4c+Q+IdRxpgYWE9gAAAABJRU5ErkJggg=='
 };
+// Substituir os nove PNGs antigos de 40x60 pelos originais em 80x120.
+Object.assign(CAT_STATIC_PNG,CAT_STATIC_NATIVE_PNG);
 const CAT_STATIC_IDS = ['branco','cinza-tigrado','tricolor','preto','siames','frajola','laranja','siames-azul','preto-verde','cinza-azul'];
 // Compatibilidade com saves antigos: o jogador conserva a pelagem mais próxima.
 const CAT_STATIC_ALIAS = {
@@ -23,8 +25,7 @@ const CAT_STATIC_ALIAS = {
 const CatStatic = {
   images:{}, loaded:new Set(),
   // Tamanho LOGICO da silhueta: 40x60. Na mesa k=2 desenha 80x120.
-  // O tricolor e renderizado 1:1 a partir do PNG nativo 80x120;
-  // as demais pelagens sao ampliadas 2x de seus PNGs 40x60.
+  // Todos os gatos são desenhados 1:1 na mesa a partir dos PNGs nativos 80x120.
   sizes(k){return [Math.ceil(40*k),Math.ceil(60*k)]},
   id(c){const key=String(c||'laranja').split('|')[0];return CAT_STATIC_ALIAS[key]||key},
   ready(c){return this.loaded.has(this.id(c))},
@@ -50,7 +51,7 @@ const CatStatic = {
   init() {
     for(const id of CAT_STATIC_IDS){
       const im=new Image();this.images[id]=im;
-      im.onload=()=>{const w=id==='tricolor'?80:40,h=id==='tricolor'?120:60;
+      im.onload=()=>{const w=80,h=120;
         if(im.naturalWidth!==w||im.naturalHeight!==h){console.warn('Dimensoes invalidas do gato: '+id);return;}
         this.loaded.add(id);this.refresh();};
       im.onerror=()=>{console.warn('Falha ao carregar sprite do gato: '+id);};
