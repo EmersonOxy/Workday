@@ -41,6 +41,7 @@ Object.assign(LANGS.es.ui, {
         note.textContent=testSave ? U().catTest : U().catDemo;
       });
     }
+    if (window.WorkdayCatStatic) window.WorkdayCatStatic.refresh();
     return result;
   };
 }
