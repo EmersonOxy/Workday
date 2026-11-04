@@ -1,38 +1,59 @@
-# Retratos de NPCs — biblioteca de reserva
+# Retratos de NPCs — catálogo oficial de referências
 
-**19 retratos** recebidos do criador e preparados em **128 × 128 px**, pixel art transparente, sem animações. Guardados individualmente em `assets/npc/portraits/`.
+**19 retratos** estáticos, preparados em **128 × 128 px** com transparência, em `assets/npc/portraits/`. A numeração original de 01 a 19 foi preservada.
 
-**Nenhum personagem foi adicionado à história ainda.** Os IDs são provisórios, apenas pela ordem de envio. Duda, Bia, Otávio, Helena, Rafa e Lu continuam usando os visuais, interações, agendas e conversas atuais. Associações de novos retratos aos NPCs só devem ser feitas quando o criador confirmar a identidade.
+> Atualização de 04/11/2026. O criador confirmou **Rafa = 03**, **Bia = 15** e **Otávio = 16** e autorizou **aplicar esses três retratos ao jogo**, seguindo a abordagem estática já usada com Duda. Outros 16 retratos permanecem na biblioteca como reserva. Seus nomes e personalidades são **propostas provisórias**, não novos NPCs implementados.
 
-## Catálogo visual
+## Catálogo
 
-| ID | Imagem | Identidade |
-|---|---|---|
-| 01 · `personagem-01` | ![Retrato 1](../assets/npc/portraits/personagem-01.png) | Pendente |
-| 02 · `personagem-02` | ![Retrato 2](../assets/npc/portraits/personagem-02.png) | Pendente |
-| 03 · `personagem-03` | ![Retrato 3](../assets/npc/portraits/personagem-03.png) | Pendente |
-| 04 · `personagem-04` | ![Retrato 4](../assets/npc/portraits/personagem-04.png) | Pendente |
-| 05 · `personagem-05` | ![Retrato 5](../assets/npc/portraits/personagem-05.png) | Pendente |
-| 06 · `personagem-06` | ![Retrato 6](../assets/npc/portraits/personagem-06.png) | Pendente |
-| 07 · `personagem-07` | ![Retrato 7](../assets/npc/portraits/personagem-07.png) | Pendente |
-| 08 · `personagem-08` | ![Retrato 8](../assets/npc/portraits/personagem-08.png) | Pendente |
-| 09 · `personagem-09` | ![Retrato 9](../assets/npc/portraits/personagem-09.png) | Pendente |
-| 10 · `personagem-10` | ![Retrato 10](../assets/npc/portraits/personagem-10.png) | Pendente |
-| 11 · `personagem-11` | ![Retrato 11](../assets/npc/portraits/personagem-11.png) | Pendente |
-| 12 · `personagem-12` | ![Retrato 12](../assets/npc/portraits/personagem-12.png) | Pendente |
-| 13 · `personagem-13` | ![Retrato 13](../assets/npc/portraits/personagem-13.png) | Pendente |
-| 14 · `personagem-14` | ![Retrato 14](../assets/npc/portraits/personagem-14.png) | Pendente |
-| 15 · `personagem-15` | ![Retrato 15](../assets/npc/portraits/personagem-15.png) | Pendente |
-| 16 · `personagem-16` | ![Retrato 16](../assets/npc/portraits/personagem-16.png) | Pendente |
-| 17 · `personagem-17` | ![Retrato 17](../assets/npc/portraits/personagem-17.png) | Pendente |
-| 18 · `personagem-18` | ![Retrato 18](../assets/npc/portraits/personagem-18.png) | Pendente |
-| 19 · `personagem-19` | ![Retrato 19](../assets/npc/portraits/personagem-19.png) | Pendente |
+| ID | Imagem | Identidade | Papel | Situação |
+|---|---|---|---|---|
+| 01 · `personagem-01` | ![01](../assets/npc/portraits/personagem-01.png) | Teresa Valença | Mãe de Nico (02), fora da empresa | Nome provisório; reserva |
+| 02 · `personagem-02` | ![02](../assets/npc/portraits/personagem-02.png) | Nicolas 'Nico' Valença | Amigo antigo do protagonista, fora da empresa | Nome provisório; reserva |
+| 03 · `personagem-03` | ![03](../assets/npc/portraits/personagem-03.png) | Rafa Nogueira | Colega esportista; Analista de Arquivo e rival profissional | Confirmado e ativo |
+| 04 · `personagem-04` | ![04](../assets/npc/portraits/personagem-04.png) | Silas Braga | Homem misterioso de fora da empresa | Nome provisório; reserva |
+| 05 · `personagem-05` | ![05](../assets/npc/portraits/personagem-05.png) | Valter Amaral | Homem de fora da empresa | Nome provisório; reserva |
+| 06 · `personagem-06` | ![06](../assets/npc/portraits/personagem-06.png) | Arnaldo Severo | Sócio do dono da empresa | Nome provisório; reserva |
+| 07 · `personagem-07` | ![07](../assets/npc/portraits/personagem-07.png) | Mauro Valença | Colega de trabalho do protagonista; pai de Nico (02) | Nome provisório; reserva |
+| 08 · `personagem-08` | ![08](../assets/npc/portraits/personagem-08.png) | Jade Moreira | Garota de fora da empresa | Nome provisório; reserva |
+| 09 · `personagem-09` | ![09](../assets/npc/portraits/personagem-09.png) | Raul Vilar | Segundo homem misterioso de fora da empresa | Nome provisório; reserva |
+| 10 · `personagem-10` | ![10](../assets/npc/portraits/personagem-10.png) | Cecília Moura | Mulher de fora da empresa | Nome provisório; reserva |
+| 11 · `personagem-11` | ![11](../assets/npc/portraits/personagem-11.png) | Fábio Nunes | Colega constantemente cansado | Nome provisório; reserva |
+| 12 · `personagem-12` | ![12](../assets/npc/portraits/personagem-12.png) | Marcelo Bastos | Gerente da empresa; irmão de Caio (19) | Nome provisório; reserva |
+| 13 · `personagem-13` | ![13](../assets/npc/portraits/personagem-13.png) | Nina Alves | Mulher de fora da empresa | Nome provisório; reserva |
+| 14 · `personagem-14` | ![14](../assets/npc/portraits/personagem-14.png) | Íris Monteiro | Amiga antiga do protagonista, trabalha em outra empresa | Nome provisório; reserva |
+| 15 · `personagem-15` | ![15](../assets/npc/portraits/personagem-15.png) | Bia Torres | Analista de RH | Confirmado e ativo |
+| 16 · `personagem-16` | ![16](../assets/npc/portraits/personagem-16.png) | Otávio Prado | Analista Financeiro Sênior, aspirante a padeiro | Confirmado e ativo |
+| 17 · `personagem-17` | ![17](../assets/npc/portraits/personagem-17.png) | Patrícia Campos | Mulher de outra empresa; colega de Íris (14) | Nome provisório; reserva |
+| 18 · `personagem-18` | ![18](../assets/npc/portraits/personagem-18.png) | Breno Lima | Colega do protagonista | Nome provisório; reserva |
+| 19 · `personagem-19` | ![19](../assets/npc/portraits/personagem-19.png) | Caio Bastos | Irmão do gerente (12), fora da empresa | Nome provisório; reserva |
 
-## Usar quando necessário
+## Relações estabelecidas
 
-- O manifesto `assets/npc/portraits/manifest.json` identifica a imagem e o arquivo original, com `npcId: null` enquanto não houver vínculo confirmado.
-- A função `npcReservedPortrait('personagem-01', 128)` cria um elemento `<img>` pixelado para futuras conversas, chamadas, e-mails ou eventos.
-- No GitHub Pages, o build copia os PNGs para `dist/web/npc-portraits/`.
-- No arquivo `dist/workday.html` offline, o build embute os PNGs como data URIs: não é necessária internet.
-- Para associar a imagem a um NPC existente, mapear o ID para o retrato em `src/js/shared/52-npc-portraits.js` após confirmação; não substituir automaticamente pelo aspecto visual.
-- Manter `image-rendering: pixelated` e preferir fatores inteiros de escala. Animações podem ser adicionadas futuramente, mas não são necessárias para usar estes retratos.
+- **Amizades antigas antes do jogo:** o protagonista já é amigo de **Nico (02)** e **Íris (14)**. **Lu Reis**, já existente no jogo, também é amiga antiga e continua sendo personagem diferente.
+- **Colegas e amizades futuras:** **Rafa Nogueira (03)** já trabalha na empresa, mas amizade e confiança com o protagonista devem se construir durante o jogo. O mesmo princípio se aplica aos demais colegas sem amizade declarada.
+- **Família Valença:** Teresa (01) é mãe de Nico (02); Mauro (07) é pai de Nico e colega do protagonista. Nomes/sobrenomes dessa família ainda são provisórios.
+- **Irmãos Bastos:** Marcelo (12), gerente, e Caio (19), irmão dele. Nomes provisórios.
+- **Outra empresa:** Íris (14) é amiga antiga do protagonista e Patrícia (17) trabalha com ela; Patrícia não começa como amiga do protagonista.
+- **Homens misteriosos:** Silas (04) e Raul (09) não têm relação entre si confirmada; nada de conspiradores/vilões sem aprovação.
+
+## Uso no jogo
+
+| NPC já implementado | Retrato | Foto de perfil no MSworkN | Videochamada |
+|---|---|---|---|
+| Duda (`duda`) | Retrato original incorporado em `src/js/shared/52-npc-portraits.js` | Original, 48 px | Original estático de 128 px |
+| Rafa (`rafa`) | `personagem-03.png` | Imagem estática, pixelada | Retrato estático, sem animação |
+| Bia (`bia`) | `personagem-15.png` | Imagem estática, pixelada | Retrato estático, sem animação |
+| Otávio (`otavio`) | `personagem-16.png` | Imagem estática, pixelada | Retrato estático, sem animação |
+| Helena (`helena`) | Retrato dedicado ainda não criado | Visual gerado antigo | Busto gerado antigo |
+| Lu (`lu`) | Retrato dedicado ainda não criado | Visual gerado antigo | Busto gerado antigo |
+
+Os três retratos novos são carregados pelo mapeamento `src/js/shared/52b-npc-approved.js`, que mantém o código do Duda e todo o elenco existente inalterados. Para chamadas de vídeo com câmera permitida, os três usam imagem estática com a mesma API de reações/fala (sem quadros aprovados de animação); as opções de diálogo, agendas, disponibilidade, relações e condições especiais de chamada não mudam.
+
+Na versão web, o build copia os PNGs para `dist/web/npc-portraits/`; na versão offline, o build incorpora as imagens como data URIs. A renderização usa `image-rendering: pixelated`.
+
+O arquivo `assets/npc/portraits/manifest.json` marca somente os três retratos usados como `ativo` e vincula `npcId` aos IDs reais do motor social. Os demais permanecem com `npcId: null` e `status: reservado`.
+
+## Próximas decisões de história
+
+Nomes, traços de personalidade e relações para todos os retratos estão documentados em [ELENCO-PLANEJADO.md](ELENCO-PLANEJADO.md). Esses rascunhos não ativam contatos nem criam arcos novos. A direção e as regras canônicas continuam em [DIALOGOS-E-LORE.md](DIALOGOS-E-LORE.md).

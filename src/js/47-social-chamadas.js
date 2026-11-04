@@ -44,6 +44,19 @@ function picFace(host, id) {
   w.append(msnPicEl(id, sc)); w.insertAdjacentHTML('beforeend', `<small>${u.camOff}</small>`); host.replaceChildren(w);
   return { set() {}, mood() {}, gesture() {}, talk(on) { w.classList.toggle('spk', on); } };
 }
+// Retratos aprovados (Rafa, Bia, Otávio) em chamadas: mesma abordagem estática do Duda.
+// Mantém a API usada pelo motor social sem criar quadros de animação artificiais.
+function npcApprovedFaceSoc(host, id) {
+  const image = npcStaticImg(id, 'portrait');
+  const stage = host.closest('.vc-stage');
+  const size = Math.max(96, Math.min(260, Math.round((stage ? stage.clientHeight : 220) * .92)));
+  image.style.width = size + 'px';
+  image.style.height = size + 'px';
+  image.style.maxWidth = '100%';
+  image.style.imageRendering = 'pixelated';
+  host.replaceChildren(image);
+  return { set() {}, talk() {}, mood() {}, gesture() {} };
+}
 // Duda já tem rosto próprio (dudaFace): só traduz as expressões do motor para as dele
 function dudaFaceSoc(host) {
   const f = dudaFace(host), map = { smile: ['smile', 'open'], happy: ['smile', 'happy'], wow: ['wow', 'open'], smug: ['smile', 'open'], shy: ['smile', 'happy'] };
@@ -114,7 +127,10 @@ function socCall(id, { incoming = false, thread = null } = {}) {
       closeCall('social', exit); return;
     }
     sfx('join'); el.querySelector('.vc-title span').textContent = d.name; el.classList.add('live');
-    const face = d.dudaFace ? dudaFaceSoc(host) : cam && d.bust ? npcFace(host, d, id === 'otavio' && SOC.arc.otavio && SOC.arc.otavio.s === 'padaria' ? d.bust.apron : null) : picFace(host, id);
+    const face = d.dudaFace ? dudaFaceSoc(host)
+      : cam && typeof npcStaticImg === 'function' && NPC_STATIC_ART[id] && NPC_STATIC_ART[id].portrait ? npcApprovedFaceSoc(host, id)
+      : cam && d.bust ? npcFace(host, d, id === 'otavio' && SOC.arc.otavio && SOC.arc.otavio.s === 'padaria' ? d.bust.apron : null)
+      : picFace(host, id);
     face.mood(d.mood || 'smile');
     const r = socRel(id), dk = 'call:' + ctx.day;
     if (!r.chat[dk]) { r.chat[dk] = 1; r.fam = clampN(r.fam + 0.5, 0, 10); socDirty(); }

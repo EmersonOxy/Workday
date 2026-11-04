@@ -1,10 +1,10 @@
 {
-  "version": 1,
-  "description": "19 retratos estáticos em pixel art, numerados na ordem de envio; associação de NPCs pendente.",
+  "version": 2,
+  "description": "19 retratos de reserva em pixel art. Identidades 03/Rafa, 15/Bia, 16/Otávio aprovadas e aplicadas à interface do jogo; outros nomes/personalidades provisórios e sem personagem ativo.",
   "portraits": [
     {
       "id": "personagem-01",
-      "label": "Personagem 01",
+      "label": "Teresa Valença (provisório)",
       "file": "personagem-01.png",
       "original": "image(20261104-005520).png",
       "size": [
@@ -12,11 +12,20 @@
         128
       ],
       "status": "reservado",
-      "npcId": null
+      "npcId": null,
+      "displayName": "Teresa Valença",
+      "nameStatus": "provisorio",
+      "role": "Mãe de Nico (02), fora da empresa",
+      "personalityDraft": "Carinhosa, observadora, irônica e atenta a detalhes.",
+      "relationships": [
+        "personagem-02",
+        "personagem-07"
+      ],
+      "friendshipBeforeGame": false
     },
     {
       "id": "personagem-02",
-      "label": "Personagem 02",
+      "label": "Nicolas 'Nico' Valença (provisório)",
       "file": "personagem-02.png",
       "original": "image(20261104-005528).png",
       "size": [
@@ -24,23 +33,38 @@
         128
       ],
       "status": "reservado",
-      "npcId": null
+      "npcId": null,
+      "displayName": "Nicolas 'Nico' Valença",
+      "nameStatus": "provisorio",
+      "role": "Amigo antigo do protagonista, fora da empresa",
+      "personalityDraft": "Irreverente, impulsivo e leal; conta histórias absurdas da vida cotidiana.",
+      "relationships": [
+        "personagem-01",
+        "personagem-07"
+      ],
+      "friendshipBeforeGame": true
     },
     {
       "id": "personagem-03",
-      "label": "Personagem 03",
+      "label": "Rafa Nogueira",
       "file": "personagem-03.png",
       "original": "image(20261104-005533).png",
       "size": [
         128,
         128
       ],
-      "status": "reservado",
-      "npcId": null
+      "status": "ativo",
+      "npcId": "rafa",
+      "displayName": "Rafa Nogueira",
+      "nameStatus": "confirmado",
+      "role": "Colega esportista; Analista de Arquivo e rival profissional",
+      "personalityDraft": "Competitivo, esportista, ambicioso e provocador; possível amizade construída no jogo.",
+      "relationships": [],
+      "friendshipBeforeGame": false
     },
     {
       "id": "personagem-04",
-      "label": "Personagem 04",
+      "label": "Silas Braga (provisório)",
       "file": "personagem-04.png",
       "original": "image(20261104-005537).png",
       "size": [
@@ -48,11 +72,17 @@
         128
       ],
       "status": "reservado",
-      "npcId": null
+      "npcId": null,
+      "displayName": "Silas Braga",
+      "nameStatus": "provisorio",
+      "role": "Homem misterioso de fora da empresa",
+      "personalityDraft": "Reservado, mal-humorado, responde perguntas com perguntas; motivações ainda abertas.",
+      "relationships": [],
+      "friendshipBeforeGame": false
     },
     {
       "id": "personagem-05",
-      "label": "Personagem 05",
+      "label": "Valter Amaral (provisório)",
       "file": "personagem-05.png",
       "original": "image(20261104-005540).png",
       "size": [
@@ -60,11 +90,17 @@
         128
       ],
       "status": "reservado",
-      "npcId": null
+      "npcId": null,
+      "displayName": "Valter Amaral",
+      "nameStatus": "provisorio",
+      "role": "Homem de fora da empresa",
+      "personalityDraft": "Extravagante, carismático e contador de histórias exageradas.",
+      "relationships": [],
+      "friendshipBeforeGame": false
     },
     {
       "id": "personagem-06",
-      "label": "Personagem 06",
+      "label": "Arnaldo Severo (provisório)",
       "file": "personagem-06.png",
       "original": "image(20261104-005545).png",
       "size": [
@@ -72,11 +108,17 @@
         128
       ],
       "status": "reservado",
-      "npcId": null
+      "npcId": null,
+      "displayName": "Arnaldo Severo",
+      "nameStatus": "provisorio",
+      "role": "Sócio do dono da empresa",
+      "personalityDraft": "Experiente, calculista e diplomático; impõe respeito sem levantar a voz.",
+      "relationships": [],
+      "friendshipBeforeGame": false
     },
     {
       "id": "personagem-07",
-      "label": "Personagem 07",
+      "label": "Mauro Valença (provisório)",
       "file": "personagem-07.png",
       "original": "image(20261104-005548).png",
       "size": [
@@ -84,11 +126,20 @@
         128
       ],
       "status": "reservado",
-      "npcId": null
+      "npcId": null,
+      "displayName": "Mauro Valença",
+      "nameStatus": "provisorio",
+      "role": "Colega de trabalho do protagonista; pai de Nico (02)",
+      "personalityDraft": "Bem-humorado, desorganizado, esquecido; vive aparecendo com café na camisa.",
+      "relationships": [
+        "personagem-01",
+        "personagem-02"
+      ],
+      "friendshipBeforeGame": false
     },
     {
       "id": "personagem-08",
-      "label": "Personagem 08",
+      "label": "Jade Moreira (provisório)",
       "file": "personagem-08.png",
       "original": "image(20261104-005551).png",
       "size": [
@@ -96,11 +147,17 @@
         128
       ],
       "status": "reservado",
-      "npcId": null
+      "npcId": null,
+      "displayName": "Jade Moreira",
+      "nameStatus": "provisorio",
+      "role": "Garota de fora da empresa",
+      "personalityDraft": "Independente, curiosa, perspicaz e dona de humor seco.",
+      "relationships": [],
+      "friendshipBeforeGame": false
     },
     {
       "id": "personagem-09",
-      "label": "Personagem 09",
+      "label": "Raul Vilar (provisório)",
       "file": "personagem-09.png",
       "original": "image(20261104-005554).png",
       "size": [
@@ -108,11 +165,17 @@
         128
       ],
       "status": "reservado",
-      "npcId": null
+      "npcId": null,
+      "displayName": "Raul Vilar",
+      "nameStatus": "provisorio",
+      "role": "Segundo homem misterioso de fora da empresa",
+      "personalityDraft": "Frio, metódico e observador; ligação com Silas não definida.",
+      "relationships": [],
+      "friendshipBeforeGame": false
     },
     {
       "id": "personagem-10",
-      "label": "Personagem 10",
+      "label": "Cecília Moura (provisório)",
       "file": "personagem-10.png",
       "original": "image(20261104-005600).png",
       "size": [
@@ -120,11 +183,17 @@
         128
       ],
       "status": "reservado",
-      "npcId": null
+      "npcId": null,
+      "displayName": "Cecília Moura",
+      "nameStatus": "provisorio",
+      "role": "Mulher de fora da empresa",
+      "personalityDraft": "Elegante, introspectiva, inteligente; surpreende com comentários engraçados.",
+      "relationships": [],
+      "friendshipBeforeGame": false
     },
     {
       "id": "personagem-11",
-      "label": "Personagem 11",
+      "label": "Fábio Nunes (provisório)",
       "file": "personagem-11.png",
       "original": "image(20261104-005603).png",
       "size": [
@@ -132,11 +201,17 @@
         128
       ],
       "status": "reservado",
-      "npcId": null
+      "npcId": null,
+      "displayName": "Fábio Nunes",
+      "nameStatus": "provisorio",
+      "role": "Colega constantemente cansado",
+      "personalityDraft": "Gentil, prestativo, pessimista sobre a rotina; promete dormir cedo e nunca consegue.",
+      "relationships": [],
+      "friendshipBeforeGame": false
     },
     {
       "id": "personagem-12",
-      "label": "Personagem 12",
+      "label": "Marcelo Bastos (provisório)",
       "file": "personagem-12.png",
       "original": "image(20261104-005609).png",
       "size": [
@@ -144,11 +219,19 @@
         128
       ],
       "status": "reservado",
-      "npcId": null
+      "npcId": null,
+      "displayName": "Marcelo Bastos",
+      "nameStatus": "provisorio",
+      "role": "Gerente da empresa; irmão de Caio (19)",
+      "personalityDraft": "Disciplinado, sério e exigente; valoriza resultados, nem sempre concorda com a diretoria.",
+      "relationships": [
+        "personagem-19"
+      ],
+      "friendshipBeforeGame": false
     },
     {
       "id": "personagem-13",
-      "label": "Personagem 13",
+      "label": "Nina Alves (provisório)",
       "file": "personagem-13.png",
       "original": "image(20261104-005611).png",
       "size": [
@@ -156,11 +239,17 @@
         128
       ],
       "status": "reservado",
-      "npcId": null
+      "npcId": null,
+      "displayName": "Nina Alves",
+      "nameStatus": "provisorio",
+      "role": "Mulher de fora da empresa",
+      "personalityDraft": "Tranquila, independente e espirituosa quando ganha intimidade.",
+      "relationships": [],
+      "friendshipBeforeGame": false
     },
     {
       "id": "personagem-14",
-      "label": "Personagem 14",
+      "label": "Íris Monteiro (provisório)",
       "file": "personagem-14.png",
       "original": "image(20261104-005615).png",
       "size": [
@@ -168,35 +257,55 @@
         128
       ],
       "status": "reservado",
-      "npcId": null
+      "npcId": null,
+      "displayName": "Íris Monteiro",
+      "nameStatus": "provisorio",
+      "role": "Amiga antiga do protagonista, trabalha em outra empresa",
+      "personalityDraft": "Ruiva, espontânea, debochada e extremamente sincera.",
+      "relationships": [
+        "personagem-17"
+      ],
+      "friendshipBeforeGame": true
     },
     {
       "id": "personagem-15",
-      "label": "Personagem 15",
+      "label": "Bia Torres",
       "file": "personagem-15.png",
       "original": "image(20261104-005621).png",
       "size": [
         128,
         128
       ],
-      "status": "reservado",
-      "npcId": null
+      "status": "ativo",
+      "npcId": "bia",
+      "displayName": "Bia Torres",
+      "nameStatus": "confirmado",
+      "role": "Analista de RH",
+      "personalityDraft": "Comunicativa, acolhedora, organiza eventos; preservar narrativa e diálogos existentes.",
+      "relationships": [],
+      "friendshipBeforeGame": false
     },
     {
       "id": "personagem-16",
-      "label": "Personagem 16",
+      "label": "Otávio Prado",
       "file": "personagem-16.png",
       "original": "image(20261104-005624).png",
       "size": [
         128,
         128
       ],
-      "status": "reservado",
-      "npcId": null
+      "status": "ativo",
+      "npcId": "otavio",
+      "displayName": "Otávio Prado",
+      "nameStatus": "confirmado",
+      "role": "Analista Financeiro Sênior, aspirante a padeiro",
+      "personalityDraft": "Metódico, ranzinza, 54 anos; sonha abrir uma padaria; preservar arco existente.",
+      "relationships": [],
+      "friendshipBeforeGame": false
     },
     {
       "id": "personagem-17",
-      "label": "Personagem 17",
+      "label": "Patrícia Campos (provisório)",
       "file": "personagem-17.png",
       "original": "image(20261104-005628).png",
       "size": [
@@ -204,11 +313,19 @@
         128
       ],
       "status": "reservado",
-      "npcId": null
+      "npcId": null,
+      "displayName": "Patrícia Campos",
+      "nameStatus": "provisorio",
+      "role": "Mulher de outra empresa; colega de Íris (14)",
+      "personalityDraft": "Organizada, profissional e diplomática; contraponto para o jeito caótico de Íris.",
+      "relationships": [
+        "personagem-14"
+      ],
+      "friendshipBeforeGame": false
     },
     {
       "id": "personagem-18",
-      "label": "Personagem 18",
+      "label": "Breno Lima (provisório)",
       "file": "personagem-18.png",
       "original": "image(20261104-005639).png",
       "size": [
@@ -216,11 +333,17 @@
         128
       ],
       "status": "reservado",
-      "npcId": null
+      "npcId": null,
+      "displayName": "Breno Lima",
+      "nameStatus": "provisorio",
+      "role": "Colega do protagonista",
+      "personalityDraft": "Distraído, relaxado e imprevisível; nota detalhes que os outros ignoram.",
+      "relationships": [],
+      "friendshipBeforeGame": false
     },
     {
       "id": "personagem-19",
-      "label": "Personagem 19",
+      "label": "Caio Bastos (provisório)",
       "file": "personagem-19.png",
       "original": "image(20261104-005644).png",
       "size": [
@@ -228,7 +351,15 @@
         128
       ],
       "status": "reservado",
-      "npcId": null
+      "npcId": null,
+      "displayName": "Caio Bastos",
+      "nameStatus": "provisorio",
+      "role": "Irmão do gerente (12), fora da empresa",
+      "personalityDraft": "Extrovertido, tatuado, descontraído e pouco afeito a formalidades.",
+      "relationships": [
+        "personagem-12"
+      ],
+      "friendshipBeforeGame": false
     }
   ]
 }

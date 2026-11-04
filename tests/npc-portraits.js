@@ -14,7 +14,7 @@ function ok(v, s) { if (v) { passed++; console.log('  ✓ ' + s); } else { faile
       p.on('pageerror', e => errors.push(e.message));
       await p.goto(URL);
       const r = await p.evaluate(async () => {
-        const icon = msnPicEl('duda',2), legacy = msnPicEl('bia',2);
+        const icon = msnPicEl('duda',2), legacy = msnPicEl('helena',2);
         const stage = document.createElement('div');
         stage.className = 'vc-stage';
         stage.style.cssText = 'position:relative;width:290px;height:220px';
@@ -42,9 +42,21 @@ function ok(v, s) { if (v) { passed++; console.log('  ✓ ' + s); } else { faile
       const label = viewport.width < 600 ? 'celular' : 'desktop';
       ok(r.pic && r.portrait, label + ': retrato e ícone do Duda decodificados em PNG transparente');
       ok(r.stable && r.calls, label + ': expressão e fala não animam o retrato, mas mantêm a API da chamada');
-      ok(r.legacy && r.bio, label + ': demais NPCs e descrição do Duda preservados');
+      ok(r.legacy && r.bio, label + ': Helena e descrição do Duda preservadas');
       const lib = await p.evaluate(async () => {
         const ids = Object.keys(NPC_PORTRAIT_RESERVE);
+        const approved = [['rafa','personagem-03'],['bia','personagem-15'],['otavio','personagem-16']];
+        const approvedIcons = approved.map(([id]) => msnPicEl(id,2));
+        const approvedPortraits = approved.map(([id]) => npcStaticImg(id,'portrait'));
+        const approvedLoaded = await Promise.all([...approvedIcons,...approvedPortraits].map(img => img.decode().then(() => true, () => false)));
+        const stage = document.createElement('div');
+        stage.className = 'vc-stage'; stage.style.cssText = 'position:relative;width:290px;height:220px';
+        const host = document.createElement('span'); host.className='vc-face'; stage.append(host); document.body.append(stage);
+        const f = npcApprovedFaceSoc(host, 'bia');
+        const video = host.querySelector('img.npc-static-portrait');
+        f.mood('happy'); f.talk(true); f.gesture('wave'); f.set('smile','happy'); f.talk(false);
+        const staticVideo = !!video && video === host.firstElementChild && await video.decode().then(() => true, () => false) && video.naturalWidth === 128;
+        stage.remove();
         const images = ids.map(id => npcReservedPortrait(id,128));
         const decoded = await Promise.all(images.map(img => img.decode().then(() => true, () => false)));
         const canvas = document.createElement('canvas'); canvas.width = canvas.height = 128;
@@ -57,6 +69,10 @@ function ok(v, s) { if (v) { passed++; console.log('  ✓ ' + s); } else { faile
           decoded: decoded.every(Boolean),
           dims: images.every(img=>img.naturalWidth===128 && img.naturalHeight===128),
           pixelated: images.every(img=>img.style.imageRendering==='pixelated'),
+          approved: approvedLoaded.every(Boolean) && approvedIcons.every(img=>img.tagName==='IMG' && img.width===32 && img.height===32 && img.naturalWidth===128)
+            && approvedPortraits.every(img=>img.tagName==='IMG' && img.naturalWidth===128)
+            && approved.every(([id,asset])=>NPC_STATIC_ART[id].portrait.endsWith(asset+'.png') || NPC_STATIC_ART[id].portrait.startsWith('data:image/png;base64,')),
+          staticVideo,
           transparent: clear>100 && filled>1000,
           unknown: npcReservedPortrait('personagem-999')===null,
           cast: ['duda','bia','otavio','helena','rafa','lu'].every(id=>!!CAST[id])
