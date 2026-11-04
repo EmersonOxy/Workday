@@ -11,7 +11,7 @@ const ok = (value, label) => { if (value) { passed++; console.log('  ✓ ' + lab
     const page = await browser.newPage({viewport:{width:1366,height:768},locale:'pt-BR'});
     const errors = []; page.on('pageerror',e=>errors.push(e.message));
     await page.goto(URL);
-    await page.waitForFunction(()=>typeof DeskMaterial !== 'undefined' && DeskMaterial.ready,{timeout:15000});
+    await page.waitForFunction(()=>typeof DeskMaterial !== 'undefined' && DeskMaterial.readyAll,{timeout:15000});
     const tex = await page.evaluate(()=>{
       const im=DeskMaterial.image,c=document.createElement('canvas');c.width=128;c.height=128;
       const x=c.getContext('2d');x.drawImage(im,0,0);
@@ -26,6 +26,25 @@ const ok = (value, label) => { if (value) { passed++; console.log('  ✓ ' + lab
     ok(tex.w===128&&tex.h===128&&tex.hor&&tex.vert&&tex.opaque&&tex.colors<=8,
       'textura PNG 128x128, paleta reduzida, opaca e seamless');
     ok(tex.desk==='original','saves sem deskMaterial preservam madeira original');
+    const additional=await page.evaluate(()=>{
+      const ids=['oak','slate','ivory','walnut2'];
+      const signatures=[],spec=[];
+      for(const id of ids){
+        const im=DeskMaterial.images[id], c=document.createElement('canvas');
+        c.width=im.naturalWidth;c.height=im.naturalHeight;
+        const x=c.getContext('2d');x.drawImage(im,0,0);
+        const d=x.getImageData(0,0,c.width,c.height).data;
+        const pixel=(a,b)=>[...d.slice((b*c.width+a)*4,(b*c.width+a)*4+4)].join(',');
+        let h=true,v=true,opaque=true;const colors=new Set();
+        for(let i=0;i<c.width;i++){h&&=pixel(0,i)===pixel(c.width-1,i);v&&=pixel(i,0)===pixel(i,c.height-1);}
+        for(let i=0;i<d.length;i+=4){opaque&&=d[i+3]===255;colors.add(d.slice(i,i+3).join(','));}
+        signatures.push(d.slice(0,32).join(','));
+        spec.push(im.naturalWidth===96&&im.naturalHeight===96&&h&&v&&opaque&&colors.size<=5);
+      }
+      return {count:DeskMaterial.ids.length,spec,unique:new Set(signatures).size,ready:DeskMaterial.readyAll};
+    });
+    ok(additional.count===6&&additional.ready&&additional.spec.every(Boolean)&&additional.unique===4,
+      'quatro novos materiais 96px: pixel art, 5 cores, emenda perfeita, sem transparência');
     const renders=await page.evaluate(()=>{
       const L=OFFICE.L,st=officeState(),a=Office.bake(L,st),old=a.getContext('2d');
       const dataA=old.getImageData(0,L.back,L.VW,L.VH-L.back).data;
@@ -46,9 +65,9 @@ const ok = (value, label) => { if (value) { passed++; console.log('  ✓ ' + lab
     ok(renders.slotCfg===tex.slotCfg,'posicionamento dos objetos nao e alterado');
     await page.evaluate(()=>{const title=document.getElementById('titlescr');if(title)title.remove();closeScene();ARRIVED=true;showMenu();showCustomize(showMenu);});
     await page.click('.hw-tab[data-t="desk"]');
-    ok(await page.evaluate(()=>document.querySelectorAll('.desk-material-opt').length===2
+    ok(await page.evaluate(()=>document.querySelectorAll('.desk-material-opt').length===6
       && !document.querySelector('.desk-material-opt').hidden),
-      'duas opcoes de material exibidas na aba Mesa');
+      'seis opcoes de material exibidas na aba Mesa');
     ok(await page.evaluate(() => {
       const opts = document.querySelector('.hw-opts');
       const firstVisible = [...opts.querySelectorAll(':scope > .setting')]
@@ -58,6 +77,13 @@ const ok = (value, label) => { if (value) { passed++; console.log('  ✓ ' + lab
         && materialRow.getBoundingClientRect().top >= opts.getBoundingClientRect().top - 5;
     }), 'material da mesa aparece como primeira opcao da aba, sem rolar 12 paredes');
     await page.click('.desk-material-opt[data-desk-material="original"]');
+    await page.click('.desk-material-opt[data-desk-material="walnut"]');
+    for(const id of ['oak','slate','ivory','walnut2']){
+      await page.click('.desk-material-opt[data-desk-material="'+id+'"]');
+      ok(await page.evaluate(id=>hw().deskMaterial===id
+        && document.querySelector('.desk-material-opt[data-desk-material="'+id+'"]').classList.contains('on'),id),
+        'material '+id+' selecionado e destacado');
+    }
     await page.click('.desk-material-opt[data-desk-material="walnut"]');
     const saved=await page.evaluate(()=>({
       value:hw().deskMaterial,
@@ -70,7 +96,7 @@ const ok = (value, label) => { if (value) { passed++; console.log('  ✓ ' + lab
     await page.reload();
     await page.waitForFunction(()=>DeskMaterial.ready);
     ok(await page.evaluate(()=>hw().deskMaterial==='walnut'),'selecao persiste apos recarregar');
-    ok(await page.evaluate(()=>['pt','en','es'].every(k=>DESK_MATERIAL_LABELS[k].walnut)),
+    ok(await page.evaluate(()=>['pt','en','es'].every(k=>DeskMaterial.ids.every(id=>DESK_MATERIAL_LABELS[k][id]))),
       'descricao da mesa em PT, EN e ES');
     ok(errors.length===0,'sem erros JavaScript'+(errors.length?': '+errors.join('; '):''));
     await page.close();

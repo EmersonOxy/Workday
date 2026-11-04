@@ -16,7 +16,7 @@ LANGS.es.ui.deskNames = { mug: 'Taza', badge: 'Credencial', pens: 'Portalápices
 
 function deskCanEdit() { return OFFICE.on && !CFG.focus && (!S || S.onBreak || S.phase !== 'day'); }
 function deskSet(id, v) { CFG.desk = Object.assign({}, CFG.desk); if (v === undefined) delete CFG.desk[id]; else CFG.desk[id] = v; persist(); Office._slotKey = null; OFFICE.last = 0; }
-function deskSlotsNow() { return Office.deskSlots(OFFICE.L, P.decor); }
+function deskSlotsNow() { return Office.deskSlots(OFFICE.L, deskEffectiveDecor()); }
 // fixa a posição atual de um objeto (automático → livre) antes de mexer nele
 function deskPin(id) { const q = deskSlotsNow()[id], L0 = OFFICE.L; if (!q || q.off || q.shelf) return null;
   const yB = L0.desk + 5, yF = L0.VH - 4, cur = CFG.desk && CFG.desk[id];
@@ -47,7 +47,7 @@ function deskBar() {
   const bar = DESK_EDIT.bar; if (!bar) return; const a = U().arr, Q = deskSlotsNow();
   bar.querySelector('.arr-sel').textContent = DESK_EDIT.sel ? deskName(DESK_EDIT.sel) : a.pick;
   bar.querySelectorAll('[data-a=flip], [data-a=store]').forEach(b => b.disabled = !DESK_EDIT.sel);
-  const ids = Object.keys(DESK_OBJ).filter(id => deskOwned(id, P.decor)), off = ids.filter(id => !Q[id] || Q[id].off), sh = ids.filter(id => Q[id] && Q[id].shelf);
+  const ids = Object.keys(DESK_OBJ).filter(id => deskOwned(id, deskEffectiveDecor())), off = ids.filter(id => !Q[id] || Q[id].off), sh = ids.filter(id => Q[id] && Q[id].shelf);
   const chip = id => `<button class="pxbtn arr-chip" data-put="${id}" title="${a.toDesk}">＋ ${deskName(id)}</button>`;
   bar.querySelector('.arr-out').innerHTML = `<small>${a.stored}</small> ${off.length ? off.map(chip).join('') : `<small>${a.none}</small>`}${sh.length ? ` <small>${a.shelf}</small> ${sh.map(chip).join('')}` : ''}`;
 }
