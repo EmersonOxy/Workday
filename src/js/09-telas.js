@@ -30,7 +30,7 @@ function winChrome(card) {
   const body = document.createElement('div'); body.className = 'win-body'; body.append(...card.childNodes);
   card.append(bar, body); card.classList.add('oswin');
   card.style.removeProperty('--dx'); card.style.removeProperty('--dy'); delete card.dataset.dx; delete card.dataset.dy; osDrag(card, bar);
-  bar.querySelector('.mw-app').append(Pixel.el(MENU_ICO.app, 2));
+  bar.querySelector('.mw-app').append(workosMaterialIcon(MENU_ICO.app, 2));
   bar.querySelectorAll('.mw-b b').forEach(b => b.append(Pixel.el(MENU_ICO[b.dataset.g], 2)));
   bar.querySelector('.min').onclick = () => { if (!card.classList.contains('locked')) osMinimize(card); };
   // botão na barra só quando a área de trabalho do WorkOS está à vista (menu, intervalo, aplicativos); na pausa não
@@ -65,6 +65,14 @@ const MENU_ICO = {
   max:  ['kkkkkkk', 'kkkkkkk', 'k.....k', 'k.....k', 'k.....k', 'k.....k', 'kkkkkkk'],
   x:    ['kk...kk', '.kk.kk.', '..kkk..', '..kkk..', '.kk.kk.', 'kk...kk', '.......'],
 };
+// Material icons retain the supplied sheet colors; unsupported app icons keep their existing artwork.
+function workosMaterialIcon(rows, scale = 2) {
+  const mapping = [[MENU_ICO.app, 'monitor'], [MENU_ICO.cfg, 'settings'], [MENU_ICO.doc, 'document'], [MENU_ICO.how, 'info']];
+  const match = mapping.find(([source]) => source === rows);
+  if (!match) return Pixel.el(rows, scale);
+  const el = document.createElement('span'); el.className = 'workos-material-icon material-' + match[1];
+  el.style.width = el.style.height = (scale >= 2 ? 24 : 16) + 'px'; el.setAttribute('aria-hidden', 'true'); return el;
+}
 // O aviso de direitos autorais fica numa linha só no computador: a fonte encolhe até um mínimo legível;
 // se ainda assim não couber, a linha rola devagar como letreiro (com "reduzir movimento", volta a quebrar a linha)
 function fitLegal() {
@@ -177,7 +185,7 @@ function osTaskBtn(win, title, icon) {
   let btn = osTaskOf(win);
   if (!btn) {
     btn = document.createElement('button'); btn.className = 'os-task'; btn._win = win;
-    btn.append(Pixel.el(icon || MENU_ICO.app, document.body.classList.contains('mobile') ? 2 : 1)); btn.append(document.createTextNode(''));   // ícone do próprio aplicativo
+    btn.append(workosMaterialIcon(icon || MENU_ICO.app, document.body.classList.contains('mobile') ? 2 : 1)); btn.append(document.createTextNode(''));   // ícone do próprio aplicativo
     btn.onclick = () => { if (win.style.display === 'none') osRestore(win); else if (btn.classList.contains('on')) osMinimize(win); else { sfx('click'); osFocus(win); } };
     osTasks().append(btn);
     if (!win._taskWatch) { win._taskWatch = true; win.addEventListener('pointerdown', () => osFocus(win)); }
@@ -295,7 +303,7 @@ const OS_CLOSE = [{ clipPath: 'inset(0 0 0 0)' }, { clipPath: 'inset(calc(50% - 
 function osWindow(title, html, { icon = MENU_ICO.app, cls = '', onClose } = {}) {
   const w = document.createElement('div'); w.className = 'os-win ' + cls;
   w.innerHTML = `<div class="mw-bar"><span class="mw-ttl"><i class="mw-app"></i>${title}</span><i class="mw-stripes"></i><span class="mw-b"><b data-g="x"></b></span></div><div class="mw-in">${html}</div>`;
-  w.querySelector('.mw-app').append(Pixel.el(icon, 2)); w.querySelector('.mw-b b').append(Pixel.el(MENU_ICO.x, 2));
+  w.querySelector('.mw-app').append(workosMaterialIcon(icon, 2)); w.querySelector('.mw-b b').append(Pixel.el(MENU_ICO.x, 2));
   const close = () => { sfx('winClose'); const a = Motion.play(w, OS_CLOSE, { duration: 260, easing: 'steps(8)' }); const end = () => { const t = osTaskOf(w); if (t) t.remove(); w.remove(); if (onClose) onClose(); if (typeof workAppsClosed === 'function') workAppsClosed(); }; if (a) a.onfinish = end; else end(); };
   w.querySelector('.mw-b').insertAdjacentHTML('afterbegin', '<b data-g="min" class="min"></b><b data-g="max" class="max"></b>');
   w.querySelectorAll('.mw-b .min, .mw-b .max').forEach(b => b.append(Pixel.el(MENU_ICO[b.dataset.g], 2)));
@@ -436,7 +444,7 @@ function showMenu() {
   card.querySelector('.mw-b [data-g=min]').onclick = card.querySelector('.mw-b [data-g=x]').onclick = () => osMinimize(card);
   card.querySelector('.mw-b [data-g=max]').onclick = () => { sfx('click'); card.classList.toggle('maxi'); };
   card.style.removeProperty('--dx'); card.style.removeProperty('--dy'); delete card.dataset.dx; delete card.dataset.dy; osDrag(card, card.querySelector('.mw-bar'));
-  card.querySelector('.mw-app').append(Pixel.el(MENU_ICO.app, 2));
+  card.querySelector('.mw-app').append(workosMaterialIcon(MENU_ICO.app, 2));
   card.querySelector('.mw-face').append(portrait(112));
   {     const logo = card.querySelector('.mw-logo'); logo.append(pxSize(logoCanvas(), 5)); Motion.dropIn(logo); }
   sceneIn(card, '.mw-stats span, .menu .pxbtn', 45, 300);
