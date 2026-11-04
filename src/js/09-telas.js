@@ -166,7 +166,13 @@ let OS_Z = 10;
 new MutationObserver(() => $('modal').querySelectorAll('.os-task').forEach(b => { if (!b._win || !b._win.isConnected) b.remove(); }))
   .observe($('modal'), { childList: true, subtree: true });
 function osTaskOf(win) { return [...$('modal').querySelectorAll('.os-task')].find(b => b._win === win); }
-function osFocus(win) { win.style.zIndex = ++OS_Z; $('modal').querySelectorAll('.os-task').forEach(b => b.classList.toggle('on', b._win === win)); }
+function osFocus(win) {
+  win.style.zIndex = ++OS_Z;
+  $('modal').querySelectorAll('.os-win, .card.oswin, .card.menu-card').forEach(w => {
+    const active = w === win; w.classList.toggle('active', active); w.classList.toggle('inactive', !active);
+  });
+  $('modal').querySelectorAll('.os-task').forEach(b => b.classList.toggle('on', b._win === win));
+}
 function osTaskBtn(win, title, icon) {
   let btn = osTaskOf(win);
   if (!btn) {

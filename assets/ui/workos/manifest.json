@@ -1,0 +1,137 @@
+{
+  "source": "assets/ui/Sprite Sheet de Interface Retrô WorkOS.png",
+  "source_size": [
+    1536,
+    1024
+  ],
+  "notes": "Recortes nativos da janela em branco do canto superior esquerdo e das barras ativa/inativa na faixa inferior. A fonte permanece intacta.",
+  "sprites": [
+    {
+      "file": "window-panel.png",
+      "rect": [
+        14,
+        56,
+        490,
+        370
+      ],
+      "size": [
+        476,
+        314
+      ],
+      "use": "9-slice do corpo da janela; slice de 14 px, repetição das bordas."
+    },
+    {
+      "file": "titlebar-active.png",
+      "rect": [
+        180,
+        16,
+        200,
+        56
+      ],
+      "size": [
+        20,
+        40
+      ],
+      "use": "textura repetível da barra ativa, sem texto ou ícone."
+    },
+    {
+      "file": "titlebar-inactive.png",
+      "rect": [
+        340,
+        840,
+        360,
+        880
+      ],
+      "size": [
+        20,
+        40
+      ],
+      "use": "textura repetível da barra inativa, sem texto ou ícone."
+    },
+    {
+      "file": "control-min.png",
+      "rect": [
+        380,
+        21,
+        410,
+        52
+      ],
+      "size": [
+        31,
+        31
+      ],
+      "use": "controle minimizar ativo."
+    },
+    {
+      "file": "control-max.png",
+      "rect": [
+        413,
+        21,
+        443,
+        52
+      ],
+      "size": [
+        31,
+        31
+      ],
+      "use": "controle maximizar/restaurar ativo."
+    },
+    {
+      "file": "control-close.png",
+      "rect": [
+        447,
+        21,
+        478,
+        52
+      ],
+      "size": [
+        31,
+        31
+      ],
+      "use": "controle fechar ativo."
+    },
+    {
+      "file": "control-min-inactive.png",
+      "rect": [
+        503,
+        842,
+        533,
+        873
+      ],
+      "size": [
+        31,
+        31
+      ],
+      "use": "controle minimizar inativo."
+    },
+    {
+      "file": "control-max-inactive.png",
+      "rect": [
+        536,
+        842,
+        566,
+        873
+      ],
+      "size": [
+        31,
+        31
+      ],
+      "use": "controle maximizar/restaurar inativo."
+    },
+    {
+      "file": "control-close-inactive.png",
+      "rect": [
+        568,
+        842,
+        598,
+        873
+      ],
+      "size": [
+        31,
+        31
+      ],
+      "use": "controle fechar inativo."
+    }
+  ],
+  "not_extracted": "As capturas de aplicações completas contêm textos, controles e conteúdo de demonstração misturados. Não foram usadas como fundos. Ícones gerais ainda vêm do atlas de botões aprovado ou dos sprites existentes."
+}
