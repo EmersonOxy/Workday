@@ -365,7 +365,7 @@
   "standalonePortraits": [
     {
       "id": "lu-reis",
-      "file": "lu-reis.png",
+      "file": "lu-reis-v2.png",
       "size": [
         128,
         128
@@ -377,7 +377,8 @@
       "role": "Ilustradora freelancer, amiga de longa data e primeira NPC do Workday",
       "visual": "Cabelo preto médio com tiara e mecha rosa; sardas, olhos verdes arredondados e moletom amarelo-pastel",
       "friendshipBeforeGame": true,
-      "firstContactThread": "lu_pre"
+      "firstContactThread": "lu_pre",
+      "conversion": "Reprocessado diretamente do original em 128x128 com 119 cores, pixels nítidos por nearest-neighbor, contorno e paleta preservados, sem qualquer filtro de recoloração."
     }
   ]
 }

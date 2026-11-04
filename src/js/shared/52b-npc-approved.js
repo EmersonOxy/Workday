@@ -6,5 +6,5 @@ Object.assign(NPC_STATIC_ART, {
   rafa: { icon: 'npc-portraits/personagem-03.png', portrait: 'npc-portraits/personagem-03.png' },
   bia: { icon: 'npc-portraits/personagem-15.png', portrait: 'npc-portraits/personagem-15.png' },
   otavio: { icon: 'npc-portraits/personagem-16.png', portrait: 'npc-portraits/personagem-16.png' },
-  lu: { icon: 'npc-portraits/lu-reis.png', portrait: 'npc-portraits/lu-reis.png' },
+  lu: { icon: 'npc-portraits/lu-reis-v2.png', portrait: 'npc-portraits/lu-reis-v2.png' },
 });

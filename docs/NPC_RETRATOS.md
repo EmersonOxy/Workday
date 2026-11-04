@@ -32,7 +32,7 @@
 
 | NPC | Imagem | Arquivo | Status |
 |---|---|---|---|
-| **Lu Reis (`lu`)** | ![Lu Reis](../assets/npc/portraits/lu-reis.png) | `lu-reis.png` | Confirmado e ativo no MSworkN e nas videochamadas |
+| **Lu Reis (`lu`)** | ![Lu Reis](../assets/npc/portraits/lu-reis-v2.png) | `lu-reis-v2.png` | Confirmado e ativo no MSworkN e nas videochamadas |
 
 A Lu é uma personagem **já existente**, amiga do protagonista desde a escola, ilustradora freelancer e tutora do gato Boleto. É a primeira NPC a falar com o jogador, antes do início do expediente (`lu_pre`). Não adicionar esta arte como `personagem-20` nem duplicar sua identidade. A troca é exclusivamente visual e não altera seus diálogos, arcos, progressão, agenda ou vínculos.
 
@@ -54,7 +54,7 @@ A Lu é uma personagem **já existente**, amiga do protagonista desde a escola, 
 | Bia (`bia`) | `personagem-15.png` | Imagem estática, pixelada | Retrato estático, sem animação |
 | Otávio (`otavio`) | `personagem-16.png` | Imagem estática, pixelada | Retrato estático, sem animação |
 | Helena (`helena`) | Retrato dedicado ainda não criado | Visual gerado antigo | Busto gerado antigo |
-| **Lu (`lu`)** | **`lu-reis.png` (novo visual oficial)** | **PNG estático pixelado** | **Retrato estático de 128 px, sem animação** |
+| **Lu (`lu`)** | **`lu-reis-v2.png` (novo visual oficial)** | **PNG estático pixelado** | **Retrato estático de 128 px, sem animação** |
 
 Os quatro retratos aprovados (Rafa, Bia, Otávio e Lu) são carregados pelo mapeamento `src/js/shared/52b-npc-approved.js`, que mantém o código do Duda e todo o elenco existente inalterados. Para chamadas de vídeo com câmera permitida, os três usam imagem estática com a mesma API de reações/fala (sem quadros aprovados de animação); as opções de diálogo, agendas, disponibilidade, relações e condições especiais de chamada não mudam.
 

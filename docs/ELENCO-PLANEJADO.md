@@ -43,10 +43,10 @@ Na **família Valença** (sobrenome provisório), **Teresa (01)** é mãe de Nic
 - **Otávio Prado**: Analista Financeiro Sênior, sonha em abrir padaria; identidade confirmada no retrato 16.
 - **Helena Vaz**: Advogada Corporativa; ainda sem novo retrato dedicado, mantendo visual anterior.
 - **Rafa Nogueira**: Analista de Arquivo, esportista, rival; identidade confirmada no retrato 03.
-- **Lu Reis**: Ilustradora freelancer, primeira NPC e amiga desde a escola; **novo retrato oficial em `assets/npc/portraits/lu-reis.png`** com cabelo preto médio, mecha rosa, tiara, sardas, olhos verdes e moletom amarelo-pastel. Vinculado ao NPC `lu` existente, sem alterações nos arcos.
+- **Lu Reis**: Ilustradora freelancer, primeira NPC e amiga desde a escola; **novo retrato oficial em `assets/npc/portraits/lu-reis-v2.png`** com cabelo preto médio, mecha rosa, tiara, sardas, olhos verdes e moletom amarelo-pastel. Vinculado ao NPC `lu` existente, sem alterações nos arcos.
 
 ## Situação de implementação
 
-Os retratos 03, 15, 16 e o retrato individual de Lu (`lu-reis.png`) foram aplicados apenas às fotos de perfil do MSworkN e aos quadros de chamadas de vídeo já permitidas, **no mesmo formato estático do Duda**, sem animar a imagem ou mudar os diálogos. Os demais 16 retratos continuam reservados. Nenhum contato, relacionamento, evento, arco, diálogo, agenda ou minigame foi adicionado ou reescrito por este cadastro.
+Os retratos 03, 15, 16 e o retrato individual de Lu (`lu-reis-v2.png`) foram aplicados apenas às fotos de perfil do MSworkN e aos quadros de chamadas de vídeo já permitidas, **no mesmo formato estático do Duda**, sem animar a imagem ou mudar os diálogos. Os demais 16 retratos continuam reservados. Nenhum contato, relacionamento, evento, arco, diálogo, agenda ou minigame foi adicionado ou reescrito por este cadastro.
 
 As especificações de visual/IDs estão em [NPC_RETRATOS.md](NPC_RETRATOS.md) e no manifesto `assets/npc/portraits/manifest.json`. A direção narrativa permanece em [DIALOGOS-E-LORE.md](DIALOGOS-E-LORE.md).

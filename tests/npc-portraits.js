@@ -45,7 +45,7 @@ function ok(v, s) { if (v) { passed++; console.log('  ✓ ' + s); } else { faile
       ok(r.legacy && r.bio, label + ': Helena e descrição do Duda preservadas');
       const lib = await p.evaluate(async () => {
         const ids = Object.keys(NPC_PORTRAIT_RESERVE);
-        const approved = [['rafa','personagem-03'],['bia','personagem-15'],['otavio','personagem-16'],['lu','lu-reis']];
+        const approved = [['rafa','personagem-03'],['bia','personagem-15'],['otavio','personagem-16'],['lu','lu-reis-v2']];
         const approvedIcons = approved.map(([id]) => msnPicEl(id,2));
         const approvedPortraits = approved.map(([id]) => npcStaticImg(id,'portrait'));
         const approvedLoaded = await Promise.all([...approvedIcons,...approvedPortraits].map(img => img.decode().then(() => true, () => false)));
