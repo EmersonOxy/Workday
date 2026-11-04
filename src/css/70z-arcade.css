@@ -1,0 +1,29 @@
+/* Workday arcade V4 — controles de aposta, ateliê e avisos legíveis */
+.vcall.playing .vc-win { max-height: 94dvh !important; overflow-y: auto; overscroll-behavior: contain; }
+.vcall.playing .mg-host { min-height: 0; }
+.vcall.playing .mg-host:has(.mg-wager) .mg-view { height: min(46dvh, 24em); }
+.vcall.playing .mg-host.mg-painting .mg-view { height: min(43dvh, 23em); }
+.mg-wager { display: flex; flex-direction: column; align-items: center; gap: .4em; padding: .65em; margin: .25em 0; color: #fff8ec; background: #3b3f48; box-shadow: inset 0 0 0 2px #626875; }
+.mg-balance { color: #f4c15d; font-size: 1.2em; }
+.mg-wager-row { display: flex; align-items: center; justify-content: center; gap: .5em; flex-wrap: wrap; }
+.mg-wager input { width: 6.5em; border: 2px solid #2a1f2d; padding: .3em; font: 1.1em var(--pixel); background: #fff8ec; color: #2a1f2d; }
+.mg-wager button { min-height: 38px; }
+.mg-wager small { max-width: 36em; text-align: center; color: #f3e6cc; line-height: 1.15; }
+.mg-paint-panel { display: flex; flex-direction: column; gap: .45em; padding: .45em; background: #34304b; }
+.mg-paint-gallery { display: flex; gap: .4em; overflow-x: auto; flex-wrap: nowrap; padding: .4em 0; scrollbar-width: thin; }
+.mg-paint-gallery button { min-width: 8.5em; min-height: 38px; white-space: normal; line-height: 1.05; flex-shrink: 0; font-size: 1em; }
+.mg-paint-gallery button.on { box-shadow: 0 0 0 2px #f4c15d; }
+.mg-paint-palette { display: flex; flex-wrap: wrap; justify-content: center; gap: .4em; }
+.mg-paint-swatch { position: relative; width: 30px; height: 30px; border: 3px solid #2a1f2d; padding: 0; cursor: pointer; box-shadow: inset 0 0 0 1px rgba(255,255,255,.5); }
+.mg-paint-swatch.on { outline: 3px solid #ffe7a3; outline-offset: 1px; }
+.mg-paint-caption { text-align: center; color: #ffe7a3; }
+.mg-paint-panel > .pxbtn { align-self: center; min-height: 38px; }
+.mg-msg { max-width: min(85%, 25em); padding: .1em .35em; background: rgba(42,31,45,.78); text-wrap: balance; }
+.vcall .vc-opts { max-height: min(38dvh,17em); overflow-y: auto; overscroll-behavior: contain; }
+@media (max-width:640px) {
+  .vcall.playing .vc-win { max-height: 95dvh !important; }
+  .vcall.playing .mg-host:has(.mg-wager) .mg-view { height: min(42dvh,22em); }
+  .vcall.playing .mg-host.mg-painting .mg-view { height: min(38dvh,20em); }
+  .mg-paint-swatch { width: 36px; height: 36px; }
+  .mg-wager { padding: .45em; }
+}

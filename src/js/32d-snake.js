@@ -125,6 +125,7 @@ function mgSnakeDuel(host, done, opts = {}) {
     for(let yy=0;yy<rows;yy++)for(let xx=0;xx<cols;xx++){
       x.fillStyle=(xx+yy)%2?P.X:P.x;
       x.fillRect(ox+xx*cell,oy+yy*cell,cell,cell);
+      if((xx*11+yy*7)%19===0){x.fillStyle=P.N;x.fillRect(ox+xx*cell+2,oy+yy*cell+2,1,1);}
     }
     if(fruit){
       const fx=ox+fruit[0]*cell,fy=oy+fruit[1]*cell;
@@ -138,6 +139,8 @@ function mgSnakeDuel(host, done, opts = {}) {
         x.fillStyle=P.k;x.fillRect(px,py,8,8);
         x.fillStyle=i===0?P.F:P.Y;x.fillRect(px+1,py+1,6,6);
         x.fillStyle=i===0?P.f:P.z;x.fillRect(px+1,py+1,6,2);
+        x.fillStyle=i===0?P[9]:P[2];x.fillRect(px+6,py+3,1,3);
+        if(j===s.body.length-1){x.fillStyle=i===0?P.g:P.y;x.fillRect(px+3,py+3,2,2);}
         if(j===0){
           x.fillStyle=P.W;x.fillRect(px+2,py+2,2,2);x.fillRect(px+5,py+2,2,2);
           x.fillStyle=P.J;x.fillRect(px+3,py+2,1,1);x.fillRect(px+6,py+2,1,1);

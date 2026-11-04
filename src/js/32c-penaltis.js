@@ -95,11 +95,23 @@ function mgPenalty(host, done, opts = {}) {
   function drawGoal() {
     x.fillStyle=P.X;x.fillRect(0,0,128,160);
     for(let j=0;j<8;j++){x.fillStyle=j%2?P.x:P.X;x.fillRect(0,j*20,128,20);}
-    // Linhas da área, arquibancada e gol vistos da perspectiva do cobrador.
+    // Arquibancada de pixel art, bandeiras e traves com sombra.
+    x.fillStyle=P.N;x.fillRect(0,8,128,12);
+    for(let i=0;i<26;i++){
+      x.fillStyle=i%3===0?P.Y:i%3===1?P.R:P.L;
+      x.fillRect((i*11)%128,10+(i%2)*4,3,2);
+    }
+    x.fillStyle=P.w;x.fillRect(15,18,99,4);
+    x.fillStyle=P.k;x.fillRect(14,20,101,3);
     x.fillStyle=P.W;x.fillRect(5,15,118,1);x.fillRect(5,15,1,90);x.fillRect(122,15,1,90);
     x.fillRect(17,20,94,2);x.fillRect(17,20,2,48);x.fillRect(109,20,2,48);
-    for(let j=25;j<68;j+=7){x.fillStyle=P.V;x.fillRect(19,j,90,1);}
+    for(let j=25;j<68;j+=7){x.fillStyle=P.v;x.fillRect(19,j,90,1);}
     for(let j=27;j<110;j+=9){x.fillStyle=P.V;x.fillRect(j,22,1,45);}
+    x.fillStyle=P.k;x.fillRect(16,67,96,2);
+    // Gramado quadriculado e marca de pênalti.
+    for(let j=70;j<157;j+=14){
+      x.fillStyle=j%28===0?P.G:P.g;x.globalAlpha=.13;x.fillRect(0,j,128,13);x.globalAlpha=1;
+    }
     x.fillStyle=P.W;x.fillRect(8,112,112,1);x.fillRect(8,144,112,1);
     x.fillStyle=P.W;x.fillRect(63,74,2,2);
     const diveX=keeperChoice===null?64:ZONES[keeperChoice];

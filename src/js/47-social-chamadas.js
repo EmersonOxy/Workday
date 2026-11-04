@@ -148,13 +148,13 @@ function socCall(id, { incoming = false, thread = null } = {}) {
     }
     // Duda: convite para jogar (mesmos minigames e o modo contra ele; resultado entra no placar de sempre)
     if (d.dudaFace) {
-      const picks = [[uu.mgRhythm, 'rhythm', 'game'], [uu.mgShooter, 'shooter', 'game'], [uu.mgPacman, 'pacman', 'game'], [uu.mgPenalty, 'penalty', 'game'], [uu.mgSnake, 'snake', 'game'], [uu.mgSurprise, '?', 'game alt'], [c.no, false, 'no']]; picks.inline = true;
+      const picks = [[uu.mgRhythm, 'rhythm', 'game'], [uu.mgShooter, 'shooter', 'game'], [uu.mgPacman, 'pacman', 'game'], [uu.mgPenalty, 'penalty', 'game'], [uu.mgSnake, 'snake', 'game'], [uu.mgCups, 'cups', 'game'], [uu.mgPainting, 'painting', 'game'], [uu.mgDance, 'dance', 'game'], [uu.mgDarts, 'darts', 'game'], [uu.mgSurprise, '?', 'game alt'], [c.no, false, 'no']]; picks.inline = true;
       face.mood('happy');
       const g = await callSay(pickNew(c.inviteAny, 'inv'), picks, face);
       if (g) {
         const kindG = g === '?' ? pick(MINIGAMES) : g, opts = {};
         if (kindG === 'rhythm') opts.song = Math.random() * RHY.SONGS.length | 0;
-        if (kindG !== 'pacman') {
+        if (['rhythm','shooter','penalty','snake','darts'].includes(kindG)) {
           const mood = Rival.mood(kindG), Tt = Rival.total(), rec = Tt.w + Tt.l + Tt.d ? ' ' + c.vsRecord(Tt.w, Tt.l, Tt.d) : '';
           const m = [[uu.vsSolo, 'solo', 'game'], [uu.vsDuda, 'vs', 'game alt']];
           if (kindG === 'penalty' || kindG === 'snake') m.push([uu.mgLocal, 'local', 'game']);

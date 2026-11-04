@@ -9,19 +9,24 @@ function arcadeClock() {
   };
 }
 function arcadeEmployee(ctx, x, y, kind = 'player', scale = 1) {
-  // Micro-sprite próprio: cabeça, cabelo, camisa, gravata e braços; sem antialiasing.
+  // Trabalhador em miniatura com silhueta, camisa, gravata, braços e pernas.
   const boss = kind === 'boss', keeper = kind === 'keeper';
   const hair = boss ? '#626875' : keeper ? '#a8683e' : '#87502c';
+  const hairLight = boss ? '#9aa0ab' : keeper ? '#c98f30' : '#a8683e';
   const shirt = boss ? '#3b3f48' : keeper ? '#f4c15d' : '#c3d5ff';
+  const shade = boss ? '#2b2340' : keeper ? '#c98a2e' : '#44609f';
   const tie = boss ? '#ef4b3f' : keeper ? '#2f6f78' : '#a8262a';
   const fill = (c, a, b, w, h) => { ctx.fillStyle = c; ctx.fillRect((x + a * scale)|0, (y + b * scale)|0, Math.max(1,w*scale), Math.max(1,h*scale)); };
-  fill('#2a1f2d',0,0,9,12);
-  fill(hair,2,0,5,2);
-  fill('#f2c4a0',2,2,5,5);
-  fill('#2a1f2d',3,4,1,1); fill('#2a1f2d',6,4,1,1);
-  if (boss) { fill('#2a1f2d',2,3,2,1); fill('#2a1f2d',5,3,2,1); }
-  fill(shirt,1,7,7,4); fill(tie,4,7,1,4);
-  fill('#2a1f2d',1,11,3,1); fill('#2a1f2d',5,11,3,1);
+  fill('#2a1f2d',1,0,9,8);
+  fill(hair,2,1,7,2);fill(hairLight,3,1,3,1);
+  fill('#f2c4a0',2,3,7,5);fill('#d99a76',8,4,1,3);
+  fill('#2a1f2d',3,5,1,1);fill('#2a1f2d',7,5,1,1);
+  if(boss){fill('#2a1f2d',2,4,3,1);fill('#2a1f2d',6,4,3,1);fill('#a8684c',4,7,3,1);}
+  else fill('#a8684c',4,7,3,1);
+  fill('#2a1f2d',1,8,9,4);fill(shirt,2,8,7,4);
+  fill(shade,1,9,1,2);fill(shade,9,9,1,2);
+  fill(tie,5,8,1,4);fill('#fff8ec',4,8,1,1);
+  fill('#2a1f2d',2,12,3,2);fill('#2a1f2d',6,12,3,2);
 }
 function arcadeDoneOnce(done) {
   let completed = false;

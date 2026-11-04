@@ -101,14 +101,21 @@ function mgPacman(host, done, opts = {}) {
     for(let yy=0;yy<CH;yy++)for(let xx=0;xx<CW;xx++) {
       const px=OX+xx*CELL,py=OY+yy*CELL;
       if(maze[yy][xx]==='#') {
-        x.fillStyle=P[7];x.fillRect(px,py,CELL,CELL);
-        x.fillStyle=P.L;x.fillRect(px,py,CELL,1);
-        x.fillStyle=P.k;x.fillRect(px+1,py+7,CELL-1,1);
-      } else {x.fillStyle=P.X;x.fillRect(px,py,CELL,CELL);}
+        // Muros como divisórias de escritório, com cantoneiras e reflexos.
+        x.fillStyle=P.k;x.fillRect(px,py,CELL,CELL);
+        x.fillStyle=P[7];x.fillRect(px+1,py+1,6,6);
+        x.fillStyle=P.L;x.fillRect(px+1,py+1,6,2);
+        x.fillStyle=P.l;x.fillRect(px+2,py+3,3,1);
+        if((xx+yy)%3===0){x.fillStyle=P.W;x.fillRect(px+1,py+1,1,1);}
+      } else {
+        x.fillStyle=(xx+yy)%2===0?P.X:P.x;x.fillRect(px,py,CELL,CELL);
+        if((xx*7+yy*3)%11===0){x.fillStyle=P.N;x.fillRect(px+3,py+3,1,1);}
+      }
     }
     for(const [loc,item] of items) {const [xx,yy]=loc.split(',').map(Number);itemArt(item,OX+xx*CELL,OY+yy*CELL);}
-    arcadeEmployee(x,OX+boss.x*CELL,OY+boss.y*CELL-3,'boss');
-    if(inv<=0||(elapsed*9|0)%2===0)arcadeEmployee(x,OX+player.x*CELL,OY+player.y*CELL-3,'player');
+    if(boost>0){x.fillStyle=P.Y;x.globalAlpha=.28;x.fillRect(OX+player.x*CELL-3,OY+player.y*CELL-4,15,18);x.globalAlpha=1;}
+    arcadeEmployee(x,OX+boss.x*CELL-1,OY+boss.y*CELL-3,'boss');
+    if(inv<=0||(elapsed*9|0)%2===0)arcadeEmployee(x,OX+player.x*CELL-1,OY+player.y*CELL-3,'player');
     x.fillStyle=P.W;x.fillRect(5,151,118,2);
     x.fillStyle=boost>0?P.Y:P.F;x.fillRect(5,151,(118*(1-elapsed/MAX_TIME))|0,2);
     st.hud.textContent=u.mgScore+' '+fmt(score)+' · '+u.mgLives+' '+lives+' · '+Math.max(0,MAX_TIME-elapsed|0)+'s';

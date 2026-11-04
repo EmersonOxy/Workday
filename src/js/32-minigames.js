@@ -9,11 +9,17 @@ function mgStage(host, title, help) {
   requestAnimationFrame(() => pxRefit(cv));
   const esc = e => { if (e.key === 'Escape' && host.isConnected && host._quit) { e.preventDefault(); e.stopPropagation(); host._quit(); } };
   addEventListener('keydown', esc, true);
-  return { cv, x: cv.getContext('2d'), hud: host.querySelector('.mg-hud'), pop: host.querySelector('.mg-pop'), off: () => removeEventListener('keydown', esc, true) };
+  const stage = { cv, x: cv.getContext('2d'), hud: host.querySelector('.mg-hud'), pop: host.querySelector('.mg-pop'), noticeTimer: null, off: () => {
+    clearTimeout(stage.noticeTimer);
+    removeEventListener('keydown', esc, true);
+  } };
+  return stage;
 }
 function mgPop(stage, text, cls) {
+  clearTimeout(stage.noticeTimer);
   const p = document.createElement('span'); p.className = 'mg-msg ' + (cls || ''); p.textContent = text; stage.pop.replaceChildren(p);
   Motion.play(p, [{ transform: 'scale(.6)', opacity: 0 }, { transform: 'scale(1.15)', opacity: 1, offset: .5 }, { transform: 'scale(1)', opacity: 1 }], { duration: 220, easing: Motion.E.out });
+  stage.noticeTimer = setTimeout(() => { if (p.isConnected) p.remove(); }, 1150);
 }
 // Pausa ao trocar de aba: o tempo do minigame congela junto
 function mgClock(useAudio) {
@@ -36,13 +42,14 @@ function mgDrawParticles(x, list, dt) {
   for (let i = list.length - 1; i >= 0; i--) if (list[i].t <= 0) list.splice(i, 1);
 }
 function runMinigame(kind, host, done, opts) {
-  const runners = { rhythm: mgRhythm, shooter: mgShooter, pacman: mgPacman, penalty: mgPenalty, snake: mgSnakeDuel };
+  const runners = { rhythm: mgRhythm, shooter: mgShooter, pacman: mgPacman, penalty: mgPenalty, snake: mgSnakeDuel, cups: mgCups, painting: mgPainting, dance: mgDance, darts: mgDarts };
   if (!Object.prototype.hasOwnProperty.call(runners, kind)) throw new Error('Minigame desconhecido: ' + kind);
   runners[kind](host, done, opts || {});
 }
 function mgResult(stage, host, rows, grade, done, vs) {
   const u = U(), box = document.createElement('div'); box.className = 'mg-end' + (vs ? ' vs-' + vs.res : '');
   box.innerHTML = `<b>${vs ? u.vsRes[vs.res] : u.mgEnd}</b>${rows.map(([k, v]) => `<span>${k} <i>${v}</i></span>`).join('')}`;
+  stage.pop.replaceChildren();
   host.querySelector('.mg-view').append(box); Motion.dropIn(box); sfx(grade === 'bad' ? 'err' : 'level');
   setTimeout(() => done(grade), 2200);
 }

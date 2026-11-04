@@ -128,6 +128,12 @@ const ACH = [
   ['dec5', () => P.decor.length >= 5], ['q3', () => Object.keys(QST.done).length >= 3], ['all', () => Object.keys(PIN_SPR).every(k => QST.pins.includes(k))],
 ];
 
+// Conquista permanente do ateliê: todas as artes coloridas, inclusive as desbloqueáveis.
+LANGS.pt.ui.ev.ach.gallery = ['Mestre das Cores', 'Conclua todas as obras do Ateliê Workday.'];
+LANGS.en.ui.ev.ach.gallery = ['Master of Colors', 'Complete all artworks in the Workday Art Studio.'];
+LANGS.es.ui.ev.ach.gallery = ['Maestro de Colores', 'Termina todas las obras del Taller Workday.'];
+ACH.push(['gallery', () => ARTWORKS.every(a => !!arcadePaintProgress().done[a.id])]);
+
 const QST = Object.assign({ done: {}, active: {}, seen: {}, pins: [], unlocks: [], ach: {}, maxRank: 0 }, load('missoes', {}));
 const qSave = () => save('missoes', QST);
 const isUnlocked = key => !LOCKED[key] || QST.unlocks.includes(key);

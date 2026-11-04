@@ -1,4 +1,4 @@
-/* Regressão dos três minigames extras do Workday.
+/* Regressão dos minigames do Workday.
    Uso: python tools/build.py && node tests/arcade-new.js */
 const { chromium } = require('playwright');
 const path = require('path');
@@ -15,7 +15,7 @@ const url = 'file://' + path.resolve(__dirname,'..','dist','workday.html');
         games:MINIGAMES.slice(),
         locale:['pt','en','es'].every(lang=>['mgPacman','mgPenalty','mgSnake','mgLocal'].every(key=>!!LANGS[lang].ui[key]))
       }));
-      assert.deepEqual(registered.games,['rhythm','shooter','pacman','penalty','snake']);
+      assert.deepEqual(registered.games,['rhythm','shooter','pacman','penalty','snake','cups','painting','dance','darts']);
       assert.ok(registered.locale,'traduções PT/EN/ES');
       for(const kind of ['pacman','penalty','snake']) {
         await page.evaluate(kind=>{
