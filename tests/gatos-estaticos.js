@@ -24,6 +24,19 @@ function ok(value,name){if(value){passed++;console.log('  ✓ '+name);}else{fail
        const center=col(Math.floor(w/2),Math.round(h*.57)),corner=col(0,0);
        return{size:w===80&&h===120,corner,center,data:c.toDataURL()};
      });
+     // Não aceitar transparência em pixels escuros da cabeça/corpo restaurados.
+     const darkPixelsRestored=Object.entries(CAT_STATIC_DARK_PIXELS).every(([id,code])=>{
+       const c=document.createElement('canvas');c.width=80;c.height=120;
+       const ctx=c.getContext('2d');ctx.drawImage(CatStatic.images[id],0,0);
+       const data=ctx.getImageData(0,0,80,120).data;
+       const raw=atob(code);
+       for(let i=0;i<raw.length;i+=5){
+         const x=raw.charCodeAt(i),y=raw.charCodeAt(i+1),j=(y*80+x)*4;
+         if(data[j]!==raw.charCodeAt(i+2)||data[j+1]!==raw.charCodeAt(i+3)||
+           data[j+2]!==raw.charCodeAt(i+4)||data[j+3]!==255)return false;
+       }
+       return raw.length>=5*150;
+     });
      const body=CatStatic.sizes(2);
      // Todos os gatos: 80x120 nativos na mesa, em escala 1:1.
      // Validar todos os canais, mesmo quando suavizacao foi ativada.
@@ -77,13 +90,14 @@ function ok(value,name){if(value){passed++;console.log('  ✓ '+name);}else{fail
        count:ids.length,ready:CatStatic.loaded.size,
        sizeOk:masks.every(m=>m.size),transparent:masks.every(m=>m.corner===0 && m.center===255),
        unique:new Set(masks.map(m=>m.data)).size,
-       static: first===second,size:body,still:[still.width,still.height],oldAlias,pixelPerfect,mirrorMatches,deskFit,previewFits
+       static: first===second,size:body,still:[still.width,still.height],oldAlias,pixelPerfect,mirrorMatches,deskFit,previewFits,darkPixelsRestored
      };
    });
    const mobile=viewport.width<600?'Mobile':'Desktop';
    ok(r.count===10&&r.ready===10,mobile+': dez PNGs integrados e carregados');
    ok(r.sizeOk&&r.transparent,mobile+': dez gatos nativos 80x120 transparentes');
    ok(r.unique===10,mobile+': dez artes diferentes preservadas');
+   ok(r.darkPixelsRestored,mobile+': pixels escuros originais restaurados nos dois gatos pretos');
    ok(r.static&&r.size[0]===80&&r.size[1]===120,mobile+': gato 80x120 sem animacao');
    ok(r.pixelPerfect,mobile+': dez gatos nativos sem reamostragem ou distorcao');
    ok(r.mirrorMatches,mobile+': espelhamento sem distorcer os pixels');
@@ -97,6 +111,18 @@ function ok(value,name){if(value){passed++;console.log('  ✓ '+name);}else{fail
    await page.click('.hw-tab[data-t="desk"]');
    ok(await page.evaluate(()=>document.querySelectorAll('.hw-card .cat[data-c]').length===10),
        mobile+': dez pelagens no menu Personalizar > Mesa');
+   const nativeThumbs=await page.evaluate(()=>{
+     const cards=[...document.querySelectorAll('.hw-card .cat[data-c]')];
+     return cards.length===10 && cards.every(b=>{
+       const img=b.querySelector('.cimg img.cat-native-thumb');
+       if(!img)return false;
+       const css=getComputedStyle(img),r=img.getBoundingClientRect();
+       return img.complete && img.naturalWidth===80 && img.naturalHeight===120 &&
+         r.height>=94 && r.width>=60 && css.imageRendering==='pixelated' &&
+         Math.abs(r.width/r.height-2/3)<.01;
+     });
+   });
+   ok(nativeThumbs,mobile+': miniaturas usam PNG 80x120 direto, sem dupla redução');
    ok(await page.evaluate(()=>!!document.querySelector('.cat-eyes-note') &&
        !document.querySelector('.hw-card [data-hw="catEye"]')),
        mobile+': olhos fixos documentados, sem controle enganoso');
