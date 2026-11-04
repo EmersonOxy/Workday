@@ -22,7 +22,7 @@ O atlas em `assets/ui/buttons.png` recorta a grade nativa 6×4 da imagem origina
 - Arcade: jogar, apostar, pausar e confirmar usam os pictogramas correspondentes.
 - Os demais desenhos ficam disponíveis no atlas, sem forçar associações incorretas a ações do jogo.
 - Fonte visual de cada botão em CSS `src/css/95-ui-buttons.css`, respeitando os textos, aria-labels, handlers e saves preexistentes.
-- No build web, o PNG é copiado para `ui-buttons/buttons.png`; no build offline, é incorporado ao HTML como data URI.
+- No build web, o PNG é copiado para `ui-buttons/buttons-v2.png` para evitar que o navegador reutilize o atlas antigo em cache; no build offline, é incorporado ao HTML como data URI.
 
 ## Validação
 

@@ -3,7 +3,7 @@
    cada celula 44x36 px, sem reduzir os pixels da imagem enviada.
    O recorte preserva o alfa e a paleta RGBA originais. */
 
-:root { --wd-button-atlas: url('ui-buttons/buttons.png'); }
+:root { --wd-button-atlas: url('ui-buttons/buttons-v2.png'); }
 
 /* Os rótulos e os estados acessíveis continuam no botão; o atlas só acrescenta o pictograma. */
 #soundBtn {
