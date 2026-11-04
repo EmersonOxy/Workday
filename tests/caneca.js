@@ -48,6 +48,16 @@ function ok(v, name) { if (v) { passed++; console.log('  ✓ ' + name); } else {
         const steamCount = difference(a,b,0,65);
         const steamOnly = difference(a,b,65,125);
         const goldCount = difference(a,c2);
+        // Mudança de cores preparada para futura tela de personalização:
+        // o desenho e a transparência permanecem, só a paleta muda.
+        const colorVariants = {};
+        for (const color of ['azul','verde','rosa','lilas','amarelo','grafite']) {
+          MugStatic.setColor(color);
+          colorVariants[color] = difference(a, render(false, false));
+        }
+        const invalidColor = MugStatic.setColor('cor-inexistente');
+        MugStatic.setColor('original');
+        const restoredOriginal = difference(a, render(false, false));
         const before = a;
         MugStatic.ready = false;
         const old = render(false,false);
@@ -59,7 +69,7 @@ function ok(v, name) { if (v) { passed++; console.log('  ✓ ' + name); } else {
           size:[image.naturalWidth,image.naturalHeight],
           palette:palette.size, alphas:[...alphas],
           opaqueCount,transparentCount,
-          steamCount,steamOnly,goldCount,fallbackDifferent,
+          steamCount,steamOnly,goldCount,fallbackDifferent,colorVariants,invalidColor,restoredOriginal,
           mug:mug&&{off:!!mug.off,x:mug.x,y:mug.y,w:mug.w,h:mug.h},
           L:[L.VW,L.VH]
         };
@@ -72,6 +82,9 @@ function ok(v, name) { if (v) { passed++; console.log('  ✓ ' + name); } else {
       ok(res.steamCount>0 && res.steamOnly===0,
         mode+': vapor animado separadamente, sem alterar a caneca');
       ok(res.goldCount>0,mode+': emblema de carreira preservado');
+      ok(Object.values(res.colorVariants).every(n=>n>50),mode+': seis cores futuras recolorem o sprite');
+      ok(res.invalidColor === false && res.restoredOriginal === 0,
+        mode+': cores invalidas rejeitadas e arte original restaurada sem diferencas');
       ok(res.fallbackDifferent,mode+': caneca original funciona como reserva');
       ok(res.mug && !res.mug.off && res.mug.w===40 && res.mug.h===40,
         mode+': caneca posicionada em slot correto, sem ser escondida');
