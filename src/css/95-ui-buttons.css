@@ -70,3 +70,21 @@
 @media (prefers-reduced-motion: reduce) {
   .vcall .vc-call i, .vcall .vc-call i::before { animation: none; transition: none; }
 }
+
+/* Ações adicionais que possuem equivalentes inequívocos no atlas. */
+.os-smenu button[data-a="cfg"],
+#dOk { display: inline-flex; align-items: center; gap: 5px; }
+.os-smenu button[data-a="cfg"]::before,
+#dOk::before {
+  content: '';
+  width: 22px;
+  height: 18px;
+  display: block;
+  flex: none;
+  background-image: var(--wd-button-atlas);
+  background-size: 132px 72px;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+}
+.os-smenu button[data-a="cfg"]::before { background-position: -66px -36px; }
+#dOk::before { background-position: -44px 0; }
