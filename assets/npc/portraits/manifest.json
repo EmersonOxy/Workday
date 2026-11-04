@@ -1,0 +1,234 @@
+{
+  "version": 1,
+  "description": "19 retratos estáticos em pixel art, numerados na ordem de envio; associação de NPCs pendente.",
+  "portraits": [
+    {
+      "id": "personagem-01",
+      "label": "Personagem 01",
+      "file": "personagem-01.png",
+      "original": "image(20261104-005520).png",
+      "size": [
+        128,
+        128
+      ],
+      "status": "reservado",
+      "npcId": null
+    },
+    {
+      "id": "personagem-02",
+      "label": "Personagem 02",
+      "file": "personagem-02.png",
+      "original": "image(20261104-005528).png",
+      "size": [
+        128,
+        128
+      ],
+      "status": "reservado",
+      "npcId": null
+    },
+    {
+      "id": "personagem-03",
+      "label": "Personagem 03",
+      "file": "personagem-03.png",
+      "original": "image(20261104-005533).png",
+      "size": [
+        128,
+        128
+      ],
+      "status": "reservado",
+      "npcId": null
+    },
+    {
+      "id": "personagem-04",
+      "label": "Personagem 04",
+      "file": "personagem-04.png",
+      "original": "image(20261104-005537).png",
+      "size": [
+        128,
+        128
+      ],
+      "status": "reservado",
+      "npcId": null
+    },
+    {
+      "id": "personagem-05",
+      "label": "Personagem 05",
+      "file": "personagem-05.png",
+      "original": "image(20261104-005540).png",
+      "size": [
+        128,
+        128
+      ],
+      "status": "reservado",
+      "npcId": null
+    },
+    {
+      "id": "personagem-06",
+      "label": "Personagem 06",
+      "file": "personagem-06.png",
+      "original": "image(20261104-005545).png",
+      "size": [
+        128,
+        128
+      ],
+      "status": "reservado",
+      "npcId": null
+    },
+    {
+      "id": "personagem-07",
+      "label": "Personagem 07",
+      "file": "personagem-07.png",
+      "original": "image(20261104-005548).png",
+      "size": [
+        128,
+        128
+      ],
+      "status": "reservado",
+      "npcId": null
+    },
+    {
+      "id": "personagem-08",
+      "label": "Personagem 08",
+      "file": "personagem-08.png",
+      "original": "image(20261104-005551).png",
+      "size": [
+        128,
+        128
+      ],
+      "status": "reservado",
+      "npcId": null
+    },
+    {
+      "id": "personagem-09",
+      "label": "Personagem 09",
+      "file": "personagem-09.png",
+      "original": "image(20261104-005554).png",
+      "size": [
+        128,
+        128
+      ],
+      "status": "reservado",
+      "npcId": null
+    },
+    {
+      "id": "personagem-10",
+      "label": "Personagem 10",
+      "file": "personagem-10.png",
+      "original": "image(20261104-005600).png",
+      "size": [
+        128,
+        128
+      ],
+      "status": "reservado",
+      "npcId": null
+    },
+    {
+      "id": "personagem-11",
+      "label": "Personagem 11",
+      "file": "personagem-11.png",
+      "original": "image(20261104-005603).png",
+      "size": [
+        128,
+        128
+      ],
+      "status": "reservado",
+      "npcId": null
+    },
+    {
+      "id": "personagem-12",
+      "label": "Personagem 12",
+      "file": "personagem-12.png",
+      "original": "image(20261104-005609).png",
+      "size": [
+        128,
+        128
+      ],
+      "status": "reservado",
+      "npcId": null
+    },
+    {
+      "id": "personagem-13",
+      "label": "Personagem 13",
+      "file": "personagem-13.png",
+      "original": "image(20261104-005611).png",
+      "size": [
+        128,
+        128
+      ],
+      "status": "reservado",
+      "npcId": null
+    },
+    {
+      "id": "personagem-14",
+      "label": "Personagem 14",
+      "file": "personagem-14.png",
+      "original": "image(20261104-005615).png",
+      "size": [
+        128,
+        128
+      ],
+      "status": "reservado",
+      "npcId": null
+    },
+    {
+      "id": "personagem-15",
+      "label": "Personagem 15",
+      "file": "personagem-15.png",
+      "original": "image(20261104-005621).png",
+      "size": [
+        128,
+        128
+      ],
+      "status": "reservado",
+      "npcId": null
+    },
+    {
+      "id": "personagem-16",
+      "label": "Personagem 16",
+      "file": "personagem-16.png",
+      "original": "image(20261104-005624).png",
+      "size": [
+        128,
+        128
+      ],
+      "status": "reservado",
+      "npcId": null
+    },
+    {
+      "id": "personagem-17",
+      "label": "Personagem 17",
+      "file": "personagem-17.png",
+      "original": "image(20261104-005628).png",
+      "size": [
+        128,
+        128
+      ],
+      "status": "reservado",
+      "npcId": null
+    },
+    {
+      "id": "personagem-18",
+      "label": "Personagem 18",
+      "file": "personagem-18.png",
+      "original": "image(20261104-005639).png",
+      "size": [
+        128,
+        128
+      ],
+      "status": "reservado",
+      "npcId": null
+    },
+    {
+      "id": "personagem-19",
+      "label": "Personagem 19",
+      "file": "personagem-19.png",
+      "original": "image(20261104-005644).png",
+      "size": [
+        128,
+        128
+      ],
+      "status": "reservado",
+      "npcId": null
+    }
+  ]
+}

@@ -44,6 +44,14 @@ def inline_wallpapers(html):
         return "'data:image/png;base64," + data + "'"
     return re.sub(r"'wallpapers/([\w-]+\.png)'", sub, html)
 
+def inline_npc_portraits(html):
+    """Embutir retratos PNG na versao offline para não depender do servidor."""
+    directory = root / 'assets' / 'npc' / 'portraits'
+    def sub(m):
+        data = base64.b64encode((directory / m.group(1)).read_bytes()).decode('ascii')
+        return "'data:image/png;base64," + data + "'"
+    return re.sub(r"'npc-portraits/([a-z0-9-]+\.png)'", sub, html)
+
 def main():
     css = ''.join(p.read_text(encoding='utf-8') for p in sorted((src / 'css').glob('*.css')))
     # Módulos compartilhados (paleta, pixel, sprites, animação, cena) vêm antes do jogo
@@ -59,8 +67,14 @@ def main():
         (web / 'wallpapers').mkdir()
         for f in wallpapers.glob('*.png'):
             shutil.copy(f, web / 'wallpapers' / f.name)
+    # Catalogo de NPCs: PNGs em separado na web, prontos para uso futuro.
+    npc_dir = root / 'assets' / 'npc' / 'portraits'
+    if npc_dir.is_dir():
+        (web / 'npc-portraits').mkdir()
+        for f in npc_dir.glob('*.png'):
+            shutil.copy(f, web / 'npc-portraits' / f.name)
     (web / '.nojekyll').write_text('')   # GitHub Pages: servir os arquivos como estão
-    (dist / 'workday.html').write_text(inline_wallpapers(inline_audio(page, root / 'audio')), encoding='utf-8')
+    (dist / 'workday.html').write_text(inline_npc_portraits(inline_wallpapers(inline_audio(page, root / 'audio'))), encoding='utf-8')
     guide = root / 'design' / 'style-guide.html'
     if guide.exists():
         g = guide.read_text(encoding='utf-8')
