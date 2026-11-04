@@ -28,7 +28,7 @@
   .inactive .mw-b b[data-g="x"] { background-image: url('ui-workos/control-close-inactive.png') !important; }
   .inactive .mw-bar, .inactive > .win-bar { background-image: url('ui-workos/titlebar-inactive.png') !important; }
   .mw-b b canvas { display: none; }
-  .mw-in { border: 14px solid transparent; border-image: url('ui-workos/window-panel.png') 14 fill / 14px / 0 repeat; background: #fbf3e2; box-shadow: none; padding: .8em; }
+  .mw-in { border: 22px solid transparent; border-image: url('ui-workos/window-panel.png') 22 fill / 22px / 0 stretch; background: #fbf3e2; box-shadow: none; padding: .8em; }
   .menu-card .menu { gap: 8px; }
   .menu-card .menu .pxbtn { gap: .55em; padding-left: .55em; }
   .mico { width: 28px !important; height: 26px; }
@@ -206,7 +206,7 @@
   #modal .card.oswin { padding: 0 !important; overflow: auto !important; display: flex; flex-direction: column; gap: 0; background: transparent !important; max-height: 94%;
     box-shadow: none !important; transition: none; }
   .oswin > .win-bar { flex: none; display: flex; justify-content: space-between; align-items: center; color: #fff8ec; font-family: var(--pixel); min-height: 40px; background: #44609f url('ui-workos/titlebar-active.png') repeat-x left top; }
-  .oswin > .win-body { flex: 1; min-height: 0; overflow: auto; padding: 1em 1.2em; background: #fbf3e2; color: var(--ink); border: 14px solid transparent; border-image: url('ui-workos/window-panel.png') 14 fill / 14px / 0 repeat; }
+  .oswin > .win-body { flex: 1; min-height: 0; overflow: auto; padding: 1em 1.2em; background: #fbf3e2; color: var(--ink); border: 22px solid transparent; border-image: url('ui-workos/window-panel.png') 22 fill / 22px / 0 stretch; }
   .oswin > .win-body > h2:first-child { display: none; }
   .over-card > .win-body > h2:first-child, .promo-card > .win-body > h2:first-child { display: block; }
   .oswin.mini > .win-body { display: none; }
@@ -219,7 +219,7 @@
   .os-win { left: 50% !important; top: 50% !important; translate: -50% -50% !important; transform-origin: 50% 50% !important; z-index: 8; max-height: 92%; }
   .os-win .mw-in { overflow: auto; }
   /* eventos (avisos, reunião): mesma barra de título */
-  .popup { padding: 0; background: transparent !important; border: 14px solid transparent; border-image: url('ui-workos/window-panel.png') 14 fill / 14px / 0 repeat; box-shadow: none; }
+  .popup { padding: 0; background: transparent !important; border: 22px solid transparent; border-image: url('ui-workos/window-panel.png') 22 fill / 22px / 0 stretch; box-shadow: none; }
   .popup .title { min-height: 40px; background: #44609f url('ui-workos/titlebar-active.png') repeat-x left top !important; box-shadow: none; font-family: var(--pixel); }
   .popup .content { background: #fbf3e2; }
   .popup .title .x { width: 31px; height: 31px; border: 0; padding: 0; cursor: pointer; font-size: 0; color: transparent; background: url('ui-workos/control-close.png') center / 31px 31px no-repeat; box-shadow: none; }

@@ -4,7 +4,7 @@
     1536,
     1024
   ],
-  "notes": "Recortes nativos da janela em branco do canto superior esquerdo e das barras ativa/inativa na faixa inferior. A fonte permanece intacta.",
+  "notes": "Recortes nativos da janela em branco, da faixa de título WorkOS ativa/inativa e dos controles originais. A moldura preserva os cantos com 9-slice de 22 px e estiramento apenas das bordas.",
   "sprites": [
     {
       "file": "window-panel.png",
@@ -18,35 +18,35 @@
         476,
         314
       ],
-      "use": "9-slice do corpo da janela; slice de 14 px, repetição das bordas."
+      "use": "Moldura de conteúdo em 9-slice, fatias de 22 px para manter cantos e chanfros completos."
     },
     {
       "file": "titlebar-active.png",
       "rect": [
-        180,
-        16,
-        200,
-        56
+        310,
+        800,
+        330,
+        836
       ],
       "size": [
         20,
-        40
+        36
       ],
-      "use": "textura repetível da barra ativa, sem texto ou ícone."
+      "use": "Textura central da barra ativa WorkOS, extraída da barra de tarefas e repetida horizontalmente."
     },
     {
       "file": "titlebar-inactive.png",
       "rect": [
-        340,
-        840,
-        360,
-        880
+        310,
+        843,
+        330,
+        879
       ],
       "size": [
         20,
-        40
+        36
       ],
-      "use": "textura repetível da barra inativa, sem texto ou ícone."
+      "use": "Textura central da barra inativa WorkOS, extraída da barra de tarefas e repetida horizontalmente."
     },
     {
       "file": "control-min.png",
