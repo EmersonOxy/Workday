@@ -796,3 +796,8 @@ Object.assign(LANGS.es.ui, {
   "mgDartsThrow": "Lanzamiento",
   "mgDartsThrowShort": "LANZA"
 });
+
+/* Apostas opcionais com escolha gratuita explícita */
+Object.assign(LANGS.pt.ui, {"mgPlayFree":"Jogar sem apostar","mgNoBet":"Sem aposta","mgChooseMode":"Escolha como jogar","mgBetInfo":"Aposta opcional. Jogue sem apostar ou arrisque dinheiro fictício da carteira. Se apostar, vitória paga 2× e derrota ou abandono perde apenas o valor apostado.","mgCupsHelp":"Acompanhe a bola nos três copos. É possível jogar sem apostar.","mgDartsHelp":"Jogue de graça ou aposte. Mouse: mire, segure e solte. Celular: joystick e botão de arremesso."});
+Object.assign(LANGS.en.ui, {"mgPlayFree":"Play without betting","mgNoBet":"No bet","mgChooseMode":"Choose how to play","mgBetInfo":"Betting is optional. Play for free or use in-game funds. When betting, a win pays 2× and a loss or early exit forfeits only the stake.","mgCupsHelp":"Track the ball under three cups. Playing without betting is available.","mgDartsHelp":"Play free or bet. Mouse: aim, hold and release. Mobile: joystick and throw button."});
+Object.assign(LANGS.es.ui, {"mgPlayFree":"Jugar sin apostar","mgNoBet":"Sin apuesta","mgChooseMode":"Elige cómo jugar","mgBetInfo":"La apuesta es opcional. Juega gratis o usa dinero ficticio. Si apuestas, ganas 2× al acertar y pierdes solo lo apostado al fallar o salir.","mgCupsHelp":"Sigue la bola entre los tres vasos. Puedes jugar sin apostar.","mgDartsHelp":"Juega gratis o apuesta. Ratón: apunta, mantén y suelta. Móvil: joystick y botón de lanzamiento."});

@@ -52,7 +52,7 @@ function mgCups(host,done,opts={}) {
       ctx.fillRect((c.x-16)|0,47,32,4);
     }
     ctx.fillStyle=P.W;ctx.fillRect(7,130,114,1);
-    st.hud.textContent=u.mgBetAmount+': '+money(stake)+' · '+(phase==='bet'?u.mgBetStart:phase==='show'?u.mgCupsWatch:phase==='shuffle'?u.mgCupsShuffle:phase==='choose'?u.mgCupsChoose:u.mgCupsReveal);
+    st.hud.textContent=(stake>0?u.mgBetAmount+': '+money(stake):u.mgNoBet)+' · '+(phase==='bet'?u.mgChooseMode:phase==='show'?u.mgCupsWatch:phase==='shuffle'?u.mgCupsShuffle:phase==='choose'?u.mgCupsChoose:u.mgCupsReveal);
   }
   function scheduleSwap() {
     const a=Math.random()*3|0;
@@ -89,7 +89,7 @@ function mgCups(host,done,opts={}) {
     removeEventListener('keydown',kd,true);st.off();clock.stop();if(control)control.cancel();
     if(quit)return finishOnce({score:0,grade:'bad',quit:true,bet:stake});
     const grade=win?'good':'bad';
-    mgResult(st,host,[[u.mgBetAmount,money(stake)],[u.mgCupsResult,win?u.mgCupsWon:u.mgCupsLost],[u.mgBetPrize,money(win?stake*2:0)]],grade,
+    mgResult(st,host,[[u.mgCupsResult,win?u.mgCupsWon:u.mgCupsLost],...(stake>0?[[u.mgBetAmount,money(stake)],[u.mgBetPrize,money(win?stake*2:0)]]:[])],grade,
       g=>finishOnce({score:win?1:0,grade:g,bet:stake,winnings:win?stake*2:0}));
   }
   host._quit=()=>end(true);

@@ -4,10 +4,10 @@ Ampliação do arcade em 04/11/2026. São nove minigames, com os cinco anteriore
 
 ## Novos jogos
 
-- **Três Copos** (`cups`): acompanhar a bola em um dos três copos embaralhados e escolher. A aposta usa exclusivamente a carteira fictícia do jogo; vitória paga o dobro da aposta, derrota ou desistência perde apenas o valor apostado.
+- **Três Copos** (`cups`): acompanhar a bola em um dos três copos embaralhados e escolher. A aposta é **opcional**. O botão principal **Jogar sem apostar** inicia uma rodada gratuita mesmo com carteira vazia. Apostar dinheiro fictício é uma alternativa; vitória paga o dobro da entrada, derrota ou desistência perde somente o valor apostado.
 - **Ateliê Workday** (`painting`): oito desenhos em preto e branco para colorir por regiões, três inicialmente disponíveis e novas artes liberadas progressivamente. O progresso é salvo e completar as oito concede a conquista Mestre das Cores no Arquivo.
 - **Dança das Setas** (`dance`): setas descem em quatro colunas e o jogador precisa acertar no ritmo. Erros e notas perdidas consomem vidas, com teclado e toque.
-- **Dardos do Expediente** (`darts`): alvo e mira oscilante; no desktop mira com mouse e segura/solta para medir força; no celular, joystick virtual inferior e botão de arremesso. Solo ou contra Duda. Treino sem apostar é possível usando aposta zero; com aposta, vitória paga o dobro.
+- **Dardos do Expediente** (`darts`): alvo e mira oscilante; no desktop mira com mouse e segura/solta para medir força; no celular, joystick virtual inferior e botão de arremesso. Solo ou contra Duda. O botão **Jogar sem apostar** inicia o treino gratuito, sem precisar digitar zero; com aposta opcional, vitória paga o dobro.
 
 ## Integração
 
@@ -17,7 +17,7 @@ Uma correção geral faz a mensagem Prepare-se! desaparecer depois de cerca de u
 
 ## Regras de dinheiro e salvamento
 
-As apostas debitam imediatamente o saldo disponível de P.wallet, gravado por persist(). Só é permitido apostar valores inteiros dentro do saldo. O valor pago ao vencer é duas vezes a entrada (a entrada de volta mais lucro equivalente). Abandonar a rodada após apostar não devolve a entrada. O jogo de copos exige aposta positiva; dardos oferece modo treino gratuito. O jogo não usa dinheiro real.
+As apostas debitam imediatamente o saldo disponível de P.wallet, gravado por persist(). Jogar sem apostar é sempre permitido, mesmo sem saldo. Para apostar, só são permitidos valores inteiros positivos dentro do saldo. O valor pago ao vencer é duas vezes a entrada (a entrada de volta mais lucro equivalente). Abandonar a rodada após apostar não devolve a entrada. **Três Copos e Dardos** oferecem modo gratuito, sem débito e sem prêmio fictício, inclusive com saldo zero. O jogo não usa dinheiro real.
 
 Os desenhos e cores concluídos ficam no save de arcade-paint; a conquista é registrada na coleção QST.ach.
 

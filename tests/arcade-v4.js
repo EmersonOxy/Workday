@@ -46,6 +46,30 @@ const url='file://'+path.resolve(__dirname,'..','dist','workday.html');
       assert.ok(await page.evaluate(()=>!document.querySelector('#arc-v4 .mg-msg')),'aviso Prepare-se/Watch não persiste na tela');
       await quit();
       assert.equal(await page.evaluate(()=>P.wallet),100,'abandonar não duplica dinheiro');
+      // Gratuito disponível mesmo com carteira vazia.
+      await page.evaluate(()=>{P.wallet=0;persist();});
+      await start('cups');
+      const freeCup=await page.evaluate(()=>{
+        const h=document.getElementById('arc-v4');
+        const enabled=!h.querySelector('.mg-play-free').disabled;
+        const betDisabled=h.querySelector('.mg-wager-row button').disabled;
+        h.querySelector('.mg-play-free').click();
+        return {enabled,betDisabled,phase:h._cups.phase,stake:h._cups.stake,wallet:P.wallet};
+      });
+      assert.ok(freeCup.enabled && freeCup.betDisabled,'copos grátis sem saldo');
+      assert.equal(freeCup.phase,'show');assert.equal(freeCup.stake,0);assert.equal(freeCup.wallet,0);
+      await quit();
+      await start('darts');
+      const freeDarts=await page.evaluate(()=>{
+        const h=document.getElementById('arc-v4');
+        const enabled=!h.querySelector('.mg-play-free').disabled;
+        h.querySelector('.mg-play-free').click();
+        return {enabled,phase:h._darts.phase,stake:h._darts.stake,wallet:P.wallet};
+      });
+      assert.ok(freeDarts.enabled,'dardos grátis sem saldo');
+      assert.equal(freeDarts.phase,'aim');assert.equal(freeDarts.stake,0);assert.equal(freeDarts.wallet,0);
+      await quit();
+      await page.evaluate(()=>{P.wallet=100;persist();});
       await start('painting');
       const paint=await page.evaluate(()=>{
         const h=document.getElementById('arc-v4'),p=h._painting;

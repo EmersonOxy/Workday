@@ -105,7 +105,7 @@ function mgDarts(host,done,opts={}) {
     const vs=rival?Rival.finish(rival,points):null;
     over=true;st.off();clock.stop();
     removeEventListener('keydown',kd,true);removeEventListener('keyup',ku,true);
-    mgResult(st,host,[[u.mgScore,fmt(points)],...(versus?[['Duda',fmt(opponent)]]:[[u.mgDartsTarget,'80']]),[u.mgBetAmount,money(stake)],[u.mgBetPrize,money(prize)]],
+    mgResult(st,host,[[u.mgScore,fmt(points)],...(versus?[['Duda',fmt(opponent)]]:[[u.mgDartsTarget,'80']]),...(stake>0?[[u.mgBetAmount,money(stake)],[u.mgBetPrize,money(prize)]]:[])],
       win?'good':'bad',g=>finishOnce({score:points,grade:g,vs,bet:stake,winnings:prize}));
   }
   function end(quit=false) {
@@ -174,7 +174,7 @@ function mgDarts(host,done,opts={}) {
         Pixel.text(x,u.mgDartsThrowShort,101,146,P.W);
       }else Pixel.text(x,u.mgDartsThrowShort,85,146,P.W);
     }
-    st.hud.textContent=u.mgScore+' '+points+' · '+u.mgDartsThrow+' '+Math.min(3,shots+1)+'/3 · '+u.mgBetAmount+' '+money(stake);
+    st.hud.textContent=u.mgScore+' '+points+' · '+u.mgDartsThrow+' '+Math.min(3,shots+1)+'/3 · '+(stake>0?u.mgBetAmount+' '+money(stake):u.mgNoBet);
   }
   wager=arcadeBetPanel(host,u.mgDarts,n=>{
     stake=n;phase='aim';elapsed=0;mgPop(st,u.mgReady);
