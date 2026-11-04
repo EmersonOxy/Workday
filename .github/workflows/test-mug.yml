@@ -1,0 +1,32 @@
+name: Testar caneca pixel art
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  caneca:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verificar sintaxe e gerar builds
+        run: |
+          node --check src/js/shared/57-mug-static-art.js
+          node --check src/js/shared/58-mesa.js
+          node --check tests/caneca.js
+          python tools/build.py
+      - name: Preparar navegador
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+      - name: Validar caneca nas duas dimensões de desktop
+        run: node tests/caneca.js
