@@ -1,11 +1,11 @@
 # Botões da interface do Workday
 
-Fonte: spritesheet PNG enviada e aprovada pelo criador na conversa de 04/11/2026.
-O atlas em `assets/ui/buttons.png` foi preparado em baixa resolução, com transparência, paleta reduzida e escala de exibição inteira (nearest-neighbor).
+Fonte: spritesheet PNG enviada pelo criador.
+O atlas em `assets/ui/buttons.png` recorta a grade nativa 6×4 da imagem original, preservando 44×36 px por botão, cores e transparência RGBA.
 
 ## Grade
 
-6 colunas × 4 linhas, células de 22×18 pixels lógicos. Renderização 1x ou 2x inteiro. Os nomes abaixo correspondem a colunas/linhas iniciadas em zero.
+6 colunas × 4 linhas, células de 44×36 px. Os nomes abaixo correspondem a colunas/linhas iniciadas em zero.
 
 | Linha | Coluna 0 | 1 | 2 | 3 | 4 | 5 |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -27,4 +27,4 @@ O atlas em `assets/ui/buttons.png` foi preparado em baixa resolução, com trans
 ## Validação
 
 Executar `python3 tools/build.py`, `node tests/mensageiro.js` e testes visuais no navegador.
-A imagem base original permanece preservada pelo criador; o atlas versionado é uma cópia otimizada para runtime.
+A imagem base original permanece preservada; o atlas versionado remove apenas as margens transparentes externas da folha.

@@ -1,8 +1,7 @@
 /* Workday UI spritesheet — autoria: imagem fornecida pelo criador.
-   Grade original: 6 colunas x 4 linhas. Atlas logico 132x72 px;
-   cada celula 22x18 px, ampliada apenas em 2x (44x36).
-   O recorte inclui margem transparente, evitando vazar icones vizinhos.
-   Sem suavizacao ou escala fracionaria. As acoes continuam sendo botoes reais. */
+   Grade original: 6 colunas x 4 linhas. Atlas logico 264x144 px;
+   cada celula 44x36 px, sem reduzir os pixels da imagem enviada.
+   O recorte preserva o alfa e a paleta RGBA originais. */
 
 :root { --wd-button-atlas: url('ui-buttons/buttons.png'); }
 
@@ -19,21 +18,37 @@
   content: '';
   display: block;
   flex: none;
-  width: 22px;
-  height: 18px;
+  width: 44px;
+  height: 36px;
   background-image: var(--wd-button-atlas);
   background-repeat: no-repeat;
-  background-size: 132px 72px;
+  background-size: 264px 144px;
   image-rendering: pixelated;
 }
-#soundBtn[data-sound="on"]::before { background-position: -66px -54px; }
-#soundBtn[data-sound="off"]::before { background-position: -88px -54px; }
+#soundBtn[data-sound="on"]::before { background-position: -132px -108px; }
+#soundBtn[data-sound="off"]::before { background-position: -176px -108px; }
+#soundBtn,
+.mg-wager .mg-bet-start,
+.mg-wager .mg-play-free,
+.msn [data-req="ok"],
+.msn [data-req="no"],
+.msn .msn-back,
+#dOk,
+.os-smenu button[data-a="cfg"] {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+#soundBtn { padding: 0; }
 #padPause {
   display: grid;
   place-items: center;
   font-size: 0 !important;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
 }
-#padPause::before { background-position: -22px -54px; }
+#padPause::before { background-position: -44px -108px; }
 .mg-wager .mg-bet-start,
 .mg-wager .mg-play-free {
   display: inline-flex;
@@ -42,7 +57,7 @@
   gap: 5px;
 }
 .mg-wager .mg-bet-start::before,
-.mg-wager .mg-play-free::before { background-position: 0 -54px; }
+.mg-wager .mg-play-free::before { background-position: 0 -108px; }
 
 .vcall .vc-call i,
 .vcall .vc-ctrl .vc-call i {
@@ -86,24 +101,26 @@
   content: '';
   display: block;
   flex: none;
-  width: 22px;
-  height: 18px;
+  width: 44px;
+  height: 36px;
   background-image: var(--wd-button-atlas);
   background-repeat: no-repeat;
-  background-size: 132px 72px;
+  background-size: 264px 144px;
   image-rendering: pixelated;
 }
-.msn [data-req="ok"]::before { background-position: -44px 0; }
-.msn [data-req="no"]::before { background-position: -66px 0; }
-.msn .msn-back::before { background-position: -66px -18px; }
+.msn [data-req="ok"]::before { background-position: -88px 0; }
+.msn [data-req="no"]::before { background-position: -132px 0; }
+.msn .msn-back::before { background-position: -132px -36px; }
 .msn-a[data-act="info"] {
-  background: #e9dcc2;
-  box-shadow: 0 0 0 2px #2a1f2d, inset 0 2px 0 #fff8ec, inset 0 -2px 0 #8f7d63;
+  width: 44px;
+  height: 36px;
+  background: transparent;
+  box-shadow: none;
 }
 .msn-a[data-act="info"] > * { display: none; }
-.msn-a[data-act="info"]::before { background-position: -22px -18px; }
-.msn-a[data-act="info"]:hover { background: #f3e6cc; }
-.msn-a[data-act="info"].on { background: #dcc6a0; }
+.msn-a[data-act="info"]::before { background-position: -44px -36px; }
+.msn-a[data-act="info"]:hover,
+.msn-a[data-act="info"].on { background: transparent; }
 
 @media (prefers-reduced-motion: reduce) {
   .vcall .vc-call i, .vcall .vc-call i::before { animation: none; transition: none; }
@@ -115,14 +132,14 @@
 .os-smenu button[data-a="cfg"]::before,
 #dOk::before {
   content: '';
-  width: 22px;
-  height: 18px;
+  width: 44px;
+  height: 36px;
   display: block;
   flex: none;
   background-image: var(--wd-button-atlas);
-  background-size: 132px 72px;
+  background-size: 264px 144px;
   background-repeat: no-repeat;
   image-rendering: pixelated;
 }
-.os-smenu button[data-a="cfg"]::before { background-position: -66px -36px; }
-#dOk::before { background-position: -44px 0; }
+.os-smenu button[data-a="cfg"]::before { background-position: -132px -72px; }
+#dOk::before { background-position: -88px 0; }
