@@ -38,7 +38,7 @@ async function openCustomizer(page) {
       await openCustomizer(page);
       check(await page.evaluate(()=>document.querySelectorAll('.hw-card .cat[data-c]').length===10 &&
         [...document.querySelectorAll('.hw-card .cat[data-c]')].every(b=>!b.disabled) &&
-        document.querySelector('.cat-need')?.textContent.includes('SAVE DE TESTE')),label+': dez pelagens disponiveis na personalizacao');
+        document.querySelector('.cat-need')?.textContent===U().catTest),label+': dez pelagens disponiveis na personalizacao');
       await page.click('.hw-card .cat[data-c="preto-verde"]');
       check(await page.evaluate(()=>hw().cat==='preto-verde' &&
         deskEffectiveDecor().includes('gato') && !P.decor.includes('gato')),label+': pelagem selecionada sem conceder compra');
