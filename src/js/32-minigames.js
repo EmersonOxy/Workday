@@ -35,7 +35,11 @@ function mgDrawParticles(x, list, dt) {
   for (const p of list) { p.t -= dt; p.x += p.vx * dt; p.y += p.vy * dt; p.vy += 120 * dt; x.fillStyle = p.col; x.fillRect(p.x | 0, p.y | 0, p.t > .2 ? 2 : 1, p.t > .2 ? 2 : 1); }
   for (let i = list.length - 1; i >= 0; i--) if (list[i].t <= 0) list.splice(i, 1);
 }
-function runMinigame(kind, host, done, opts) { (kind === 'rhythm' ? mgRhythm : mgShooter)(host, done, opts); }
+function runMinigame(kind, host, done, opts) {
+  const runners = { rhythm: mgRhythm, shooter: mgShooter, pacman: mgPacman, penalty: mgPenalty, snake: mgSnakeDuel };
+  if (!Object.prototype.hasOwnProperty.call(runners, kind)) throw new Error('Minigame desconhecido: ' + kind);
+  runners[kind](host, done, opts || {});
+}
 function mgResult(stage, host, rows, grade, done, vs) {
   const u = U(), box = document.createElement('div'); box.className = 'mg-end' + (vs ? ' vs-' + vs.res : '');
   box.innerHTML = `<b>${vs ? u.vsRes[vs.res] : u.mgEnd}</b>${rows.map(([k, v]) => `<span>${k} <i>${v}</i></span>`).join('')}`;

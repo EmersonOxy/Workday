@@ -4,11 +4,11 @@
 // relógio, documentos, prazos, eventos e estresse contínuo não avançam até a contagem regressiva terminar.
 const REST_EVERY = 3;                 // dias entre as pausas para descansar
 const SECRET_NAME = 'PLAYER ONE';     // nome no crachá que revela o arcade secreto no menu
-const MINIGAMES = ['rhythm', 'shooter'];
+const MINIGAMES = ['rhythm', 'shooter', 'pacman', 'penalty', 'snake'];
 // sorteia sem repetir as últimas falas (lembra as 3 mais recentes de cada grupo)
 function pickNew(arr, key) { const seen = load('duda-' + key, []), pool = arr.map((_, i) => i).filter(i => !seen.includes(i)), i = pick(pool.length ? pool : arr.map((_, i) => i)); save('duda-' + key, [i, ...seen].slice(0, Math.min(3, arr.length - 1))); return arr[i]; }
-function nextGame() { const last = load('ultimo-minigame', null), g = last === 'rhythm' ? 'shooter' : last === 'shooter' ? 'rhythm' : pick(MINIGAMES); save('ultimo-minigame', g); return g; }
-const gameName = k => k === 'rhythm' ? U().mgRhythm : U().mgShooter;
+function nextGame() { const last = load('ultimo-minigame', null), choices = MINIGAMES.filter(g => g !== last), g = pick(choices.length ? choices : MINIGAMES); save('ultimo-minigame', g); return g; }
+const gameName = k => ({ rhythm: U().mgRhythm, shooter: U().mgShooter, pacman: U().mgPacman, penalty: U().mgPenalty, snake: U().mgSnake })[k] || k;
 function arcadeUnlocked() { return (PROFILE.name || '').trim().toUpperCase() === SECRET_NAME; }
 
 // Duda, da TI: sprite legado preservado para futura reanimação; retrato estático agora é oficial
@@ -162,7 +162,7 @@ function startCall(mode, onExit) {
     face.set('smile', 'happy');
     let kind, opts = {};
     // um balão só: Duda convida e os nomes dos jogos já são as opções (mesma estrutura no expediente e no arcade)
-    const picks = [[u.mgRhythm, 'rhythm', 'game'], [u.mgShooter, 'shooter', 'game'], [u.mgSurprise, '?', 'game alt']];
+    const picks = [[u.mgRhythm, 'rhythm', 'game'], [u.mgShooter, 'shooter', 'game'], [u.mgPacman, 'pacman', 'game'], [u.mgPenalty, 'penalty', 'game'], [u.mgSnake, 'snake', 'game'], [u.mgSurprise, '?', 'game alt']];
     if (mode === 'arcade') picks.splice(1, 0, [u.mgRhythm + ' · ' + u.mgInfinite, 'inf', 'game']);
     picks.push([c.no, false, 'no']); picks.inline = true;
     const g = await callSay(pickNew(c.inviteAny, 'inv'), picks, face);
@@ -170,11 +170,14 @@ function startCall(mode, onExit) {
     kind = g === '?' ? pick(MINIGAMES) : g === 'inf' ? 'rhythm' : g;
     if (mode === 'work') save('ultimo-minigame', kind);
     if (kind === 'rhythm') opts.song = g === 'inf' ? 'inf' : Math.random() * RHY.SONGS.length | 0;
-    if (g !== 'inf') {
+    if (g !== 'inf' && kind !== 'pacman') {
       const mood = Rival.mood(kind), T = Rival.total(), rec = T.w + T.l + T.d ? ' ' + c.vsRecord(T.w, T.l, T.d) : '';
-      const m = [[u.vsSolo, 'solo', 'game'], [u.vsDuda, 'vs', 'game alt']]; m.inline = true;
+      const m = [[u.vsSolo, 'solo', 'game'], [u.vsDuda, 'vs', 'game alt']];
+      if (kind === 'penalty' || kind === 'snake') m.push([u.mgLocal, 'local', 'game']);
+      m.inline = true;
       face.set(mood === 'cocky' ? 'smile' : 'shut', mood === 'cocky' ? 'happy' : 'open');
-      opts.vs = (await callSay(pickNew(c['vsAsk_' + mood], 'ask' + mood) + rec, m, face)) === 'vs';
+      const choice = await callSay(pickNew(c['vsAsk_' + mood], 'ask' + mood) + rec, m, face);
+      opts.vs = choice === 'vs'; opts.local = choice === 'local';
       if (opts.vs) { face.set('smile'); await callSay(pickNew(c.vsGo, 'go'), null, face); }
     }
     if (mode === 'work') music(null);

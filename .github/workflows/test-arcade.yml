@@ -1,0 +1,44 @@
+name: Testar novos minigames
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/js/01-textos-por-idioma.js'
+      - 'src/js/31-chamada.js'
+      - 'src/js/32*.js'
+      - 'src/js/47-social-chamadas.js'
+      - 'tests/arcade-new.js'
+      - '.github/workflows/test-arcade.yml'
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  arcade:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Checar sintaxe e compilar
+        run: |
+          node --check src/js/31-chamada.js
+          node --check src/js/32-minigames.js
+          node --check src/js/32a-arcade-base.js
+          node --check src/js/32b-labirinto.js
+          node --check src/js/32c-penaltis.js
+          node --check src/js/32d-snake.js
+          node --check src/js/47-social-chamadas.js
+          node --check tests/arcade-new.js
+          python tools/build.py
+      - name: Instalar Playwright
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+      - name: Testar os três jogos em desktop e celular
+        run: node tests/arcade-new.js

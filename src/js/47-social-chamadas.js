@@ -148,16 +148,21 @@ function socCall(id, { incoming = false, thread = null } = {}) {
     }
     // Duda: convite para jogar (mesmos minigames e o modo contra ele; resultado entra no placar de sempre)
     if (d.dudaFace) {
-      const picks = [[uu.mgRhythm, 'rhythm', 'game'], [uu.mgShooter, 'shooter', 'game'], [uu.mgSurprise, '?', 'game alt'], [c.no, false, 'no']]; picks.inline = true;
+      const picks = [[uu.mgRhythm, 'rhythm', 'game'], [uu.mgShooter, 'shooter', 'game'], [uu.mgPacman, 'pacman', 'game'], [uu.mgPenalty, 'penalty', 'game'], [uu.mgSnake, 'snake', 'game'], [uu.mgSurprise, '?', 'game alt'], [c.no, false, 'no']]; picks.inline = true;
       face.mood('happy');
       const g = await callSay(pickNew(c.inviteAny, 'inv'), picks, face);
       if (g) {
         const kindG = g === '?' ? pick(MINIGAMES) : g, opts = {};
         if (kindG === 'rhythm') opts.song = Math.random() * RHY.SONGS.length | 0;
-        const mood = Rival.mood(kindG), Tt = Rival.total(), rec = Tt.w + Tt.l + Tt.d ? ' ' + c.vsRecord(Tt.w, Tt.l, Tt.d) : '';
-        const m = [[uu.vsSolo, 'solo', 'game'], [uu.vsDuda, 'vs', 'game alt']]; m.inline = true;
-        opts.vs = (await callSay(pickNew(c['vsAsk_' + mood], 'ask' + mood) + rec, m, face)) === 'vs';
-        if (opts.vs) await callSay(pickNew(c.vsGo, 'go'), null, face);
+        if (kindG !== 'pacman') {
+          const mood = Rival.mood(kindG), Tt = Rival.total(), rec = Tt.w + Tt.l + Tt.d ? ' ' + c.vsRecord(Tt.w, Tt.l, Tt.d) : '';
+          const m = [[uu.vsSolo, 'solo', 'game'], [uu.vsDuda, 'vs', 'game alt']];
+          if (kindG === 'penalty' || kindG === 'snake') m.push([uu.mgLocal, 'local', 'game']);
+          m.inline = true;
+          const choice = await callSay(pickNew(c['vsAsk_' + mood], 'ask' + mood) + rec, m, face);
+          opts.vs = choice === 'vs'; opts.local = choice === 'local';
+          if (opts.vs) await callSay(pickNew(c.vsGo, 'go'), null, face);
+        }
         const res = await new Promise(done => { const h = document.createElement('div'); h.className = 'mg-host'; el.querySelector('.vc-win').append(h); el.classList.add('playing');
           runMinigame(kindG, h, result => { h.remove(); el.classList.remove('playing'); done(result); }, opts); });
         if (!Call.el) return;
