@@ -23,6 +23,10 @@ jobs:
           node --check src/js/shared/58-mesa.js
           node --check src/js/30-personalizar.js
           node --check tests/gatos-estaticos.js
+          node --check tests/gatos-save-teste.js
+          node --check src/js/53-gato-travado.js
+          node --check src/js/27-escritorio.js
+          node --check src/js/09-telas.js
           python tools/build.py
       - name: Instalar navegador para testes
         run: |
@@ -30,5 +34,7 @@ jobs:
           npx playwright install --with-deps chromium
       - name: Testar sprites e responsividade
         run: node tests/gatos-estaticos.js
+      - name: Testar save isolado de gatos
+        run: node tests/gatos-save-teste.js
       - name: Regressão da mesa
         run: node tests/mesa.js
