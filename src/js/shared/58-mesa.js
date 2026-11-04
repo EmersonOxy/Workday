@@ -256,3 +256,21 @@ Object.assign(Office, {
       const sel = DESK_EDIT.sel && Q[DESK_EDIT.sel]; if (sel && !sel.off && !sel.shelf) this.deskMark(x, sel, t); }
   },
 });
+
+// Sprite dos gatos fica acima dos filtros de luz; recorte do monitor preservado.
+{ const originalDraw=Office.draw;
+  Office.draw=function(ctx,L,st,baked,t){
+    const result=originalDraw.call(this,ctx,L,st,baked,t);
+    const q=this.deskSlots(L,st.decor||[]).gato;
+    if(!q||q.off||q.shelf||!window.WorkdayCatStatic?.ready(st.cat))return result;
+    const art=window.WorkdayCatStatic,k=2,w=art.sizes(k)[0];
+    const x=q.x+((q.w-w)>>1),by=q.y+1;
+    ctx.save();
+    if(q.back){const m=L.mon;ctx.beginPath();
+      ctx.rect(0,0,L.VW,L.VH);ctx.rect(m.x-1,m.y-1,m.w+2,m.h+2);ctx.clip('evenodd');}
+    if(q.flip){ctx.translate(2*q.x+q.w,0);ctx.scale(-1,1);}
+    art.draw(ctx,x,by,st.cat,k);
+    ctx.restore();
+    return result;
+  };
+}
