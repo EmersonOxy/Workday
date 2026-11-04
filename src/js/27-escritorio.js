@@ -5,10 +5,13 @@ const OFFICE = { on: false, M: null, L: null, baked: null, key: '', last: 0, cv:
 OFFICE.ctx = OFFICE.cv.getContext('2d');
 OFFICE.fx = $('officeFx'); OFFICE.fxCtx = OFFICE.fx.getContext('2d'); OFFICE.keys = new Map(); OFFICE.mouse = { btn: [0, 1, 2].map(() => ({ down: false, up: -1 })) };
 function officeWanted() { return !document.body.classList.contains('touch') && innerWidth >= 900 && innerHeight >= 500; }
-// Tricolor de demonstração: visível sobre a mesa sem conceder a compra das outras pelagens.
+// Conta reservada de laboratório: outro save, sem afetar compras nas contas normais.
+const CAT_TEST_ACCOUNT_ID = 'teste gatos';
+function catTestSave() { return !!(WD_ACC.cur && WD_ACC.cur.id === CAT_TEST_ACCOUNT_ID); }
+// Tricolor de demonstração em saves normais; no save Teste Gatos todas as pelagens aparecem na mesa.
 function deskEffectiveDecor() {
   const owned=P.decor||[];
-  return !owned.includes('gato') && (hw().cat||'tricolor')==='tricolor' ? [...owned,'gato'] : owned;
+  return !owned.includes('gato') && (catTestSave() || (hw().cat||'tricolor')==='tricolor') ? [...owned,'gato'] : owned;
 }
 function officeState() {
   const day = S && S.phase === 'day';
