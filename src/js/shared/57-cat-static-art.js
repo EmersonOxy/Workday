@@ -22,6 +22,14 @@ const CAT_STATIC_ALIAS = {
   'tigrado-marrom':'cinza-tigrado', escaminha:'tricolor',
   bicolor:'branco', vaquinha:'frajola'
 };
+// Reposição pontual de pixels escuros do próprio sprite original.
+// Os PNGs 80x120 preservam a forma; a remoção de fundo confundiu alguns pixels
+// quase pretos com o fundo preto. Cada registro: [x, y, R, G, B].
+// Não usar uma cor sólida: isso apagaria sombreamento e contornos.
+const CAT_STATIC_DARK_PIXELS = {
+  preto:'CgMNCgsKBAwJCxAJDQsLMQsOCgsUDQcGBh0RBgQEHhEGBAMYEw0MDBkTDgsMPyEKCQo+Ig4LDD8iDgsLPSMODAw+Iw4MDT8jDgwMPyQNCws+JQ4MDD8lDgwMPiYODQ4/Jg0MDD40DQsMBDUODAw+NQ4MDAY4CQcGBzgGBQU8OAgHBgY6CQkJCToNDAs2OgwJCzc6CwoKOjoMCws9OgkICDc7DgwMBjwLCgsMPAYEBA48DQwMMDwODA4xPAMCAjI8CQYGNzwGAwQ9PAgICDE9BwUGMj0DAgIzPQkGBys+CAcILD4BAAAtPgEBAC4+AAAALz4DAQAwPgICADE+CQgIKz8GBgYsPwEAAC0/AAAALj8AAAAvPwEBATA/AgEBMT8LCQktQA4MDUJRCQcIB1INCgxKUgsKCgdUDAsLTFUKCQlMVwkHBwNZCAYHA1oHBgYDWwgGBwNcBgQFEl8LCQkTXwYEBBJgCggJE2AKCAgSYQgHBxNhCAcHEmIJCAgTYgoICBJjCggIE2MICAcSZAoJCRNkCAYGEmUGBQUTZQsJChRlDAoME2YKCAoUZgwKChNnCQcIFGcKCAgTaAwKChRoCwkKFGkKCQkVaQkHCBZpCQYHLWkOCw0Uag4NDRVqCwkJFmoLCQotagsJCi5qCggJAWsLCQkVawsJChZrCQgILWsMCgouawoICExrDQwLFWwKCQgWbAgGCC1sCggILmwLCQoDbQ4LDBVtCggKFm0IBggtbQsKCi5tCwkIFW4LCQkWbggHBy1uCwoKLm4LBwkTbw4MDBRvDAoKFW8JBwkWbwcFBS1vCggILm8KCAovbwwKCjBvDAoJO28NCwwVcAwJChZwCwoKLXALCQkucAsJCThwBgQFOXAIBwg6cAwKCjtwDAoLFXEJBwkWcQsJCS1xDgwNLnEMCgk4cQkHCDlxDAoLOnEODA0VcgsJCRZyDAkJIXIHBgYicgsJCC1yCwkKLnIKCAk4cgYFBjlyDQoLFXMKCQkWcwsJCiFzCggJInMFBQUtcwgGBy5zCggIOHMIBgc5cwwKChV0CggIFnQJBwchdAkHByJ0CAYGLXQLCQoudAsJCjh0CQcIOXQNCgsVdQoICRZ1CggJIXUIBgcidQkICC11DQsMLnUKCAg4dQYEBTl1DgsMFnYMCgohdggIByJ2BwYGLXYMCws5dgUEAxZ3CAYHIXcIBgYidwkHBy13CQcHOXcICAc=',
+  'preto-verde':'Qg8JCQcUEAwJCywRDgoLKxIGAwMcEwcFBT4mDQoKBTULDAwENgcGBgU2BgYFPDYMCQo8NwwJCQc4BgUFOjgNCgo3OQcEBjc6DgsMODoMCAk6OggHBwQ7BgYGBzsHBgY2OwcFBjw7BgYFAzwFBgYFPAgIBws8BwQADDwNCgsQPQcFBhE9DQkKLj0MCQovPQwJCjA9CwgIMT0LCAkQPggGBi4+DgsLLz4LCAkwPgwICjE+DAgJED8MCQoNQQwJCQ1CDgoLC0MGBQQ0Qw4KCzVDBwQGNUQIBgcLRgYEBDlKCwoIP1INCQpMVg0KC0xXDQkJTVgHBgQRWwoHCBJbDgsMEVwLCAkSXAwICRFdCwkKEl0KBwgRXgsICRJeCgcIEV8KBwkSXwwICBFgDAkKEmANCQoRYQ0JChJhDAkJE2EMCAgUYQwJChNiDQkKFGINCgoTYwsICRRjDAkKE2QJBwcUZAoICBNlCgcIFGUKCAgTZgwJCRRmDAoKE2cNCQkUZw4LChNoDQoKFGgMCQoVaA4LCxNpDgoLFGkLCQkVaQ0KCi1pDAkKEWoOCgwUagoICBVqCggJLWoNCgsRaw4KCxRrCwgJFWsKBwgtawwJCk1rBwUGDGwMCgoNbAwKCw5sDAgJD2wNCgoQbAwKChFsDgsLEmwNCgoTbA4LCxRsCwkJFWwLCAotbA0ICi9sDgoLMGwNCgoxbA0KCzJsDAkJM2wLCAg0bA0JCjVsDQkKA20HBQYTbQ4KCxRtCwkJFW0KCAgtbQ4KCy5tDQoLL20OCwxMbQ4LChRuDAgJFW4LCAgtbg0JCi5uDQkKL24OCwsUbwoJCRVvDAgJLW8LCAk4bwoICBRwCgcIFXAMCAktcA4KCzhwDAkKFHEIBwYVcQsICSBxCgcJIXEMCQktcQwICThxDAkKR3EOCwsUcgoICBVyCggIIXIMCQgtcgkGBzhyDQkKR3IJBwcHcwoHBxRzCwgJFXMMCQogcwkGCCFzCwkJLXMKCAg4cw4LCwd0CAYHCXQKBwgUdAsJCRV0DQkKIHQHBQYhdA0KCi10DAkKOHQMCQlFdA0JCRR1CwgJFXUKCAggdQ4KCyF1CgcHLXULBwg4dQ0JCjl1DgsLP3UOCwxBdQkHCBR2DQkKFXYOCwsgdgkGCCF2CQcHLXYJBwg='
+};
 const CatStatic = {
   images:{}, loaded:new Set(),
   // Tamanho LOGICO da silhueta: 40x60. Na mesa k=2 desenha 80x120.
@@ -29,6 +37,36 @@ const CatStatic = {
   sizes(k){return [Math.ceil(40*k),Math.ceil(60*k)]},
   id(c){const key=String(c||'laranja').split('|')[0];return CAT_STATIC_ALIAS[key]||key},
   ready(c){return this.loaded.has(this.id(c))},
+  // Nas miniaturas, utilizar os 80x120 ORIGINAIS; não reamostrar antes para 26x39.
+  thumbnail(coat) {
+    const id=this.id(coat);
+    if(this.ready(id)) {
+      const img=this.images[id].cloneNode();
+      img.className='cat-native-thumb';img.alt='';img.draggable=false;
+      return img;
+    }
+    return pxSize(catStill(coat,.65),2);
+  },
+  // Repõe apenas pixels da própria imagem que foram apagados ao limpar o fundo.
+  fixDarkGaps(id,image,ready) {
+    const b64=CAT_STATIC_DARK_PIXELS[id];
+    if(!b64){ready(image);return;}
+    const canvas=document.createElement('canvas');canvas.width=80;canvas.height=120;
+    const ctx=canvas.getContext('2d',{willReadFrequently:true});
+    ctx.imageSmoothingEnabled=false;ctx.drawImage(image,0,0);
+    const rgba=ctx.getImageData(0,0,80,120),bytes=rgba.data,pixels=atob(b64);
+    for(let i=0;i<pixels.length;i+=5) {
+      const x=pixels.charCodeAt(i),y=pixels.charCodeAt(i+1),at=(y*80+x)*4;
+      if(x>=80||y>=120||bytes[at+3])continue;
+      bytes[at]=pixels.charCodeAt(i+2);
+      bytes[at+1]=pixels.charCodeAt(i+3);
+      bytes[at+2]=pixels.charCodeAt(i+4);
+      bytes[at+3]=255;
+    }
+    ctx.putImageData(rgba,0,0);
+    const restored=new Image();restored.onload=()=>ready(restored);
+    restored.onerror=()=>ready(image);restored.src=canvas.toDataURL('image/png');
+  },
   draw(ctx,x,by,c,k=1) {
     const id=this.id(c), img=this.images[id]; if(!img||!this.loaded.has(id)) return false;
     const [w,h]=this.sizes(k);
@@ -42,7 +80,7 @@ const CatStatic = {
     if(typeof OFFICE!=='undefined'){OFFICE.last=0;OFFICE.key='';}
     for(const b of document.querySelectorAll('.hw-card .cat[data-c]')){
       const el=b.querySelector('.cimg');
-      if(el && typeof pxSize==='function') el.replaceChildren(pxSize(catStill(b.dataset.c,.65),2));
+      if(el) el.replaceChildren(this.thumbnail(b.dataset.c));
     }
     const pc=document.querySelector('.hw-card .pv-cat');
     if(pc){const ctx=pc.getContext('2d');ctx.clearRect(0,0,pc.width,pc.height);
@@ -53,7 +91,7 @@ const CatStatic = {
       const im=new Image();this.images[id]=im;
       im.onload=()=>{const w=80,h=120;
         if(im.naturalWidth!==w||im.naturalHeight!==h){console.warn('Dimensoes invalidas do gato: '+id);return;}
-        this.loaded.add(id);this.refresh();};
+        this.fixDarkGaps(id,im,fixed=>{this.images[id]=fixed;this.loaded.add(id);this.refresh();});};
       im.onerror=()=>{console.warn('Falha ao carregar sprite do gato: '+id);};
       im.src='data:image/png;base64,'+CAT_STATIC_PNG[id];
     }
