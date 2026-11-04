@@ -4,7 +4,7 @@
     1536,
     1024
   ],
-  "notes": "Recortes nativos da janela em branco, da faixa de título WorkOS ativa/inativa e dos controles originais. A moldura preserva os cantos com 9-slice de 22 px e estiramento apenas das bordas.",
+  "notes": "Moldura externa única envolve cabeçalho e conteúdo. O centro da moldura não é pintado. Barras recebem a cor personalizada com luminosidade da textura original.",
   "sprites": [
     {
       "file": "window-panel.png",
@@ -131,6 +131,26 @@
         31
       ],
       "use": "controle fechar inativo."
+    },
+    {
+      "file": "window-frame.png",
+      "rect": [
+        14,
+        12,
+        490,
+        370
+      ],
+      "use": "Moldura externa; slices superior 9, laterais 10 e inferior 14 px; máscara externa nos cantos."
+    },
+    {
+      "file": "window-paper.png",
+      "rect": [
+        35,
+        75,
+        460,
+        335
+      ],
+      "use": "Textura limpa do conteúdo, sem bordas embutidas."
     }
   ],
   "not_extracted": "As capturas de aplicações completas contêm textos, controles e conteúdo de demonstração misturados. Não foram usadas como fundos. Ícones gerais ainda vêm do atlas de botões aprovado ou dos sprites existentes."
