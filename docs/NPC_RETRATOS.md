@@ -1,8 +1,8 @@
 # Retratos de NPCs — catálogo oficial de referências
 
-**19 retratos** estáticos, preparados em **128 × 128 px** com transparência, em `assets/npc/portraits/`. A numeração original de 01 a 19 foi preservada.
+**19 retratos numerados** e **um retrato exclusivo da Lu Reis**, todos estáticos, em **128 × 128 px** com transparência, em `assets/npc/portraits/`. A numeração original de 01 a 19 foi preservada.
 
-> Atualização de 04/11/2026. O criador confirmou **Rafa = 03**, **Bia = 15** e **Otávio = 16** e autorizou **aplicar esses três retratos ao jogo**, seguindo a abordagem estática já usada com Duda. Outros 16 retratos permanecem na biblioteca como reserva. Seus nomes e personalidades são **propostas provisórias**, não novos NPCs implementados.
+> Atualização de 04/11/2026. O criador confirmou **Rafa = 03**, **Bia = 15** e **Otávio = 16** e autorizou **aplicar esses três retratos ao jogo**, seguindo a abordagem estática já usada com Duda. Outros 16 retratos numerados permanecem na biblioteca como reserva. Em 04/11/2026, o criador também aprovou o **novo retrato da Lu Reis**, sua primeira NPC, com cabelo preto médio, tiara clara, mecha rosa, sardas, olhos verdes e moletom amarelo-pastel. Seus nomes e personalidades são **propostas provisórias**, não novos NPCs implementados.
 
 ## Catálogo
 
@@ -28,6 +28,14 @@
 | 18 · `personagem-18` | ![18](../assets/npc/portraits/personagem-18.png) | Breno Lima | Colega do protagonista | Nome provisório; reserva |
 | 19 · `personagem-19` | ![19](../assets/npc/portraits/personagem-19.png) | Caio Bastos | Irmão do gerente (12), fora da empresa | Nome provisório; reserva |
 
+## Retrato individual aprovado, fora da numeração
+
+| NPC | Imagem | Arquivo | Status |
+|---|---|---|---|
+| **Lu Reis (`lu`)** | ![Lu Reis](../assets/npc/portraits/lu-reis.png) | `lu-reis.png` | Confirmado e ativo no MSworkN e nas videochamadas |
+
+A Lu é uma personagem **já existente**, amiga do protagonista desde a escola, ilustradora freelancer e tutora do gato Boleto. É a primeira NPC a falar com o jogador, antes do início do expediente (`lu_pre`). Não adicionar esta arte como `personagem-20` nem duplicar sua identidade. A troca é exclusivamente visual e não altera seus diálogos, arcos, progressão, agenda ou vínculos.
+
 ## Relações estabelecidas
 
 - **Amizades antigas antes do jogo:** o protagonista já é amigo de **Nico (02)** e **Íris (14)**. **Lu Reis**, já existente no jogo, também é amiga antiga e continua sendo personagem diferente.
@@ -46,13 +54,13 @@
 | Bia (`bia`) | `personagem-15.png` | Imagem estática, pixelada | Retrato estático, sem animação |
 | Otávio (`otavio`) | `personagem-16.png` | Imagem estática, pixelada | Retrato estático, sem animação |
 | Helena (`helena`) | Retrato dedicado ainda não criado | Visual gerado antigo | Busto gerado antigo |
-| Lu (`lu`) | Retrato dedicado ainda não criado | Visual gerado antigo | Busto gerado antigo |
+| **Lu (`lu`)** | **`lu-reis.png` (novo visual oficial)** | **PNG estático pixelado** | **Retrato estático de 128 px, sem animação** |
 
-Os três retratos novos são carregados pelo mapeamento `src/js/shared/52b-npc-approved.js`, que mantém o código do Duda e todo o elenco existente inalterados. Para chamadas de vídeo com câmera permitida, os três usam imagem estática com a mesma API de reações/fala (sem quadros aprovados de animação); as opções de diálogo, agendas, disponibilidade, relações e condições especiais de chamada não mudam.
+Os quatro retratos aprovados (Rafa, Bia, Otávio e Lu) são carregados pelo mapeamento `src/js/shared/52b-npc-approved.js`, que mantém o código do Duda e todo o elenco existente inalterados. Para chamadas de vídeo com câmera permitida, os três usam imagem estática com a mesma API de reações/fala (sem quadros aprovados de animação); as opções de diálogo, agendas, disponibilidade, relações e condições especiais de chamada não mudam.
 
 Na versão web, o build copia os PNGs para `dist/web/npc-portraits/`; na versão offline, o build incorpora as imagens como data URIs. A renderização usa `image-rendering: pixelated`.
 
-O arquivo `assets/npc/portraits/manifest.json` marca somente os três retratos usados como `ativo` e vincula `npcId` aos IDs reais do motor social. Os demais permanecem com `npcId: null` e `status: reservado`.
+O arquivo `assets/npc/portraits/manifest.json` vincula os três retratos numerados ativos aos IDs reais do motor social, preserva os demais como `reservado` e registra separadamente o retrato oficial da Lu (sem acrescentá-lo à numeração).
 
 ## Próximas decisões de história
 

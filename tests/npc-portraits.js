@@ -1,4 +1,4 @@
-// Duda: retrato estático no MSworkN e nas videochamadas; nenhuma mudança no motor narrativo.
+// Duda, Bia, Rafa, Otávio e Lu: retratos estáticos no MSworkN e nas videochamadas; sem mudanças no motor narrativo.
 // Uso: python3 tools/build.py && node tests/npc-portraits.js
 const { chromium } = require('playwright');
 const path = require('path');
@@ -45,17 +45,17 @@ function ok(v, s) { if (v) { passed++; console.log('  ✓ ' + s); } else { faile
       ok(r.legacy && r.bio, label + ': Helena e descrição do Duda preservadas');
       const lib = await p.evaluate(async () => {
         const ids = Object.keys(NPC_PORTRAIT_RESERVE);
-        const approved = [['rafa','personagem-03'],['bia','personagem-15'],['otavio','personagem-16']];
+        const approved = [['rafa','personagem-03'],['bia','personagem-15'],['otavio','personagem-16'],['lu','lu-reis']];
         const approvedIcons = approved.map(([id]) => msnPicEl(id,2));
         const approvedPortraits = approved.map(([id]) => npcStaticImg(id,'portrait'));
         const approvedLoaded = await Promise.all([...approvedIcons,...approvedPortraits].map(img => img.decode().then(() => true, () => false)));
         const stage = document.createElement('div');
         stage.className = 'vc-stage'; stage.style.cssText = 'position:relative;width:290px;height:220px';
         const host = document.createElement('span'); host.className='vc-face'; stage.append(host); document.body.append(stage);
-        const f = npcApprovedFaceSoc(host, 'bia');
+        const f = npcApprovedFaceSoc(host, 'lu');
         const video = host.querySelector('img.npc-static-portrait');
         f.mood('happy'); f.talk(true); f.gesture('wave'); f.set('smile','happy'); f.talk(false);
-        const staticVideo = !!video && video === host.firstElementChild && await video.decode().then(() => true, () => false) && video.naturalWidth === 128;
+        const staticVideo = !!video && video === host.firstElementChild && await video.decode().then(() => true, () => false) && video.naturalWidth === 128 && video.naturalHeight === 128;
         stage.remove();
         const images = ids.map(id => npcReservedPortrait(id,128));
         const decoded = await Promise.all(images.map(img => img.decode().then(() => true, () => false)));
@@ -76,7 +76,8 @@ function ok(v, s) { if (v) { passed++; console.log('  ✓ ' + s); } else { faile
           transparent: clear>100 && filled>1000,
           unknown: npcReservedPortrait('personagem-999')===null,
           cast: ['duda','bia','otavio','helena','rafa','lu'].every(id=>!!CAST[id])
-            && !!NPC_STATIC_ART.duda && msnPicEl('bia',2).tagName==='CANVAS'
+            && !!NPC_STATIC_ART.duda && msnPicEl('bia',2).tagName==='IMG' && msnPicEl('helena',2).tagName==='CANVAS'
+            && CAST.lu.scope==='life' && CAST.lu.start==='always' && !!SOC_THREADS.lu_pre
         };
       });
       ok(lib.count===19 && lib.first==='personagem-01' && lib.last==='personagem-19' && lib.unknown,
@@ -85,6 +86,8 @@ function ok(v, s) { if (v) { passed++; console.log('  ✓ ' + s); } else { faile
         label+': todos os PNGs 128x128 decodificados com transparência');
       ok(lib.pixelated && lib.cast,
         label+': pixel art e personagens existentes preservados');
+      ok(lib.approved && lib.staticVideo,
+        label+': Lu, Bia, Rafa e Otávio têm retrato aprovado em perfil e videochamada');
       ok(!errors.length, label + ': página abre sem erros de JavaScript' + (errors.length ? ' (' + errors.join('|') + ')' : ''));
       await p.close();
     }
