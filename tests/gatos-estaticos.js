@@ -59,6 +59,19 @@ function ok(value,name){if(value){passed++;console.log('  ✓ '+name);}else{fail
    ok(await page.evaluate(()=>!!document.querySelector('.cat-eyes-note') &&
        !document.querySelector('.hw-card [data-hw="catEye"]')),
        mobile+': olhos fixos documentados, sem controle enganoso');
+   const demo=await page.evaluate(()=>{
+     const c=document.querySelector('.hw-card .cat[data-c="tricolor"]'), other=document.querySelector('.hw-card .cat[data-c="preto-verde"]');
+     const grid=document.querySelector('.hw-card .walls.cats');
+     const a=c?.querySelector('.cimg')?.getBoundingClientRect(),label=c?.querySelector('small')?.getBoundingClientRect();
+     return {free:!c?.disabled,othersLocked:other?.disabled,available:deskEffectiveDecor().includes('gato'),
+       selected:hw().cat==='tricolor',notWashed:parseFloat(getComputedStyle(grid).opacity)>.95,
+       noOverlap:!!a&&!!label&&label.top>=a.bottom-1,owned:P.decor.includes('gato')};
+   });
+   if(!demo.owned) {
+     ok(demo.free&&demo.othersLocked&&demo.available&&demo.selected,
+       mobile+': tricolor livre na mesa, demais pelagens exigem Mercado');
+     ok(demo.notWashed&&demo.noOverlap,mobile+': miniaturas sem filtro global e nome abaixo do gato');
+   }
    const selectable=await page.evaluate(()=>document.querySelector('.hw-card .cat[data-c="preto-verde"]')?.disabled===false);
    if(selectable){
      await page.click('.hw-card .cat[data-c="preto-verde"]');
