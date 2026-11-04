@@ -16,26 +16,30 @@ function ok(value,name){if(value){passed++;console.log('  ✓ '+name);}else{fail
    const r=await page.evaluate(()=>{
      const ids=CAT_STATIC_IDS;
      const masks=ids.map(id=>{
-       const c=document.createElement('canvas');c.width=40;c.height=60;
-       const ctx=c.getContext('2d');ctx.drawImage(CatStatic.images[id],0,0);
-       const p=ctx.getImageData(0,0,40,60).data;
-       const col=(x,y)=>p[(y*40+x)*4+3];
-       const center=col(20,34), corner=col(0,0);
-       return{size:CatStatic.images[id].naturalWidth===40 && CatStatic.images[id].naturalHeight===60,corner,center,data:c.toDataURL()};
+       const img=CatStatic.images[id],w=img.naturalWidth,h=img.naturalHeight;
+       const c=document.createElement('canvas');c.width=w;c.height=h;
+       const ctx=c.getContext('2d');ctx.drawImage(img,0,0);
+       const p=ctx.getImageData(0,0,w,h).data;
+       const col=(x,y)=>p[(y*w+x)*4+3];
+       const center=col(Math.floor(w/2),Math.round(h*.57)),corner=col(0,0);
+       return{size:id==='tricolor'?w===80&&h===120:w===40&&h===60,corner,center,data:c.toDataURL()};
      });
      const body=CatStatic.sizes(2);
-     // Compara todos os canais: cada pixel da fonte 40x60 deve virar um bloco
-     // 2x2 identico na mesa, mesmo com imageSmoothingEnabled antes do desenho.
+     // Tricolor 80x120: pixels nativos 1:1. Outras pelagens: pixels 2x2.
+     // Validar todos os canais, mesmo quando suavizacao foi ativada.
      const pixelPerfect=ids.every(id=>{
-       const src=document.createElement('canvas');src.width=40;src.height=60;
-       const sc=src.getContext('2d');sc.drawImage(CatStatic.images[id],0,0);
-       const raw=sc.getImageData(0,0,40,60).data;
+       const img=CatStatic.images[id],w=img.naturalWidth,h=img.naturalHeight;
+       const sx=80/w,sy=120/h;
+       if(!Number.isInteger(sx)||sx!==sy)return false;
+       const src=document.createElement('canvas');src.width=w;src.height=h;
+       const sc=src.getContext('2d');sc.drawImage(img,0,0);
+       const raw=sc.getImageData(0,0,w,h).data;
        const dest=document.createElement('canvas');dest.width=80;dest.height=120;
        const dc=dest.getContext('2d');dc.imageSmoothingEnabled=true;
        CatStatic.draw(dc,0,120,id,2);
        const painted=dc.getImageData(0,0,80,120).data;
-       for(let y=0;y<60;y++)for(let x=0;x<40;x++)for(let yy=0;yy<2;yy++)for(let xx=0;xx<2;xx++){
-         const a=(y*40+x)*4,b=((y*2+yy)*80+(x*2+xx))*4;
+       for(let y=0;y<h;y++)for(let x=0;x<w;x++)for(let yy=0;yy<sy;yy++)for(let xx=0;xx<sx;xx++){
+         const a=(y*w+x)*4,b=((y*sy+yy)*80+(x*sx+xx))*4;
          for(let ch=0;ch<4;ch++)if(raw[a+ch]!==painted[b+ch])return false;
        }
        return true;
@@ -78,10 +82,10 @@ function ok(value,name){if(value){passed++;console.log('  ✓ '+name);}else{fail
    });
    const mobile=viewport.width<600?'Mobile':'Desktop';
    ok(r.count===10&&r.ready===10,mobile+': dez PNGs integrados e carregados');
-   ok(r.sizeOk&&r.transparent,mobile+': todos os sprites 40x60 têm fundo transparente');
+   ok(r.sizeOk&&r.transparent,mobile+': tricolor nativo 80x120 e nove 40x60 transparentes');
    ok(r.unique===10,mobile+': dez artes diferentes preservadas');
    ok(r.static&&r.size[0]===80&&r.size[1]===120,mobile+': gato 80x120 sem animacao');
-   ok(r.pixelPerfect,mobile+': pixels 2x2 perfeitos nas dez pelagens');
+   ok(r.pixelPerfect,mobile+': tricolor 1:1 e demais pelagens 2x sem distorcao');
    ok(r.mirrorMatches,mobile+': espelhamento sem distorcer os pixels');
    ok(r.deskFit,mobile+': espaço na mesa e hitbox ajustados');
    ok(r.previewFits,mobile+': previsualizacao respeita o quadro');
