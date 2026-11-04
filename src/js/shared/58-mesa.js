@@ -8,7 +8,7 @@
 // id → [porte, largura que ocupa na mesa, altura visual]
 const DESK_OBJ = {
   gato: ['G', 86, 100], lamp: ['G', 78, 92], aquario: ['G', 62, 42],
-  mug: ['M', 34, 34], globo: ['M', 30, 38], trofeu: ['M', 30, 38], foto: ['M', 24, 28], planta: ['M', 28, 32], radio: ['M', 34, 24],
+  mug: ['M', 40, 40], globo: ['M', 30, 38], trofeu: ['M', 30, 38], foto: ['M', 24, 28], planta: ['M', 28, 32], radio: ['M', 34, 24],
   badge: ['P', 16, 26], pens: ['P', 17, 21], papersL: ['P', 33, 12], papersR: ['P', 33, 12], pato: ['P', 18, 16], livros: ['P', 31, 22],
   caixaL: ['P', 13, 22], caixaR: ['P', 13, 22], cacto: ['P', 18, 26],
 };
@@ -93,6 +93,20 @@ Object.assign(Office, {
   // ---------- Caneca grande: cilindro com boca elíptica, café com reflexo, faixa lavanda, alça em anel e vapor ----------
   mugBig(x, x0, by, t, gold, steam) {
     const P = WD_PAL, F = (c, a, b, w, h) => { x.fillStyle = c; x.fillRect(a, b, w, h); }, W = 26, H = 28, top = by - H, cx = x0 + W / 2;
+    const spriteReady = typeof MugStatic !== 'undefined' && MugStatic.ready;
+    if (spriteReady) {
+      // Arte e volume vêm do PNG; sombra de contato, vapor e emblema continuam no motor.
+      // Centralizar 40px no slot, preservando o ponto de apoio e a inversão horizontal.
+      ART.contact(x, x0 - 3, by, MugStatic.size);
+      MugStatic.draw(x, x0 - 3, by);
+      if (gold) {
+        // Recompensa de carreira existente: pequeno emblema dourado sobre o corpo.
+        F(P.k, x0 + 13, by - 13, 7, 6);
+        F(P.Y, x0 + 14, by - 12, 5, 4);
+        F(P.y, x0 + 14, by - 12, 1, 1);
+      }
+    } else {
+    // Fallback original: aparece imediatamente e protege contra falha do PNG.
     ART.contact(x, x0 - 1, by, W + 8);
     // alça: anel grosso à direita (contorno, face clara em cima, sombra embaixo)
     const hx = x0 + W - 3, hy = top + 8;
@@ -110,9 +124,11 @@ Object.assign(Office, {
       const wi = w - 2; if (wi > 0 && j > -3 && j < 3) F(j < 0 ? P.w : P.W, cx - wi, y, wi * 2, 1);
       const wc = w - 3; if (wc > 0 && j > -2 && j < 3) F(j <= 0 ? P[4] : P[3], cx - wc, y, wc * 2, 1); }
     F(P[2], cx - 6, top + 3, 3, 1); F(P.w, cx + 4, top + 2, 2, 1);                                 // reflexo no café
-    // vapor: três fios de pixels subindo e oscilando (só enquanto está quente)
+    }
+    // Vapor independente do sprite: mantém a animação antiga também na caneca nova.
+    const steamTop = spriteReady ? by - MugStatic.size : top, steamCenter = spriteReady ? x0 + 17 : cx;
     if (steam) for (let s = 0; s < 3; s++) for (let k = 0; k < 7; k++) { if ((k + (t * 6 | 0) + s) % 3 === 0) continue;
-      const yy = top - 2 - k * 2 - ((t * 6 | 0) % 2), xx = cx - 6 + s * 6 + Math.round(Math.sin(t * 2.2 + k * .8 + s * 2) * 1.5);
+      const yy = steamTop - 2 - k * 2 - ((t * 6 | 0) % 2), xx = steamCenter - 6 + s * 6 + Math.round(Math.sin(t * 2.2 + k * .8 + s * 2) * 1.5);
       F(k < 3 ? P.W : P.w, xx, yy, 1, 2); }
   },
 
