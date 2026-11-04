@@ -178,7 +178,7 @@ const Msn = {
   chatHTML(u, ctx) {
     const id = Msn.sel, d = id && CAST[id], r = id && SOC.c[id];
     if (!d || !r || r.st === 'none') return `<div class="msn-pick"><span data-pic="unknown" data-sc="4"></span><b>${u.app}</b><small>${u.tagline}</small><p>${u.pick}</p></div>`;
-    const back = `<button class="msn-back pxbtn" aria-label="${u.back}">◂ ${u.back}</button>`;
+    const back = `<button class="msn-back pxbtn" aria-label="${u.back}">${u.back}</button>`;
     if (r.st === 'req') {
       return `<div class="msn-ch">${back}</div><div class="msn-req"><span data-pic="${id}" data-sc="5"></span><h3>${u.reqTitle(esc(d.name))}</h3><small>${esc(socRole(id))}</small>
         <blockquote>${esc(tx(d.reqNote) || '')}</blockquote>${r.reqBy ? `<p class="msn-by">${u.reqBy(esc(CAST[r.reqBy].name))}</p>` : ''}

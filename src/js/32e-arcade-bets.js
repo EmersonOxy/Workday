@@ -11,7 +11,7 @@ function arcadeBetPanel(host, title, onStart, options = {}) {
   const value=document.createElement('input');value.id=label.htmlFor;value.type='number';value.min=String(min);value.step='1';
   value.max=String(Math.max(0,Math.floor(P.wallet)));
   value.value=String(Math.min(25,Math.floor(P.wallet)));
-  const btn=document.createElement('button');btn.type='button';btn.className='pxbtn main';btn.textContent=u.mgBetStart;
+  const btn=document.createElement('button');btn.type='button';btn.className='pxbtn main mg-bet-start';btn.textContent=u.mgBetStart;
   const free=document.createElement('button');free.type='button';free.className='pxbtn main mg-play-free';free.textContent=u.mgPlayFree;
   const hint=document.createElement('small');hint.textContent=u.mgBetInfo;
   const balance=document.createElement('span');balance.className='mg-balance';

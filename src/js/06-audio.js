@@ -208,7 +208,11 @@ function sfx(name) {
   try { SFX[name](); } catch (e) {}
 }
 function setSound(on, silent) {
-  soundOn = on; $('soundBtn').textContent = `${U().sound}: ${on ? U().on : U().off}`;
+  soundOn = on;
+  const button = $('soundBtn');
+  button.textContent = `${U().sound}: ${on ? U().on : U().off}`;
+  button.dataset.sound = on ? 'on' : 'off';
+  button.setAttribute('aria-pressed', String(on));
   save('som', on);
   if (on) { audioInit(); if (A.ctx && A.ctx.state === 'suspended') A.ctx.resume(); if (A.ctx && A.mode !== A.want) music(A.want); }
   applyVolumes();

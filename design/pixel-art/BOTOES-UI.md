@@ -18,6 +18,8 @@ O atlas em `assets/ui/buttons.png` foi preparado em baixa resolução, com trans
 
 - Chamadas do Duda e do MSworkN: atender, recusar e desligar.
 - Mensageiro: aceitar/negar solicitação, informações do contato e voltar.
+- WorkOS: alto-falante/mudo acompanha o estado do botão de som; o menu de configurações usa a engrenagem.
+- Arcade: jogar, apostar, pausar e confirmar usam os pictogramas correspondentes.
 - Os demais desenhos ficam disponíveis no atlas, sem forçar associações incorretas a ações do jogo.
 - Fonte visual de cada botão em CSS `src/css/95-ui-buttons.css`, respeitando os textos, aria-labels, handlers e saves preexistentes.
 - No build web, o PNG é copiado para `ui-buttons/buttons.png`; no build offline, é incorporado ao HTML como data URI.

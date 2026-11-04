@@ -6,6 +6,44 @@
 
 :root { --wd-button-atlas: url('ui-buttons/buttons.png'); }
 
+/* Os rótulos e os estados acessíveis continuam no botão; o atlas só acrescenta o pictograma. */
+#soundBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+#soundBtn::before,
+#padPause::before,
+.mg-wager .mg-bet-start::before,
+.mg-wager .mg-play-free::before {
+  content: '';
+  display: block;
+  flex: none;
+  width: 22px;
+  height: 18px;
+  background-image: var(--wd-button-atlas);
+  background-repeat: no-repeat;
+  background-size: 132px 72px;
+  image-rendering: pixelated;
+}
+#soundBtn[data-sound="on"]::before { background-position: -66px -54px; }
+#soundBtn[data-sound="off"]::before { background-position: -88px -54px; }
+#padPause {
+  display: grid;
+  place-items: center;
+  font-size: 0 !important;
+}
+#padPause::before { background-position: -22px -54px; }
+.mg-wager .mg-bet-start,
+.mg-wager .mg-play-free {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+.mg-wager .mg-bet-start::before,
+.mg-wager .mg-play-free::before { background-position: 0 -54px; }
+
 .vcall .vc-call i,
 .vcall .vc-ctrl .vc-call i {
   width: 44px;
@@ -33,7 +71,7 @@
 .vcall .vc-call.accept i::before { background-position: 0 0; }
 .vcall .vc-call.decline i::before { background-position: -44px 0; }
 .vcall .vc-call:hover i { filter: none; }
-.vcall .vc-call:hover i::before { filter: brightness(1.08); }
+.vcall .vc-call:hover i::before { transform: translateY(-1px); }
 .vcall .vc-call:active i { transform: translateY(2px); }
 .vcall .vc-ringbtns { align-items: start; }
 .vcall .vc-ctrl .vc-call i { min-height: 36px; }
