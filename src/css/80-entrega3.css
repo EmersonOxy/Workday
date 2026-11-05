@@ -19,21 +19,21 @@
   /* A moldura envolve a janela inteira; o cabeçalho fica dentro dos cantos. */
   .os-win, .menu-card .mw, #modal .card.oswin, .popup {
     border: solid transparent; border-width: 9px 10px 14px;
-    border-image: url('ui-workos/window-frame.png') 9 10 14 / 9px 10px 14px / 0 stretch;
+    border-image: url('ui-workos/window-chrome-frame.png') 9 10 14 / 9px 10px 14px / 0 stretch;
     box-sizing: border-box;
   }
 
-  .mw-bar { gap: .5em; padding: 0 .3em 0 .4em !important; background: #44609f url('ui-workos/titlebar-active.png') repeat-x left top !important; box-shadow: none !important; text-shadow: 1px 1px 0 #2b2340; min-height: 40px; }
+  .mw-bar { gap: .5em; padding: 0 .3em 0 .4em !important; background: #44609f url('ui-workos/window-chrome-title.png') repeat-x left top !important; box-shadow: none !important; text-shadow: 1px 1px 0 #2b2340; min-height: 40px; }
   .mw-bar .mw-ttl { display: flex; align-items: center; gap: .4em; white-space: nowrap; }
   .mw-bar .mw-stripes { display: none; }
   .mw-b b { display: grid !important; place-items: center; width: 31px !important; height: 31px; flex: 0 0 31px; padding: 0; border: 0; background-color: transparent !important; background-repeat: no-repeat; background-position: center; background-size: 31px 31px; line-height: 0 !important; box-shadow: none !important; }
-  .mw-b b[data-g="min"] { background-image: url('ui-workos/control-min.png') !important; }
-  .mw-b b[data-g="max"] { background-image: url('ui-workos/control-max.png') !important; }
-  .mw-b b[data-g="x"] { background-image: url('ui-workos/control-close.png') !important; }
-  .inactive > .mw-bar .mw-b b[data-g="min"] { background-image: url('ui-workos/control-min.png') !important; }
-  .inactive > .mw-bar .mw-b b[data-g="max"] { background-image: url('ui-workos/control-max.png') !important; }
-  .inactive > .mw-bar .mw-b b[data-g="x"] { background-image: url('ui-workos/control-close.png') !important; }
-  .inactive > .mw-bar, .inactive > .win-bar { background-image: url('ui-workos/titlebar-inactive.png') !important; }
+  .mw-b b[data-g="min"] { background-image: url('ui-workos/window-chrome-min.png') !important; }
+  .mw-b b[data-g="max"] { background-image: url('ui-workos/window-chrome-max.png') !important; }
+  .mw-b b[data-g="x"] { background-image: url('ui-workos/window-chrome-close.png') !important; }
+  .inactive > .mw-bar .mw-b b[data-g="min"] { background-image: url('ui-workos/window-chrome-min.png') !important; }
+  .inactive > .mw-bar .mw-b b[data-g="max"] { background-image: url('ui-workos/window-chrome-max.png') !important; }
+  .inactive > .mw-bar .mw-b b[data-g="x"] { background-image: url('ui-workos/window-chrome-close.png') !important; }
+  .inactive > .mw-bar, .inactive > .win-bar { background-image: url('ui-workos/window-chrome-title.png') !important; filter: saturate(.45) brightness(1.18); }
   .inactive > .mw-bar .mw-b b { opacity: .65; }
   .mw-b b canvas { display: none; }
   .mw-in { border: 0; border-image: none; background: #fbf3e2 url('ui-workos/window-paper.png') center / 100% 100%; box-shadow: none; padding: .8em; }
@@ -230,7 +230,7 @@
   .popup { padding: 0; background: transparent !important; box-shadow: none; }
   .popup .title { min-height: 40px; background: #44609f url('ui-workos/titlebar-active.png') repeat-x left top !important; box-shadow: none; font-family: var(--pixel); }
   .popup .content { background: #fbf3e2; }
-  .popup .title .x { width: 31px; height: 31px; border: 0; padding: 0; cursor: pointer; font-size: 0; color: transparent; background: url('ui-workos/control-close.png') center / 31px 31px no-repeat; box-shadow: none; }
+  .popup .title .x { width: 31px; height: 31px; border: 0; padding: 0; cursor: pointer; font-size: 0; color: transparent; background: url('ui-workos/window-chrome-close.png') center / 31px 31px no-repeat; box-shadow: none; }
 
   /* ===== Área de trabalho, barra de tarefas e aplicativos ===== */
   body.office.menu-mode #osdesk .icons { display: none; }
