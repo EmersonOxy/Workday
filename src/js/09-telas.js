@@ -166,14 +166,24 @@ function osDrag(win, bar) {
 }
 // Minimizar: a janela some e vira um botão na barra de tarefas; clicar nele restaura
 function osTasks() { let t = $('modal').querySelector('.os-tasks'); if (!t) { t = document.createElement('div'); t.className = 'os-tasks'; $('modal').append(t); } return t; }
-function osSyncMin() { const m = $('modal'), open = [...m.querySelectorAll('.card, .os-win')].some(w => w.style.display !== 'none' && !(w.classList.contains('card') && m.classList.contains('hidden'))); m.classList.toggle('allmin', !open); }
+function osSyncMin() { const m = $('modal'), open = [...m.querySelectorAll('.card, .os-win')].some(w => w.style.display !== 'none' && !(w.classList.contains('card') && m.classList.contains('hidden'))); m.classList.toggle('allmin', !open); osSyncFocus(); }
 // Barra de tarefas: cada janela aberta tem um botão. Clicar: se minimizada, restaura; se é a da frente, minimiza; senão traz para a frente
 let OS_Z = 10;
 // Um botão da barra nunca sobrevive à sua janela: qualquer caminho que remova a janela (fechar, trocar de tela,
 // carregar o jogo, encerrar o intervalo) leva o botão junto. Sem isso, botões vazios se acumulavam e viravam riscos.
-new MutationObserver(() => $('modal').querySelectorAll('.os-task').forEach(b => { if (!b._win || !b._win.isConnected) b.remove(); }))
+new MutationObserver(() => {
+  $('modal').querySelectorAll('.os-task').forEach(b => { if (!b._win || !b._win.isConnected) b.remove(); });
+  osSyncFocus();
+})
   .observe($('modal'), { childList: true, subtree: true });
 function osTaskOf(win) { return [...$('modal').querySelectorAll('.os-task')].find(b => b._win === win); }
+function osSyncFocus() {
+  const m = $('modal');
+  const visible = [...m.querySelectorAll('.card, .os-win')].filter(w => w.style.display !== 'none' && !(w.classList.contains('card') && m.classList.contains('hidden')));
+  if (visible.length && visible.every(w => w.classList.contains('inactive'))) {
+    osFocus(visible.sort((a, b) => (+b.style.zIndex || 0) - (+a.style.zIndex || 0))[0]);
+  }
+}
 function osFocus(win) {
   win.style.zIndex = ++OS_Z;
   $('modal').querySelectorAll('.os-win, .card.oswin, .card.menu-card').forEach(w => {
