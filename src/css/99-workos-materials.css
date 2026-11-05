@@ -1,8 +1,8 @@
 /* WorkOS material sheets. Source rectangles: assets/ui/workos/materials-manifest.json. */
 .os-win, .menu-card .mw, #modal .card.oswin, .popup {
-  border: 16px solid transparent;
-  border-image: url('ui-workos/frame.png') 32 fill / 16px / 0 stretch;
-  background: transparent;
+  /* A moldura e seus recortes são definidos em 80-entrega3.css.
+     Não substituir pelos nove blocos azuis do atlas de materiais. */
+  background: #fbf3e2 url('ui-workos/window-paper.png') center / 100% 100%;
   box-shadow: none;
 }
 .mw-bar, .oswin > .win-bar, .popup .title {
