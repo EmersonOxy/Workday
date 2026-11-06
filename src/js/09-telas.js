@@ -31,7 +31,7 @@ function winChrome(card) {
   card.append(bar, body); card.classList.add('oswin');
   card.style.removeProperty('--dx'); card.style.removeProperty('--dy'); delete card.dataset.dx; delete card.dataset.dy; osDrag(card, bar);
   bar.querySelector('.mw-app').append(workosMaterialIcon(MENU_ICO.app, 2));
-  bar.querySelectorAll('.mw-b b').forEach(b => b.append(Pixel.el(MENU_ICO[b.dataset.g], 2)));
+  bar.querySelectorAll('.mw-b b').forEach(b => b.append(winCtl(b.dataset.g)));
   bar.querySelector('.min').onclick = () => { if (!card.classList.contains('locked')) osMinimize(card); };
   // botão na barra só quando a área de trabalho do WorkOS está à vista (menu, intervalo, aplicativos); na pausa não
   if (document.body.classList.contains('menu-mode') || $('modal').classList.contains('apps')) osTaskBtn(card, title); else card.querySelector('.mw-b .min').style.display = 'none';
@@ -65,14 +65,10 @@ const MENU_ICO = {
   max:  ['kkkkkkk', 'kkkkkkk', 'k.....k', 'k.....k', 'k.....k', 'k.....k', 'kkkkkkk'],
   x:    ['kk...kk', '.kk.kk.', '..kkk..', '..kkk..', '.kk.kk.', 'kk...kk', '.......'],
 };
-// Material icons retain the supplied sheet colors; unsupported app icons keep their existing artwork.
-function workosMaterialIcon(rows, scale = 2) {
-  const mapping = [[MENU_ICO.app, 'monitor'], [MENU_ICO.cfg, 'settings'], [MENU_ICO.doc, 'document'], [MENU_ICO.how, 'info']];
-  const match = mapping.find(([source]) => source === rows);
-  if (!match) return Pixel.el(rows, scale);
-  const el = document.createElement('span'); el.className = 'workos-material-icon material-' + match[1];
-  el.style.width = el.style.height = (scale >= 2 ? 24 : 16) + 'px'; el.setAttribute('aria-hidden', 'true'); return el;
-}
+// Ícone de aplicativo da barra de título: sempre a arte em pixels do próprio app, em escala inteira
+function workosMaterialIcon(rows, scale = 2) { return Pixel.el(rows, scale); }
+// Glifo dos botões da barra (minimizar, maximizar, fechar); o X é branco sobre o botão vermelho
+function winCtl(g) { return Pixel.el(MENU_ICO[g], 2, g === 'x' ? { k: WD_PAL.W } : undefined); }
 // O aviso de direitos autorais fica numa linha só no computador: a fonte encolhe até um mínimo legível;
 // se ainda assim não couber, a linha rola devagar como letreiro (com "reduzir movimento", volta a quebrar a linha)
 function fitLegal() {
@@ -313,10 +309,10 @@ const OS_CLOSE = [{ clipPath: 'inset(0 0 0 0)' }, { clipPath: 'inset(calc(50% - 
 function osWindow(title, html, { icon = MENU_ICO.app, cls = '', onClose } = {}) {
   const w = document.createElement('div'); w.className = 'os-win ' + cls;
   w.innerHTML = `<div class="mw-bar"><span class="mw-ttl"><i class="mw-app"></i>${title}</span><i class="mw-stripes"></i><span class="mw-b"><b data-g="x"></b></span></div><div class="mw-in">${html}</div>`;
-  w.querySelector('.mw-app').append(workosMaterialIcon(icon, 2)); w.querySelector('.mw-b b').append(Pixel.el(MENU_ICO.x, 2));
+  w.querySelector('.mw-app').append(workosMaterialIcon(icon, 2)); w.querySelector('.mw-b b').append(winCtl('x'));
   const close = () => { sfx('winClose'); const a = Motion.play(w, OS_CLOSE, { duration: 260, easing: 'steps(8)' }); const end = () => { const t = osTaskOf(w); if (t) t.remove(); w.remove(); if (onClose) onClose(); if (typeof workAppsClosed === 'function') workAppsClosed(); }; if (a) a.onfinish = end; else end(); };
   w.querySelector('.mw-b').insertAdjacentHTML('afterbegin', '<b data-g="min" class="min"></b><b data-g="max" class="max"></b>');
-  w.querySelectorAll('.mw-b .min, .mw-b .max').forEach(b => b.append(Pixel.el(MENU_ICO[b.dataset.g], 2)));
+  w.querySelectorAll('.mw-b .min, .mw-b .max').forEach(b => b.append(winCtl(b.dataset.g)));
   w.querySelector('.mw-b .min').onclick = () => osMinimize(w);
   w.querySelector('.mw-b .max').onclick = () => { sfx(w.classList.contains('maxi') ? 'winMin' : 'winMax'); w.classList.toggle('maxi'); };
   w.querySelector('.mw-b [data-g=x]').onclick = close; w.close = close;
@@ -448,7 +444,7 @@ function showMenu() {
     </div></div>`);
   card.classList.add('menu-card');
   card.querySelectorAll('.mico').forEach(i => { const n = i.dataset.i === 'snd' && !soundOn ? 'mute' : i.dataset.i; i.append(Pixel.el(n === 'msn' ? APP_ICO.msn : MENU_ICO[n], n === 'msn' ? 1 : 2)); });
-  card.querySelectorAll('.mw-b b').forEach(b => b.append(Pixel.el(MENU_ICO[b.dataset.g], 2)));
+  card.querySelectorAll('.mw-b b').forEach(b => b.append(winCtl(b.dataset.g)));
   // o portal não fecha: minimizar (ou fechar) manda para a barra de tarefas; maximizar alterna o tamanho
   osTaskBtn(card, 'PORTAL_RH.EXE', SPR2.doc);
   card.querySelector('.mw-b [data-g=min]').onclick = card.querySelector('.mw-b [data-g=x]').onclick = () => osMinimize(card);

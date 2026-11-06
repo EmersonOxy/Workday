@@ -16,27 +16,6 @@
   /* ===== Janela do menu: moldura bege em relevo, barra de título com botões chanfrados ===== */
   .menu-card { background: transparent !important; padding: 0 !important; overflow: visible !important; box-shadow: none !important; }
   .menu-card .mw { display: flex; flex-direction: column; gap: 0; }
-  /* A moldura envolve a janela inteira; o cabeçalho fica dentro dos cantos. */
-  .os-win, .menu-card .mw, #modal .card.oswin, .popup {
-    border: solid transparent; border-width: 9px 10px 14px;
-    border-image: url('ui-workos/window-chrome-frame.png') 9 10 14 / 9px 10px 14px / 0 stretch;
-    box-sizing: border-box;
-  }
-
-  .mw-bar { gap: .5em; padding: 0 .3em 0 .4em !important; background: #44609f url('ui-workos/window-chrome-title.png') repeat-x left top !important; box-shadow: none !important; text-shadow: 1px 1px 0 #2b2340; min-height: 40px; }
-  .mw-bar .mw-ttl { display: flex; align-items: center; gap: .4em; white-space: nowrap; }
-  .mw-bar .mw-stripes { display: none; }
-  .mw-b b { display: grid !important; place-items: center; width: 31px !important; height: 31px; flex: 0 0 31px; padding: 0; border: 0; background-color: transparent !important; background-repeat: no-repeat; background-position: center; background-size: 31px 31px; line-height: 0 !important; box-shadow: none !important; }
-  .mw-b b[data-g="min"] { background-image: url('ui-workos/window-chrome-min.png') !important; }
-  .mw-b b[data-g="max"] { background-image: url('ui-workos/window-chrome-max.png') !important; }
-  .mw-b b[data-g="x"] { background-image: url('ui-workos/window-chrome-close.png') !important; }
-  .inactive > .mw-bar .mw-b b[data-g="min"] { background-image: url('ui-workos/window-chrome-min.png') !important; }
-  .inactive > .mw-bar .mw-b b[data-g="max"] { background-image: url('ui-workos/window-chrome-max.png') !important; }
-  .inactive > .mw-bar .mw-b b[data-g="x"] { background-image: url('ui-workos/window-chrome-close.png') !important; }
-  .inactive > .mw-bar, .inactive > .win-bar { background-image: url('ui-workos/window-chrome-title.png') !important; filter: saturate(.45) brightness(1.18); }
-  .inactive > .mw-bar .mw-b b { opacity: .65; }
-  .mw-b b canvas { display: none; }
-  .mw-in { border: 0; border-image: none; background: #fbf3e2 url('ui-workos/window-paper.png') center / 100% 100%; box-shadow: none; padding: .8em; }
   .menu-card .menu { gap: 8px; }
   .menu-card .menu .pxbtn { gap: .55em; padding-left: .55em; }
   .mico { width: 28px !important; height: 26px; }
@@ -180,7 +159,6 @@
   .dmeter i.on { opacity: 1; }
   .diff-opt[data-d=burnout] .dmeter i.on { background: #ef4b3f; }
   .diff-card .actions { margin-top: .4em; justify-content: center; }
-  .mw-b b { cursor: pointer; }
   @media (max-width: 600px) { .diff-list { grid-template-columns: 1fr; } }
 
   /* ===== Janelas flutuantes do WorkOS ===== */
@@ -211,26 +189,17 @@
   .tt-legal { position: absolute; bottom: .6em; left: 1em; right: 1em; margin: 0; text-align: center; font-size: 11px; color: rgba(255,248,236,.7); }
 
   /* ===== Toda tela é janela do WorkOS ===== */
-  #modal .card.oswin { padding: 0 !important; overflow: auto !important; display: flex; flex-direction: column; gap: 0; background: transparent !important; max-height: 94%;
-    box-shadow: none !important; transition: none; }
-  .oswin > .win-bar { flex: none; display: flex; justify-content: space-between; align-items: center; color: #fff8ec; font-family: var(--pixel); min-height: 40px; background: #44609f url('ui-workos/titlebar-active.png') repeat-x left top; }
-  .oswin > .win-body { flex: 1; min-height: 0; overflow: auto; padding: 1em 1.2em; background: #fbf3e2; color: var(--ink); border: 0; border-image: none; }
+  #modal .card.oswin { overflow: auto !important; display: flex; flex-direction: column; max-height: 94%; transition: none; }
   .oswin > .win-body > h2:first-child { display: none; }
   .over-card > .win-body > h2:first-child, .promo-card > .win-body > h2:first-child { display: block; }
   .oswin.mini > .win-body { display: none; }
   .oswin.maxi { max-width: none !important; width: 100% !important; height: 100%; max-height: 100% !important; }
   /* botões da barra: amarelo minimiza, verde maximiza, vermelho fecha */
   .mw-b b { cursor: pointer; }
-  .mw-b b { cursor: pointer; }
-  .mw-b b:hover { transform: translateY(-1px); } .mw-b b:active { transform: translateY(1px); }
   /* dificuldade e outras janelas flutuantes: por cima do portal, centralizadas */
   .os-win { left: 50% !important; top: 50% !important; translate: -50% -50% !important; transform-origin: 50% 50% !important; z-index: 8; max-height: 92%; }
   .os-win .mw-in { overflow: auto; }
   /* eventos (avisos, reunião): mesma barra de título */
-  .popup { padding: 0; background: transparent !important; box-shadow: none; }
-  .popup .title { min-height: 40px; background: #44609f url('ui-workos/titlebar-active.png') repeat-x left top !important; box-shadow: none; font-family: var(--pixel); }
-  .popup .content { background: #fbf3e2; }
-  .popup .title .x { width: 31px; height: 31px; border: 0; padding: 0; cursor: pointer; font-size: 0; color: transparent; background: url('ui-workos/window-chrome-close.png') center / 31px 31px no-repeat; box-shadow: none; }
 
   /* ===== Área de trabalho, barra de tarefas e aplicativos ===== */
   body.office.menu-mode #osdesk .icons { display: none; }
@@ -326,8 +295,7 @@
   .pl-now { margin: 0 0 .5em; color: #2f8a45; }
 
   /* ===== Temas do WorkOS e do crachá (variáveis definidas em applyOsTheme) ===== */
-  .mw-bar, .os-win .mw-bar, .oswin > .win-bar, .os-sh, .popup .title { background-color: var(--os-ac, #44609f) !important; background-size: auto 100% !important; background-blend-mode: luminosity; box-shadow: none !important; flex-shrink: 0; }
-  .mw-bar .mw-stripes { background: repeating-linear-gradient(var(--os-ac-hi, #6f93d9) 0 2px, transparent 2px 4px) !important; }
+  .os-sh { background-color: var(--os-ac, #44609f); flex-shrink: 0; }
   .os-smenu button:hover, .osicon.sel span, .ld-bar i.on { background: var(--os-ac, #44609f) !important; }
   #osdesk .taskbar { background: var(--os-bar, #c7b595) !important; box-shadow: inset 0 3px 0 var(--os-bar-hi, #fff8ec), inset 0 -3px 0 var(--os-bar-sh, #8f7d63) !important; color: var(--os-bar-ink, #2a1f2d); }
   #osdesk .start, .os-start { background: var(--os-btn, #e9dcc2) !important; color: var(--os-bar-ink, #2a1f2d) !important; }

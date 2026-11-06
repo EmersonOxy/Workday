@@ -1,0 +1,70 @@
+/* ===== Janelas do WorkOS =====
+   Única fonte de verdade da moldura, barra de título, botões e corpo das janelas (osWindow, winChrome, menu, popups).
+   Tudo em CSS de pixels inteiros (degraus de 2 px, sem blur, sem imagem esticada), com a paleta fechada e as cores
+   escolhidas em Personalizar: --os-ac/--os-ac-hi (barra de título), --os-btn/--os-bar-hi/--os-bar-sh (moldura e botões).
+   Leiaute de referência: assets/ui/Sprite Sheet de Interface Retrô WorkOS.png (as imagens extraídas dela eram
+   borradas e de tamanhos quebrados; não são mais usadas). */
+
+/* --- moldura: bloco bege em relevo, contorno de tinta e sombra projetada em degrau --- */
+.os-win, .menu-card .mw, #modal .card.oswin, .popup {
+  box-sizing: border-box; padding: 3px; border: 0; display: flex; flex-direction: column; gap: 3px;
+  background: var(--os-btn, #e9dcc2); color: var(--ink);
+  box-shadow: 0 0 0 2px var(--ink), inset 2px 2px 0 var(--os-bar-hi, #fff8ec), inset -2px -2px 0 var(--os-bar-sh, #8f7d63), 6px 6px 0 rgba(42, 31, 45, .4);
+}
+#modal .card.oswin { padding: 3px !important; background: var(--os-btn, #e9dcc2) !important; box-shadow: 0 0 0 2px var(--ink), inset 2px 2px 0 var(--os-bar-hi, #fff8ec), inset -2px -2px 0 var(--os-bar-sh, #8f7d63), 6px 6px 0 rgba(42, 31, 45, .4) !important; }
+.menu-card .mw { overflow: hidden; }
+
+/* --- barra de título: cor de destaque, brilho em cima, sombra embaixo --- */
+.mw-bar, .oswin > .win-bar, .popup .title {
+  flex: none; box-sizing: border-box; min-height: 30px; display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding: 2px 4px 2px 8px; font-family: var(--pixel); color: #fff8ec; text-shadow: 2px 2px 0 #2b2340;
+  background: var(--os-ac, #44609f); box-shadow: inset 0 2px 0 var(--os-ac-hi, #6f93d9), inset 0 -2px 0 #2b2340;
+}
+.mw-bar .mw-ttl, .popup .title > span:first-child { flex: 1; min-width: 0; display: flex; align-items: center; gap: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 22px; line-height: 26px; }
+.mw-bar .mw-stripes { display: none; }
+.mw-bar .mw-app { display: grid; place-items: center; flex: none; line-height: 0; }
+.mw-app canvas { filter: drop-shadow(1px 1px 0 #2b2340); }
+
+/* janela em segundo plano: a barra esmaece e o texto perde o brilho */
+.inactive > .mw-bar, .inactive > .win-bar, .inactive > .mw > .mw-bar { background: color-mix(in srgb, var(--os-ac, #44609f) 42%, #9a9aa6); box-shadow: inset 0 2px 0 color-mix(in srgb, var(--os-ac-hi, #6f93d9) 40%, #d7d9de), inset 0 -2px 0 #626875; color: #e9dcc2; text-shadow: 2px 2px 0 #626875; }
+.inactive > .mw-bar .mw-app, .inactive > .mw > .mw-bar .mw-app { opacity: .7; }
+
+/* --- botões da barra: quadrados chanfrados; fechar é vermelho com X branco --- */
+.mw-b { flex: none; display: flex; align-items: center; gap: 4px; }
+.mw-b b, .popup .title .x {
+  display: grid; place-items: center; box-sizing: border-box; width: 24px; height: 22px; flex: 0 0 24px; padding: 0; margin: 0; border: 0; cursor: pointer; line-height: 0;
+  font-size: 0; color: transparent; text-shadow: none; background: var(--os-btn, #e9dcc2);
+  box-shadow: 0 0 0 2px var(--ink), inset 2px 2px 0 var(--os-bar-hi, #fff8ec), inset -2px -2px 0 var(--os-bar-sh, #8f7d63);
+}
+.mw-b b[data-g="x"], .popup .title .x { background: #ef4b3f; box-shadow: 0 0 0 2px var(--ink), inset 2px 2px 0 #ff9d86, inset -2px -2px 0 #a8262a; }
+.mw-b b:hover { filter: brightness(1.1); }
+.mw-b b:active, .popup .title .x:active { transform: translateY(1px); box-shadow: 0 0 0 2px var(--ink), inset 2px 2px 0 var(--os-bar-sh, #8f7d63), inset -2px -2px 0 var(--os-bar-hi, #fff8ec); }
+.mw-b b[data-g="x"]:active { box-shadow: 0 0 0 2px var(--ink), inset 2px 2px 0 #a8262a, inset -2px -2px 0 #ff9d86; }
+.mw-b b canvas { display: block; }
+.inactive > .mw-bar .mw-b b, .inactive > .mw > .mw-bar .mw-b b { filter: saturate(.55) brightness(1.04); }
+.popup .title .x::before { content: ''; width: 14px; height: 14px; background: #fff8ec; clip-path: polygon(0 0, 2px 0, 50% calc(50% - 2px), calc(100% - 2px) 0, 100% 0, 100% 2px, calc(50% + 2px) 50%, 100% calc(100% - 2px), 100% 100%, calc(100% - 2px) 100%, 50% calc(50% + 2px), 2px 100%, 0 100%, 0 calc(100% - 2px), calc(50% - 2px) 50%, 0 2px); }
+
+/* --- corpo: papel afundado em relevo --- */
+.mw-in, .oswin > .win-body, .popup .content {
+  border: 0; background: var(--card, #fbf3e2); color: var(--ink);
+  box-shadow: inset 2px 2px 0 var(--os-bar-sh, #8f7d63), inset -2px -2px 0 var(--os-bar-hi, #fff8ec);
+}
+.oswin > .win-body { flex: 1; min-height: 0; overflow: auto; padding: 1em 1.2em; }
+.oswin > .win-body > h2:first-child { display: none; }
+.over-card > .win-body > h2:first-child, .promo-card > .win-body > h2:first-child { display: block; }
+.os-win .mw-in { flex: 1; min-height: 0; overflow: auto; padding: .8em; display: flex; flex-direction: column; gap: .6em; }
+.popup { padding: 3px; background: var(--os-btn, #e9dcc2) !important; }
+.popup .content { padding: 10px; }
+
+/* --- barras de rolagem em degraus --- */
+#modal ::-webkit-scrollbar { width: 14px; height: 14px; }
+#modal ::-webkit-scrollbar-track { background: var(--os-btn, #e9dcc2); box-shadow: inset 2px 0 0 var(--os-bar-sh, #8f7d63); }
+#modal ::-webkit-scrollbar-thumb { background: var(--os-ac, #44609f); box-shadow: inset 2px 2px 0 var(--os-ac-hi, #6f93d9), inset -2px -2px 0 #2b2340, 0 0 0 2px var(--ink); }
+#modal ::-webkit-scrollbar-corner { background: var(--os-btn, #e9dcc2); }
+
+/* --- ajustes de contexto --- */
+.menu-card .mw { max-height: 70vh; min-height: 0; }
+.menu-card .mw-in { min-height: 0; overflow: auto; }
+body.office.menu-mode:not(.mobile) .menu-card { top: 0; }
+body.mobile .menu-card .mw { max-height: 100%; }
+body.mobile .mw-b b { width: 36px; height: 30px; flex-basis: 36px; }

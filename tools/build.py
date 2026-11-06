@@ -58,14 +58,6 @@ def inline_ui_buttons(html):
     data = base64.b64encode(atlas.read_bytes()).decode('ascii')
     return html.replace("url('ui-buttons/buttons-v2.png')", "url('data:image/png;base64," + data + "')")
 
-def inline_ui_workos(html):
-    """Embutir sprites extraidos da referencia WorkOS para o HTML offline."""
-    directory = root / 'assets' / 'ui' / 'workos'
-    def sub(m):
-        data = base64.b64encode((directory / m.group(1)).read_bytes()).decode('ascii')
-        return "url('data:image/png;base64," + data + "')"
-    return re.sub(r"url\('ui-workos/([a-z0-9-]+\.png)'\)", sub, html)
-
 def main():
     css = ''.join(p.read_text(encoding='utf-8') for p in sorted((src / 'css').glob('*.css')))
     # Módulos compartilhados (paleta, pixel, sprites, animação, cena) vêm antes do jogo
@@ -90,12 +82,8 @@ def main():
     ui_atlas = root / 'assets' / 'ui' / 'buttons.png'
     (web / 'ui-buttons').mkdir()
     shutil.copy(ui_atlas, web / 'ui-buttons' / 'buttons-v2.png')
-    ui_workos = root / 'assets' / 'ui' / 'workos'
-    (web / 'ui-workos').mkdir()
-    for f in ui_workos.glob('*.png'):
-        shutil.copy(f, web / 'ui-workos' / f.name)
     (web / '.nojekyll').write_text('')   # GitHub Pages: servir os arquivos como estão
-    offline = inline_ui_workos(inline_ui_buttons(inline_npc_portraits(inline_wallpapers(inline_audio(page, root / 'audio')))))
+    offline = inline_ui_buttons(inline_npc_portraits(inline_wallpapers(inline_audio(page, root / 'audio'))))
     (dist / 'workday.html').write_text(offline, encoding='utf-8')
     guide = root / 'design' / 'style-guide.html'
     if guide.exists():
