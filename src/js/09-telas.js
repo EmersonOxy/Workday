@@ -116,7 +116,8 @@ function osPicPicker(anchor, onPick) {
 function osStart(u) {
   const m = $('modal'); m.querySelectorAll('.os-start, .os-smenu').forEach(e => e.remove());
   m.insertAdjacentHTML('beforeend', `<button class="os-start" aria-haspopup="true"></button><div class="os-smenu hidden"><div class="os-sh"><span class="os-me"></span><b></b></div>
-    <button data-a="prof">${u.profile}</button><button data-a="msn" data-msn-badge>${u.msn.app}</button><button data-a="pc">${u.customizePc || 'WorkOS'}</button><button data-a="arr">${u.arr.title}</button><button data-a="cfg">${u.settings}</button><i></i><button data-a="off">${u.shutdown}</button></div>`);
+    <button data-a="prof"><span class="smi"></span>${u.profile}</button><button data-a="msn" data-msn-badge><span class="smi"></span>${u.msn.app}</button><button data-a="pc"><span class="smi"></span>${u.customizePc || 'WorkOS'}</button><button data-a="arr" class="desk-only"><span class="smi"></span>${u.arr.title}</button><button data-a="cfg"><span class="smi"></span>${u.settings}</button><i></i><button data-a="off"><span class="smi"></span>${u.shutdown}</button></div>`);
+  { const SMI = { prof: MENU_ICO.prof, msn: APP_ICO.msn, pc: APP_ICO.paint, arr: APP_ICO.arq, cfg: MENU_ICO.cfg, off: MENU_ICO.x }; m.querySelectorAll('.os-smenu button').forEach(bt => bt.querySelector('.smi').append(Pixel.el(SMI[bt.dataset.a], 2, bt.dataset.a === 'off' ? { k: WD_PAL.q } : undefined))); }
   const b = m.querySelector('.os-start'), sm = m.querySelector('.os-smenu');
   b.append(Pixel.el(ORB_ICO, 3)); b.title = 'WorkOS';   // orbe grande, como o Iniciar do Windows 7
   const paintMe = () => sm.querySelector('.os-me').replaceChildren(osPicEl(40));
@@ -492,19 +493,19 @@ function showSettings(onBack) {
     <h3 class="set-h">${u.setSec.lang}</h3><div class="setting"><span>${u.language}</span>${seg('lang', Object.entries(LANGS).map(([k, v]) => [k, v.label]), CFG.lang)}</div>
     <div class="setting"><span>${u.theme}</span>${seg('theme', [['system', u.themeSystem], ['light', u.themeLight], ['dark', u.themeDark]], CFG.theme)}</div>
     <h3 class="set-h">${u.setSec.game}</h3><div class="setting"><span>${u.diffLabel}</span>${seg('diff', Object.keys(DIFFS).map(k => [k, u.diffNames[k]]), CFG.diff || 'normal')}${diffLocked() ? `<small class="hint">${u.diffLocked}</small>` : ''}</div>
-    <h3 class="set-h">${u.setSec.screen}</h3><div class="setting"><span>${u.display}</span>${seg('display', [['window', u.windowed], ['full', u.fullscreen]], document.fullscreenElement ? 'full' : 'window')}</div>
-    <div class="setting"><span>${u.resolution}</span><select id="resSel" class="pxsel">${RESOLUTIONS.map(r => `<option value="${r}"${(CFG.res || 'auto') === r ? ' selected' : ''}>${r === 'auto' ? u.autoRes : r.replace('x', '×')}</option>`).join('')}</select></div>
+    <div class="setting desk-only"><span>${u.display}</span>${seg('display', [['window', u.windowed], ['full', u.fullscreen]], document.fullscreenElement ? 'full' : 'window')}</div>
+    <div class="setting desk-only"><span>${u.resolution}</span><select id="resSel" class="pxsel">${RESOLUTIONS.map(r => `<option value="${r}"${(CFG.res || 'auto') === r ? ' selected' : ''}>${r === 'auto' ? u.autoRes : r.replace('x', '×')}</option>`).join('')}</select></div>
     <div class="setting"><span>${u.focusLabel}</span>${seg('focus', [['1', u.lightOn], ['0', u.lightOff]], CFG.focus ? '1' : '0')}</div>
-    <h3 class="set-h">${u.setSec.keys}</h3>
-    <p class="hint">${u.keysHint}</p>
-    <div class="keys-grid">${KEY_ACTIONS.map(a => `<span>${u.keyNames[a]}</span><button class="pxbtn keybtn" data-k="${a}">${keyName(keyMap()[a])}</button>`).join('')}</div>
-    <div class="setting"><span></span><div class="seg"><button class="pxbtn" id="keysReset">${u.keysReset}</button></div></div>
+    <h3 class="set-h desk-only">${u.setSec.keys}</h3>
+    <p class="hint desk-only">${u.keysHint}</p>
+    <div class="keys-grid desk-only">${KEY_ACTIONS.map(a => `<span>${u.keyNames[a]}</span><button class="pxbtn keybtn" data-k="${a}">${keyName(keyMap()[a])}</button>`).join('')}</div>
+    <div class="setting desk-only"><span></span><div class="seg"><button class="pxbtn" id="keysReset">${u.keysReset}</button></div></div>
     <h3 class="set-h">${u.setSec.sound}</h3><div class="setting"><span>${u.soundLabel}</span>${seg('sound', [['1', u.soundOn], ['0', u.soundOff]], soundOn ? '1' : '0')}</div>
     <div class="setting"><span>${u.musicLabel}</span><input type="range" class="pxrange" id="volMusic" min="0" max="100" value="${Math.round(VOL.music * 100)}" aria-label="${u.musicLabel}"></div>
     <div class="setting"><span>${u.sfxLabel}</span><input type="range" class="pxrange" id="volSfx" min="0" max="100" value="${Math.round(VOL.sfx * 100)}" aria-label="${u.sfxLabel}"></div>
     <div class="setting"><span>${u.osApps.music}</span><div class="seg"><button class="pxbtn" id="plOpen">${u.osApps.musicOpen}</button></div></div>
     <h3 class="set-h">${u.setSec.desk}</h3><div class="setting"><span>${u.badgeTitle}</span><div class="seg"><button class="pxbtn" id="editBadge">${u.editBadge}</button><button class="pxbtn" id="custom">${u.customize}</button></div></div>
-    <div class="setting"><span>${u.lights}</span>${seg('light', [['1', u.lightOn], ['0', u.lightOff]], lightState().lamp ? '1' : '0')}</div>
+    <div class="setting desk-only"><span>${u.lights}</span>${seg('light', [['1', u.lightOn], ['0', u.lightOff]], lightState().lamp ? '1' : '0')}</div>
     <h3 class="set-h">${u.setSec.data}</h3><div class="setting"><span>${u.backup}</span><div class="seg" id="bkBox"><button class="pxbtn" id="bkOut">${u.exportSave}</button><button class="pxbtn" id="bkIn">${u.importSave}</button><input type="file" id="bkFile" accept=".json,application/json" hidden></div></div>
     <div class="setting"><span>${u.experimental}</span><div class="seg"><button class="pxbtn" id="balBtn">${u.balTitle}: ${u.balNames[BAL_KEY]}</button></div></div>
     <div class="setting"><span>${u.tutorial}</span><div class="seg"><button class="pxbtn" id="tut">${u.tutorialReset}</button></div></div>

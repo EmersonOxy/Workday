@@ -68,3 +68,11 @@
 body.office.menu-mode:not(.mobile) .menu-card { top: 0; }
 body.mobile .menu-card .mw { max-height: 100%; }
 body.mobile .mw-b b { width: 36px; height: 30px; flex-basis: 36px; }
+
+/* --- Iniciar: ícone em pixels antes de cada atalho --- */
+.os-smenu button { display: flex; align-items: center; gap: .55em; }
+.os-smenu .smi { display: grid; place-items: center; flex: none; width: 24px; line-height: 0; }
+.os-smenu .smi canvas { filter: drop-shadow(1px 1px 0 rgba(42, 31, 45, .35)); }
+
+/* --- opções que só fazem sentido com teclado, mouse ou mesa à vista ficam fora do celular --- */
+body.mobile .desk-only, body.mobile #modal .desk-only { display: none !important; }   /* !important: .setting define display com !important em 80-entrega3 */

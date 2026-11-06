@@ -207,7 +207,7 @@ function showCustomize(back) {
   // crachá e gato), tudo atualizado em tempo real. As linhas existentes são só redistribuídas (nenhuma opção some).
   { const rows = [...card.querySelectorAll(':scope .setting')], CAT = ['pc', 'pc', 'pc', 'pc', 'os', 'os', 'badge', 'badge', 'pc', 'ptr', 'ptr', 'os', 'desk', 'desk', 'desk', 'desk', 'desk', 'os', 'desk'];
     const lay = document.createElement('div'); lay.className = 'hw-layout';
-    lay.innerHTML = `<div class="hw-main"><div class="hw-tabs">${['pc', 'os', 'badge', 'desk', 'ptr'].map(k => `<button class="pxbtn hw-tab" data-t="${k}">${u.hwTabs[k]}</button>`).join('')}</div><div class="hw-opts"></div></div>
+    lay.innerHTML = `<div class="hw-main"><div class="hw-tabs">${['pc', 'os', 'badge', 'desk', 'ptr'].filter(k => !document.body.classList.contains('mobile') || k === 'os' || k === 'badge').map(k => `<button class="pxbtn hw-tab" data-t="${k}">${u.hwTabs[k]}</button>`).join('')}</div><div class="hw-opts"></div></div>
       <aside class="hw-side"><div class="hw-pv hw-pv-pc"></div><div class="hw-pv hw-pv-os"><div class="pv-win"><i class="pv-bar"><b></b><b></b><b class="x"></b></i><div class="pv-body"></div></div><i class="pv-task"><i class="pv-orb"></i></i></div>
         <div class="hw-pv hw-pv-badge"><div class="pv-badge"><i class="pv-lan"></i><div class="pv-card"><i class="pv-head"></i><span class="pv-face"></span><b></b></div></div></div>
         <div class="hw-pv hw-pv-desk"><canvas class="pv-cat" width="56" height="72"></canvas></div><p class="hint hw-note"></p></aside>`;
@@ -219,7 +219,7 @@ function showCustomize(back) {
       lay.querySelectorAll('.hw-pv').forEach(p => p.hidden = !p.classList.contains('hw-pv-' + k) && !(k === 'ptr' && p.classList.contains('hw-pv-os')));
       lay.querySelector('.hw-note').textContent = u.hwTabNotes[k]; try { sessionStorage.setItem('hwTab', k); } catch (e) {} };
     lay.querySelectorAll('.hw-tab').forEach(b => b.onclick = () => { sfx('click'); tab(b.dataset.t); });
-    let t0 = 'pc'; try { t0 = sessionStorage.getItem('hwTab') || 'pc'; } catch (e) {} tab(t0);
+    let t0 = 'pc'; try { t0 = sessionStorage.getItem('hwTab') || 'pc'; } catch (e) {} if (!lay.querySelector(`.hw-tab[data-t=${t0}]`)) t0 = 'os'; tab(t0);
     // A prévia usa o mesmo sprite da mesa, sem animações ou redesenho contínuo.
     const pc = lay.querySelector('.pv-cat');
     pc.paintCat = () => { if (!pc.isConnected) return; const x=pc.getContext('2d');x.clearRect(0,0,pc.width,pc.height);

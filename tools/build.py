@@ -54,9 +54,9 @@ def inline_npc_portraits(html):
 
 def inline_ui_buttons(html):
     """Embutir o atlas dos botoes no HTML unico offline."""
-    atlas = root / 'assets' / 'ui' / 'buttons.png'
+    atlas = root / 'assets' / 'ui' / 'buttons-grid.png'
     data = base64.b64encode(atlas.read_bytes()).decode('ascii')
-    return html.replace("url('ui-buttons/buttons-v2.png')", "url('data:image/png;base64," + data + "')")
+    return html.replace("url('ui-buttons/buttons-v3.png')", "url('data:image/png;base64," + data + "')")
 
 def main():
     css = ''.join(p.read_text(encoding='utf-8') for p in sorted((src / 'css').glob('*.css')))
@@ -79,7 +79,7 @@ def main():
         (web / 'npc-portraits').mkdir()
         for f in npc_dir.glob('*.png'):
             shutil.copy(f, web / 'npc-portraits' / f.name)
-    ui_atlas = root / 'assets' / 'ui' / 'buttons.png'
+    ui_atlas = root / 'assets' / 'ui' / 'buttons-grid.png'
     (web / 'ui-buttons').mkdir()
     shutil.copy(ui_atlas, web / 'ui-buttons' / 'buttons-v2.png')
     (web / '.nojekyll').write_text('')   # GitHub Pages: servir os arquivos como estão

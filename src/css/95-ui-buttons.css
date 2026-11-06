@@ -1,145 +1,34 @@
-/* Workday UI spritesheet — autoria: imagem fornecida pelo criador.
-   Grade original: 6 colunas x 4 linhas. Atlas logico 264x144 px;
-   cada celula 44x36 px, sem reduzir os pixels da imagem enviada.
-   O recorte preserva o alfa e a paleta RGBA originais. */
+/* Atlas de botões do criador (assets/ui/buttons.png), recortado por tools/extract-ui-buttons.py em grade exata
+   de 40x32 px (6 colunas x 4 linhas, 240x128). Cada botão já traz moldura e bisel: é usado INTEIRO, como o próprio
+   botão, nunca dentro de outro botão. Escala 1x (pixels nítidos).
+   Posições (col, linha): atender 0,0 · recusar 1,0 · ok 2,0 · não 3,0 · curtir 4,0 · não curtir 5,0 · alerta 0,1 · info 1,1 ·
+   ajuda 2,1 · voltar 3,1 · avançar 4,1 · início 5,1 · salvar 0,2 · pasta 1,2 · lixeira 2,2 · ajustes 3,2 · estrela 4,2 ·
+   e-mail 5,2 · tocar 0,3 · pausar 1,3 · parar 2,3 · volume 3,3 · mudo 4,3 · atualizar 5,3 */
+:root { --wd-button-atlas: url('ui-buttons/buttons-v3.png'); }
 
-:root { --wd-button-atlas: url('ui-buttons/buttons-v2.png'); }
-
-/* Os rótulos e os estados acessíveis continuam no botão; o atlas só acrescenta o pictograma. */
-#soundBtn {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-}
-#soundBtn::before,
-#padPause::before,
-.mg-wager .mg-bet-start::before,
-.mg-wager .mg-play-free::before {
-  content: '';
-  display: block;
-  flex: none;
-  width: 44px;
-  height: 36px;
-  background-image: var(--wd-button-atlas);
-  background-repeat: no-repeat;
-  background-size: 264px 144px;
-  image-rendering: pixelated;
-}
-#soundBtn[data-sound="on"]::before { background-position: -132px -108px; }
-#soundBtn[data-sound="off"]::before { background-position: -176px -108px; }
-#soundBtn,
-.mg-wager .mg-bet-start,
-.mg-wager .mg-play-free,
-.msn [data-req="ok"],
-.msn [data-req="no"],
-.msn .msn-back,
-#dOk,
-.os-smenu button[data-a="cfg"] {
-  border: 0;
-  background: transparent;
-  box-shadow: none;
-}
-#soundBtn { padding: 0; }
+/* pausa do toque: o botão do atlas é o próprio botão */
 #padPause {
-  display: grid;
-  place-items: center;
-  font-size: 0 !important;
-  border: 0;
-  background: transparent;
-  box-shadow: none;
+  display: block; box-sizing: border-box; width: 40px; height: 32px; padding: 0; border: 0; font-size: 0 !important; color: transparent;
+  background: var(--wd-button-atlas) -40px -96px / 240px 128px no-repeat; image-rendering: pixelated; box-shadow: none;
 }
-#padPause::before { background-position: -44px -108px; }
-.mg-wager .mg-bet-start,
-.mg-wager .mg-play-free {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-}
-.mg-wager .mg-bet-start::before,
-.mg-wager .mg-play-free::before { background-position: 0 -108px; }
+#padPause:active { transform: translateY(1px); }
 
+/* botões de ligação da videochamada: atender e recusar/desligar */
 .vcall .vc-call i,
 .vcall .vc-ctrl .vc-call i {
-  width: 44px;
-  height: 36px;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  box-shadow: none;
-  clip-path: none;
-  animation: none;
-  line-height: 0;
+  display: block; width: 40px; height: 32px; min-height: 32px; padding: 0; border: 0; box-shadow: none; clip-path: none; animation: none; line-height: 0;
+  background: var(--wd-button-atlas) 0 0 / 240px 128px no-repeat; image-rendering: pixelated;
 }
-.vcall .vc-call i > canvas,
-.vcall .vc-call i > img { display: none; }
-.vcall .vc-call i::before {
-  content: '';
-  display: block;
-  width: 44px;
-  height: 36px;
-  background-image: var(--wd-button-atlas);
-  background-repeat: no-repeat;
-  background-size: 264px 144px;
-  image-rendering: pixelated;
-}
-.vcall .vc-call.accept i::before { background-position: 0 0; }
-.vcall .vc-call.decline i::before { background-position: -44px 0; }
-.vcall .vc-call:hover i { filter: none; }
-.vcall .vc-call:hover i::before { transform: translateY(-1px); }
-.vcall .vc-call:active i { transform: translateY(2px); }
+.vcall .vc-call i > canvas, .vcall .vc-call i > img { display: none; }
+.vcall .vc-call.accept i { background-position: 0 0; }
+.vcall .vc-call.decline i { background-position: -40px 0; }
+.vcall .vc-call:hover i { filter: brightness(1.1); }
+.vcall .vc-call:active i { transform: translateY(1px); }
 .vcall .vc-ringbtns { align-items: start; }
-.vcall .vc-ctrl .vc-call i { min-height: 36px; }
 
-.msn [data-req="ok"],
-.msn [data-req="no"],
-.msn .msn-back { display: inline-flex; align-items: center; gap: 4px; }
-.msn [data-req="ok"]::before,
-.msn [data-req="no"]::before,
-.msn .msn-back::before,
-.msn-a[data-act="info"]::before {
-  content: '';
-  display: block;
-  flex: none;
-  width: 44px;
-  height: 36px;
-  background-image: var(--wd-button-atlas);
-  background-repeat: no-repeat;
-  background-size: 264px 144px;
-  image-rendering: pixelated;
-}
-.msn [data-req="ok"]::before { background-position: -88px 0; }
-.msn [data-req="no"]::before { background-position: -132px 0; }
-.msn .msn-back::before { background-position: -132px -36px; }
-.msn-a[data-act="info"] {
-  width: 44px;
-  height: 36px;
-  background: transparent;
-  box-shadow: none;
-}
-.msn-a[data-act="info"] > * { display: none; }
-.msn-a[data-act="info"]::before { background-position: -44px -36px; }
-.msn-a[data-act="info"]:hover,
-.msn-a[data-act="info"].on { background: transparent; }
+/* MSworkN: voltar é um botão de texto comum com seta em pixels */
+.msn .msn-back::before { content: '\2190'; margin-right: .35em; }
 
 @media (prefers-reduced-motion: reduce) {
-  .vcall .vc-call i, .vcall .vc-call i::before { animation: none; transition: none; }
+  .vcall .vc-call i { animation: none; transition: none; }
 }
-
-/* Ações adicionais que possuem equivalentes inequívocos no atlas. */
-.os-smenu button[data-a="cfg"],
-#dOk { display: inline-flex; align-items: center; gap: 5px; }
-.os-smenu button[data-a="cfg"]::before,
-#dOk::before {
-  content: '';
-  width: 44px;
-  height: 36px;
-  display: block;
-  flex: none;
-  background-image: var(--wd-button-atlas);
-  background-size: 264px 144px;
-  background-repeat: no-repeat;
-  image-rendering: pixelated;
-}
-.os-smenu button[data-a="cfg"]::before { background-position: -132px -72px; }
-#dOk::before { background-position: -88px 0; }
