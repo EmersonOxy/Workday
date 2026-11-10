@@ -56,7 +56,19 @@ def inline_ui_buttons(html):
     """Embutir o atlas dos botoes no HTML unico offline."""
     atlas = root / 'assets' / 'ui' / 'buttons-grid.png'
     data = base64.b64encode(atlas.read_bytes()).decode('ascii')
-    return html.replace("url('ui-buttons/buttons-v3.png')", "url('data:image/png;base64," + data + "')")
+    ref = "url('" + UI_ATLAS + "')"
+    if ref not in html:
+        raise SystemExit('build: ' + ref + ' não encontrado no CSS; atualize UI_ATLAS em tools/build.py')
+    return html.replace(ref, "url('data:image/png;base64," + data + "')")
+
+UI_ATLAS = 'ui-buttons/buttons-v3.png'   # mesmo nome usado em src/css/95-ui-buttons.css (o sufixo limpa o cache)
+
+def check_web_refs(page, web):
+    """Falha o build se a versão web apontar para um arquivo que não foi copiado para dist/web."""
+    refs = set(re.findall(r"['(]((?:audio|wallpapers|npc-portraits|ui-buttons)/[\w.-]+\.(?:png|mp3))[')]", page))
+    missing = sorted(r for r in refs if not (web / r).is_file())
+    if missing:
+        raise SystemExit('build: arquivo(s) referenciado(s) e ausente(s) em dist/web: ' + ', '.join(missing))
 
 def main():
     css = ''.join(p.read_text(encoding='utf-8') for p in sorted((src / 'css').glob('*.css')))
@@ -81,7 +93,8 @@ def main():
             shutil.copy(f, web / 'npc-portraits' / f.name)
     ui_atlas = root / 'assets' / 'ui' / 'buttons-grid.png'
     (web / 'ui-buttons').mkdir()
-    shutil.copy(ui_atlas, web / 'ui-buttons' / 'buttons-v2.png')
+    shutil.copy(ui_atlas, web / UI_ATLAS)
+    check_web_refs(page, web)
     (web / '.nojekyll').write_text('')   # GitHub Pages: servir os arquivos como estão
     offline = inline_ui_buttons(inline_npc_portraits(inline_wallpapers(inline_audio(page, root / 'audio'))))
     (dist / 'workday.html').write_text(offline, encoding='utf-8')
