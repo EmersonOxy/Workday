@@ -94,7 +94,14 @@ function ok(value,name){if(value){passed++;console.log('  ✓ '+name);}else{fail
      document.getElementById('titlescr')?.remove();
      closeScene();ARRIVED=true;showMenu();showCustomize(showMenu);
    });
-   await page.click('.hw-tab[data-t="desk"]');
+   // No celular o Personalizar só mostra WorkOS e Crachá: a aba Mesa não existe e as pelagens ficam fora da tela.
+   const deskTab=await page.$('.hw-tab[data-t="desk"]');
+   if(!deskTab){
+     ok(viewport.width<=600,mobile+': aba Mesa ausente apenas no celular');
+     ok(errors.length===0,mobile+': nenhum erro Javascript'+(errors.length?': '+errors.join('; '):''));
+     await page.close();continue;
+   }
+   await deskTab.click();
    ok(await page.evaluate(()=>document.querySelectorAll('.hw-card .cat[data-c]').length===10),
        mobile+': dez pelagens no menu Personalizar > Mesa');
    ok(await page.evaluate(()=>!!document.querySelector('.cat-eyes-note') &&

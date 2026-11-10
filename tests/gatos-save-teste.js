@@ -12,7 +12,10 @@ async function openCustomizer(page) {
     document.getElementById('titlescr')?.remove();
     closeScene();ARRIVED=true;showMenu();showCustomize(showMenu);
   });
-  await page.click('.hw-tab[data-t="desk"]');
+  // No celular a aba Mesa não existe: quem chama pula as verificações do Personalizar.
+  const tab=await page.$('.hw-tab[data-t="desk"]');
+  if(tab) await tab.click();
+  return !!tab;
 }
 (async()=>{
   const browser=await chromium.launch();
@@ -35,23 +38,30 @@ async function openCustomizer(page) {
       await page.waitForFunction(()=>window.WorkdayCatStatic && CatStatic.loaded.size===10);
       check(await page.evaluate(()=>catTestSave()&&WD_NS==='expediente-u-gatos-teste-' &&
         !P.decor.includes('gato')&&deskEffectiveDecor().includes('gato')),label+': laboratorio tem save isolado e gato na mesa');
-      await openCustomizer(page);
+      const hasDesk=await openCustomizer(page);
+      check(hasDesk===(viewport.width>600),label+': aba Mesa so no computador');
+      if(hasDesk){
       check(await page.evaluate(()=>document.querySelectorAll('.hw-card .cat[data-c]').length===10 &&
         [...document.querySelectorAll('.hw-card .cat[data-c]')].every(b=>!b.disabled) &&
         document.querySelector('.cat-need')?.textContent===U().catTest),label+': dez pelagens disponiveis na personalizacao');
       await page.click('.hw-card .cat[data-c="preto-verde"]');
       check(await page.evaluate(()=>hw().cat==='preto-verde' &&
         deskEffectiveDecor().includes('gato') && !P.decor.includes('gato')),label+': pelagem selecionada sem conceder compra');
+      } else {
+        // sem a aba, a troca de pelagem e feita direto na configuracao (mesmo caminho do botao)
+        await page.evaluate(()=>{CFG.hw=Object.assign({},CFG.hw,{cat:'preto-verde'});persist();});
+      }
       // Trocar a conta ativa e recarregar deve restaurar o save normal sem desbloqueios extras.
       await page.evaluate(()=>localStorage.setItem('expediente-usuario','principal'));
       await page.reload();
       await page.waitForFunction(()=>window.WorkdayCatStatic && CatStatic.loaded.size===10);
       check(await page.evaluate(()=>!catTestSave() && WD_NS==='expediente-' &&
         !P.decor.includes('gato')&&hw().cat==='tricolor'),label+': save principal nao recebe as mudancas do laboratorio');
-      await openCustomizer(page);
+      if(await openCustomizer(page)){
       check(await page.evaluate(()=>!!document.querySelector('.hw-card .cat[data-c="tricolor"]') &&
         !document.querySelector('.hw-card .cat[data-c="tricolor"]').disabled &&
         document.querySelector('.hw-card .cat[data-c="preto-verde"]').disabled),label+': bloqueios normais intactos');
+      }
       await page.evaluate(()=>localStorage.setItem('expediente-usuario','teste gatos'));
       await page.reload();
       check(await page.evaluate(()=>catTestSave() && hw().cat==='preto-verde' &&

@@ -131,7 +131,7 @@ async function settle(p, ms = 2500) { const t0 = Date.now(); while (Date.now() -
     await p.evaluate(() => { closeScene(); showMenu(); }); await p.waitForTimeout(300);
     // chamada com câmera ligada (Lu) e desligada (Helena)
     await p.evaluate(() => { SOC.c.helena = Object.assign(socRelBase(), { st: 'known', since: 1 }); socCall('lu', {}); }); await p.waitForTimeout(2600);
-    ok(await p.evaluate(() => !!document.querySelector('.vcall.soc.live .vc-face canvas') && !document.querySelector('.vc-nocam')), 'chamada com câmera: busto animado');
+    ok(await p.evaluate(() => !!document.querySelector('.vcall.soc.live .vc-face canvas, .vcall.soc.live .vc-face img') && !document.querySelector('.vc-nocam')), 'chamada com câmera: busto animado ou retrato oficial');
     await p.evaluate(() => document.querySelector('.vc-ctrl .hang').click()); await p.waitForTimeout(600);
     ok(await p.evaluate(() => !Call.el && SOC.c.lu.log.some(m => m.f === 's' && m.r && m.r.sys === 'callLog')), 'encerrar chamada registra no histórico');
     await p.evaluate(() => { SOC.ov.helena = { s: 'online', until: 99 }; socCall('helena', {}); }); await p.waitForTimeout(2600);
@@ -240,6 +240,9 @@ async function settle(p, ms = 2500) { const t0 = Date.now(); while (Date.now() -
     ok(lint.length === 0, 'conversas: destinos válidos e todo texto em PT/EN/ES' + (lint.length ? ': ' + lint.slice(0, 8).join(' | ') : ''));
     // simulação: o relógio narrativo é trocado por um falso (dia/faixa), escolhas automáticas variadas
     const runSim = mode => p.evaluate(async mode => {
+      // sorteios da agenda com semente fixa: reduz a variação entre execuções (o relógio real do socTick ainda influi)
+      const random0 = Math.random; let seed = mode === 'first' ? 0x51ED270B : 0x9E3779B9;
+      Math.random = () => { seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
       newCareer(); closeScene(); S.running = false; S.phase = 'intro'; socAddContact('duda');
       let fake = { day: 1, slot: 'am' };
       const real = socCtx;
@@ -262,6 +265,7 @@ async function settle(p, ms = 2500) { const t0 = Date.now(); while (Date.now() -
       }
       for (const k of Object.keys(SOC.done)) { const b = k.split(/[#@]/)[0]; starts[b] = (starts[b] || 0) + 1; }
       socCtx = real; socBlock = blk;
+      Math.random = random0;
       return { arcs: Object.fromEntries(Object.entries(SOC.arc).map(([k, v]) => [k, v.s])), known: CAST_ORDER.filter(id => SOC.c[id] && SOC.c[id].st === 'known'), n: Object.keys(SOC.done).length, starts,
         logs: CAST_ORDER.map(id => SOC.c[id] ? SOC.c[id].log.length : 0), dup: Object.entries(starts).filter(([k, n]) => n > 1 && !SOC_THREADS[k].perCycle && !SOC_THREADS[k].daily && !SOC_THREADS[k].repeat).map(([k]) => k),
         mem: CAST_ORDER.reduce((n, id) => n + (SOC.c[id] ? Object.keys(SOC.c[id].f).filter(f => SOC_MEM[id + ':' + f]).length : 0), 0) };
