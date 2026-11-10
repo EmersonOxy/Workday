@@ -29,7 +29,9 @@ const socpSave = () => save('social-perfil', SOCP);
 function socFresh() { return { v: SOC_V, cid: Quests.cid(), day: 0, c: {}, th: {}, done: {}, arc: {}, pub: {}, pk: {}, prom: {}, perf: [], rec: {}, daily: {}, ov: {} }; }
 function socLoad() {
   let s = load('social', null);
-  if (!s || typeof s !== 'object' || s.v !== SOC_V) s = {};   // versões futuras: migrar aqui
+  // versões futuras: migrar aqui. Dados de outra versão não são apagados: ficam guardados à parte (e entram no backup)
+  if (s && typeof s === 'object' && s.v !== SOC_V && Object.keys(s).length) save('social-v' + (s.v || 0), s);
+  if (!s || typeof s !== 'object' || s.v !== SOC_V) s = {};
   s = Object.assign(socFresh(), s);
   for (const r of Object.values(s.c)) Object.assign(r, Object.assign(socRelBase(), r));
   return s;

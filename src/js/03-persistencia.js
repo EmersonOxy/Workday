@@ -4,7 +4,13 @@ let DIFF_REC = (() => { try { return JSON.parse(localStorage.getItem(WD_NS + 'co
 const BAL_KEYS = ['carteira', 'enfeites', 'recorde2', 'carreira', 'stats'],
   balKey = k => (BAL_KEY !== 'original' && BAL_KEYS.includes(k) ? k + '@' + BAL_KEY : k) + (k === 'recorde2' && DIFF_REC !== 'normal' ? '#' + DIFF_REC : '');
 function load(k, d) { k = balKey(k); try { const v = localStorage.getItem(WD_NS + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } }
-function save(k, v) { k = balKey(k); try { localStorage.setItem(WD_NS + k, JSON.stringify(v)); } catch (e) {} }
+function save(k, v) { k = balKey(k); try { localStorage.setItem(WD_NS + k, JSON.stringify(v)); } catch (e) { saveFailed(); } }
+// Gravação recusada (armazenamento cheio ou bloqueado): avisa uma vez por sessão, em vez de perder o progresso em silêncio
+let SAVE_WARNED = false;
+function saveFailed() {
+  if (SAVE_WARNED) return; SAVE_WARNED = true;
+  setTimeout(() => { try { toast(U().saveFailFrom, U().saveFail); } catch (e) { SAVE_WARNED = false; } }, 0);
+}
 const STAT_KEYS = ['files', 'emails', 'calls', 'typed', 'prints', 'viruses', 'bosses', 'videos', 'days', 'careers', 'maxDay'];
 const freshStats = () => Object.fromEntries(STAT_KEYS.map(k => [k, 0]));
 function guessLang() { const l = (navigator.language || 'pt').slice(0, 2); return LANGS[l] ? l : 'pt'; }
