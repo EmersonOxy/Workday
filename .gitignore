@@ -1,5 +1,6 @@
 dist/
 node_modules/
+__pycache__/
 
 # backups exportados pelo jogo e fotos pessoais nunca entram no repositório
 workday-backup-*.json
