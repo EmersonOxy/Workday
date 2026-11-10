@@ -49,7 +49,7 @@ async function desktop(browser, url, label) {
   const bal = await p.evaluate(balance);
   if (!fs.existsSync(BASELINE)) { fs.writeFileSync(BASELINE, JSON.stringify(bal, null, 1)); console.log('  (linha de base de balanceamento criada)'); }
   const base = JSON.parse(fs.readFileSync(BASELINE, 'utf8')), strip = o => { const c = { ...o }; delete c.uiKeys; return JSON.stringify(c); };
-  ok(strip(bal) === strip(base), 'balanceamento idêntico à v1.0');
+  ok(strip(bal) === strip(base), 'balanceamento idêntico à linha de base registrada (tests/baseline-balance.json)');
   ok(new Set(Object.values(bal.uiKeys)).size === 1, 'os três idiomas têm exatamente as mesmas chaves de texto');
   ok(Object.values(base.uiKeys)[0].split(',').every(k => bal.uiKeys.pt.split(',').includes(k)), 'nenhum texto da v1.0 foi perdido');
   const st = await p.evaluate(() => ({ w: P.wallet, d: P.decor, b: P.best, t: document.documentElement.dataset.theme, cont: !!document.querySelector('#cont') }));
@@ -70,7 +70,7 @@ async function desktop(browser, url, label) {
   ok(await p.evaluate(s0 => S.score > s0 && S.combo >= 1, hit), 'arquivo no setor certo pontua e soma combo');
   await p.keyboard.press('ArrowLeft'); await p.keyboard.press('ArrowRight');
   // todas as tarefas e eventos ao mesmo tempo
-  await p.evaluate(() => { S.dayT = 100; S.level = 12; S.restDone = true; });
+  await p.evaluate(() => { S.dayT = 100; S.level = 12; S.restDone = true; S.breakDay = S.day; });   // sem ligação do Duda nem intervalo no meio do teste
   await p.waitForTimeout(100);
   await p.evaluate(() => { for (let i = 0; i < 6; i++) spawnTask(); bossComing(); freezePc(); startVirus(); startVideo(); S.shuffleT = 0.3; });
   await p.waitForTimeout(1200);
@@ -78,9 +78,10 @@ async function desktop(browser, url, label) {
   for (let i = 0; i < 40; i++) await p.mouse.move(i % 2 ? 900 : 400, 400);
   ok(await p.evaluate(() => !S.frozen), 'PC destrava balançando o mouse');
   await p.keyboard.press('Escape'); await p.waitForTimeout(1900);
-  await p.keyboard.press(' '); ok(await p.evaluate(() => S.paused), 'pausa com Espaço'); await p.keyboard.press(' ');
+  await p.keyboard.press('Escape'); ok(await p.evaluate(() => S.paused), 'pausa com Esc (Espaço agora só atende o telefone)'); await p.evaluate(() => setPaused(false)); await p.waitForTimeout(4200);
+  ok(await p.evaluate(() => !S.paused), 'retomar devolve o expediente após 3, 2, 1');
   // fim do dia completo
-  await p.evaluate(() => { S.dayT = 149.95; }); await p.waitForTimeout(3600);
+  await p.evaluate(() => { S.dayT = DAY_SECONDS - .05; }); await p.waitForTimeout(3600);
   ok(await p.evaluate(() => S.phase === 'ending' && !!document.querySelector('.clockdev')), 'fim do dia: poeira e relógio de ponto');
   await holdFinger(p); await p.waitForTimeout(3200);
   const t = await (await p.$('.ticket')).boundingBox(); const y = t.y + t.height - 50;
@@ -89,7 +90,10 @@ async function desktop(browser, url, label) {
   await p.mouse.up(); await p.waitForTimeout(2200);
   ok(!!await p.$('#shopb'), 'ticket rasgado e ações do fim do dia');
   await p.click('#shopb'); await p.waitForTimeout(1100);
-  for (const id of ['cafe', 'foto', 'trofeu']) { await p.click(`.slot[data-id=${id}]`); await p.waitForTimeout(650); }
+  // o Mercado é dividido em abas: consumo (café) e mesa (porta-retrato, troféu)
+  await p.click('.slot[data-id=cafe]'); await p.waitForTimeout(650);
+  await p.click('.mk-tab[data-c=desk]'); await p.waitForTimeout(500);
+  for (const id of ['foto', 'trofeu']) { await p.click(`.slot[data-id=${id}]`); await p.waitForTimeout(650); }
   await p.evaluate(() => { P.wallet = 300; Math.random = (r => () => (r = (r * 9301 + 49297) % 233280) / 233280)(7); }); await p.click('#tocash'); await p.waitForTimeout(1000);
   const s = await (await p.$('.scanner')).boundingBox();
   for (let k = 0; k < 12; k++) {
@@ -110,8 +114,9 @@ async function desktop(browser, url, label) {
   ok(await p.evaluate(() => S.phase === 'intro' && S.day === 4 && !!document.querySelector('.sc-in .clockdev')), 'acordou no dia 4 com o ponto de entrada');
   // demissão
   await p.evaluate(() => { closeScene(); startDay(); }); await p.waitForTimeout(200);
-  await p.evaluate(() => addStress(100)); await p.waitForTimeout(300);
-  ok(await p.evaluate(() => S.phase === 'over' && !localStorage.getItem('expediente-carreira')), 'demissão encerra a carreira e apaga o save da carreira');
+  await p.evaluate(() => addStress(1000)); await p.waitForTimeout(300);   // o estresse recebido é reduzido conforme o dia e a dificuldade
+  // estresse no limite não encerra mais a carreira: vira atestado, com a carreira preservada (49-atestado.js)
+  ok(await p.evaluate(() => S.phase === 'ending' && document.querySelector('.over-card h2').textContent === U().leave.title && !!localStorage.getItem('expediente-carreira')), 'estresse no limite gera atestado e preserva a carreira');
   ok(errs.length === 0, 'sem erros de JavaScript' + (errs.length ? ': ' + errs.join(' | ') : ''));
   await p.close();
 }
@@ -121,8 +126,16 @@ async function mobile(browser, url) {
   const ctx = await browser.newContext({ ...devices['iPhone 13'], locale: 'pt-BR' });
   const p = await ctx.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message));
   await p.goto(url); await noTitle(p);
-  await p.tap('#play'); await p.tap('[data-d=normal]'); await p.waitForTimeout(200);
-  await p.evaluate(() => { closeScene(); startDay(); S.file.kind = 'normal'; });
+  // minimizar o portal no celular deixa a área de trabalho utilizável (ícones, Iniciar e botão para restaurar)
+  await p.evaluate(() => { closeScene(); ARRIVED = true; showMenu(); }); await p.waitForTimeout(600);
+  await p.tap('#modal .card .mw-b [data-g=min]'); await p.waitForTimeout(900);
+  const mini = await p.evaluate(() => { const seen = sel => { const e = document.querySelector(sel); if (!e) return false; const r = e.getBoundingClientRect(), t = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+    return r.width > 0 && r.bottom <= innerHeight + 1 && !!t && (e === t || e.contains(t)); }; return { icons: document.querySelectorAll('.os-icons > *').length, icon: seen('.os-icons > *'), start: seen('.os-start'), task: seen('.os-task') }; });
+  ok(mini.icons >= 5 && mini.icon && mini.start && mini.task, 'portal minimizado: ícones, Iniciar e botão da barra visíveis e tocáveis');
+  await p.tap('.os-task'); await p.waitForTimeout(700);
+  ok(await p.evaluate(() => getComputedStyle(document.querySelector('#modal .card')).display !== 'none'), 'tocar no botão da barra restaura o portal');
+  // o início real passa pela tela de carregamento e pelo e-mail do 1º dia; aqui a carreira começa direto
+  await p.evaluate(() => { newCareer(); closeScene(); startDay(); S.file.kind = 'normal'; }); await p.waitForTimeout(200);
   const bx = await (await p.$('#board')).boundingBox();
   await p.tap('#board', { position: { x: bx.width * 0.9, y: bx.height * 0.5 } });
   ok(await p.evaluate(() => S.file.lane === 3), 'tocar na coluna move o arquivo');
@@ -193,7 +206,7 @@ async function entrega1(browser, url) {
   await p.waitForTimeout(300);
   await p.evaluate(() => { _snd = []; document.querySelector('[data-a=cfg]').click(); });
   await p.waitForTimeout(50);
-  ok(await p.evaluate(() => _snd.length === 1), 'aba da planilha toca exatamente um som');
+  ok(await p.evaluate(() => _snd.length >= 1 && new Set(_snd).size === _snd.length), 'aba da planilha não repete som (clique + abertura da janela)');
   await p.evaluate(() => { _snd = []; document.querySelector('[data-set=theme] button').click(); });
   await p.waitForTimeout(50);
   ok(await p.evaluate(() => _snd.length === 1), 'opção das configurações toca exatamente um som');
@@ -214,10 +227,10 @@ async function entrega1(browser, url) {
   await p.click('[data-s=clear]');
   ok(await p.evaluate(() => document.querySelector('[data-s=ok]').disabled && document.querySelector('[data-s=clear]').disabled), 'limpar assinatura zera o desenho');
   await stroke('.resign-card .sig', .1, .9, .5); await p.click('[data-s=ok]'); await p.waitForTimeout(1600);
-  ok(await p.evaluate(() => S.phase === 'over' && S.endReason === 'quit' && document.querySelector('.over-card h2').textContent === U().quitTitle && !localStorage.getItem('expediente-carreira')), 'termo assinado encerra a carreira como demissão voluntária');
+  ok(await p.evaluate(() => S.phase === 'ending' && document.querySelector('.over-card h2').textContent === U().leave.title && document.querySelector('.over-card').textContent.includes(U().leave.ask) && !!localStorage.getItem('expediente-carreira')), 'atestado assinado manda para casa e preserva a carreira');
   // estresse: relatório diferente
-  await p.evaluate(() => { newCareer(); closeScene(); startDay(); addStress(100); }); await p.waitForTimeout(300);
-  ok(await p.evaluate(() => S.endReason === 'burnout' && document.querySelector('.over-card h2').textContent === U().burnoutTitle), 'estresse em 100 gera afastamento, não pedido de demissão');
+  await p.evaluate(() => { newCareer(); closeScene(); startDay(); addStress(1000); }); await p.waitForTimeout(300);   // o estresse recebido é reduzido nos primeiros dias
+  ok(await p.evaluate(() => S.phase === 'ending' && document.querySelector('.over-card').textContent.includes(U().leave.burnout)), 'estresse em 100 gera atestado com o texto de esgotamento');
   // 9. crachá: nome e avatar salvos, aparecem no certificado
   await p.evaluate(() => { newCareer(); closeScene(); startDay(); showBadge(); });
   await p.fill('#bgName', 'Ana Teste'); await p.click('#bgSave');
@@ -291,6 +304,7 @@ async function entrega2(browser, url) {
   await p.waitForSelector('.vc-ring .accept'); await p.click('.vc-ring .accept');   // atender
   await waitOpts(); await p.click('.vc-opts button >> nth=0');              // resposta à conversa
   await p.waitForSelector('.vc-pick'); await p.click('.vc-pick >> nth=0');   // escolhe o jogo no balão
+  await p.waitForSelector('.vc-pick:not(:disabled)'); await p.click('.vc-pick:not(:disabled) >> nth=0');   // Solo (a outra opção é jogar contra o Duda)
   await p.waitForSelector('.mg-host', { timeout: 10000 });
   // Batida de Ponto: acerta todas as notas no tempo do relógio do jogo
   const res = await p.evaluate(async () => {
@@ -341,6 +355,7 @@ async function entrega2(browser, url) {
   ok(await p.evaluate(() => !!document.querySelector('#arc')), 'arcade: "PLAYER ONE" (sem diferenciar maiúsculas e espaços) mostra o controle');
   const w0 = await p.evaluate(() => JSON.stringify([P.wallet, P.best, localStorage.getItem('expediente-carreira')]));
   await p.click('#arc'); await p.waitForSelector('.vc-pick'); await p.click('.vc-pick >> nth=2');
+  await p.waitForSelector('.vc-pick:not(:disabled)'); await p.click('.vc-pick:not(:disabled) >> nth=0');   // Solo
   await p.waitForSelector('.mg-host', { timeout: 10000 });
   await p.evaluate(() => { const h = document.querySelector('.mg-host'); if (h._shooter) h._shooter.lives = 0; else h._rhythm.notes.forEach(n => { n.t = -9; n.end = null; }); });
   await p.waitForFunction(() => !document.querySelector('.vcall') && !!document.querySelector('#play'), null, { timeout: 30000 });

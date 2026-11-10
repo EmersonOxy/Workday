@@ -13,17 +13,17 @@
   "freeze": 6,
   "virus": 7
  },
- "DAY_SECONDS": 150,
+ "DAY_SECONDS": 240,
  "LEVEL_SECONDS": 30,
  "MAX_TASKS": 5,
  "RANK_POINTS": [
   0,
-  300,
-  1000,
-  2500,
-  5000,
-  9000,
-  15000
+  2800,
+  6300,
+  10300,
+  14700,
+  19400,
+  24300
  ],
  "MODS": {
   "first": {},
@@ -88,47 +88,92 @@
   [
    "fone",
    "day",
-   35
+   45
   ],
   [
    "antivirus",
    "day",
-   35
+   45
   ],
   [
    "postit",
    "day",
-   45
+   55
   ],
   [
    "planta",
    "decor",
-   60
+   90
   ],
   [
    "foto",
    "decor",
-   80
+   120
   ],
   [
    "lamp",
    "decor",
-   120
+   220
   ],
   [
    "monitor",
    "decor",
-   200
+   380
   ],
   [
    "gato",
    "decor",
-   350
+   650
   ],
   [
    "trofeu",
    "decor",
-   600
+   1200
+  ],
+  [
+   "globo",
+   "decor",
+   190
+  ],
+  [
+   "livros",
+   "decor",
+   110
+  ],
+  [
+   "pato",
+   "decor",
+   50
+  ],
+  [
+   "webcam",
+   "decor",
+   150
+  ],
+  [
+   "caixas",
+   "decor",
+   220
+  ],
+  [
+   "adesivos",
+   "decor",
+   35
+  ],
+  [
+   "diploma",
+   "decor",
+   280
+  ],
+  [
+   "quadro",
+   "decor",
+   340
+  ],
+  [
+   "neon",
+   "decor",
+   420
   ]
  ],
  "RANK_DESK": {
