@@ -17,10 +17,6 @@ INK = (42, 31, 45)
 # Luz do céu ao longo do dia: cores de iluminação, fora da regra de material
 EXEMPT = {'#c9ecf7', '#8fcbe8', '#ffe0a8', '#f6a96c', '#e48a6a', '#6d4f8c', '#f6c7b8'}
 
-# Pendente de decisão do criador: as texturas da mesa usam cores próprias da arte aprovada.
-# Aparecem no relatório como aviso, sem derrubar a verificação nem serem alteradas pelo --fix.
-PENDING = {'52-desk-material.js'}
-
 def rgb(h):
     h = h.lstrip('#')
     if len(h) == 3: h = ''.join(c * 2 for c in h)
@@ -75,9 +71,7 @@ def main():
     for p in files():
         s = p.read_text(encoding='utf-8'); found = []
         t = fix_text(s, found)
-        if found and p.name in PENDING:
-            print(f'{p.relative_to(root)}: {len(found)} cor(es) fora da paleta — aviso (pendente de decisão)')
-        elif found:
+        if found:
             total += len(found)
             print(f'{p.relative_to(root)}: {len(found)} cor(es) fora da paleta' + (' — corrigido' if fix else ''))
             for a, b in sorted(set(found))[:8 if not fix else 0]: print(f'    {a} -> {b}')

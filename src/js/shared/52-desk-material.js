@@ -12,14 +12,14 @@ const DeskMaterial = {
   sources: Object.assign({walnut:DESK_WALNUT_PNG},DESK_MATERIAL_ADDITIONAL),
   images: {}, loaded:new Set(), image:null, ready:false, readyAll:false,
   edgeColors: {
-    walnut: ['#4c2117','#874b31'],
-    oak: ['#a87952','#d7a978'],
-    slate: ['#40596f','#7396b2'],
-    ivory: ['#c8c4c2','#fbf7f5'],
-    walnut2: ['#2b140d','#663522']
+    walnut: ['#432516','#7a4a30'],
+    oak: ['#a8714a','#dca673'],
+    slate: ['#4f4f5a','#8e8e9f'],
+    ivory: ['#c9c9cf','#ffffff'],
+    walnut2: ['#2c180e','#6e3b26']
   },
   names() { return DESK_MATERIAL_LABELS[CFG.lang] || DESK_MATERIAL_LABELS.pt; },
-  edge(id) { return this.edgeColors[id] || ['#4c2117','#874b31']; },
+  edge(id) { return this.edgeColors[id] || ['#432516','#7a4a30']; },
   init() {
     for(const [id,src] of Object.entries(this.sources)) {
       const image=new Image();
