@@ -9,7 +9,7 @@
 .mg-wager input { width: 6.5em; border: 2px solid #2a1f2d; padding: .3em; font: 1.1em var(--pixel); background: #fff8ec; color: #2a1f2d; }
 .mg-wager button { min-height: 38px; }
 .mg-wager small { max-width: 36em; text-align: center; color: #f3e6cc; line-height: 1.15; }
-.mg-paint-panel { display: flex; flex-direction: column; gap: .45em; padding: .45em; background: #34304b; }
+.mg-paint-panel { display: flex; flex-direction: column; gap: .45em; padding: .45em; background: #2b2340; }
 .mg-paint-gallery { display: flex; gap: .4em; overflow-x: auto; flex-wrap: nowrap; padding: .4em 0; scrollbar-width: thin; }
 .mg-paint-gallery button { min-width: 8.5em; min-height: 38px; white-space: normal; line-height: 1.05; flex-shrink: 0; font-size: 1em; }
 .mg-paint-gallery button.on { box-shadow: 0 0 0 2px #f4c15d; }
