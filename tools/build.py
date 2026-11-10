@@ -13,8 +13,23 @@ import base64, pathlib, re, shutil
 root = pathlib.Path(__file__).resolve().parent.parent
 src, dist = root / 'src', root / 'dist'
 
+EMBED = root / 'assets' / 'embutidos'
+
+def embed_assets(js):
+    """Arte em PNG guardada em assets/embutidos/ e embutida no JS na hora do build.
+    '@asset-uri:grupo/nome.png' vira data URI; '@asset-b64:grupo/nome.png' vira só o base64.
+    Fica embutida nas duas saídas (web e offline): o jogo lê pixels dessas imagens no canvas,
+    o que o navegador bloqueia para arquivos separados abertos via file://."""
+    def sub(m):
+        f = EMBED / m.group(2)
+        if not f.is_file():
+            raise SystemExit('build: arte embutida não encontrada: assets/embutidos/' + m.group(2))
+        data = base64.b64encode(f.read_bytes()).decode('ascii')
+        return ('data:image/png;base64,' if m.group(1) == 'uri' else '') + data
+    return re.sub(r'@asset-(uri|b64):([\w./-]+\.png)', sub, js)
+
 def read_js(folder):
-    return ''.join(p.read_text(encoding='utf-8') for p in sorted(folder.glob('*.js')))
+    return embed_assets(''.join(p.read_text(encoding='utf-8') for p in sorted(folder.glob('*.js'))))
 
 def assemble(template, css, js):
     return template.replace('/* @inject:css */\n', css).replace('/* @inject:js */\n', js)

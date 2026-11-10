@@ -20,6 +20,9 @@ Demo oficial: https://emersonoxy.github.io/Workday/ (GitHub Pages). O fluxo `.gi
 
 ## Build e verificação
 - `python3 tools/build.py` → `dist/web/index.html`, `dist/workday.html`. Concatena `src/css/*.css` e `src/js/shared/*.js` + `src/js/*.js` (ordem alfabética).
+- Arte em PNG usada pelo código (paredes, materiais da mesa, gatos, caneca, retrato do Duda) fica em `assets/embutidos/` e é
+  referenciada no JS por `'@asset-uri:grupo/nome.png'` (vira data URI) ou `'@asset-b64:grupo/nome.png'` (só o base64).
+  O build embute nas duas saídas e falha se o arquivo não existir. Não colar base64 no código.
 - Sintaxe: `cat src/js/shared/*.js src/js/*.js > /tmp/a.js && node --check /tmp/a.js`
 - Paleta: `python3 tools/palette.py` (deve imprimir "paleta: ok").
 - Capturas: `python3 -m http.server 8767` na raiz e Playwright (Chromium pré-instalado) abrindo `/dist/web/index.html`.
