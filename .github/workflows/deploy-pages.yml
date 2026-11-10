@@ -15,7 +15,46 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # Nada é publicado se a verificação falhar: sintaxe, paleta, build (com checagem de arquivos da versão web) e suítes.
+  verificar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Obter código
+        uses: actions/checkout@v4
+
+      - name: Preparar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Preparar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Sintaxe, paleta e build
+        run: |
+          cat src/js/shared/*.js src/js/*.js > /tmp/workday.js
+          node --check /tmp/workday.js
+          python tools/palette.py
+          python tools/build.py
+
+      - name: Instalar Playwright e Chromium
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+
+      # tests/regression.js fica de fora até ser atualizado (pendência registrada no CLAUDE.md)
+      - name: Executar suítes
+        run: |
+          for t in relogio mensageiro mesa parede caneca gatos-estaticos gatos-save-teste npc-portraits workos-wallpapers arcade-new; do
+            echo "::group::$t"
+            node tests/$t.js
+            echo "::endgroup::"
+          done
+
   publicar:
+    needs: verificar
     runs-on: ubuntu-latest
     environment:
       name: github-pages
