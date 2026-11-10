@@ -57,7 +57,10 @@ Demo oficial: https://emersonoxy.github.io/Workday/ (GitHub Pages). O fluxo `.gi
    porta-canetas, papéis, pato, vasos, troféu, globo, luminária, caneca, webcam, quadros de parede), teclado, mouse,
    base do monitor e o orbe do Iniciar (mais detalhado).
 2. Bug não reproduzido: HUD do expediente aparecendo atrás da área de trabalho (há proteção via `:has` em 80-entrega3.css).
-3. Modo celular: minimizar o portal deixa a tela vazia (sem ícones/Iniciar).
-4. `tests/regression.js` está desatualizado (falhas anteriores ao MSworkN: linha de base de balanceamento, pausa com Espaço,
-   loja `.slot[data-id=foto]`, escolha de jogo na chamada do Duda). A tela de título agora é removida no teste; o resto falta atualizar.
-5. MSworkN: validar com o usuário tom das conversas, bustos (Bia, Otávio, Helena, Rafa, Lu) e ritmo das mensagens.
+3. MSworkN: validar com o usuário tom das conversas, bustos (Bia, Otávio, Helena, Rafa, Lu) e ritmo das mensagens.
+4. `tests/mensageiro.js`: a simulação de carreira não é determinística (memórias variam de 1 a 9 por execução); a causa não foi encontrada.
+
+## Verificação antes de publicar
+O job `verificar` de `.github/workflows/deploy-pages.yml` roda sintaxe, paleta, build e todas as suítes de `tests/`
+(inclusive `regression.js`) a cada push na `main`; o site só é publicado se tudo passar. Para rodar localmente:
+`python3 tools/build.py && for t in relogio saves mensageiro mesa parede caneca gatos-estaticos gatos-save-teste npc-portraits workos-wallpapers arcade-new regression; do node tests/$t.js; done`

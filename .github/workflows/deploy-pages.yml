@@ -44,10 +44,9 @@ jobs:
           npm install --no-save playwright
           npx playwright install --with-deps chromium
 
-      # tests/regression.js fica de fora até ser atualizado (pendência registrada no CLAUDE.md)
       - name: Executar suítes
         run: |
-          for t in relogio saves mensageiro mesa parede caneca gatos-estaticos gatos-save-teste npc-portraits workos-wallpapers arcade-new; do
+          for t in relogio saves mensageiro mesa parede caneca gatos-estaticos gatos-save-teste npc-portraits workos-wallpapers arcade-new regression; do
             echo "::group::$t"
             node tests/$t.js
             echo "::endgroup::"
